@@ -8,23 +8,19 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtCore import QUrl
 from datetime import *
 import os
 from pathlib import Path
-from config import config
+from config import config, get_path
 import psycopg2
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
-from PDF_Styles import welding_homologation
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 import configparser
 from Database_Connection import createConnection
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -270,7 +266,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -455,7 +451,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         App_Purchasing.resize(945, 860)
         App_Purchasing.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Purchasing.setWindowIcon(icon)
         if self.username == 'd.marquez':
             App_Purchasing.setStyleSheet("QWidget {\n"
@@ -492,7 +488,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.LogoIcon.setMinimumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setMaximumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo Nobg.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -607,7 +603,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_Welding.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Welding.setIcon(icon12)
         self.Button_Welding.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Welding.setObjectName("Button_Welding")
@@ -668,7 +664,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_LiquidVisual.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Liquids_Visual.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Liquids_Visual.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_LiquidVisual.setIcon(icon2)
         self.Button_LiquidVisual.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_LiquidVisual.setObjectName("Button_LiquidVisual")
@@ -728,7 +724,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_Warehouse.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Warehouse.setIcon(icon12)
         self.Button_Warehouse.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Warehouse.setObjectName("Button_Warehouse")
@@ -789,7 +785,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_ActiveOffer.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ActiveOffer.setIcon(icon12)
         self.Button_ActiveOffer.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
@@ -850,7 +846,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_Revisions.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Revisions.setIcon(icon12)
         self.Button_Revisions.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Revisions.setObjectName("Button_Revisions")
@@ -910,7 +906,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_Times.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Times.setIcon(icon13)
         self.Button_Times.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Times.setObjectName("Button_Times")
@@ -971,7 +967,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_OfferSummary.setText("")
         icon14 = QtGui.QIcon()
-        icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Summary.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon14.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Summary.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_OfferSummary.setIcon(icon14)
         self.Button_OfferSummary.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_OfferSummary.setObjectName("Button_OfferSummary")
@@ -1043,7 +1039,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
     "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -1127,7 +1123,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Purchasing.setFont(font)
         self.Button_Purchasing.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Purchasing.setIcon(icon1)
         self.Button_Purchasing.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Purchasing.setObjectName("Button_Purchasing")
@@ -1141,7 +1137,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryOffer.setFont(font)
         self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOffer.setIcon(icon3)
         self.Button_QueryOffer.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryOffer.setObjectName("Button_QueryOffer")
@@ -1155,7 +1151,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon4)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -1169,7 +1165,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon5)
         self.Button_QueryTag.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -1183,7 +1179,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryTagPrices.setFont(font)
         self.Button_QueryTagPrices.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTagPrices.setIcon(icon5)
         self.Button_QueryTagPrices.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryTagPrices.setObjectName("Button_QueryTagPrices")
@@ -1197,7 +1193,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
         self.Button_QueryDoc.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
@@ -1482,7 +1478,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1670,7 +1666,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("BackUp realizado con éxito")
@@ -1742,14 +1738,14 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Consultar tiempos')
         dlg.setLabelText('Inserte pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Consultar tiempos')
         dlg2.setLabelText('Inserte número OT:')
@@ -1772,7 +1768,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Consultar tiempos")
                                 dlg_error.setText("El pedido no puede estar vacío")
@@ -1797,7 +1793,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Consultar tiempos")
                                 dlg_error.setText("El número OT no puede estar vacío")
@@ -1809,7 +1805,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Consultar tiempos")
                 dlg_error.setText("Selecciona un tipo")
@@ -1867,7 +1863,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1881,10 +1877,10 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         else:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
 # Function to open window for documentation query
@@ -1971,7 +1967,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2072,7 +2068,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2109,14 +2105,14 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
             dlg = QtWidgets.QInputDialog()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle('Resumen Ofertas')
             dlg.setLabelText('Inserte primer año:')
 
             dlg2 = QtWidgets.QInputDialog()
             new_icon2 = QtGui.QIcon()
-            new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg2.setWindowIcon(new_icon2)
             dlg2.setWindowTitle('Resumen Ofertas')
             dlg2.setLabelText('Inserte segundo año (si aplica):')
@@ -2175,7 +2171,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         break
                     dlg_error = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg_error.setWindowIcon(new_icon)
                     dlg_error.setWindowTitle("Resumen Ofertas")
                     dlg_error.setText("El primer año no puede estar vacío")
@@ -2191,7 +2187,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"

@@ -8,7 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from config import config
+from config import config, get_path
 from datetime import *
 import psycopg2
 import sys
@@ -19,9 +19,6 @@ import pandas as pd
 import os
 from pypdf import PdfReader, PdfWriter
 from overlay_pdf import new_content_notes, new_content_tags
-
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -284,7 +281,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -477,7 +474,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         App_Technical.resize(945, 860)
         App_Technical.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Technical.setWindowIcon(icon)
         App_Technical.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Technical)
@@ -499,7 +496,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -533,7 +530,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 "}")
         self.Button_PortalDoc.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Portal.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Portal.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PortalDoc.setIcon(icon12)
         self.Button_PortalDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_PortalDoc.setObjectName("Button_PortalDoc")
@@ -655,7 +652,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -711,7 +708,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -727,7 +724,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditTag.setFont(font)
         self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditTag.setIcon(icon10)
         self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditTag.setObjectName("Button_EditTag")
@@ -741,7 +738,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon11)
         self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -755,7 +752,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_NewDoc.setFont(font)
         self.Button_NewDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewDoc.setIcon(icon1)
         self.Button_NewDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewDoc.setObjectName("Button_NewDoc")
@@ -769,7 +766,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_ImportDoc.setFont(font)
         self.Button_ImportDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ImportDoc.setIcon(icon2)
         self.Button_ImportDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_ImportDoc.setObjectName("Button_ImportDoc")
@@ -783,7 +780,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditDoc.setFont(font)
         self.Button_EditDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditDoc.setIcon(icon3)
         self.Button_EditDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditDoc.setObjectName("Button_EditDoc")
@@ -797,7 +794,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
@@ -889,7 +886,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -984,7 +981,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1024,7 +1021,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_ImportTimes.setText("")
             icon5 = QtGui.QIcon()
-            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Import_Time.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Import_Time.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_ImportTimes.setIcon(icon5)
             self.Button_ImportTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_ImportTimes.setObjectName("Button_ImportTimes")
@@ -1060,7 +1057,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_CheckTimes.setText("")
             icon15 = QtGui.QIcon()
-            icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon15.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_CheckTimes.setIcon(icon15)
             self.Button_CheckTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_CheckTimes.setObjectName("Button_CheckTimes")
@@ -1096,7 +1093,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_DB_Manuf.setText("")
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_DB_Manuf.setIcon(icon7)
             self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
             self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
@@ -1132,7 +1129,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_DBEdit.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Admin.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Database_Admin.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_DBEdit.setIcon(icon2)
             self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
             self.Button_DBEdit.setObjectName("Button_DBEdit")
@@ -1167,7 +1164,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_PDFEdit.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_PDFEdit.setIcon(icon2)
             self.Button_PDFEdit.setIconSize(QtCore.QSize(40, 40))
             self.Button_PDFEdit.setObjectName("Button_PDFEdit")
@@ -1202,7 +1199,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_OT.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_OT.setIcon(icon2)
             self.Button_OT.setIconSize(QtCore.QSize(40, 40))
             self.Button_OT.setObjectName("Button_OT")
@@ -1264,7 +1261,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Purchases.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Purchases.setIcon(icon2)
             self.Button_Purchases.setIconSize(QtCore.QSize(40, 40))
             self.Button_Purchases.setObjectName("Button_Purchases")
@@ -1300,7 +1297,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Purchases.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Purchases.setIcon(icon2)
             self.Button_Purchases.setIconSize(QtCore.QSize(40, 40))
             self.Button_Purchases.setObjectName("Button_Purchases")
@@ -1336,7 +1333,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Deliveries.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Deliveries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Deliveries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Deliveries.setIcon(icon2)
             self.Button_Deliveries.setIconSize(QtCore.QSize(40, 40))
             self.Button_Deliveries.setObjectName("Button_Deliveries")
@@ -1372,7 +1369,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_OT.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_OT.setIcon(icon2)
             self.Button_OT.setIconSize(QtCore.QSize(40, 40))
             self.Button_OT.setObjectName("Button_OT")
@@ -1408,7 +1405,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_TestMenu.setText("")
             icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Test_Menu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Test_Menu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_TestMenu.setIcon(icon9)
             self.Button_TestMenu.setIconSize(QtCore.QSize(40, 40))
             self.Button_TestMenu.setObjectName("Button_TestMenu")
@@ -1444,7 +1441,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Test.setText("")
             icon14 = QtGui.QIcon()
-            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon14.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Test.setIcon(icon14)
             self.Button_Test.setIconSize(QtCore.QSize(40, 40))
             self.Button_Test.setObjectName("Button_Test")
@@ -1483,7 +1480,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             )
             self.Button_Nuclear.setText("")
             icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon17.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Nuclear.setIcon(icon17)
             self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
             self.Button_Nuclear.setObjectName("Button_Nuclear")
@@ -1523,7 +1520,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Factory.setText("")
             icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Factory.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Factory.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Factory.setIcon(icon6)
             self.Button_Factory.setIconSize(QtCore.QSize(40, 40))
             self.Button_Factory.setObjectName("Button_Factory")
@@ -1559,7 +1556,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_OT.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_OT.setIcon(icon2)
             self.Button_OT.setIconSize(QtCore.QSize(40, 40))
             self.Button_OT.setObjectName("Button_OT")
@@ -1596,7 +1593,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_ClockIn.setText("")
             icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon17.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_ClockIn.setIcon(icon17)
             self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
             self.Button_ClockIn.setObjectName("Button_ClockIn")
@@ -1632,7 +1629,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Index_Drawings.setText("")
             icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Index_Drawings.setIcon(icon6)
             self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
             self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
@@ -1669,7 +1666,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_Verification.setText("")
             icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Verification.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Verification.setIcon(icon6)
             self.Button_Verification.setIconSize(QtCore.QSize(int(40), int(40)))
             self.Button_Verification.setObjectName("Button_Verification")
@@ -1709,7 +1706,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_TechOffice.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_TechOffice.setIcon(icon2)
             self.Button_TechOffice.setIconSize(QtCore.QSize(40, 40))
             self.Button_TechOffice.setObjectName("Button_TechOffice")
@@ -1923,7 +1920,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     if len(match)>0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Nuevo Documento")
                         dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
@@ -1952,7 +1949,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Importar Documentos")
                 dlg.setText("Importación completada")
@@ -1963,7 +1960,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2087,7 +2084,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2148,7 +2145,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2162,10 +2159,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         else:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
 # Function to import clock times
@@ -2220,7 +2217,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("TXT importado con éxito")
@@ -2231,7 +2228,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2339,7 +2336,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 if answer == 'Notas':
                     dlg4 = QtWidgets.QInputDialog()
                     new_icon4 = QtGui.QIcon()
-                    new_icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg4.setWindowIcon(new_icon4)
                     dlg4.setWindowTitle('Texto en PDF')
                     dlg4.setLabelText('Nº Pedido:')
@@ -2409,7 +2406,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
                                         dlg.setText("PDFs editados con éxito")
@@ -2424,7 +2421,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
                                     dlg.setWindowTitle("ERP EIPSA")
                                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2439,7 +2436,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 break
                             dlg_error = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error.setWindowIcon(new_icon)
                             dlg_error.setWindowTitle("Texto en PDF")
                             dlg_error.setText("El número de pedido no puede estar vacío. Introduce un valor válido.")
@@ -2477,7 +2474,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg.setWindowIcon(new_icon)
                                 dlg.setWindowTitle("ERP EIPSA")
                                 dlg.setText("PDF Generado con éxito")
@@ -2489,7 +2486,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                             print(error)
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2508,7 +2505,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Verificación')
         dlg.setLabelText('Introduce un pedido:')
@@ -2526,7 +2523,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Verificación")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -2554,28 +2551,28 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Anexos Nucleares')
         dlg.setLabelText('Inserte pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Anexos Nucleares')
         dlg2.setLabelText('CODIGO A.N.A.:')
 
         dlg3 = QtWidgets.QInputDialog()
         new_icon3 = QtGui.QIcon()
-        new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg3.setWindowIcon(new_icon3)
         dlg3.setWindowTitle('Anexos Nucleares')
         dlg3.setLabelText('PDO A.N.A.:')
 
         dlg4 = QtWidgets.QInputDialog()
         new_icon4 = QtGui.QIcon()
-        new_icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg4.setWindowIcon(new_icon4)
         dlg4.setWindowTitle('Anexos Nucleares')
         dlg4.setLabelText('Linea:')
@@ -2611,7 +2608,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                                     break
                                                                 dlg_error = QtWidgets.QMessageBox()
                                                                 new_icon = QtGui.QIcon()
-                                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                                                 dlg_error.setWindowIcon(new_icon)
                                                                 dlg_error.setWindowTitle("Anexos Nucleares")
                                                                 dlg_error.setText("La línea no puede estar vacía")
@@ -2623,7 +2620,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                         break
                                                     dlg_error = QtWidgets.QMessageBox()
                                                     new_icon = QtGui.QIcon()
-                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                                     dlg_error.setWindowIcon(new_icon)
                                                     dlg_error.setWindowTitle("Anexos Nucleares")
                                                     dlg_error.setText("El pedido A.N.A. no puede estar vacío")
@@ -2635,7 +2632,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                             break
                                         dlg_error = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg_error.setWindowIcon(new_icon)
                                         dlg_error.setWindowTitle("Anexos Nucleares")
                                         dlg_error.setText("El código A.N.A. no puede estar vacío")
@@ -2647,7 +2644,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 break
                             dlg_error = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error.setWindowIcon(new_icon)
                             dlg_error.setWindowTitle("Anexos Nucleares")
                             dlg_error.setText("El número de pedido no puede estar vacío")
@@ -2659,7 +2656,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Anexos Nucleares")
                 dlg_error.setText("Selecciona un anexo")

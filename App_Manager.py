@@ -10,13 +10,10 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtCore import Qt
 import psycopg2
 import sys
-from config import config
+from config import config, get_path
 import configparser
-from Database_Connection import createConnection, createConnection_name
+from Database_Connection import createConnection
 from datetime import *
-import os
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -70,7 +67,7 @@ class Ui_App_Manager(object):
         App_Manager.resize(945, 860)
         App_Manager.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Manager.setWindowIcon(icon)
         App_Manager.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Manager)
@@ -92,7 +89,7 @@ class Ui_App_Manager(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -127,7 +124,7 @@ class Ui_App_Manager(object):
 "}")
         self.Button_Graphs.setText("")
         icon14 = QtGui.QIcon()
-        icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Chart.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon14.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Chart.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Graphs.setIcon(icon14)
         self.Button_Graphs.setIconSize(QtCore.QSize(40, 40))
         self.Button_Graphs.setObjectName("Button_Graphs")
@@ -163,7 +160,7 @@ class Ui_App_Manager(object):
 "}")
         self.Button_ClientsResume.setText("")
         icon15 = QtGui.QIcon()
-        icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Customers.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon15.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Customers.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ClientsResume.setIcon(icon15)
         self.Button_ClientsResume.setIconSize(QtCore.QSize(40, 40))
         self.Button_ClientsResume.setObjectName("Button_ClientsResume")
@@ -210,7 +207,7 @@ class Ui_App_Manager(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -266,7 +263,7 @@ class Ui_App_Manager(object):
         self.Button_QueryOffer.setFont(font)
         self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOffer.setIcon(icon5)
         self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOffer.setObjectName("Button_QueryOffer")
@@ -280,7 +277,7 @@ class Ui_App_Manager(object):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -294,7 +291,7 @@ class Ui_App_Manager(object):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon11)
         self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -308,7 +305,7 @@ class Ui_App_Manager(object):
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
@@ -471,7 +468,7 @@ class Ui_App_Manager(object):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -643,7 +640,7 @@ class Ui_App_Manager(object):
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Manager")
             dlg.setText(cell_content)

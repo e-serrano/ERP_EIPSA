@@ -8,14 +8,14 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config
+from config import config, get_path
 import os
 from datetime import *
 import pandas as pd
 from PDF_Styles import pending_orders
 from PDF_Viewer import PDF_Viewer
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -758,7 +758,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -954,7 +954,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         App_Warehouse.resize(945, 860)
         App_Warehouse.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Warehouse.setWindowIcon(icon)
         if self.username == 'j.tena':
             App_Warehouse.setStyleSheet("QWidget {\n"
@@ -1051,7 +1051,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.LogoIcon.setMinimumSize(QtCore.QSize(int(220), int(52)))
         self.LogoIcon.setMaximumSize(QtCore.QSize(int(220), int(52)))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo Nobg.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -1111,7 +1111,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Update.setText("")
         icon20 = QtGui.QIcon()
-        icon20.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Update.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon20.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Update.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Update.setIcon(icon20)
         self.Button_Update.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Update.setObjectName("Button_Update")
@@ -1172,7 +1172,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Suppliers.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Supplier.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Supplier.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Suppliers.setIcon(icon2)
         self.Button_Suppliers.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Suppliers.setObjectName("Button_Suppliers")
@@ -1234,7 +1234,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_PendingSuppliers.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pending_Recep.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Pending_Recep.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PendingSuppliers.setIcon(icon3)
         self.Button_PendingSuppliers.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_PendingSuppliers.setObjectName("Button_PendingSuppliers")
@@ -1294,7 +1294,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Warehouse_Pieces.setText("")
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse_Pieces.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse_Pieces.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Warehouse_Pieces.setIcon(icon8)
         self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
@@ -1354,7 +1354,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Flanges.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Flanges.setIcon(icon4)
         self.Button_Flanges.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Flanges.setObjectName("Button_Flanges")
@@ -1414,7 +1414,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Supplies.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Supplies.setIcon(icon4)
         self.Button_Supplies.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Supplies.setObjectName("Button_Supplies")
@@ -1474,7 +1474,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_PaletteM.setText("")
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PaletteM.setIcon(icon8)
         self.Button_PaletteM.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_PaletteM.setObjectName("Button_PaletteM")
@@ -1546,7 +1546,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -1656,7 +1656,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 "}")
         self.Button_AddState.setObjectName("Button_AddState")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_AddState.setIcon(icon1)
         self.Button_AddState.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.BottomLayout.addWidget(self.Button_AddState)
@@ -1873,7 +1873,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2041,7 +2041,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2111,7 +2111,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2241,7 +2241,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_yes_no.setWindowIcon(new_icon_yes_no)
                             dlg_yes_no.setWindowTitle("ERP EIPSA")
                             dlg_yes_no.setText(f"Ya ha datos existentes para el plano {dim_drawing}\n"
@@ -2257,7 +2257,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     else:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos Dimensionales")
                         dlg.setText("No existe el plano dimensional " + dim_drawing)
@@ -2271,7 +2271,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos M")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2333,7 +2333,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_yes_no.setWindowIcon(new_icon_yes_no)
                             dlg_yes_no.setWindowTitle("ERP EIPSA")
                             dlg_yes_no.setText(f"Ya ha datos existentes para el plano {of_drawing}\n"
@@ -2349,7 +2349,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     else:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos OF")
                         dlg.setText("No existe el plano OF " + of_drawing)
@@ -2363,7 +2363,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos M")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2425,7 +2425,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_yes_no.setWindowIcon(new_icon_yes_no)
                             dlg_yes_no.setWindowTitle("ERP EIPSA")
                             dlg_yes_no.setText(f"Ya ha datos existentes para el plano {m_drawing}\n"
@@ -2441,7 +2441,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     else:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos M")
                         dlg.setText("No existe el plano M " + m_drawing)
@@ -2455,7 +2455,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos M")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2517,7 +2517,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_yes_no.setWindowIcon(new_icon_yes_no)
                             dlg_yes_no.setWindowTitle("ERP EIPSA")
                             dlg_yes_no.setText(f"Ya ha datos existentes para el plano {al_drawing}\n"
@@ -2533,7 +2533,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     else:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos Almacén")
                         dlg.setText("No existe el plano almacén " + al_drawing)
@@ -2547,7 +2547,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos M")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2568,7 +2568,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Nuevo estado')
         dlg.setLabelText('Introduce el estado:')
@@ -2596,7 +2596,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Nuevo estado")
                         dlg.setText("Datos insertados con éxito")
@@ -2609,7 +2609,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2624,7 +2624,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Nuevo estado")
                 dlg_error.setText("El estado no puede estar vacío")
@@ -2668,7 +2668,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2736,7 +2736,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2759,8 +2759,8 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         pdf = pending_orders()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
         pdf.set_font('Helvetica', 'B', 20)
         pdf.cell(9.5, 0.5, 'Artículos Pendientes de Recibir')
         pdf.set_font('Helvetica', 'B', 10)
@@ -2816,7 +2816,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2854,7 +2854,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = os.path.abspath(str(get_path("Resources","pdfviewer","temp", "temp.pdf")))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)

@@ -18,7 +18,7 @@ from Countries_Window import Ui_Countries_Window
 from PayWay_Window import Ui_PayWay_Window
 from PasswordEdit_Window import Ui_EditPasswordWindow
 import os
-from config import config
+from config import config, get_path
 import psycopg2
 import pandas as pd
 import re
@@ -85,7 +85,7 @@ class Ui_App_Invoicing(object):
         App_Invoicing.resize(945, 860)
         App_Invoicing.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Invoicing.setWindowIcon(icon)
         App_Invoicing.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Invoicing)
@@ -107,7 +107,7 @@ class Ui_App_Invoicing(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -146,7 +146,7 @@ class Ui_App_Invoicing(object):
             self.Button_Sending.setObjectName("Button_Sending")
             self.Header.addWidget(self.Button_Sending)
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Sending.setIcon(icon2)
             self.Button_Sending.clicked.connect(self.send_documents)
             self.Button_Tags = QtWidgets.QPushButton(parent=self.frame)
@@ -181,7 +181,7 @@ class Ui_App_Invoicing(object):
             self.Button_Tags.setObjectName("Button_Tags")
             self.Header.addWidget(self.Button_Tags)
             icon1 = QtGui.QIcon()
-            icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Tags.setIcon(icon1)
             self.Button_Tags.clicked.connect(self.edit_tag)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -259,7 +259,7 @@ class Ui_App_Invoicing(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -315,7 +315,7 @@ class Ui_App_Invoicing(object):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -329,7 +329,7 @@ class Ui_App_Invoicing(object):
         self.Button_Invoice.setFont(font)
         self.Button_Invoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Invoice.setIcon(icon3)
         self.Button_Invoice.setIconSize(QtCore.QSize(40, 40))
         self.Button_Invoice.setCheckable(False)
@@ -346,7 +346,7 @@ class Ui_App_Invoicing(object):
         self.Button_QueryInvoice.setFont(font)
         self.Button_QueryInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryInvoice.setIcon(icon4)
         self.Button_QueryInvoice.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryInvoice.setObjectName("Button_QueryInvoice")
@@ -360,7 +360,7 @@ class Ui_App_Invoicing(object):
         self.Button_ExpirationInvoice.setFont(font)
         self.Button_ExpirationInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Expiring.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Expiring.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ExpirationInvoice.setIcon(icon5)
         self.Button_ExpirationInvoice.setIconSize(QtCore.QSize(40, 40))
         self.Button_ExpirationInvoice.setObjectName("Button_ExpirationInvoice")
@@ -374,7 +374,7 @@ class Ui_App_Invoicing(object):
         self.Button_Clients.setFont(font)
         self.Button_Clients.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Customers.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Customers.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Clients.setIcon(icon6)
         self.Button_Clients.setIconSize(QtCore.QSize(40, 40))
         self.Button_Clients.setObjectName("Button_Clients")
@@ -390,7 +390,7 @@ class Ui_App_Invoicing(object):
             self.Button_Banks.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_Banks.setText(("    Bancos"))
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Banks.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Banks.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Banks.setIcon(icon7)
             self.Button_Banks.setIconSize(QtCore.QSize(40, 40))
             self.Button_Banks.setObjectName("Button_Banks")
@@ -407,7 +407,7 @@ class Ui_App_Invoicing(object):
             self.Button_PendInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_PendInvoice.setText(("  Fact. Ptes S/Cliente"))
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_PendInvoice.setIcon(icon7)
             self.Button_PendInvoice.setIconSize(QtCore.QSize(40, 40))
             self.Button_PendInvoice.setObjectName("Button_PendInvoice")
@@ -425,7 +425,7 @@ class Ui_App_Invoicing(object):
             self.Button_Countries.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_Countries.setText(("    País Destino"))
             icon8 = QtGui.QIcon()
-            icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Countries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Countries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Countries.setIcon(icon8)
             self.Button_Countries.setIconSize(QtCore.QSize(40, 40))
             self.Button_Countries.setObjectName("Button_Countries")
@@ -442,7 +442,7 @@ class Ui_App_Invoicing(object):
             self.Button_Transactions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_Transactions.setText(("  Datos Cobro-Pago"))
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Payments.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Payments.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Transactions.setIcon(icon7)
             self.Button_Transactions.setIconSize(QtCore.QSize(40, 40))
             self.Button_Transactions.setObjectName("Button_Transactions")
@@ -460,7 +460,7 @@ class Ui_App_Invoicing(object):
             self.Button_PayWay.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_PayWay.setText(("    Forma De Pago"))
             icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/PayWay.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "PayWay.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_PayWay.setIcon(icon9)
             self.Button_PayWay.setIconSize(QtCore.QSize(40, 40))
             self.Button_PayWay.setObjectName("Button_PayWay")
@@ -477,7 +477,7 @@ class Ui_App_Invoicing(object):
             self.Button_AgtInt.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_AgtInt.setText(("  Agt. Int. Liquid"))
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Agents.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Agents.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_AgtInt.setIcon(icon7)
             self.Button_AgtInt.setIconSize(QtCore.QSize(40, 40))
             self.Button_AgtInt.setObjectName("Button_AgtInt")
@@ -492,7 +492,7 @@ class Ui_App_Invoicing(object):
             self.Button_ExpExcel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_ExpExcel.setText(("  Exportar a Excel"))
             icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_ExpExcel.setIcon(icon7)
             self.Button_ExpExcel.setIconSize(QtCore.QSize(40, 40))
             self.Button_ExpExcel.setObjectName("Button_ExpExcel")
@@ -696,14 +696,14 @@ class Ui_App_Invoicing(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Facturas Pendientes')
         dlg.setLabelText('Fecha Desde (dd-mm-yyyy):')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Facturas Pendientes')
         dlg2.setLabelText('Fecha Hasta (dd-mm-yyyy):')
@@ -804,7 +804,7 @@ class Ui_App_Invoicing(object):
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
                                     dlg.setWindowTitle("ERP EIPSA")
                                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -819,7 +819,7 @@ class Ui_App_Invoicing(object):
                                 break
                             dlg_error = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error.setWindowIcon(new_icon)
                             dlg_error.setWindowTitle("Facturas Pendientes")
                             dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
@@ -831,7 +831,7 @@ class Ui_App_Invoicing(object):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Facturas Pendientes")
                 dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
@@ -849,14 +849,14 @@ class Ui_App_Invoicing(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Agte. Interm. Liquidación')
         dlg.setLabelText('Fecha Desde (dd-mm-yyyy):')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Agte. Interm. Liquidación')
         dlg2.setLabelText('Fecha Hasta (dd-mm-yyyy):')
@@ -910,7 +910,7 @@ class Ui_App_Invoicing(object):
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
                                     dlg.setWindowTitle("ERP EIPSA")
                                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -925,7 +925,7 @@ class Ui_App_Invoicing(object):
                                 break
                             dlg_error = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error.setWindowIcon(new_icon)
                             dlg_error.setWindowTitle("Agte. Interm. Liquidación")
                             dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
@@ -937,7 +937,7 @@ class Ui_App_Invoicing(object):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Agte. Interm. Liquidación")
                 dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
@@ -985,8 +985,8 @@ class Ui_App_Invoicing(object):
         pdf = pending_invoices()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
         pdf.set_font('Helvetica', 'B', 10)
         pdf.cell(15, 0.5, self.format_date_spanish(date.today()))
         pdf.ln(1)
@@ -1035,7 +1035,7 @@ class Ui_App_Invoicing(object):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = os.path.abspath(str(get_path("Resources","pdfviewer","temp", "temp.pdf")))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
@@ -1058,8 +1058,8 @@ class Ui_App_Invoicing(object):
         pdf = ag_int_liquid()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
         pdf.set_font('Helvetica', 'B', 20)
         pdf.cell(12, 1, 'Estado Agentes Intermediarios')
@@ -1296,7 +1296,7 @@ class Ui_App_Invoicing(object):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1310,10 +1310,10 @@ class Ui_App_Invoicing(object):
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         else:
             icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
 # Function to open window to check notifications

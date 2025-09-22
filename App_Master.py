@@ -13,9 +13,8 @@ from datetime import *
 from UserEdit_Menu import Ui_EditUser_Menu
 from QueryTableChanges_Window import Ui_QueryTableChanges_Window
 from PasswordEdit_Window import Ui_EditPasswordWindow
-import os
+from config import get_path
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_App_Master(object):
@@ -45,7 +44,7 @@ class Ui_App_Master(object):
         App_Master.resize(1254, 860)
         App_Master.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Master.setWindowIcon(icon)
         App_Master.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Master)
@@ -67,7 +66,7 @@ class Ui_App_Master(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -101,7 +100,7 @@ class Ui_App_Master(object):
 "}")
         self.Button_Users.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Users.setIcon(icon1)
         self.Button_Users.setIconSize(QtCore.QSize(40, 40))
         self.Button_Users.setObjectName("Button_Users")
@@ -136,7 +135,7 @@ class Ui_App_Master(object):
 "}")
         self.Button_DBChanges.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Changes.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Database_Changes.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_DBChanges.setIcon(icon4)
         self.Button_DBChanges.setIconSize(QtCore.QSize(40, 40))
         self.Button_DBChanges.setObjectName("Button_DBChanges")
@@ -183,7 +182,7 @@ class Ui_App_Master(object):
 "}")
         self.Button_Profile.setText("")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon6)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
