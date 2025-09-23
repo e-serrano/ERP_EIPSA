@@ -348,7 +348,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         # execution of commands
             commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
                                             TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplier_ord_detail."unit_value",
-                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal
+                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal, TO_CHAR(supplier_ord_header."delivery_date",'DD/MM/YYYY'), supplier_ord_header."notes"
                                         FROM 
                                             purch_fact.supplier_ord_header AS supplier_ord_header
                                             INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
@@ -362,7 +362,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
             cur.execute(commands_pending_client)
 
             results = cur.fetchall()
-            df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal"])
+            df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal", "Fecha Entrega", "Pedido"])
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -602,6 +602,12 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
                     fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
                     df.at[index, 'Fecha Pedido'] = fecha_obj
 
+            for index, row in df.iterrows():
+                fecha_str = row['Fecha Entrega']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    df.at[index, 'Fecha Entrega'] = fecha_obj
+
             # Add data to Excel
             for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
                 ws.append(row)
@@ -618,6 +624,9 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
                 cell.style = currency_style
 
             for cell in ws['E']:
+                cell.style = date_style
+
+            for cell in ws['J']:
                 cell.style = date_style
 
             # Save Excel
