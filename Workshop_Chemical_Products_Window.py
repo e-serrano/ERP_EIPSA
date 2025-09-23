@@ -23,6 +23,8 @@ from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -655,7 +657,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
-        self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        # self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
         
         self.adjust_table()
 
@@ -723,7 +725,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
-        self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        # self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
         
         self.adjust_table()
 
@@ -1160,42 +1162,24 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         """
-        Inserts a new empty entry into the equipment_workshop table.
+        Inserts a new empty entry into the chemical_products_workshop table.
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.chemical_products_workshop (number)
+                        INSERT INTO verification.chemical_products_workshop (product)
                         VALUES(%s)
                         """)
         conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=('',)
-            cur.execute(commands_new, data)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+                data=('',)
+                cur.execute(commands_new, data)
+                conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources","Iconos","icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
+            show_message("Ha ocurrido el siguiente error:\n"
                         + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
 
         self.query_equipment()
 
