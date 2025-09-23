@@ -14,10 +14,11 @@ from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
-import os
 from ExportDocs_Menu import Ui_ExportDocs_Menu
 from tkinter.filedialog import askopenfilename
 import pandas as pd
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 
 
@@ -1203,64 +1204,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         GROUP BY orders."order_month"
                         ORDER BY orders."order_month"
                         """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-
-                data=(responsible, date.today().year,)
-                cur.execute(commands_graph1, data)
-                results=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            months=[int(x[0]) for x in results]
-            amounts=[float(x[1]) for x in results]
-
-            self.canvas=FigureCanvas(Figure())
-            ax=self.canvas.figure.subplots()
-            ax.bar(months,amounts)
-            ax.set_xticks(range(1,13))
-            axticks_y=ticker.FuncFormatter(self.format_y_ticks)
-            ax.yaxis.set_major_formatter(axticks_y)
-            ax.set_title('Ventas totales año actual')
-            ax.set_xlabel('Mes')
-            ax.set_ylabel('Importe (€)')
-
-            self.canvas.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas.setMaximumSize(QtCore.QSize(585, 400))
-
-            self.canvas.setObjectName("Graph1")
-            self.BottomLayout.addWidget(self.canvas, 0, 0, 1, 1)
-
-            # spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            # self.BottomLayout.addItem(spacerItem7)
-
             commands_graph2 = ("""
                         SELECT COUNT(orders."num_order"), product_type."variable"
                         FROM offers
@@ -1272,54 +1215,59 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         )
                         GROUP BY product_type."variable"
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
 
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
 
-                data=(responsible, date.today().year,)
-                cur.execute(commands_graph2, data)
-                results2=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    data=(responsible, date.today().year,)
+                    cur.execute(commands_graph1, data)
+                    results_graph1=cur.fetchall()
+
+                    cur.execute(commands_graph2, data)
+                    results_graph2=cur.fetchall()
+
+                    months=[int(x[0]) for x in results_graph1]
+                    amounts=[float(x[1]) for x in results_graph1]
+
+                    self.canvas=FigureCanvas(Figure())
+                    ax=self.canvas.figure.subplots()
+                    ax.bar(months,amounts)
+                    ax.set_xticks(range(1,13))
+                    axticks_y=ticker.FuncFormatter(self.format_y_ticks)
+                    ax.yaxis.set_major_formatter(axticks_y)
+                    ax.set_title('Ventas totales año actual')
+                    ax.set_xlabel('Mes')
+                    ax.set_ylabel('Importe (€)')
+
+                    self.canvas.setMinimumSize(QtCore.QSize(200, 400))
+                    self.canvas.setMaximumSize(QtCore.QSize(585, 400))
+
+                    self.canvas.setObjectName("Graph1")
+                    self.BottomLayout.addWidget(self.canvas, 0, 0, 1, 1)
+
+                    count=[x[0] for x in results_graph2]
+                    labels=[x[1] for x in results_graph2]
+
+                    self.canvas2=FigureCanvas(Figure())
+                    bx=self.canvas2.figure.subplots()
+                    bx.pie(count,labels=labels,autopct='%1.1f%%')
+                    bx.set_title('Proporción equipos vendidos')
+
+                    self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
+                    self.canvas2.setMaximumSize(QtCore.QSize(585, 400))
+                    self.canvas2.setObjectName("canvas2")
+                    self.BottomLayout.addWidget(self.canvas2, 0, 1, 1, 1)
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            count=[x[0] for x in results2]
-            labels=[x[1] for x in results2]
-
-            self.canvas2=FigureCanvas(Figure())
-            bx=self.canvas2.figure.subplots()
-            bx.pie(count,labels=labels,autopct='%1.1f%%')
-            bx.set_title('Proporción equipos vendidos')
-
-            self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas2.setMaximumSize(QtCore.QSize(585, 400))
-            self.canvas2.setObjectName("canvas2")
-            self.BottomLayout.addWidget(self.canvas2, 0, 1, 1, 1)
+                show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error),'critical')
 
         except:
             pass
@@ -1357,63 +1305,44 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ))
                     ORDER BY "num_offer"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_responsible)
-            results_responsible=cur.fetchall()
-            match=list(filter(lambda x:self.username in x, results_responsible))
-            responsible=match[0][0]
-            if responsible in ('l.bravo'):
-                cur.execute(commands_appcomercial_coordination)
-                results=cur.fetchall()
-                number_columns = 11
-                self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
-            else:
-                cur.execute(commands_appcomercial,(responsible,))
-                results=cur.fetchall()
-                number_columns = 10
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                if responsible in ('l.bravo'):
+                    cur.execute(commands_appcomercial_coordination)
+                    results=cur.fetchall()
+                    number_columns = 11
+                    self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
+                else:
+                    cur.execute(commands_appcomercial,(responsible,))
+                    results=cur.fetchall()
+                    number_columns = 10
+                self.tableOffer.setRowCount(len(results))
+                tablerow=0
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(number_columns):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
+            # fill the Qt Table with the query results
+                for row in results:
+                    for column in range(number_columns):
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableOffer.setItem(tablerow, column, it)
 
-                tablerow+=1
+                    tablerow+=1
 
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
+                self.tableOffer.verticalHeader().hide()
+                self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         self.tableOffer.setSortingEnabled(False)
 
@@ -1423,14 +1352,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Sets up task dates for the calendar widget.
         Handles errors with a message box and updates the calendar with task dates.
         """
-        commands_loaddatestasks_LB = ("""
-                    SELECT "task_date","task"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
                     FROM tasks
@@ -1439,41 +1360,22 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     "state" = 'Pendiente')
                     ORDER BY "task_date"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loaddatestasks,(self.name,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_loaddatestasks,(self.name,))
+                results=cur.fetchall()
 
-            dates_with_tasks_raw=[x[0] for x in results]
-            dates_with_tasks=list(set(dates_with_tasks_raw))
+                dates_with_tasks_raw=[x[0] for x in results]
+                dates_with_tasks=list(set(dates_with_tasks_raw))
+
+                task_dates = dates_with_tasks
+                self.Calendar.set_task_dates(task_dates)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-        # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
-        task_dates = dates_with_tasks
-        self.Calendar.set_task_dates(task_dates)
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to show task of the selected date
     def show_selected_date_tasks(self):
@@ -1520,16 +1422,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Returns:
             list: A list of tasks for the specified date.
         """
-        commands_loaddatestasks_LB = ("""
-                    SELECT "responsible","task_date","task","state","creator"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "task_date" IS NOT NULL
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
         commands_loaddatestasks = ("""
                     SELECT "responsible","task_date","task","state","creator"
                     FROM tasks
@@ -1540,61 +1432,42 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     "state" = 'Pendiente')
                     ORDER BY "task_date"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loaddatestasks,(self.name,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_loaddatestasks,(self.name,))
+                results=cur.fetchall()
 
-            dict_responsibles_tasks={}
+                dict_responsibles_tasks={}
 
-            for i in range(len(results)):
-                responsible=results[i][0]
-                key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
-                value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
+                for i in range(len(results)):
+                    responsible=results[i][0]
+                    key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
+                    value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
 
-                if responsible not in dict_responsibles_tasks:
-                    dict_responsibles_tasks[responsible] = [{key: [value]}]
+                    if responsible not in dict_responsibles_tasks:
+                        dict_responsibles_tasks[responsible] = [{key: [value]}]
 
-                else:
-                    for item in dict_responsibles_tasks[responsible]:
-                        if key not in item:
-                            item[key] = [value]
+                    else:
+                        for item in dict_responsibles_tasks[responsible]:
+                            if key not in item:
+                                item[key] = [value]
 
-                        else:
-                            item[key].append(value)
+                            else:
+                                item[key].append(value)
 
-            value_to_return = []
-            for item in dict_responsibles_tasks.keys():
-                for element in dict_responsibles_tasks[item]:
-                    if date in element:
-                        value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
+                value_to_return = []
+                for item in dict_responsibles_tasks.keys():
+                    for element in dict_responsibles_tasks[item]:
+                        if date in element:
+                            value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
 
-            return value_to_return
+                return value_to_return
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 #Function to show dialog showing delayed offers
     def alert_offers(self):
@@ -1618,54 +1491,28 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     "presentation_date" < %s::date )
                     ORDER BY "num_offer"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_responsible)
-            results_responsible=cur.fetchall()
-            match=list(filter(lambda x:self.username in x, results_responsible))
-            responsible=match[0][0]
-            cur.execute(commands_offerdelay,(responsible,delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                cur.execute(commands_offerdelay,(responsible,delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+                results=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         offers_delay=[x[0] for x in results]
 
         if len(offers_delay) != 0:
             offers_delay_text = "\n".join(offers_delay)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Las siguientes ofertas llevan presentadas más de 10 días:\n"
+            show_message("Las siguientes ofertas llevan presentadas más de 10 días:\n"
                         "\n"
-                        + offers_delay_text)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+                        + offers_delay_text, 'information')
 
 #Function to formatting y axis of graps
     def format_y_ticks(self, y, pos):
@@ -1756,7 +1603,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         """
         Shows a pop-up alerting the user if there are offers to reclaim that are overdue.
         """
-        conn = None
+
         commands_responsible = ("""
                         SELECT *
                         FROM users_data.initials
@@ -1775,54 +1622,36 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         """)
 
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_responsible)
-            results_responsible=cur.fetchall()
-            match=list(filter(lambda x:self.username in x, results_responsible))
-            responsible=match[0][0]
-            cur.execute(commands_queryrecoffer, (responsible,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                cur.execute(commands_queryrecoffer, (responsible,))
+                results=cur.fetchall()
 
-            offers_rec_delay=[x[0] for x in results]
+                offers_rec_delay=[x[0] for x in results]
 
-            if len(offers_rec_delay) != 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Hay " + str(len(offers_rec_delay)) + " ofertas para reclamar\n"
-                            "¿Quieres reclamarlas ahora?\n")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                result = dlg.exec()
-                if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                    self.reclamation_offer()
-                del dlg, new_icon
+                if len(offers_rec_delay) != 0:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Hay " + str(len(offers_rec_delay)) + " ofertas para reclamar\n"
+                                "¿Quieres reclamarlas ahora?\n")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                    result = dlg.exec()
+                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        self.reclamation_offer()
+                    del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to load number of notifications
     def load_notifications(self):
@@ -1834,53 +1663,34 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
         conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
-
-            notifications = []
-
-            for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_tables_notifications)
                 results=cur.fetchall()
+                tables_names=[x[0] for x in results]
 
-                for x in results:
-                    notifications.append(x)
+                notifications = []
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                for table in tables_names:
+                    commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                    cur.execute(commands_notifications)
+                    results=cur.fetchall()
+
+                    for x in results:
+                        notifications.append(x)
+
+                if len(notifications) != 0:
+                    icon13 = QtGui.QIcon()
+                    icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                else:
+                    icon13 = QtGui.QIcon()
+                    icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                self.Button_Notification.setIcon(icon13)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if len(notifications) != 0:
-            icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        else:
-            icon13 = QtGui.QIcon()
-            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Notification.setIcon(icon13)
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to open window with clock-ins
     def clockin(self):
