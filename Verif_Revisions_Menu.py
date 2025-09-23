@@ -225,6 +225,16 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_WeldMasters.setObjectName("Button_WeldMasters")
         self.Button_WeldMasters.setText("Equipos Soldadura (RPC-001-03)")
         self.button_layout.addWidget(self.Button_WeldMasters, 2, 2, 1, 1)
+        self.Button_Chemicals = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Chemicals.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Chemicals.setFont(font)
+        self.Button_Chemicals.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Chemicals.setObjectName("Button_Chemicals")
+        self.Button_Chemicals.setText("Productos Químicos")
+        self.button_layout.addWidget(self.Button_Chemicals, 3, 0, 1, 1)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(90, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(90, 30))
@@ -259,6 +269,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_ThreadMasters.clicked.connect(self.thread_masters)
         self.Button_WeldMasters.clicked.connect(self.weld_equipment)
         self.Button_GasMeters.clicked.connect(self.gas_flowmeters)
+        self.Button_Chemicals.clicked.connect(self.chemical_products)
 
         QtCore.QMetaObject.connectSlotsByName(Verif_Revisions_Menu)
 
@@ -437,6 +448,28 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         from Verif_Humidity_Window import Ui_Humidity_Window
         self.humiditywindow=Ui_Humidity_Window(self.username)
         self.humiditywindow.showMaximized()
+
+# Function to open window with chemical products information
+    def chemical_products(self):
+        """
+        Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
+        """
+        from Workshop_Chemical_Products_Window import Ui_Workshop_Chemical_Products_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_chemical_products = createConnection(user_database, password_database)
+        if not db_chemical_products:
+            sys.exit()
+
+        self.chemical_products_window = Ui_Workshop_Chemical_Products_Window(db_chemical_products, self.username)
+        self.chemical_products_window.showMaximized()
+
+
 
 
 if __name__ == "__main__":
