@@ -764,9 +764,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
         if self.username == 'l.bravo':
-            number_columns = 11
+            number_columns = 12
         else:
-            number_columns = 10
+            number_columns = 11
         self.tableOffer.setColumnCount(number_columns)
         self.tableOffer.setRowCount(0)
         for i in range(number_columns):
@@ -950,10 +950,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         item = self.tableOffer.horizontalHeaderItem(6)
         item.setText(_translate("App_Comercial", "Importe"))
         item = self.tableOffer.horizontalHeaderItem(7)
-        item.setText(_translate("App_Comercial", "Notas"))
+        item.setText(_translate("App_Comercial", "Prob. Adj."))
         item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_Comercial", "Ptos. Importantes"))
+        item.setText(_translate("App_Comercial", "Notas"))
         item = self.tableOffer.horizontalHeaderItem(9)
+        item.setText(_translate("App_Comercial", "Ptos. Importantes"))
+        item = self.tableOffer.horizontalHeaderItem(10)
         item.setText(_translate("App_Comercial", "Seguimiento"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
@@ -1284,7 +1286,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         FROM users_data.initials
                         """)
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -1295,7 +1297,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ORDER BY "num_offer"
                     """)
         commands_appcomercial_coordination = ("""
-                    SELECT "num_offer","state", "responsible", "client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
+                    SELECT "num_offer","state", "responsible", "client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
                     FROM offers
                     WHERE ("responsible" not in ('a.calvo')
                     AND
@@ -1316,12 +1318,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 if responsible in ('l.bravo'):
                     cur.execute(commands_appcomercial_coordination)
                     results=cur.fetchall()
-                    number_columns = 11
-                    self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
+                    number_columns = 12
+                    self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Prob. Adj", "Notas", "Ptos. Importantes", "Seguimiento"])
                 else:
                     cur.execute(commands_appcomercial,(responsible,))
                     results=cur.fetchall()
-                    number_columns = 10
+                    number_columns = 11
                 self.tableOffer.setRowCount(len(results))
                 tablerow=0
 
@@ -1545,7 +1547,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.clientresume(item)
         elif item.column() == 0:
             self.editofferform(item)
-        elif item.column() in [7, 8, 9]:
+        elif item.column() in [8, 9, 10]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
