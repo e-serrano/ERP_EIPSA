@@ -110,51 +110,51 @@ class Ui_New_OfferReceived_Window(object):
         self.label_Client.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Client.setObjectName("label_Client")
         self.gridlayout_main.addWidget(self.label_Client, 1, 0, 1, 1)
-        self.Button_NewClient = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_NewClient.setMinimumSize(QtCore.QSize(50, 25))
-        self.Button_NewClient.setMaximumSize(QtCore.QSize(50, 25))
-        self.Button_NewClient.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_NewClient.setObjectName("Button_NewClient")
-        self.Button_NewClient.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_NewClient.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 20px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 1px .1em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: center;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.gridlayout_main.addWidget(self.Button_NewClient, 1, 1, 1, 1)
-        self.Client_NewOffer = QtWidgets.QComboBox(parent=self.frame)
+#         self.Button_NewClient = QtWidgets.QPushButton(parent=self.frame)
+#         self.Button_NewClient.setMinimumSize(QtCore.QSize(50, 25))
+#         self.Button_NewClient.setMaximumSize(QtCore.QSize(50, 25))
+#         self.Button_NewClient.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+#         self.Button_NewClient.setObjectName("Button_NewClient")
+#         self.Button_NewClient.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+#         self.Button_NewClient.setStyleSheet("QPushButton {\n"
+# "background-color: #33bdef;\n"
+# "  border: 1px solid transparent;\n"
+# "  border-radius: 3px;\n"
+# "  color: #fff;\n"
+# "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+# "  font-size: 20px;\n"
+# "  font-weight: 800;\n"
+# "  line-height: 1.15385;\n"
+# "  margin: 0;\n"
+# "  outline: none;\n"
+# "  padding: 1px .1em;\n"
+# "  text-align: center;\n"
+# "  text-decoration: none;\n"
+# "  vertical-align: center;\n"
+# "  white-space: nowrap;\n"
+# "}\n"
+# "\n"
+# "QPushButton:hover {\n"
+# "    background-color: #019ad2;\n"
+# "    border-color: rgb(0, 0, 0);\n"
+# "}\n"
+# "\n"
+# "QPushButton:focus {\n"
+# "    background-color: #019ad2;\n"
+# "    border-color: rgb(0, 0, 0);\n"
+# "}\n"
+# "\n"
+# "QPushButton:pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border-color: rgb(255, 255, 255)\n"
+# "}\n"
+# "\n"
+# "QPushButton:focus:pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}")
+#         self.gridlayout_main.addWidget(self.Button_NewClient, 1, 1, 1, 1)
+        self.Client_NewOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.Client_NewOffer.setMinimumSize(QtCore.QSize(200, 25))
         self.Client_NewOffer.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -181,8 +181,8 @@ class Ui_New_OfferReceived_Window(object):
         self.RecepDate_NewOffer.setObjectName("RecepDate_NewOffer")
         self.gridlayout_main.addWidget(self.RecepDate_NewOffer, 1, 4, 1, 1)
         self.label_FinalClient = QtWidgets.QLabel(parent=self.frame)
-        self.label_FinalClient.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_FinalClient.setMaximumSize(QtCore.QSize(110, 25))
+        self.label_FinalClient.setMinimumSize(QtCore.QSize(120, 25))
+        self.label_FinalClient.setMaximumSize(QtCore.QSize(120, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -217,8 +217,8 @@ class Ui_New_OfferReceived_Window(object):
         self.LimitDate_NewOffer.setObjectName("LimitDate_NewOffer")
         self.gridlayout_main.addWidget(self.LimitDate_NewOffer, 2, 4, 1, 1)
         self.label_NumRef = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumRef.setMinimumSize(QtCore.QSize(110, 25))
-        # self.label_NumRef.setMaximumSize(QtCore.QSize(105, 25))
+        self.label_NumRef.setMinimumSize(QtCore.QSize(120, 25))
+        self.label_NumRef.setMaximumSize(QtCore.QSize(120, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -253,8 +253,8 @@ class Ui_New_OfferReceived_Window(object):
         self.Description_NewOffer.setObjectName("Description_NewOffer")
         self.gridlayout_main.addWidget(self.Description_NewOffer, 3, 4, 1, 1)
         self.label_Material = QtWidgets.QLabel(parent=self.frame)
-        self.label_Material.setMinimumSize(QtCore.QSize(110, 25))
-        # self.label_Material.setMaximumSize(QtCore.QSize(110, 25))
+        self.label_Material.setMinimumSize(QtCore.QSize(120, 25))
+        self.label_Material.setMaximumSize(QtCore.QSize(120, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -291,7 +291,7 @@ class Ui_New_OfferReceived_Window(object):
         self.gridlayout_main.addWidget(self.NumItems_NewOffer, 4, 4, 1, 1)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
         self.label_Notes.setMinimumSize(QtCore.QSize(110, 25))
-        # self.label_Notes.setMaximumSize(QtCore.QSize(110, 25))
+        self.label_Notes.setMaximumSize(QtCore.QSize(110, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -335,7 +335,7 @@ class Ui_New_OfferReceived_Window(object):
         self.retranslateUi(New_OfferReceived)
         self.Button_Cancel.clicked.connect(New_OfferReceived.close) # type: ignore
         self.Button_NewOffer.clicked.connect(self.NewOffer)
-        self.Button_NewClient.clicked.connect(self.NewClient)
+        # self.Button_NewClient.clicked.connect(self.NewClient)
         QtCore.QMetaObject.connectSlotsByName(New_OfferReceived)
 
         commands_productype = ("""
@@ -375,7 +375,7 @@ class Ui_New_OfferReceived_Window(object):
         list_material.sort()
         self.Material_NewOffer.addItems(list_material)
 
-        self.load_clients()
+        # self.load_clients()
 
 
 # Function to translate and updates the text of various UI elements
@@ -396,7 +396,7 @@ class Ui_New_OfferReceived_Window(object):
         self.label_Notes.setText(_translate("New_OfferReceived", "Notas:"))
         self.Button_NewOffer.setText(_translate("New_OfferReceived", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_OfferReceived", "Cancelar"))
-        self.Button_NewClient.setText(_translate("New_OfferReceived", "+"))
+        # self.Button_NewClient.setText(_translate("New_OfferReceived", "+"))
 
     def load_clients(self):
         """
@@ -448,7 +448,7 @@ class Ui_New_OfferReceived_Window(object):
         """
         Creates a new entry in database after validating form inputs.
         """
-        client=self.Client_NewOffer.currentText()
+        client=self.Client_NewOffer.text()
         finalclient=self.FinalClient_NewOffer.text()
         numref=self.NumRef_NewOffer.text()
         limitdate=self.LimitDate_NewOffer.text()
@@ -559,6 +559,8 @@ class Ui_New_OfferReceived_Window(object):
         self.ui.setupUi(self.new_client_window)
         self.new_client_window.show()
         self.ui.exit_OfferClientAdd.clicked.connect(self.load_clients)
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
