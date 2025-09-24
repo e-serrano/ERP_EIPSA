@@ -414,9 +414,10 @@ class ColorDelegate_Position(QtWidgets.QItemDelegate):
 
         state_column_index = index.sibling(index.row(), 6) # Index for column to check text
         original_text = str(index.data())  # Text of cell to be painted
-        value_check = str(state_column_index.data()).upper()
+        value_check = str(state_column_index.data())
 
-        if original_text != '' and original_text != value_check:
+        if original_text != '' and original_text.upper() != value_check.upper():
+            print(original_text, value_check)
             background_color = QtGui.QColor(255, 255, 0) #Yellow
 
         painter.fillRect(option.rect, background_color)
@@ -453,9 +454,9 @@ class ColorDelegate_Subposition(QtWidgets.QItemDelegate):
 
         state_column_index = index.sibling(index.row(), 7) # Index for column to check text
         original_text = str(index.data())  # Text of cell to be painted
-        value_check = str(state_column_index.data()).upper()
+        value_check = str(state_column_index.data())
 
-        if original_text != '' and original_text != value_check:
+        if original_text != '' and original_text.upper() != value_check.upper():
             background_color = QtGui.QColor(255, 255, 0) #Yellow
 
         painter.fillRect(option.rect, background_color)
@@ -672,7 +673,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         column = left.column()
 
         # Columns to order as integers
-        numeric_columns = [6, 7]
+        numeric_columns = [6, 7, 157, 158]
 
         if column in numeric_columns:
             try:
