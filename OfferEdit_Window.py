@@ -631,7 +631,7 @@ class Ui_Edit_Offer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
     #Adding items to ComboBox
-        list_state=['Adjudicada','Declinada','Estimación','Presentada','Reasignada','Perdida','Registrada']
+        list_state=['Adjudicada','Budgetary','Declinada','Presentada','Perdida','Registrada']
         self.State_EditOffer.addItems(list_state)
 
         list_nacext=['Exterior','Nacional']
