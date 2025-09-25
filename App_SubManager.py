@@ -15,6 +15,15 @@ import configparser
 from Database_Connection import createConnection
 from datetime import *
 import re
+from PDF_Styles import CustomPDF
+from PDF_Viewer import PDF_Viewer
+from utils.Database_Manager import Database_Connection
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+from io import BytesIO
+import numpy as np
+
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -571,6 +580,7 @@ class Ui_App_SubManager(object):
         """
         self.name=name
         self.username=username
+        self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, App_SubManager):
@@ -684,40 +694,40 @@ class Ui_App_SubManager(object):
         self.Header.addWidget(self.Button_ClientsResume)
         spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem13)
-#         self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
-#         self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
-#         self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
-#         self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-#         self.Button_QueryTask.setStyleSheet("QPushButton{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(3, 174, 236);\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border-radius: 10px;\n"
-# "}\n"
-# "\n"
-# "QPushButton:hover{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "    color: rgb(0,0,0);\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border-radius: 10px;\n"
-# "}\n"
-# "\n"
-# "QPushButton:pressed{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "    color: rgb(0,0,0);\n"
-# "    background-color: rgb(200, 200, 200);\n"
-# "    border-radius: 10px;\n"
-# "}")
-#         self.Button_QueryTask.setText("")
-#         icon5 = QtGui.QIcon()
-#         icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Task.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-#         self.Button_QueryTask.setIcon(icon5)
-#         self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
-#         self.Button_QueryTask.setObjectName("Button_QueryTask")
-#         self.Button_QueryTask.setToolTip("Tareas")
-#         self.Header.addWidget(self.Button_QueryTask)
+        self.Button_Reports = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Reports.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Reports.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Reports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Reports.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Reports.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Reports.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Reports.setIcon(icon5)
+        self.Button_Reports.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Reports.setObjectName("Button_Reports")
+        self.Button_Reports.setToolTip("Informes")
+        self.Header.addWidget(self.Button_Reports)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1006,7 +1016,7 @@ class Ui_App_SubManager(object):
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.tableOffer.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
-        # self.Button_QueryTask.clicked.connect(self.querytask)
+        self.Button_Reports.clicked.connect(self.generate_report)
         # self.Calendar.activated.connect(self.show_selected_date_tasks)
         # self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
 
@@ -1406,7 +1416,7 @@ class Ui_App_SubManager(object):
             dlg.exec()
             del dlg, new_icon
 
-#Function to obtain tasks associated to a date
+# Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
         """
         Retrieves tasks for a specific date.
@@ -1484,7 +1494,7 @@ class Ui_App_SubManager(object):
             if conn is not None:
                 conn.close()
 
-#Function when clicking on table header
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         """
         Handles the click event on the table header.
@@ -1494,6 +1504,365 @@ class Ui_App_SubManager(object):
         header_height = self.tableOffer.horizontalHeader().height()
         popup_pos = self.tableOffer.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableOffer.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+# Function to generate reports
+    def generate_report(self):
+        """
+        Generates a report based on chosen selection
+        """
+
+        query_graph_1 = ("""
+                        SELECT offers.num_offer, offers.state, offers.responsible,
+                        COALESCE(offers.offer_amount, 0::money) AS offer_amount, COALESCE(orders.order_amount, 0::money) AS order_amount
+                        FROM offers
+                        LEFT JOIN orders ON offers.num_offer = orders.num_offer
+                        WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                        """)
+
+        query_graph_2 = ("""
+                            SELECT num_offer, state, responsible, 'offers' AS source_table
+                            FROM offers
+                            WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                            
+                            UNION ALL
+                            
+                            SELECT 'a' as num_offer, state, responsible, 'received_offers' AS source_table
+                            FROM received_offers
+                            WHERE EXTRACT(YEAR FROM received_offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                            """)
+
+        query_weekly_summary = ("""
+                            SELECT * FROM (
+                            SELECT num_offer, state, responsible, client, final_client, TO_CHAR(presentation_date, 'DD/MM/YYYY'), material, offer_amount, 'offers' AS source_table
+                            FROM offers
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date < date_trunc('week', CURRENT_DATE)
+                            
+                            UNION ALL
+                            
+                            SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
+                            FROM received_offers
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date < date_trunc('week', CURRENT_DATE)) as final_table
+                            
+                            ORDER BY array_position(
+                            ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state)
+                            """)
+        
+        query_active_summary = ("""
+                            SELECT * FROM (
+                            SELECT num_offer, state, responsible, client, final_client, TO_CHAR(presentation_date, 'DD/MM/YYYY'), material, offer_amount
+                            FROM offers
+                            WHERE state IN ('Registrada', 'Presentada')
+                            
+                            UNION ALL
+                            
+                            SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount
+                            FROM received_offers
+                            WHERE state IN ('Recibida')) as final_table
+                            
+                            ORDER BY state
+                            """)
+        
+        with Database_Connection(config()) as conn:
+            cur = conn.cursor()
+
+            cur.execute(query_graph_1)
+            results_graph_1 = cur.fetchall()
+            df_graph_1 = pd.DataFrame(results_graph_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
+
+            df_graph_1['Importe Oferta'] = df_graph_1['Importe Oferta']\
+                                        .str.replace('€', '', regex=False) \
+                                        .str.replace('.', '', regex=False) \
+                                        .str.replace(',', '.', regex=False) \
+                                        .astype(float)
+
+            df_graph_1['Importe Pedido'] = df_graph_1['Importe Pedido']\
+                                        .str.replace('€', '', regex=False) \
+                                        .str.replace('.', '', regex=False) \
+                                        .str.replace(',', '.', regex=False) \
+                                        .astype(float)
+
+            df_graph_1['Importe Final'] = df_graph_1.apply(lambda row: row['Importe Pedido'] if row['Estado'] == 'Adjudicada' else row['Importe Oferta'], axis=1)
+
+            cur.execute(query_graph_2)
+            results_graph_2 = cur.fetchall()
+            df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
+
+            cur.execute(query_weekly_summary)
+            results_weekly = cur.fetchall()
+            df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
+
+            cur.execute(query_active_summary)
+            results_active = cur.fetchall()
+            df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe'])
+
+        pdf = CustomPDF()
+
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
+
+        pdf.set_auto_page_break(auto=True)
+        pdf.set_margins(0.5, 0.5)
+
+        pdf.set_fill_color(180, 199, 231)
+
+        pdf.add_page()
+
+        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 1, 0.8, 7, 2.5)
+        pdf.ln(3.5)
+
+        pdf.set_font('Helvetica', 'B', size=10)
+        y_position = pdf.get_y()
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE OFERTADO', fill=True)
+        pdf.set_xy(3.5, y_position)
+        pdf.cell(0.4, 1.5,'')
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE ESTIMADO', fill=True)
+        pdf.set_xy(6.9, y_position)
+        pdf.cell(0.4, 1.5, '')
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE ADJUDICADO', fill=True)
+        pdf.set_xy(10.3, y_position)
+        pdf.cell(0.4, 1.5, '')
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS RECIBIDAS', fill=True)
+        pdf.set_xy(13.7, y_position)
+        pdf.cell(0.4, 1.5, '')
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS REALIZADAS', fill=True)
+        pdf.set_xy(17.1, y_position)
+        pdf.cell(0.4, 1.5, '')
+        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS ADJUDICADAS', fill=True)
+        pdf.ln()
+
+        pdf.set_font('DejaVuSansCondensed-Bold','', size=8)
+        y_position = pdf.get_y()
+        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] != 'Estimación']['Importe Oferta'].sum()), fill=False)
+        pdf.set_xy(3.5, y_position)
+        pdf.cell(0.4, 1, '')
+        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Estimación']['Importe Oferta'].sum()), fill=False)
+        pdf.set_xy(6.9, y_position)
+        pdf.cell(0.4, 1, '')
+        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Adjudicada']['Importe Oferta'].sum()), fill=False)
+        pdf.set_xy(10.3, y_position)
+        pdf.cell(0.4, 1, '')
+        pdf.fixed_height_multicell(3, 1, str(df_graph_2.shape[0]), fill=False)
+        pdf.set_xy(13.7, y_position)
+        pdf.cell(0.4, 1, '')
+        pdf.fixed_height_multicell(3, 1, str(df_graph_2[df_graph_2['Tabla'] == 'offers'].shape[0]), fill=False)
+        pdf.set_xy(17.1, y_position)
+        pdf.cell(0.4, 1, '')
+        pdf.fixed_height_multicell(3, 1, str(df_graph_2[df_graph_2['Estado'] == 'Adjudicada'].shape[0]), fill=False)
+        pdf.ln()
+
+
+        pivot_table = df_graph_1.pivot_table(index='Responsable', columns='Estado', values='Importe Final', aggfunc='sum', fill_value=0)
+
+        categories = pivot_table.index.tolist()        
+        states = pivot_table.columns.tolist()         
+        values = pivot_table.values                   
+
+        x = np.arange(len(categories))           # Categories position
+        width = 0.8 / len(states)               # Bar width
+
+        fig, ax = plt.subplots(figsize=(8,5))
+
+        for i, state in enumerate(states):
+            ax.bar(x + i*width, values[:, i], width=width, label=state)
+
+        ax.set_xticks(x + width*(len(states)-1)/2)  # Center ticks
+        ax.set_xticklabels(categories)
+
+        ax.yaxis.set_major_formatter(FuncFormatter(self.euro_format_axis))
+        ax.set_ylabel("Importe")
+        ax.set_title("Importes por responsable y estado")
+        ax.legend()
+        img_graph_1 = BytesIO()
+        plt.savefig(img_graph_1, format='PNG')
+        plt.close()
+        img_graph_1.seek(0)
+
+        count_graph_2 = df_graph_2['Estado'].value_counts().sort_index()  # opcional sort_index() para ordenar alfabeticamente
+
+        states = count_graph_2.index.tolist()
+        values = count_graph_2.values
+
+        fig, ax = plt.subplots(figsize=(8,5))
+        ax.bar(states, values, color='skyblue')
+
+        ax.yaxis.set_major_formatter(FuncFormatter(self.euro_format_axis))
+        ax.set_ylabel("Recuento")
+        ax.set_title("Recuento de ofertas por estado")
+
+        for i, v in enumerate(values):
+            if v >= 1000:
+                label = f"{v/1000:.0f}k"
+            else:
+                label = str(v)
+            ax.text(i, v + max(values)*0.01, label, ha='center', va='bottom')
+
+        img_graph_2 = BytesIO()
+        plt.savefig(img_graph_2, format='PNG', bbox_inches='tight')
+        plt.close()
+        img_graph_2.seek(0)
+
+        y_position = pdf.get_y()
+        pdf.image(img_graph_1, x=0.5, y=y_position, w=9.8)
+        # pdf.cell(9.8, 6, '', fill=True, border=1)
+        pdf.cell(0.4, 6, '')
+        # pdf.cell(9.8, 6, '', fill=True, border=1)
+        pdf.image(img_graph_2, x=10.7, y=y_position, w=9.8)
+        pdf.ln(6.5)
+
+        pdf.set_fill_color(255, 255, 64)
+        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.cell(11, 0.5, 'RESUMEN SEMANAL', fill=True)
+        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday())-timedelta(weeks=1)).strftime('%d/%m/%Y'), fill=True, align='C')
+        pdf.cell(3, 0.5, '-', fill=True, align='C')
+        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday())-timedelta(weeks=1)+timedelta(days=6)).strftime('%d/%m/%Y'), fill=True, align='C')
+        pdf.ln(1)
+
+        pdf.set_fill_color(180, 199, 231)
+        pdf.cell(3, 0.5, 'RECIBIDAS:')
+        pdf.cell(3, 0.5, str(df_weekly.shape[0]), align='L')
+        pdf.cell(1, 0.5, '')
+        pdf.cell(3, 0.5, 'REALIZADAS:')
+        pdf.cell(3, 0.5, str(df_weekly[df_weekly['Tabla'] == 'offers'].shape[0]), align='L')
+        pdf.cell(1, 0.5, '')
+        pdf.cell(3, 0.5, 'ADJUDICADAS:')
+        pdf.cell(3, 0.5, str(df_weekly[df_weekly['Estado'] == 'Adjudicada'].shape[0]), align='L')
+        pdf.ln(1)
+
+        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(2, 0.5, 'ESTADO', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.ln()
+
+        pdf.set_font('DejaVuSansCondensed', size=8)
+        for _, row in df_weekly.iterrows():
+            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(2, 0.5, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
+            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+            pdf.cell(3.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+            pdf.cell(3.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln()
+
+        pdf.ln()
+        pdf.set_fill_color(255, 255, 64)
+        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.cell(20, 0.5, 'OFERTAS EN ACTIVO', fill=True)
+        pdf.ln(1)
+
+        pdf.set_fill_color(180, 199, 231)
+        if df_active[df_active['Estado'] == 'Recibidas'].shape[0] > 0:
+            pdf.cell(3, 0.5, 'RECIBIDAS:')
+            pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Recibidas'].shape[0]), align='L')
+            pdf.ln(1)
+
+            pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
+            pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
+            pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
+            pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
+            pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
+            pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
+            pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+            pdf.ln()
+
+            pdf.set_font('DejaVuSansCondensed', size=8)
+            for _, row in df_active[df_active['Estado'] == 'Recibidas'].iterrows():
+                pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+                pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+                pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+                pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+                pdf.ln()
+            pdf.ln()
+
+        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.cell(3, 0.5, 'REGISTRADAS:')
+        pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Registrada'].shape[0]), align='L')
+        pdf.ln(1)
+
+        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.ln()
+
+        pdf.set_font('DejaVuSansCondensed', size=8)
+        for _, row in df_active[df_active['Estado'] == 'Registrada'].iterrows():
+            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+            pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+            pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln()
+
+        pdf.ln()
+
+        pdf.add_page()
+        
+        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.cell(3, 0.5, 'PRESENTADAS:')
+        pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Presentada'].shape[0]), align='L')
+        pdf.ln(1)
+
+        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.ln()
+
+        pdf.set_font('DejaVuSansCondensed', size=8)
+        for _, row in df_active[df_active['Estado'] == 'Presentada'].iterrows():
+            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+            pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+            pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln()
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "commercial_report.pdf"))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
+
+
+    def euro_format(self, valor):
+        return f"{valor:,.2f} €".replace(',', 'X').replace('.', ',').replace('X', '.')
+
+
+    def euro_format_axis(self, x, pos):
+        if x >= 1_000_000:
+            return f'{x/1_000_000:.1f}M€'.replace('.', ',')
+        elif x >= 1_000:
+            return f'{x/1_000:.0f}k€'.replace('.', ',')
+        else:
+            return f'{x:.0f}€'
+
+
+
+
 
 
 
