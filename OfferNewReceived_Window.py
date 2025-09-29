@@ -448,7 +448,7 @@ class Ui_New_OfferReceived_Window(object):
                         "id_offer", "responsible","client","final_client","num_ref_offer","material","register_date",
                         "recep_date","limit_date","description","items_number","state","notes"
                         )
-                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                         """)
 
             try:
