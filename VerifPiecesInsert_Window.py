@@ -1125,7 +1125,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
             # execution of commands
                 commands_insert = ("""INSERT INTO verification.warehouse_added_pieces
                                     (date_addition, num_ot, description, material, quantity, notes, image, document, state) 
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""")
                 data = (date_record, num_ot, description, material, quantity, notes, image, document, state)
                 cur.execute(commands_insert, data)
 
