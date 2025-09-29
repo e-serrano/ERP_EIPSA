@@ -528,7 +528,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
             print(tables_db_names)
 
-            tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
+            tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Productos Químicos', 'Albaranes', 'Verif. Planos DIM',
                             'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Humedad y Temperatura Armario','Valores PT100 INTA', 'Valores TC INTA',
                             'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
                             'Revisiones Máquinas', 'Manometros', 'Manometros y Termoelementos Taller', 'Revisiones Manometros y Termoelementos Taller', 'Patrones Termoelementos',
