@@ -50,7 +50,7 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
     """
     A custom QCalendarWidget that highlights specific dates by painting an image on the calendar cells.
 
-    This widget allows the user to set a list of dates (`task_dates`) and draws a custom image 
+    This widget allows the user to set a list of dates (`task_dates`) and draws a custom image
     on the corresponding calendar cells when these dates are displayed.
 
     Attributes:
@@ -125,7 +125,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         """
         Initializes the CustomTableWidget.
 
-        Sets up the initial state of the widget, including filters, checkbox states, 
+        Sets up the initial state of the widget, including filters, checkbox states,
         and hidden rows.
 
         Args:
@@ -144,7 +144,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         """
         Displays a context menu for unique values in a specified column.
 
-        The menu includes options to remove filters, sort the column, and filter by text. 
+        The menu includes options to remove filters, sort the column, and filter by text.
         It also allows the user to select/unselect unique values via checkboxes.
 
         Args:
@@ -194,7 +194,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         for value in sorted(unique_values):
             checkbox = QtWidgets.QCheckBox(value)
-            if select_all_checkbox.isChecked(): 
+            if select_all_checkbox.isChecked():
                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
             else:
                 if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
@@ -348,10 +348,10 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
-        
+
         label = QtWidgets.QLabel("Texto a filtrar:")
         text_input = QtWidgets.QLineEdit()
-        
+
         filter_button = QtWidgets.QPushButton("Filtrar")
         filter_button.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
@@ -390,7 +390,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-# Function to obtain the unique matching applied filters 
+# Function to obtain the unique matching applied filters
     def get_unique_values(self, column_index):
         """
         Retrieves unique values from the specified column, taking into account any active filters on other columns.
@@ -493,7 +493,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         """
         row_count = self.rowCount()
 
-        
+
         indexes = list(range(row_count))
 
         def parse_currency(text):
@@ -1128,7 +1128,7 @@ class Ui_App_SubManager(object):
 # Function to open window with offer query
     def query_offer(self):
         """
-        Opens a new window for querying offers. 
+        Opens a new window for querying offers.
         """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=Ui_QueryOffer_Window(self.username)
@@ -1137,7 +1137,7 @@ class Ui_App_SubManager(object):
 # Function to open window for query orders
     def query_order(self):
         """
-        Opens a new window for querying orders. 
+        Opens a new window for querying orders.
         Displays the UI to search and view details of existing orders.
         """
         from OrderQuery_Window import Ui_QueryOrder_Window
@@ -1169,7 +1169,7 @@ class Ui_App_SubManager(object):
 # Function to open window for query documents
     def query_documents(self):
         """
-        Opens a new window for querying documents. 
+        Opens a new window for querying documents.
         """
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=QtWidgets.QMainWindow()
@@ -1202,7 +1202,7 @@ class Ui_App_SubManager(object):
 # Function to open menu of offer statistics
     def stats_offers(self):
         """
-        Opens a new window for viewing offer statistics. 
+        Opens a new window for viewing offer statistics.
         """
         from OfferStats_Menu import Ui_StatsOffer_Menu
         self.statswindow=QtWidgets.QMainWindow()
@@ -1213,7 +1213,7 @@ class Ui_App_SubManager(object):
 # Function to open clien resume window
     def clients_generalresume(self):
         """
-        Opens a new window to display a general resume of client data. 
+        Opens a new window to display a general resume of client data.
         """
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
@@ -1224,8 +1224,8 @@ class Ui_App_SubManager(object):
 # Function to open window with tasks query
     def querytask(self, date=None):
         """
-        Opens a new window for querying tasks. 
-        
+        Opens a new window for querying tasks.
+
         Args:
             date (QDate, optional): The date to filter tasks. Defaults to None.
         """
@@ -1237,8 +1237,8 @@ class Ui_App_SubManager(object):
 # Function to add a new task
     def newtask(self, date):
         """
-        Opens a new window for creating a new task. 
-        
+        Opens a new window for creating a new task.
+
         Args:
             date (QDate): The date associated with the new task.
         """
@@ -1252,9 +1252,9 @@ class Ui_App_SubManager(object):
 # Function to open calendar menu
     def show_context_menu(self, point):
         """
-        Displays a context menu at the specified point in the calendar widget. 
+        Displays a context menu at the specified point in the calendar widget.
         Provides options to add or edit tasks for the selected date.
-        
+
         Args:
             point (QPoint): The location where the context menu will appear.
         """
@@ -1274,7 +1274,7 @@ class Ui_App_SubManager(object):
 # Function to open context menu when profile button is clicked
     def showMenu(self):
         """
-        Displays a context menu when the profile button is clicked. 
+        Displays a context menu when the profile button is clicked.
         Provides options to edit the password.
         """
         menu = QMenu(self.centralwidget)
@@ -1289,7 +1289,7 @@ class Ui_App_SubManager(object):
 # Function to open window for editing password
     def editpassword(self):
         """
-        Opens a new window for editing the user's password. 
+        Opens a new window for editing the user's password.
         """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -1420,11 +1420,11 @@ class Ui_App_SubManager(object):
     def get_tasks_for_date(self, creator, date):
         """
         Retrieves tasks for a specific date.
-        
+
         Args:
             creator (str): The creator or responsible person for the tasks.
             date (QDate): The date for which tasks are being retrieved.
-        
+
         Returns:
             list: A list of tasks for the specified date.
         """
@@ -1523,45 +1523,68 @@ class Ui_App_SubManager(object):
                             SELECT num_offer, state, responsible, 'offers' AS source_table
                             FROM offers
                             WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-                            
+
                             UNION ALL
-                            
+
                             SELECT 'a' as num_offer, state, responsible, 'received_offers' AS source_table
                             FROM received_offers
                             WHERE EXTRACT(YEAR FROM received_offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
                             """)
 
-        query_weekly_summary = ("""
+        query_last_weekly_summary = ("""
                             SELECT * FROM (
                             SELECT num_offer, state, responsible, client, final_client, TO_CHAR(presentation_date, 'DD/MM/YYYY'), material, offer_amount, 'offers' AS source_table
                             FROM offers
-                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date < date_trunc('week', CURRENT_DATE)
-                            
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE
+
                             UNION ALL
-                            
+
                             SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
                             FROM received_offers
-                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date < date_trunc('week', CURRENT_DATE)) as final_table
-                            
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE) as final_table
+
                             ORDER BY array_position(
                             ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state)
                             """)
-        
+
+        query_weekly_summary = ("""
+                            SELECT * FROM (
+                                SELECT num_offer, state, responsible, client, final_client,
+                                    TO_CHAR(presentation_date, 'DD/MM/YYYY') as presentation_date,
+                                    material, offer_amount, 'offers' AS source_table
+                                FROM offers
+                                WHERE register_date >= date_trunc('week', CURRENT_DATE)
+                                AND register_date < date_trunc('week', CURRENT_DATE) + interval '1 week'
+
+                                UNION ALL
+
+                                SELECT 'a' as num_offer, state, responsible, client, final_client,
+                                    '' as presentation_date,
+                                    material, '' as offer_amount, 'received_offers' AS source_table
+                                FROM received_offers
+                                WHERE register_date >= date_trunc('week', CURRENT_DATE)
+                                AND register_date < date_trunc('week', CURRENT_DATE) + interval '1 week'
+                            ) as final_table
+
+                            ORDER BY array_position(
+                                ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state)
+                        """)
+
         query_active_summary = ("""
                             SELECT * FROM (
                             SELECT num_offer, state, responsible, client, final_client, TO_CHAR(presentation_date, 'DD/MM/YYYY'), material, offer_amount
                             FROM offers
                             WHERE state IN ('Registrada', 'Presentada')
-                            
+
                             UNION ALL
-                            
+
                             SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount
                             FROM received_offers
                             WHERE state IN ('Recibida')) as final_table
-                            
+
                             ORDER BY state
                             """)
-        
+
         with Database_Connection(config()) as conn:
             cur = conn.cursor()
 
@@ -1587,7 +1610,7 @@ class Ui_App_SubManager(object):
             results_graph_2 = cur.fetchall()
             df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
 
-            cur.execute(query_weekly_summary)
+            cur.execute(query_last_weekly_summary)
             results_weekly = cur.fetchall()
             df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
 
@@ -1603,67 +1626,82 @@ class Ui_App_SubManager(object):
         pdf.set_auto_page_break(auto=True)
         pdf.set_margins(0.5, 0.5)
 
-        pdf.set_fill_color(180, 199, 231)
+        pdf.set_fill_color(3, 174, 236)
 
         pdf.add_page()
 
-        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 1, 0.8, 7, 2.5)
-        pdf.ln(3.5)
+        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 1, 0.8, 7, 2)
+        pdf.ln(3)
 
-        pdf.set_font('Helvetica', 'B', size=10)
-        y_position = pdf.get_y()
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE OFERTADO', fill=True)
-        pdf.set_xy(3.5, y_position)
-        pdf.cell(0.4, 1.5,'')
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE ESTIMADO', fill=True)
-        pdf.set_xy(6.9, y_position)
-        pdf.cell(0.4, 1.5, '')
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL IMPORTE ADJUDICADO', fill=True)
-        pdf.set_xy(10.3, y_position)
-        pdf.cell(0.4, 1.5, '')
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS RECIBIDAS', fill=True)
-        pdf.set_xy(13.7, y_position)
-        pdf.cell(0.4, 1.5, '')
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS REALIZADAS', fill=True)
-        pdf.set_xy(17.1, y_position)
-        pdf.cell(0.4, 1.5, '')
-        pdf.fixed_height_multicell(3, 1.5, 'TOTAL OFERTAS ADJUDICADAS', fill=True)
-        pdf.ln()
+        pdf.set_font('Helvetica', 'B', size=6)
+        y_position = 0.5
+        pdf.set_xy(10.2, y_position)
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL IMPORTE OFERTADO ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(13.2, y_position)
+        pdf.cell(0.4, 0.6,'')
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL IMPORTE ESTIMADO ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(16.6, y_position)
+        pdf.cell(0.4, 0.6, '')
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL IMPORTE ADJUDICADO ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(20, y_position)
 
-        pdf.set_font('DejaVuSansCondensed-Bold','', size=8)
-        y_position = pdf.get_y()
-        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] != 'Estimación']['Importe Oferta'].sum()), fill=False)
-        pdf.set_xy(3.5, y_position)
-        pdf.cell(0.4, 1, '')
-        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Estimación']['Importe Oferta'].sum()), fill=False)
-        pdf.set_xy(6.9, y_position)
-        pdf.cell(0.4, 1, '')
-        pdf.fixed_height_multicell(3, 1, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Adjudicada']['Importe Oferta'].sum()), fill=False)
-        pdf.set_xy(10.3, y_position)
-        pdf.cell(0.4, 1, '')
-        pdf.fixed_height_multicell(3, 1, str(df_graph_2.shape[0]), fill=False)
-        pdf.set_xy(13.7, y_position)
-        pdf.cell(0.4, 1, '')
-        pdf.fixed_height_multicell(3, 1, str(df_graph_2[df_graph_2['Tabla'] == 'offers'].shape[0]), fill=False)
-        pdf.set_xy(17.1, y_position)
-        pdf.cell(0.4, 1, '')
-        pdf.fixed_height_multicell(3, 1, str(df_graph_2[df_graph_2['Estado'] == 'Adjudicada'].shape[0]), fill=False)
-        pdf.ln()
+        pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
+        y_position = 1.1
+        pdf.set_xy(10.2, y_position)
+        pdf.fixed_height_multicell(3, 0.3, self.euro_format(df_graph_1[df_graph_1['Estado'] != 'Budgetary']['Importe Oferta'].sum()), fill=False)
+        pdf.set_xy(13.2, y_position)
+        pdf.cell(0.4, 0.3, '')
+        pdf.fixed_height_multicell(3, 0.3, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Budgetary']['Importe Oferta'].sum()), fill=False)
+        pdf.set_xy(16.6, y_position)
+        pdf.cell(0.4, 0.3, '')
+        pdf.fixed_height_multicell(3, 0.3, self.euro_format(df_graph_1[df_graph_1['Estado'] == 'Adjudicada']['Importe Oferta'].sum()), fill=False)
 
+        pdf.set_font('Helvetica', 'B', size=6)
+        y_position = 1.6
+        pdf.set_xy(10.2, y_position)
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL OFERTAS RECIBIDAS ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(13.2, y_position)
+        pdf.cell(0.4, 0.6, '')
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL OFERTAS REALIZADAS ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(16.6, y_position)
+        pdf.cell(0.4, 0.6, '')
+        pdf.fixed_height_multicell(3, 0.6, 'TOTAL OFERTAS ADJUDICADAS ' + str(datetime.today().year), fill=True)
+        pdf.set_xy(20, y_position)
+
+        pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
+        y_position = 2.2
+        pdf.set_xy(10.2, y_position)
+        pdf.fixed_height_multicell(3, 0.3, str(df_graph_2.shape[0]), fill=False)
+        pdf.set_xy(13.2, y_position)
+        pdf.cell(0.4, 0.3, '')
+        pdf.fixed_height_multicell(3, 0.3, str(df_graph_2[df_graph_2['Tabla'] == 'offers'].shape[0]), fill=False)
+        pdf.set_xy(16.6, y_position)
+        pdf.cell(0.4, 0.3, '')
+        pdf.fixed_height_multicell(3, 0.3, str(df_graph_2[df_graph_2['Estado'] == 'Adjudicada'].shape[0]), fill=False)
 
         pivot_table = df_graph_1.pivot_table(index='Responsable', columns='Estado', values='Importe Final', aggfunc='sum', fill_value=0)
 
-        categories = pivot_table.index.tolist()        
-        states = pivot_table.columns.tolist()         
-        values = pivot_table.values                   
+        categories = pivot_table.index.tolist()
+        states = pivot_table.columns.tolist()
+        values = pivot_table.values
 
         x = np.arange(len(categories))           # Categories position
         width = 0.8 / len(states)               # Bar width
 
+        state_colors = {
+            "Adjudicada": "#2ca02c",
+            "Presentada": "#ffe70eda",
+            "Registrada": "#9467bd",
+            "Perdida": "#d62728",
+            "Declinada": "#ff7f0e",
+            "Budgetary": "#949193"
+        }
+
         fig, ax = plt.subplots(figsize=(8,5))
 
         for i, state in enumerate(states):
-            ax.bar(x + i*width, values[:, i], width=width, label=state)
+            color = state_colors.get(state, "#119efc")
+            ax.bar(x + i*width, values[:, i], width=width, label=state, color=color)
 
         ax.set_xticks(x + width*(len(states)-1)/2)  # Center ticks
         ax.set_xticklabels(categories)
@@ -1672,20 +1710,21 @@ class Ui_App_SubManager(object):
         ax.set_ylabel("Importe")
         ax.set_title("Importes por responsable y estado")
         ax.legend()
+
         img_graph_1 = BytesIO()
         plt.savefig(img_graph_1, format='PNG')
         plt.close()
         img_graph_1.seek(0)
 
-        count_graph_2 = df_graph_2['Estado'].value_counts().sort_index()  # opcional sort_index() para ordenar alfabeticamente
+        count_graph_2 = df_graph_2['Estado'].value_counts().sort_index()  # Sorting by state
 
         states = count_graph_2.index.tolist()
         values = count_graph_2.values
 
         fig, ax = plt.subplots(figsize=(8,5))
-        ax.bar(states, values, color='skyblue')
+        ax.bar(states, values, color='#03AEEC')
 
-        ax.yaxis.set_major_formatter(FuncFormatter(self.euro_format_axis))
+        # ax.yaxis.set_major_formatter(FuncFormatter(self.euro_format_axis))
         ax.set_ylabel("Recuento")
         ax.set_title("Recuento de ofertas por estado")
 
@@ -1701,23 +1740,25 @@ class Ui_App_SubManager(object):
         plt.close()
         img_graph_2.seek(0)
 
-        y_position = pdf.get_y()
-        pdf.image(img_graph_1, x=0.5, y=y_position, w=9.8)
-        # pdf.cell(9.8, 6, '', fill=True, border=1)
-        pdf.cell(0.4, 6, '')
-        # pdf.cell(9.8, 6, '', fill=True, border=1)
-        pdf.image(img_graph_2, x=10.7, y=y_position, w=9.8)
-        pdf.ln(6.5)
+        y_position = 3
+        pdf.image(img_graph_1, x=0.5, y=y_position, w=9.8, h=4.5)
+        pdf.cell(0.4, 3, '')
+        pdf.image(img_graph_2, x=10.7, y=y_position, w=9.8, h=4.5)
+        pdf.ln(5)
 
+        # -timedelta(weeks=1)
+
+        # y_position = 3
+        # pdf.set_xy(0.5, y_position)
         pdf.set_fill_color(255, 255, 64)
-        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(11, 0.5, 'RESUMEN SEMANAL', fill=True)
-        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday())-timedelta(weeks=1)).strftime('%d/%m/%Y'), fill=True, align='C')
+        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday()) - timedelta(weeks=1)).strftime('%d/%m/%Y'), fill=True, align='C')
         pdf.cell(3, 0.5, '-', fill=True, align='C')
-        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday())-timedelta(weeks=1)+timedelta(days=6)).strftime('%d/%m/%Y'), fill=True, align='C')
-        pdf.ln(1)
+        pdf.cell(3, 0.5, (datetime.today().strftime('%d/%m/%Y')), fill=True, align='C')
+        pdf.ln(0.5)
 
-        pdf.set_fill_color(180, 199, 231)
+        pdf.set_fill_color(3, 174, 236)
         pdf.cell(3, 0.5, 'RECIBIDAS:')
         pdf.cell(3, 0.5, str(df_weekly.shape[0]), align='L')
         pdf.cell(1, 0.5, '')
@@ -1726,116 +1767,247 @@ class Ui_App_SubManager(object):
         pdf.cell(1, 0.5, '')
         pdf.cell(3, 0.5, 'ADJUDICADAS:')
         pdf.cell(3, 0.5, str(df_weekly[df_weekly['Estado'] == 'Adjudicada'].shape[0]), align='L')
-        pdf.ln(1)
+        pdf.ln(0.5)
 
-        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
-        pdf.cell(2, 0.5, 'ESTADO', fill=True, border=1, align='C')
-        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
-        pdf.cell(3.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
-        pdf.cell(3.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
-        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
-        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
-        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'ESTADO', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.3, 'IMPORTE', fill=True, border=1, align='C')
         pdf.ln()
 
-        pdf.set_font('DejaVuSansCondensed', size=8)
+        pdf.set_font('DejaVuSansCondensed', size=6)
         for _, row in df_weekly.iterrows():
-            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
-            pdf.cell(2, 0.5, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
-            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-            pdf.cell(3.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-            pdf.cell(3.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
-            pdf.ln()
+            # getting the required height of the row
+            h_client = pdf.get_multicell_height(3.5, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_clfinal = pdf.get_multicell_height(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+            h_material = pdf.get_multicell_height(3.25, 0.3, '' if row['Material'] is None else str(row['Material']))
+
+            row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+
+            # Setting values for table
+            pdf.cell(2, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(2, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+
+            if h_client > h_clfinal and h_client > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(3.5, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                pdf.set_xy(x + 3.5, y)  # move to correct position
+            else:
+                pdf.cell(3.5, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+
+            if h_clfinal > h_client and h_clfinal > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                pdf.set_xy(x + 3.5, y)
+            else:
+                pdf.cell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+
+            pdf.cell(2, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+
+            if h_material > h_client and h_material > h_clfinal:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(3.25, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                pdf.set_xy(x + 3.25, y)
+            else:
+                pdf.cell(3.25, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+
+            pdf.cell(2.25, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln(row_height)
 
         pdf.ln()
         pdf.set_fill_color(255, 255, 64)
-        pdf.set_font('Helvetica', 'B', size=10)
+        pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(20, 0.5, 'OFERTAS EN ACTIVO', fill=True)
-        pdf.ln(1)
+        pdf.ln(0.5)
 
-        pdf.set_fill_color(180, 199, 231)
-        if df_active[df_active['Estado'] == 'Recibidas'].shape[0] > 0:
+        pdf.set_fill_color(3, 174, 236)
+
+        df_received = df_active[df_active['Estado'] == 'Recibidas'].sort_values(by=['Responsable', 'Nº Oferta'])
+
+        if df_received.shape[0] > 0:
             pdf.cell(3, 0.5, 'RECIBIDAS:')
-            pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Recibidas'].shape[0]), align='L')
-            pdf.ln(1)
+            pdf.cell(3, 0.5, str(df_received), align='L')
+            pdf.ln(0.5)
 
-            pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
-            pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
-            pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
-            pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
-            pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
-            pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
-            pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+            pdf.cell(2, 0.3, 'OFERTA', fill=True, border=1, align='C')
+            pdf.cell(1.5, 0.3, 'RESP.', fill=True, border=1, align='C')
+            pdf.cell(4, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+            pdf.cell(4.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+            pdf.cell(2, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+            pdf.cell(3.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+            pdf.cell(2.25, 0.3, 'IMPORTE', fill=True, border=1, align='C')
             pdf.ln()
 
-            pdf.set_font('DejaVuSansCondensed', size=8)
-            for _, row in df_active[df_active['Estado'] == 'Recibidas'].iterrows():
-                pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
-                pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-                pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-                pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-                pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-                pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-                pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
-                pdf.ln()
+            pdf.set_font('DejaVuSansCondensed', size=6)
+            for _, row in df_received:
+                # getting the required height of the row
+                h_client = pdf.get_multicell_height(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
+                h_clfinal = pdf.get_multicell_height(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+                h_material = pdf.get_multicell_height(3.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+
+                row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+
+                # Setting values for table
+                pdf.cell(2, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+                pdf.cell(1.5, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+
+                if h_client > h_clfinal and h_client > h_material:
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.multi_cell(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                    pdf.set_xy(x + 4, y)  # move to correct position
+                else:
+                    pdf.cell(4, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+
+                if h_clfinal > h_client and h_clfinal > h_material:
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.multi_cell(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                    pdf.set_xy(x + 4.5, y)
+                else:
+                    pdf.cell(4.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+
+                pdf.cell(2, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+
+                if h_material > h_client and h_material > h_clfinal:
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.multi_cell(3.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                    pdf.set_xy(x + 3.75, y)
+                else:
+                    pdf.cell(3.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+
+                pdf.cell(2.25, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+                pdf.ln(row_height)
             pdf.ln()
 
-        pdf.set_font('Helvetica', 'B', size=10)
+        df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Responsable', 'Nº Oferta'])
+
+        pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(3, 0.5, 'REGISTRADAS:')
-        pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Registrada'].shape[0]), align='L')
-        pdf.ln(1)
+        pdf.cell(3, 0.5, str(df_registered.shape[0]), align='L')
+        pdf.ln(0.5)
 
-        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
-        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
-        pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
-        pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
-        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
-        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
-        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(4, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.3, 'IMPORTE', fill=True, border=1, align='C')
         pdf.ln()
 
-        pdf.set_font('DejaVuSansCondensed', size=8)
-        for _, row in df_active[df_active['Estado'] == 'Registrada'].iterrows():
-            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
-            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-            pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-            pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
-            pdf.ln()
+        pdf.set_font('DejaVuSansCondensed', size=6)
+        for _, row in df_registered.iterrows():
+            # getting the required height of the row
+            h_client = pdf.get_multicell_height(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_clfinal = pdf.get_multicell_height(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+            h_material = pdf.get_multicell_height(3.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+
+            row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+
+            # Setting values for table
+            pdf.cell(2, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+
+            if h_client > h_clfinal and h_client > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                pdf.set_xy(x + 4, y)  # move to correct position
+            else:
+                pdf.cell(4, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+
+            if h_clfinal > h_client and h_clfinal > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                pdf.set_xy(x + 4.5, y)
+            else:
+                pdf.cell(4.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+
+            pdf.cell(2, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+
+            if h_material > h_client and h_material > h_clfinal:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(3.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                pdf.set_xy(x + 3.75, y)
+            else:
+                pdf.cell(3.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+
+            pdf.cell(2.25, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln(row_height)
 
         pdf.ln()
 
-        pdf.add_page()
-        
-        pdf.set_font('Helvetica', 'B', size=10)
+        # pdf.add_page()
+
+        df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Responsable', 'Nº Oferta'])
+
+        pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(3, 0.5, 'PRESENTADAS:')
-        pdf.cell(3, 0.5, str(df_active[df_active['Estado'] == 'Presentada'].shape[0]), align='L')
-        pdf.ln(1)
+        pdf.cell(3, 0.5, str(df_presented.shape[0]), align='L')
+        pdf.ln(0.5)
 
-        pdf.cell(2, 0.5, 'OFERTA', fill=True, border=1, align='C')
-        pdf.cell(1.5, 0.5, 'RESP.', fill=True, border=1, align='C')
-        pdf.cell(4.5, 0.5, 'CLIENTE', fill=True, border=1, align='C')
-        pdf.cell(4.5, 0.5, 'CLIENTE FINAL', fill=True, border=1, align='C')
-        pdf.cell(2, 0.5, 'F. PRES.', fill=True, border=1, align='C')
-        pdf.cell(3.25, 0.5, 'MATERIAL', fill=True, border=1, align='C')
-        pdf.cell(2.25, 0.5, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(4, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(4.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(3.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2.25, 0.3, 'IMPORTE', fill=True, border=1, align='C')
         pdf.ln()
 
-        pdf.set_font('DejaVuSansCondensed', size=8)
-        for _, row in df_active[df_active['Estado'] == 'Presentada'].iterrows():
-            pdf.cell(2, 0.5, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
-            pdf.cell(1.5, 0.5, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-            pdf.cell(4.5, 0.5, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-            pdf.cell(4.5, 0.5, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-            pdf.cell(2, 0.5, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-            pdf.cell(3.25, 0.5, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-            pdf.cell(2.25, 0.5, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
-            pdf.ln()
+        pdf.set_font('DejaVuSansCondensed', size=6)
+        for _, row in df_presented.iterrows():
+            # getting the required height of the row
+            h_client = pdf.get_multicell_height(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_clfinal = pdf.get_multicell_height(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+            h_material = pdf.get_multicell_height(3.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+
+            row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+
+            # Setting values for table
+            pdf.cell(2, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+
+            if h_client > h_clfinal and h_client > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(4, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                pdf.set_xy(x + 4, y)  # move to correct position
+            else:
+                pdf.cell(4, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+
+            if h_clfinal > h_client and h_clfinal > h_material:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(4.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                pdf.set_xy(x + 4.5, y)
+            else:
+                pdf.cell(4.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+
+            pdf.cell(2, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+
+            if h_material > h_client and h_material > h_clfinal:
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.multi_cell(3.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                pdf.set_xy(x + 3.75, y)
+            else:
+                pdf.cell(3.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+
+            pdf.cell(2.25, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.ln(row_height)
 
         pdf_buffer = pdf.output()
 
