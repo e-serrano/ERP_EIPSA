@@ -629,7 +629,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         self.tableEquipment.verticalHeader().setVisible(False)
 
     # Change all column names
-        headers_names = ["ID", "Producto", "Fecha Compra", "Cantidad", "Fecha Fabricación", "Fecha Caducidad", "Colada", "Notas", "Foto"]
+        headers_names = ["ID", "Producto", "Fecha Compra", "Cantidad", "Fecha Fabricación", "Fecha Caducidad", "Colada", "Notas", "Foto", "Certificado"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -697,7 +697,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         self.tableEquipment.setSortingEnabled(False)
 
     # Change all column names
-        headers_names = ["ID", "Producto", "Fecha Compra", "Cantidad", "Fecha Fabricación", "Fecha Caducidad", "Colada", "Notas", "Foto"]
+        headers_names = ["ID", "Producto", "Fecha Compra", "Cantidad", "Fecha Fabricación", "Fecha Caducidad", "Colada", "Notas", "Foto", "Certificado"]
 
         self.model.setAllColumnHeaders(headers_names)
 
