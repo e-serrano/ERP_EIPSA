@@ -1526,7 +1526,7 @@ class Ui_App_SubManager(object):
 
                             UNION ALL
 
-                            SELECT 'a' as num_offer, state, responsible, 'received_offers' AS source_table
+                            SELECT id_offer, state, responsible, 'received_offers' AS source_table
                             FROM received_offers
                             WHERE EXTRACT(YEAR FROM received_offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
                             """)
@@ -1539,7 +1539,7 @@ class Ui_App_SubManager(object):
 
                             UNION ALL
 
-                            SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
+                            SELECT id_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
                             FROM received_offers
                             WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE) as final_table
 
@@ -1558,7 +1558,7 @@ class Ui_App_SubManager(object):
 
                                 UNION ALL
 
-                                SELECT 'a' as num_offer, state, responsible, client, final_client,
+                                SELECT id_offer, state, responsible, client, final_client,
                                     '' as presentation_date,
                                     material, '' as offer_amount, 'received_offers' AS source_table
                                 FROM received_offers
@@ -1578,7 +1578,7 @@ class Ui_App_SubManager(object):
 
                             UNION ALL
 
-                            SELECT 'a' as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount
+                            SELECT id_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount
                             FROM received_offers
                             WHERE state IN ('Recibida')) as final_table
 
