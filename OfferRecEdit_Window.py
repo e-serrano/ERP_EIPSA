@@ -8,8 +8,9 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config
-import os
+from config import config, get_path
+from utils.Show_Message import show_message
+from utils.Database_Manager import Database_Connection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -39,7 +40,7 @@ class Ui_Edit_OfferRec_Window(object):
         Edit_OfferReceived.setMinimumSize(QtCore.QSize(700, 550))
         Edit_OfferReceived.setMaximumSize(QtCore.QSize(700, 550))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Edit_OfferReceived.setWindowIcon(icon)
         Edit_OfferReceived.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -99,14 +100,14 @@ class Ui_Edit_OfferRec_Window(object):
         self.gridlayout_main.addItem(spacerItem, 0, 0, 1, 1)
         self.label_IDOffer = QtWidgets.QLabel(parent=self.frame)
         self.label_IDOffer.setMinimumSize(QtCore.QSize(60, 25))
-        self.label_IDOffer.setMaximumSize(QtCore.QSize(60, 25))
+        # self.label_IDOffer.setMaximumSize(QtCore.QSize(60, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_IDOffer.setFont(font)
         self.label_IDOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_IDOffer.setObjectName("label_IDOffer")
-        self.gridlayout_main.addWidget(self.label_IDOffer, 1, 0, 1, 1)
+        self.gridlayout_main.addWidget(self.label_IDOffer, 1, 0, 1, 2)
         self.IDOffer_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.IDOffer_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
         self.IDOffer_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
@@ -116,6 +117,24 @@ class Ui_Edit_OfferRec_Window(object):
         self.IDOffer_Edit_Offer.setEnabled(False)
         self.IDOffer_Edit_Offer.setObjectName("IDOffer_Edit_Offer")
         self.gridlayout_main.addWidget(self.IDOffer_Edit_Offer, 1, 2, 1, 1)
+        self.label_Responsible = QtWidgets.QLabel(parent=self.frame)
+        self.label_Responsible.setMinimumSize(QtCore.QSize(60, 25))
+        # self.label_Responsible.setMaximumSize(QtCore.QSize(60, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Responsible.setFont(font)
+        self.label_Responsible.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Responsible.setObjectName("label_Responsible")
+        self.gridlayout_main.addWidget(self.label_Responsible, 2, 0, 1, 2)
+        self.Responsible_Edit_Offer = QtWidgets.QComboBox(parent=self.frame)
+        self.Responsible_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
+        self.Responsible_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Responsible_Edit_Offer.setFont(font)
+        self.Responsible_Edit_Offer.setObjectName("Responsible_Edit_Offer")
+        self.gridlayout_main.addWidget(self.Responsible_Edit_Offer, 2, 2, 1, 1)
         self.label_State = QtWidgets.QLabel(parent=self.frame)
         self.label_State.setMinimumSize(QtCore.QSize(110, 25))
         self.label_State.setMaximumSize(QtCore.QSize(110, 25))
@@ -125,7 +144,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_State.setFont(font)
         self.label_State.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_State.setObjectName("label_State")
-        self.gridlayout_main.addWidget(self.label_State, 1, 3, 1, 1)
+        self.gridlayout_main.addWidget(self.label_State, 2, 3, 1, 1)
         self.State_Edit_Offer = QtWidgets.QComboBox(parent=self.frame)
         self.State_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.State_Edit_Offer.setMaximumSize(QtCore.QSize(200, 25))
@@ -133,7 +152,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.State_Edit_Offer.setFont(font)
         self.State_Edit_Offer.setObjectName("State_Edit_Offer")
-        self.gridlayout_main.addWidget(self.State_Edit_Offer, 1, 4, 1, 1)
+        self.gridlayout_main.addWidget(self.State_Edit_Offer, 2, 4, 1, 1)
         self.label_Client = QtWidgets.QLabel(parent=self.frame)
         self.label_Client.setMinimumSize(QtCore.QSize(60, 25))
         self.label_Client.setMaximumSize(QtCore.QSize(60, 25))
@@ -143,7 +162,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_Client.setFont(font)
         self.label_Client.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Client.setObjectName("label_Client")
-        self.gridlayout_main.addWidget(self.label_Client, 2, 0, 1, 1)
+        self.gridlayout_main.addWidget(self.label_Client, 3, 0, 1, 1)
         self.Button_NewClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_NewClient.setMinimumSize(QtCore.QSize(50, 25))
         self.Button_NewClient.setMaximumSize(QtCore.QSize(50, 25))
@@ -187,7 +206,7 @@ class Ui_Edit_OfferRec_Window(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.gridlayout_main.addWidget(self.Button_NewClient, 2, 1, 1, 1)
+        self.gridlayout_main.addWidget(self.Button_NewClient, 3, 1, 1, 1)
         self.Client_Edit_Offer = QtWidgets.QComboBox(parent=self.frame)
         self.Client_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
         self.Client_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
@@ -195,7 +214,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.Client_Edit_Offer.setFont(font)
         self.Client_Edit_Offer.setObjectName("Client_Edit_Offer")
-        self.gridlayout_main.addWidget(self.Client_Edit_Offer, 2, 2, 1, 1)
+        self.gridlayout_main.addWidget(self.Client_Edit_Offer, 3, 2, 1, 1)
         self.label_RecepDate = QtWidgets.QLabel(parent=self.frame)
         self.label_RecepDate.setMinimumSize(QtCore.QSize(110, 25))
         self.label_RecepDate.setMaximumSize(QtCore.QSize(110, 25))
@@ -205,7 +224,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_RecepDate.setFont(font)
         self.label_RecepDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_RecepDate.setObjectName("label_RecepDate")
-        self.gridlayout_main.addWidget(self.label_RecepDate, 2, 3, 1, 1)
+        self.gridlayout_main.addWidget(self.label_RecepDate, 3, 3, 1, 1)
         self.RecepDate_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.RecepDate_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.RecepDate_Edit_Offer.setMaximumSize(QtCore.QSize(200, 25))
@@ -213,7 +232,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.RecepDate_Edit_Offer.setFont(font)
         self.RecepDate_Edit_Offer.setObjectName("RecepDate_Edit_Offer")
-        self.gridlayout_main.addWidget(self.RecepDate_Edit_Offer, 2, 4, 1, 1)
+        self.gridlayout_main.addWidget(self.RecepDate_Edit_Offer, 3, 4, 1, 1)
         self.label_FinalClient = QtWidgets.QLabel(parent=self.frame)
         self.label_FinalClient.setMinimumSize(QtCore.QSize(110, 25))
         self.label_FinalClient.setMaximumSize(QtCore.QSize(110, 25))
@@ -223,7 +242,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_FinalClient.setFont(font)
         self.label_FinalClient.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_FinalClient.setObjectName("label_FinalClient")
-        self.gridlayout_main.addWidget(self.label_FinalClient, 3, 0, 1, 2)
+        self.gridlayout_main.addWidget(self.label_FinalClient, 4, 0, 1, 2)
         self.FinalClient_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.FinalClient_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
         self.FinalClient_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
@@ -231,7 +250,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.FinalClient_Edit_Offer.setFont(font)
         self.FinalClient_Edit_Offer.setObjectName("FinalClient_Edit_Offer")
-        self.gridlayout_main.addWidget(self.FinalClient_Edit_Offer, 3, 2, 1, 1)
+        self.gridlayout_main.addWidget(self.FinalClient_Edit_Offer, 4, 2, 1, 1)
         self.label_LimitDate = QtWidgets.QLabel(parent=self.frame)
         self.label_LimitDate.setMinimumSize(QtCore.QSize(110, 25))
         self.label_LimitDate.setMaximumSize(QtCore.QSize(110, 25))
@@ -241,7 +260,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_LimitDate.setFont(font)
         self.label_LimitDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_LimitDate.setObjectName("label_LimitDate")
-        self.gridlayout_main.addWidget(self.label_LimitDate, 3, 3, 1, 1)
+        self.gridlayout_main.addWidget(self.label_LimitDate, 4, 3, 1, 1)
         self.LimitDate_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.LimitDate_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.LimitDate_Edit_Offer.setMaximumSize(QtCore.QSize(200, 25))
@@ -249,7 +268,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.LimitDate_Edit_Offer.setFont(font)
         self.LimitDate_Edit_Offer.setObjectName("LimitDate_Edit_Offer")
-        self.gridlayout_main.addWidget(self.LimitDate_Edit_Offer, 3, 4, 1, 1)
+        self.gridlayout_main.addWidget(self.LimitDate_Edit_Offer, 4, 4, 1, 1)
         self.label_NumRef = QtWidgets.QLabel(parent=self.frame)
         self.label_NumRef.setMinimumSize(QtCore.QSize(110, 25))
         # self.label_NumRef.setMaximumSize(QtCore.QSize(105, 25))
@@ -259,7 +278,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_NumRef.setFont(font)
         self.label_NumRef.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NumRef.setObjectName("label_NumRef")
-        self.gridlayout_main.addWidget(self.label_NumRef, 4, 0, 1, 2)
+        self.gridlayout_main.addWidget(self.label_NumRef, 5, 0, 1, 2)
         self.NumRef_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.NumRef_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
         self.NumRef_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
@@ -267,7 +286,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.NumRef_Edit_Offer.setFont(font)
         self.NumRef_Edit_Offer.setObjectName("NumRef_Edit_Offer")
-        self.gridlayout_main.addWidget(self.NumRef_Edit_Offer, 4, 2, 1, 1)
+        self.gridlayout_main.addWidget(self.NumRef_Edit_Offer, 5, 2, 1, 1)
         self.label_Description = QtWidgets.QLabel(parent=self.frame)
         self.label_Description.setMinimumSize(QtCore.QSize(110, 25))
         self.label_Description.setMaximumSize(QtCore.QSize(110, 25))
@@ -277,7 +296,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_Description.setFont(font)
         self.label_Description.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Description.setObjectName("label_Description")
-        self.gridlayout_main.addWidget(self.label_Description, 4, 3, 1, 1)
+        self.gridlayout_main.addWidget(self.label_Description, 5, 3, 1, 1)
         self.Description_Edit_Offer = QtWidgets.QTextEdit(parent=self.frame)
         self.Description_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.Description_Edit_Offer.setMaximumSize(QtCore.QSize(200, 25))
@@ -285,7 +304,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.Description_Edit_Offer.setFont(font)
         self.Description_Edit_Offer.setObjectName("Description_Edit_Offer")
-        self.gridlayout_main.addWidget(self.Description_Edit_Offer, 4, 4, 1, 1)
+        self.gridlayout_main.addWidget(self.Description_Edit_Offer, 5, 4, 1, 1)
         self.label_Material = QtWidgets.QLabel(parent=self.frame)
         self.label_Material.setMinimumSize(QtCore.QSize(110, 25))
         # self.label_Material.setMaximumSize(QtCore.QSize(110, 25))
@@ -295,7 +314,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_Material.setFont(font)
         self.label_Material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Material.setObjectName("label_Material")
-        self.gridlayout_main.addWidget(self.label_Material, 5, 0, 1, 2)
+        self.gridlayout_main.addWidget(self.label_Material, 6, 0, 1, 2)
         self.Material_Edit_Offer = QtWidgets.QComboBox(parent=self.frame)
         self.Material_Edit_Offer.setMinimumSize(QtCore.QSize(175, 25))
         self.Material_Edit_Offer.setMaximumSize(QtCore.QSize(175, 25))
@@ -304,7 +323,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.Material_Edit_Offer.setFont(font)
         self.Material_Edit_Offer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.Material_Edit_Offer.setObjectName("Material_Edit_Offer")
-        self.gridlayout_main.addWidget(self.Material_Edit_Offer, 5, 2, 1, 1)
+        self.gridlayout_main.addWidget(self.Material_Edit_Offer, 6, 2, 1, 1)
         self.label_NumItems = QtWidgets.QLabel(parent=self.frame)
         self.label_NumItems.setMinimumSize(QtCore.QSize(110, 25))
         self.label_NumItems.setMaximumSize(QtCore.QSize(110, 25))
@@ -314,7 +333,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_NumItems.setFont(font)
         self.label_NumItems.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_NumItems.setObjectName("label_NumItems")
-        self.gridlayout_main.addWidget(self.label_NumItems, 5, 3, 1, 1)
+        self.gridlayout_main.addWidget(self.label_NumItems, 6, 3, 1, 1)
         self.NumItems_Edit_Offer = QtWidgets.QLineEdit(parent=self.frame)
         self.NumItems_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.NumItems_Edit_Offer.setMaximumSize(QtCore.QSize(200, 25))
@@ -322,7 +341,7 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.NumItems_Edit_Offer.setFont(font)
         self.NumItems_Edit_Offer.setObjectName("NumItems_Edit_Offer")
-        self.gridlayout_main.addWidget(self.NumItems_Edit_Offer, 5, 4, 1, 1)
+        self.gridlayout_main.addWidget(self.NumItems_Edit_Offer, 6, 4, 1, 1)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
         self.label_Notes.setMinimumSize(QtCore.QSize(110, 25))
         # self.label_Notes.setMaximumSize(QtCore.QSize(110, 25))
@@ -332,7 +351,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.label_Notes.setFont(font)
         self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Notes.setObjectName("label_Notes")
-        self.gridlayout_main.addWidget(self.label_Notes, 6, 0, 1, 2)
+        self.gridlayout_main.addWidget(self.label_Notes, 7, 0, 1, 2)
         self.Notes_Edit_Offer = QtWidgets.QTextEdit(parent=self.frame)
         self.Notes_Edit_Offer.setMinimumSize(QtCore.QSize(200, 25))
         self.Notes_Edit_Offer.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -340,21 +359,21 @@ class Ui_Edit_OfferRec_Window(object):
         font.setPointSize(10)
         self.Notes_Edit_Offer.setFont(font)
         self.Notes_Edit_Offer.setObjectName("Notes_Edit_Offer")
-        self.gridlayout_main.addWidget(self.Notes_Edit_Offer, 6, 2, 1, 3)
+        self.gridlayout_main.addWidget(self.Notes_Edit_Offer, 7, 2, 1, 3)
         self.Button_Edit_Offer = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Edit_Offer.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Edit_Offer.setMaximumSize(QtCore.QSize(16777215, 30))
         self.Button_Edit_Offer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Edit_Offer.setAutoDefault(True)
         self.Button_Edit_Offer.setObjectName("Button_Edit_Offer")
-        self.gridlayout_main.addWidget(self.Button_Edit_Offer, 7, 1, 1, 2)
+        self.gridlayout_main.addWidget(self.Button_Edit_Offer, 8, 1, 1, 2)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridlayout_main.addWidget(self.Button_Cancel, 7, 4, 1, 1)        
+        self.gridlayout_main.addWidget(self.Button_Cancel, 8, 4, 1, 1)        
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Edit_OfferReceived.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Edit_OfferReceived)
@@ -374,42 +393,36 @@ class Ui_Edit_OfferRec_Window(object):
 
         self.IDOffer_Edit_Offer.setText(self.id_offer)
 
-        commands_productype = ("""
+        query_producttype = ("""
                         SELECT * 
                         FROM product_type
+                        ORDER BY product_type ASC
                         """)
+
+        query_commercial = ("""
+                        select username
+                        from users_data.registration
+                        where profile = 'Comercial'
+                        order by username ASC""")
         conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_productype)
-            results_producttype=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(query_producttype)
+                results_producttype=cur.fetchall()
+
+                cur.execute(query_commercial)
+                results_commercial=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         list_material=[x[0] for x in results_producttype]
-        list_material.sort()
         self.Material_Edit_Offer.addItems(list_material)
+
+        list_commercial=[x[0] for x in results_commercial]
+        self.Responsible_Edit_Offer.addItems(list_commercial)
 
         self.State_Edit_Offer.addItems(['Recibida', 'Declinada'])
 
@@ -425,6 +438,7 @@ class Ui_Edit_OfferRec_Window(object):
         _translate = QtCore.QCoreApplication.translate
         Edit_OfferReceived.setWindowTitle(_translate("Edit_OfferReceived", "Editar Oferta"))
         self.label_Description.setText(_translate("Edit_OfferReceived", "Descripción:"))
+        self.label_Responsible.setText(_translate("Edit_OfferReceived", "Responsable:"))
         self.label_Client.setText(_translate("Edit_OfferReceived", "Cliente:"))
         self.label_FinalClient.setText(_translate("Edit_OfferReceived", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("Edit_OfferReceived", "Nº Referencia:"))
@@ -435,7 +449,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.Button_Edit_Offer.setText(_translate("Edit_OfferReceived", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_OfferReceived", "Cancelar"))
         self.Button_NewClient.setText(_translate("Edit_OfferReceived", "+"))
-        self.label_IDOffer.setText(_translate("Edit_OfferReceived", "ID Oferta"))
+        self.label_IDOffer.setText(_translate("Edit_OfferReceived", "ID Oferta:"))
         self.label_State.setText(_translate("Edit_OfferReceived", "Estado"))
         self.label_Notes.setText(_translate("Edit_OfferReceived", "Notas"))
 
@@ -451,38 +465,21 @@ class Ui_Edit_OfferRec_Window(object):
         commands_clients = ("""
                         SELECT * 
                         FROM clients_list
+                        ORDER BY client_name ASC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clients)
-            results_clients=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_clients)
+                results_clients=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_clients=[x[0] for x in results_clients]
-        list_clients.sort()
         self.Client_Edit_Offer.addItems(list_clients)
 
 
@@ -491,6 +488,7 @@ class Ui_Edit_OfferRec_Window(object):
         Edit the corresponding entry in database after validating form inputs.
         """
         id_offer=self.IDOffer_Edit_Offer.text()
+        responsible=self.Responsible_Edit_Offer.currentText()
         client=self.Client_Edit_Offer.currentText()
         finalclient=self.FinalClient_Edit_Offer.text()
         numref=self.NumRef_Edit_Offer.text()
@@ -503,63 +501,34 @@ class Ui_Edit_OfferRec_Window(object):
         notes = self.Notes_Edit_Offer.toPlainText()
 
         if not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
         else:
             if id_offer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (material=="" or (limit_date=="" or numitems=='')))))):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Oferta")
-                dlg.setText("Los campos no pueden estar vacíos")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                show_message("Los campos no pueden estar vacíos", "warning")
 
             else:
                 #SQL Query for updating values in database
                 commands_updateoffer = ("""
                             UPDATE received_offers
-                            SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s,
+                            SET "responsible" = %s, "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s,
                             "material" = %s, "description" = %s, "limit_date" = %s, "recep_date" = %s, "items_number" = %s, "notes" = %s
                             WHERE "id_offer" = %s
                             """)
 
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    data=(client, finalclient, numref, state,
-                        material, description, limit_date, recep_date, numitems, notes,
-                        id_offer,)
-                    cur.execute(commands_updateoffer,data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands one by one
+                        data=(responsible, client, finalclient, numref, state,
+                            material, description, limit_date, recep_date, numitems, notes,
+                            id_offer,)
+                        cur.execute(commands_updateoffer,data)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Editar Oferta")
-                    dlg.setText("Oferta editada con exito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    # commit the changes
+                        conn.commit()
+
+                    show_message("Oferta editada con exito", "info")
 
                     self.FinalClient_Edit_Offer.setText('')
                     self.NumRef_Edit_Offer.setText('')
@@ -570,21 +539,8 @@ class Ui_Edit_OfferRec_Window(object):
                     self.Notes_Edit_Offer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
     def queryofferdata(self):
         """
@@ -600,34 +556,17 @@ class Ui_Edit_OfferRec_Window(object):
                     JOIN users_data.initials as initials ON (received_offers."responsible" = initials."username")
                     WHERE "id_offer" = %s
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_loaddataoffer,(self.id_offer,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_loaddataoffer,(self.id_offer,))
+                results=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.Client_Edit_Offer.setCurrentText(str(results[0][0]))
         self.FinalClient_Edit_Offer.setText(str(results[0][1]))
@@ -639,7 +578,6 @@ class Ui_Edit_OfferRec_Window(object):
         self.RecepDate_Edit_Offer.setText(str(results[0][7]) if str(results[0][7]) != 'None' else '')
         self.NumItems_Edit_Offer.setText(str(results[0][8]))
         self.Notes_Edit_Offer.setText(str(results[0][10]))
-
 
     def NewClient(self):
         """
@@ -656,7 +594,7 @@ class Ui_Edit_OfferRec_Window(object):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Edit_OfferRec_Window = QtWidgets.QMainWindow()
-    ui = Ui_Edit_OfferRec_Window()
+    ui = Ui_Edit_OfferRec_Window('R-11')
     ui.setupUi(Edit_OfferRec_Window)
     Edit_OfferRec_Window.show()
     sys.exit(app.exec())

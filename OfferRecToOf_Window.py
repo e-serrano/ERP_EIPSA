@@ -8,8 +8,10 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config
+from config import config, get_path
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -39,7 +41,7 @@ class Ui_OfferRecToOf_Window(object):
         OfferRecToOf_Window.setMinimumSize(QtCore.QSize(1100, 500))
         OfferRecToOf_Window.setMaximumSize(QtCore.QSize(1100, 500))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OfferRecToOf_Window.setWindowIcon(icon)
         OfferRecToOf_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -161,13 +163,12 @@ class Ui_OfferRecToOf_Window(object):
         self.label_Responsible.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Responsible.setObjectName("label_Responsible")
         self.gridLayout_2.addWidget(self.label_Responsible, 2, 0, 1, 1)
-        self.Responsible_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.Responsible_EditOffer = QtWidgets.QComboBox(parent=self.frame)
         self.Responsible_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
         self.Responsible_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Responsible_EditOffer.setFont(font)
-        self.Responsible_EditOffer.setReadOnly(True)
         self.Responsible_EditOffer.setObjectName("Responsible_EditOffer")
         self.gridLayout_2.addWidget(self.Responsible_EditOffer, 2, 1, 1, 1)
         self.label_LimitDate = QtWidgets.QLabel(parent=self.frame)
@@ -537,42 +538,36 @@ class Ui_OfferRecToOf_Window(object):
         list_nacext=['Exterior','Nacional']
         self.NacExt_EditOffer.addItems(list_nacext)
 
-        commands_producttype = ("""
+        query_producttype = ("""
                         SELECT * 
                         FROM product_type
+                        ORDER BY product_type ASC
                         """)
+
+        query_commercial = ("""
+                        select username
+                        from users_data.registration
+                        where profile = 'Comercial'
+                        order by username ASC""")
         conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_producttype)
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(query_producttype)
+                results_producttype=cur.fetchall()
 
-        list_material=[x[0] for x in results]
-        list_material.sort()
+                cur.execute(query_commercial)
+                results_commercial=cur.fetchall()
+        except (Exception, psycopg2.DatabaseError) as error:
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
+
+        list_material=[x[0] for x in results_producttype]
         self.Material_EditOffer.addItems(list_material)
+
+        list_commercial=[x[0] for x in results_commercial]
+        self.Responsible_EditOffer.addItems(list_commercial)
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
         self.Probability_EditOffer.addItems(['Alta', 'Media', 'Baja'])
@@ -620,6 +615,7 @@ class Ui_OfferRecToOf_Window(object):
         Edit the corresponding entry in database after validating form inputs.
         """
         numoffer=self.NumOffer_EditOffer.text()
+        responsible=self.Responsible_EditOffer.currentText()
         client=self.Client_EditOffer.text()
         finalclient=self.FinalClient_EditOffer.text()
         numref=self.NumRef_EditOffer.text()
@@ -643,93 +639,57 @@ class Ui_OfferRecToOf_Window(object):
         probability=self.Probability_EditOffer.currentText()
 
         if state in ['Presentada', 'Adjudicada','Declinada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Editar Oferta")
-            dlg.setText('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos')
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
 
         elif state in ['Presentada', 'Adjudicada','Declinada','Perdida'] and (not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
         else:
             if numoffer=="" or numoffer==" ":
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Oferta")
-                dlg.setText("Introduce un número de oferta válido")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                show_message("Introduce un número de oferta válido", "warning")
 
             elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or (rate_type=="" or numitems==''))))))))))):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Oferta")
-                dlg.setText("Los campos no pueden estar vacíos")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                show_message("Los campos no pueden estar vacíos", "warning")
 
             else:
                 #SQL Query for updating values in database
                 commands_offerrectoof = ("""
                             INSERT INTO offers (
                             "num_offer","state","responsible","client","final_client",
-                            "num_ref_offer","register_date","nac_ext","buyer","material",
-                            "notes","limit_date","rate_type","important","recep_date","mails", "portal", "items_number", "probability"
+                            "num_ref_offer","register_date","nac_ext","buyer",
+                            "material", "notes", "offer_amount", "limit_date","rate_type",
+                            "important","recep_date","mails", "portal", "items_number", "probability",
+                            "last_update", "presentation_date", "tracking"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,%s,
+                                    %s,%s,%s)
                             """)
+
                 commands_deleterecoffer = ("""
                             DELETE FROM received_offers
                             WHERE "id_offer" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    data=(numoffer, client, finalclient, numref, state, nacext, buyer,
-                        material, notes, amount, limit_date, rate_type,
-                        important_issues, tracking, recep_date, mails, last_update,
-                        presentation_date, portal, numitems, probability)
-                    cur.execute(commands_offerrectoof,data)
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands one by one
+                        data=(numoffer, state, responsible, client, finalclient,
+                            numref, recep_date, nacext, buyer,
+                            material, notes, amount, limit_date, rate_type,
+                            important_issues, recep_date, mails, portal, numitems, probability,
+                            last_update, presentation_date, tracking)
+                        cur.execute(commands_offerrectoof,data)
 
-                    cur.execute(commands_deleterecoffer, (self.id_offer,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        cur.execute(commands_deleterecoffer, (self.id_offer,))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Oferta")
-                    dlg.setText("Oferta pasada con exito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    # commit the changes
+                        conn.commit()
+
+                    show_message("Oferta pasada con exito", "info")
 
                     self.NumOffer_EditOffer.setText('')
                     self.Client_EditOffer.setText('')
@@ -750,20 +710,8 @@ class Ui_OfferRecToOf_Window(object):
                     self.NumItems_EditOffer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 
     def queryofferdata(self):
@@ -774,39 +722,21 @@ class Ui_OfferRecToOf_Window(object):
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
                     SELECT received_offers."client", received_offers."final_client", received_offers."num_ref_offer", received_offers."state", received_offers."material",
-                    received_offers."description", TO_CHAR(received_offers."limit_date", 'DD-MM-YYYY'), TO_CHAR(received_offers."recep_date", 'DD-MM-YYYY'), received_offers."items_number", initials."initials"
+                    received_offers."description", TO_CHAR(received_offers."limit_date", 'DD-MM-YYYY'), TO_CHAR(received_offers."recep_date", 'DD-MM-YYYY'), received_offers."items_number", received_offers."responsible"
                     FROM received_offers
-                    JOIN users_data.initials as initials ON (received_offers."responsible" = initials."username")
                     WHERE received_offers."id_offer" = %s
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_loaddataoffer,(self.id_offer,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_loaddataoffer,(self.id_offer,))
+                results=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.NumOffer_EditOffer.setText(str(self.id_offer))
         self.Client_EditOffer.setText(str(results[0][0]))
