@@ -1544,6 +1544,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(157,columns_number-1):
                     self.tableEditTags.hideColumn(i)
+                if self.username not in ['j.martinez']:
+                    self.tableEditTags.showColumn(30)
 
             elif self.variable == 'Temperatura':
                 for i in range(80,132):
@@ -1564,6 +1566,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,columns_number-1):
                     self.tableEditTags.hideColumn(i)
+                if self.username not in ['j.martinez']:
+                    self.tableEditTags.showColumn(35)
 
             elif self.variable == 'Nivel':
                 for i in range(66,138):
@@ -1582,6 +1586,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(170,columns_number-1):
                     self.tableEditTags.hideColumn(i)
+                if self.username not in ['j.martinez']:
+                    self.tableEditTags.showColumn(36)
 
             elif self.variable == 'Otros':
                 for i in range(27,31):
@@ -1598,15 +1604,18 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(57,columns_number-1):
                     self.tableEditTags.hideColumn(i)
+                if self.username not in ['j.martinez']:
+                    self.tableEditTags.showColumn(11)
 
-            if self.variable == 'Caudal':
-                self.tableEditTags.hideColumn(30)
-            elif self.variable == 'Temperatura':
-                self.tableEditTags.hideColumn(35)
-            elif self.variable == 'Nivel':
-                self.tableEditTags.hideColumn(36)
-            elif self.variable == 'Otros':
-                self.tableEditTags.hideColumn(11)
+            if self.username not in ['j.martinez']:
+                if self.variable == 'Caudal':
+                    self.tableEditTags.hideColumn(30)
+                elif self.variable == 'Temperatura':
+                    self.tableEditTags.hideColumn(35)
+                elif self.variable == 'Nivel':
+                    self.tableEditTags.hideColumn(36)
+                elif self.variable == 'Otros':
+                    self.tableEditTags.hideColumn(11)
 
             # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
