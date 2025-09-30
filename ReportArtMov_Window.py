@@ -17,6 +17,8 @@ from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -629,29 +631,47 @@ class Ui_ArtMov_Window(object):
         self.gridLayout1 = QtWidgets.QGridLayout()
         self.gridLayout1.setSpacing(0)
         self.gridLayout1.setObjectName("gridLayout1")
-        self.label_item = QtWidgets.QLabel(parent=self.frame)
-        self.label_item.setMinimumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
-        self.label_item.setMaximumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
+        self.label_item_1 = QtWidgets.QLabel(parent=self.frame)
+        self.label_item_1.setMinimumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
+        self.label_item_1.setMaximumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
         font = QtGui.QFont()
         font.setPointSize(int(14//self.scale))
         font.setBold(True)
-        self.label_item.setFont(font)
-        self.label_item.setObjectName("label_item")
-        self.gridLayout1.addWidget(self.label_item, 0, 0, 1, 1)
-        self.ItemName = ScrollableComboBox()
-        self.ItemName.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
-        self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(35//self.scale)))
-        self.ItemName.setEditable(True)
+        self.label_item_1.setFont(font)
+        self.label_item_1.setObjectName("label_item_1")
+        self.gridLayout1.addWidget(self.label_item_1, 0, 0, 1, 1)
+        self.ItemName_1 = ScrollableComboBox()
+        self.ItemName_1.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
+        self.ItemName_1.setMaximumSize(QtCore.QSize(16777215, int(35//self.scale)))
+        self.ItemName_1.setEditable(True)
         font = QtGui.QFont()
         font.setPointSize(int(14//self.scale))
-        self.ItemName.setFont(font)
-        self.ItemName.setObjectName("ItemName")
-        self.gridLayout1.addWidget(self.ItemName, 0, 1, 1, 2)
+        self.ItemName_1.setFont(font)
+        self.ItemName_1.setObjectName("ItemName_1")
+        self.gridLayout1.addWidget(self.ItemName_1, 0, 1, 1, 1)
+        self.label_item_2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_item_2.setMinimumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
+        self.label_item_2.setMaximumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(14//self.scale))
+        font.setBold(True)
+        self.label_item_2.setFont(font)
+        self.label_item_2.setObjectName("label_item_2")
+        self.gridLayout1.addWidget(self.label_item_2, 0, 2, 1, 1)
+        self.ItemName_2 = ScrollableComboBox()
+        self.ItemName_2.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
+        self.ItemName_2.setMaximumSize(QtCore.QSize(16777215, int(35//self.scale)))
+        self.ItemName_2.setEditable(True)
+        font = QtGui.QFont()
+        font.setPointSize(int(14//self.scale))
+        self.ItemName_2.setFont(font)
+        self.ItemName_2.setObjectName("ItemName_2")
+        self.gridLayout1.addWidget(self.ItemName_2, 0, 3, 1, 1)
         self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Export.setMinimumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
         self.Button_Export.setMaximumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
         self.Button_Export.setObjectName("Button_Export")
-        self.gridLayout1.addWidget(self.Button_Export, 0, 3, 1, 1)
+        self.gridLayout1.addWidget(self.Button_Export, 0, 4, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout1, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
@@ -702,47 +722,32 @@ class Ui_ArtMov_Window(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
 
-        commands_supplies = "SELECT * FROM purch_fact.supplies"
-        conn = None
+        commands_supplies = "SELECT * FROM purch_fact.supplies ORDER BY purch_fact.supplies.reference ASC"
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_supplies)
-            results_supplies=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_supplies)
+                results_supplies=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_supplies=[x[3] + ' | ' + x[4] + ' | ' +  str(x[0]) for x in results_supplies]
-        self.ItemName.addItems([''] + sorted(list_supplies))
+        self.ItemName_1.addItems([''] + list_supplies)
+
+        list_supplies=[x[3] + ' | ' + x[4] + ' | ' +  str(x[0]) for x in results_supplies]
+        self.ItemName_2.addItems([''] + list_supplies)
 
         self.retranslateUi(ReportArtMov)
         QtCore.QMetaObject.connectSlotsByName(ReportArtMov)
 
-        self.ItemName.currentTextChanged.connect(self.loaddata)
+        self.ItemName_1.currentTextChanged.connect(self.loaddata)
+        self.ItemName_2.currentTextChanged.connect(self.loaddata)
         self.Button_Export.clicked.connect(self.generate_excel)
 
         if self.ref_supply is not None:
-            self.ItemName.setCurrentText(self.ref_supply)
+            self.ItemName_1.setCurrentText(self.ref_supply)
 
         self.tableWidget.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
@@ -761,7 +766,8 @@ class Ui_ArtMov_Window(object):
         item.setText(_translate("ReportArtMov", "Fecha Pedido"))
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("ReportArtMov", "Cantidad"))
-        self.label_item.setText(_translate("ReportArtMov", "Artículo"))
+        self.label_item_1.setText(_translate("ReportArtMov", "Artículo 1"))
+        self.label_item_2.setText(_translate("ReportArtMov", "Artículo 2"))
         self.label_Total.setText(_translate("ReportArtMov", "Total Cantidad"))
         self.Button_Export.setText(_translate("ReportArtMov", "Exportar"))
 
@@ -771,46 +777,59 @@ class Ui_ArtMov_Window(object):
         Queries the database based on selected item, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        supply_name=self.ItemName.currentText()
-        supply_id = supply_name.split('|')[-1].strip()
+        supply_name_1 = self.ItemName_1.currentText()
+        supply_reference_1 = supply_name_1.split('|')[0].strip()
+        supply_id_1 = supply_name_1.split('|')[-1].strip()
 
-        if len(supply_name.split('|')) == 3:
-            query1 = """
-                    SELECT co_header."id", co_header."client_id", co_header."client_order_num", clients."name", co_header."order_date"
-                    FROM purch_fact.client_ord_header AS co_header
-                    LEFT JOIN purch_fact.clients AS clients ON co_header."client_id" = clients."id"
-                    ORDER BY clients."name" ASC, co_header."order_date" DESC
-                    """
-            query2 = """
-                    SELECT co_det."client_ord_header_id", supplies."reference", supplies."description", co_det."quantity", supplies."id"
-                    FROM purch_fact.supplies AS supplies
-                    RIGHT JOIN purch_fact.client_ord_detail AS co_det ON supplies."id" = co_det."supply_id"
-                    ORDER BY co_det."client_ord_header_id"
-                    """
+        supply_name_2 = self.ItemName_2.currentText()
+        supply_reference_2 = supply_name_2.split('|')[0].strip()
+        supply_id_2 = supply_name_2.split('|')[-1].strip()
+
+        query1 = """
+                SELECT co_header."id", co_header."client_id", co_header."client_order_num", clients."name", co_header."order_date"
+                FROM purch_fact.client_ord_header AS co_header
+                LEFT JOIN purch_fact.clients AS clients ON co_header."client_id" = clients."id"
+                ORDER BY clients."name" ASC, co_header."order_date" DESC
+                """
+        query2 = """
+                SELECT co_det."client_ord_header_id", supplies."reference", supplies."description", co_det."quantity", supplies."id"
+                FROM purch_fact.supplies AS supplies
+                RIGHT JOIN purch_fact.client_ord_detail AS co_det ON supplies."id" = co_det."supply_id"
+                ORDER BY co_det."client_ord_header_id"
+                """
+        
+        commands_supplies = None
+
+        if not supply_name_2 and len(supply_name_1.split('|')) == 3:
             commands_supplies = f"""
                                 SELECT query1."name", query1."client_order_num", TO_CHAR(query1."order_date", 'DD/MM/YYYY') as formatted_date, query2."quantity"
                                 FROM ({query1}) AS query1
                                 INNER JOIN ({query2}) AS query2 ON query1."id" = query2."client_ord_header_id"
-                                WHERE query2."id"='{int(supply_id)}'
+                                WHERE query2."id"='{int(supply_id_1)}'
                                 ORDER BY query1."order_date" DESC
                                 """
-            conn = None
 
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
+        elif len(supply_name_1.split('|')) == 3 and len(supply_name_2.split('|')) == 3:
+            commands_supplies = f"""
+                            SELECT query1."name", query1."client_order_num", TO_CHAR(query1."order_date", 'DD/MM/YYYY') as formatted_date, query2."quantity"
+                            FROM ({query1}) AS query1
+                            INNER JOIN ({query2}) AS query2 ON query1."id" = query2."client_ord_header_id"
+                            WHERE query2."reference" BETWEEN LEAST('{supply_reference_1}', '{supply_reference_2}') AND GREATEST('{supply_reference_1}', '{supply_reference_2}')
+                            ORDER BY query2."reference" ASC, query1."order_date" DESC
+                            """
+
+        if not commands_supplies:
+            return
+
+        try:
+            with Database_Connection(config()) as conn:
                 cur = conn.cursor()
+
             # execution of commands one by one
                 cur.execute(commands_supplies)
                 results=cur.fetchall()
 
                 self.df = pd.DataFrame(results, columns=["Nombre", "Nº Pedido", "Fecha Pedido", "Cantidad"])
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
                 self.tableWidget.setRowCount(len(results))
                 tablerow=0
@@ -841,23 +860,12 @@ class Ui_ArtMov_Window(object):
                 else:
                     self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
+        except (Exception, psycopg2.DatabaseError) as error:
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+            print(error)
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.calculate_totalqty()
+        self.calculate_totalqty()
 
 # Function to calculate total
     def calculate_totalqty(self):
@@ -914,6 +922,11 @@ class Ui_ArtMov_Window(object):
         header_height = self.tableWidget.horizontalHeader().height()
         popup_pos = self.tableWidget.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableWidget.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
+
+
+
 
 if __name__ == "__main__":
     import sys
