@@ -1460,6 +1460,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
             self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+            self.tableTags.verticalHeader().setStyleSheet("QHeaderView::section {background-color: #121212; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
         else:
             self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         self.tableOthers.verticalHeader().setVisible(True)
@@ -1660,7 +1661,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                         tablerow+=1
 
-                    self.tableTags.verticalHeader().hide()
+                    # self.tableTags.verticalHeader().hide()
                     self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
                     self.tableTags.setItemDelegateForColumn(7, AlignDelegate_Custom('E_dim', self.tableTags ))
                     self.tableTags.setItemDelegateForColumn(8, AlignDelegate_Custom('E_of',self.tableTags))
@@ -1838,7 +1839,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            self.tableTags.verticalHeader().hide()
+            # self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setItemDelegateForColumn(5, AlignDelegate_Custom('E_verif', self.tableTags))
             self.tableTags.setSortingEnabled(False)
