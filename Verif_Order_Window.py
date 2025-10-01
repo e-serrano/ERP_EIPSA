@@ -7,12 +7,14 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from config import config
+from config import config, get_path
 import psycopg2
 import os
 from datetime import *
 import locale
 import fnmatch
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1754,27 +1756,18 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                         SELECT num_order, tag, label, TO_CHAR(test_date, 'DD/MM/YYYY') FROM verification.calibration_thermoelements WHERE num_order LIKE ('%%'||%s||'%%')
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
-            results_tags=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
+                results_tags=cur.fetchall()
 
-            cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
-            results_drawings=cur.fetchall()
+                cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
+                results_drawings=cur.fetchall()
 
-            cur.execute(query_calibration, (self.numorder,))
-            results_calibration=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                cur.execute(query_calibration, (self.numorder,))
+                results_calibration=cur.fetchall()
 
             self.table_tags.setRowCount(len(results_tags))
             tablerow=0
@@ -1849,20 +1842,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.table_calibrations.custom_sort_date(1, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 # Function when header of different tables is clicked
@@ -1981,7 +1962,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             num_order = self.numorder
             verif_date = date.today().strftime("%d/%m/%Y")
-            verif_state = 'Realizado por Mario'
+            verif_state = 'Realizado Por Mario'
 
             if num_order == "" or verif_date == "":
                 dlg = QtWidgets.QMessageBox()
@@ -2102,39 +2083,19 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 query_path =f"SELECT tag_images FROM {table_name} WHERE {column_id} = {item_id}"
 
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_path)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_path)
+                        results=cur.fetchall()
 
                     file_path = os.path.normpath(results[0][0])
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             elif item.column() == 8: # Msgbox for hydraulic test 1
                 item_id = self.table_tags.item(item.row(), 0).text()
@@ -2143,21 +2104,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 query =f"SELECT tag, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2174,19 +2126,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             elif item.column() == 9: # Msgbox for hydraulic test 2
                 item_id = self.table_tags.item(item.row(), 0).text()
@@ -2195,21 +2136,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 query =f"SELECT tag, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2226,19 +2158,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             elif item.column() == 10: # Msgbox for liquid test
                 item_id = self.table_tags.item(item.row(), 0).text()
@@ -2249,19 +2170,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2280,19 +2193,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             elif item.column() == 1 and item.text() == 'PPI':
                 self.num_order_value = self.numorder
@@ -2329,72 +2231,50 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         num_order = self.numorder
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
 
-            commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
-                                    "username","message","state","date_creation"
-                                    )
-                                    VALUES (%s,%s,%s,%s)
-                                    """)
+                commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
+                                        "username","message","state","date_creation"
+                                        )
+                                        VALUES (%s,%s,%s,%s)
+                                        """)
 
-            commands_select_exp = ("""
-                            SELECT verif_exp_date, id
-                            FROM verification."exp_verification"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            """)
+                commands_select_exp = ("""
+                                SELECT verif_exp_date, id
+                                FROM verification."exp_verification"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                """)
 
-            commands_insert_exp = ("""
-                            UPDATE verification."exp_verification"
-                            SET "verif_exp_obs" = %s
-                            WHERE "id" = %s
-                            """)
+                commands_insert_exp = ("""
+                                UPDATE verification."exp_verification"
+                                SET "verif_exp_obs" = %s
+                                WHERE "id" = %s
+                                """)
 
-            data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
-            cur.execute(commands_notification_neworder, data)
+                data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
+                cur.execute(commands_notification_neworder, data)
 
-            data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
-            cur.execute(commands_notification_neworder, data_2)
+                data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
+                cur.execute(commands_notification_neworder, data_2)
 
-            cur.execute(commands_select_exp, (num_order, ))
-            results = cur.fetchall()
+                cur.execute(commands_select_exp, (num_order, ))
+                results = cur.fetchall()
 
-            if len(results) != 0:
-                if results[0][0] is None:
-                    cur.execute(commands_insert_exp, ("Avisado", results[0][1], ))
+                if len(results) != 0:
+                    if results[0][0] is None:
+                        cur.execute(commands_insert_exp, ("Avisado", results[0][1], ))
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            # commit the changes
+                conn.commit()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Expedición")
-            dlg.setText("Aviso Enviado")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
+            show_message("Aviso Enviado", "info")
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Expedición")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 if __name__ == "__main__":
