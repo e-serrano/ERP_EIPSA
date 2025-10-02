@@ -707,7 +707,6 @@ class Ui_OfferRecToOf_Window(object):
                     self.Mails_EditOffer.setText('')
                     self.LastUpdate_EditOffer.setText('')
                     self.PresDate_EditOffer.setText('')
-                    self.Responsible_EditOffer.setText('')
                     self.NumItems_EditOffer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
@@ -749,7 +748,7 @@ class Ui_OfferRecToOf_Window(object):
         self.LimitDate_EditOffer.setText(str(results[0][6]))
         self.RecepDate_EditOffer.setText(str(results[0][7]) if str(results[0][7]) != 'None' else '')
         self.NumItems_EditOffer.setText(str(results[0][8]))
-        self.Responsible_EditOffer.setText(str(results[0][9]))
+        self.Responsible_EditOffer.setCurrentText(str(results[0][9]))
 
 
 if __name__ == "__main__":
