@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
+import os
 import configparser
 from Database_Connection import createConnection
 from config import config, get_path
@@ -26,8 +27,6 @@ from tkinter.filedialog import *
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -250,7 +249,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0, 10]:
+        if index.column() in [0, 8, 9]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -446,12 +445,35 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         self.toolSeeAll.setIcon(icon)
         self.toolSeeAll.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolSeeAll)
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+        self.toolImages = QtWidgets.QToolButton(self.frame)
+        self.toolImages.setObjectName("Image_Button")
+        self.toolImages.setToolTip("Añadir Imagen")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources","Iconos","Camera.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolImages.setIcon(icon)
+        self.toolImages.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolImages)
+        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer4)
+
+        self.toolDocument = QtWidgets.QToolButton(self.frame)
+        self.toolDocument.setObjectName("Document_Button")
+        self.toolDocument.setToolTip("Añadir Documento")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources","Iconos","Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolDocument.setIcon(icon)
+        self.toolDocument.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolDocument)
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolExpData.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
             self.toolSeeAll.setStyleSheet("border: 1px solid white;")
+            self.toolImages.setStyleSheet("border: 1px solid white;")
+            self.toolDocument.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -523,6 +545,8 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolExpData.clicked.connect(self.export_data)
         self.toolSeeAll.clicked.connect(self.query_all_equipment)
+        self.toolImages.clicked.connect(self.add_images)
+        self.toolDocument.clicked.connect(self.add_document)
 
         self.query_equipment()
 
@@ -607,6 +631,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.setModel(None)
         self.tableEquipment.setModel(self.proxy)
+        self.model.setFilter(f"quantity > 0")
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
@@ -1169,7 +1194,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                         INSERT INTO verification.chemical_products_workshop (product)
                         VALUES(%s)
                         """)
-        conn = None
+
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
@@ -1198,10 +1223,19 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 # Function when item is double clicked
     def item_double_clicked(self,index):
         """
-        Opens detailed equipment information if the first column is double-clicked.
+        Opens detailed master information if the first column is double-clicked.
         """
-        if index.column() == 0:
-            self.open_equipment_information(index)
+        if index.column() in [8, 9]:
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to delete register of database
     def delete_register(self):
@@ -1306,6 +1340,86 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
         if output_path:
             dataframe.to_excel(output_path, index=False, header=True)
+
+# Function to add images to machines
+    def add_images(self):
+        """
+        Adds an image to the selected machine's record in the database.
+        Updates the image field for the specified machine by selecting an image file from the filesystem.
+        """
+        selected_indexes = self.tableEquipment.selectionModel().selectedIndexes()
+        if not selected_indexes:
+            return
+        
+        if len(selected_indexes) == 1:
+            index = selected_indexes[0]
+            if index.column() == 8:
+                id_column_index = index.sibling(index.row(), 0)
+                value_id = str(id_column_index.data())
+
+                images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION", filetypes=[("Archivos JPG", "*.jpg")],
+                                    title="Seleccionar imagen")
+
+                if images_path:
+                    commands_insert = ("""
+                            UPDATE verification."chemical_products_workshop"
+                            SET "image" = %s
+                            WHERE "id" = %s
+                            """)
+
+                    try:
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_insert, (images_path, value_id,))
+                            conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                            + str(error), "critical")
+
+                    self.query_equipment()
+
+# Function to add images to machines
+    def add_document(self):
+        """
+        Adds a document to the selected machine's record in the database.
+        Updates the document field for the specified machine by selecting a document file from the filesystem.
+        """
+
+        selected_indexes = self.tableEquipment.selectionModel().selectedIndexes()
+        if not selected_indexes:
+            return
+        
+        if len(selected_indexes) == 1:
+            index = selected_indexes[0]
+            if index.column() == 9:
+                id_column_index = index.sibling(index.row(), 0)
+                value_id = str(id_column_index.data())
+
+                document_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/", filetypes=[("Archivos PDF", "*.pdf")],
+                                    title="Seleccionar Documento")
+
+                if document_path:
+                    commands_insert = ("""
+                            UPDATE verification."chemical_products_workshop"
+                            SET "certificate" = %s
+                            WHERE "id" = %s
+                            """)
+
+                    try:
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_insert, (document_path, value_id,))
+                            conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
+
+                    self.query_equipment()
+
+
+
 
 
 if __name__ == "__main__":
