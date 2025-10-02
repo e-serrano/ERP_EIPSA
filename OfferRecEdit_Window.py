@@ -9,7 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config, get_path
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -416,7 +416,7 @@ class Ui_Edit_OfferRec_Window(object):
                     results_commercial=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
         list_material=[x[0] for x in results_producttype]
@@ -477,7 +477,7 @@ class Ui_Edit_OfferRec_Window(object):
                     results_clients=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         list_clients=[x[0] for x in results_clients]
@@ -502,11 +502,11 @@ class Ui_Edit_OfferRec_Window(object):
         notes = self.Notes_Edit_Offer.toPlainText()
 
         if not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0:
-            show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
+            MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
         else:
             if id_offer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (material=="" or (limit_date=="" or numitems=='')))))):
-                show_message("Los campos no pueden estar vacíos", "warning")
+                MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
             else:
                 #SQL Query for updating values in database
@@ -529,7 +529,7 @@ class Ui_Edit_OfferRec_Window(object):
                     # commit the changes
                         conn.commit()
 
-                    show_message("Oferta editada con exito", "info")
+                    MessageHelper.show_message("Oferta editada con exito", "info")
 
                     self.FinalClient_Edit_Offer.setText('')
                     self.NumRef_Edit_Offer.setText('')
@@ -540,7 +540,7 @@ class Ui_Edit_OfferRec_Window(object):
                     self.Notes_Edit_Offer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
     def queryofferdata(self):
@@ -566,7 +566,7 @@ class Ui_Edit_OfferRec_Window(object):
                     results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.Client_Edit_Offer.setCurrentText(str(results[0][0]))

@@ -11,7 +11,7 @@ import psycopg2
 from config import config, get_path
 import os
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -561,7 +561,7 @@ class Ui_OfferRecToOf_Window(object):
                     results_commercial=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
         list_material=[x[0] for x in results_producttype]
@@ -640,17 +640,17 @@ class Ui_OfferRecToOf_Window(object):
         probability=self.Probability_EditOffer.currentText()
 
         if state in ['Presentada', 'Adjudicada','Declinada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
-            show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
+            MessageHelper.show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
 
         elif state in ['Presentada', 'Adjudicada','Declinada','Perdida'] and (not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0):
-            show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
+            MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
         else:
             if numoffer=="" or numoffer==" ":
-                show_message("Introduce un número de oferta válido", "warning")
+                MessageHelper.show_message("Introduce un número de oferta válido", "warning")
 
             elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or (rate_type=="" or numitems==''))))))))))):
-                show_message("Los campos no pueden estar vacíos", "warning")
+                MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
             else:
                 #SQL Query for updating values in database
@@ -690,7 +690,7 @@ class Ui_OfferRecToOf_Window(object):
                     # commit the changes
                         conn.commit()
 
-                    show_message("Oferta pasada con exito", "info")
+                    MessageHelper.show_message("Oferta pasada con exito", "info")
 
                     self.NumOffer_EditOffer.setText('')
                     self.Client_EditOffer.setText('')
@@ -710,7 +710,7 @@ class Ui_OfferRecToOf_Window(object):
                     self.NumItems_EditOffer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 
@@ -735,7 +735,7 @@ class Ui_OfferRecToOf_Window(object):
                     results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.NumOffer_EditOffer.setText(str(self.id_offer))

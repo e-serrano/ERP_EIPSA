@@ -14,7 +14,7 @@ from datetime import *
 import locale
 import fnmatch
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 def imagen_to_base64(imagen):
@@ -1840,7 +1840,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.table_calibrations.custom_sort_date(1, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
 
@@ -1963,14 +1963,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             verif_state = 'Realizado Por Mario'
 
             if num_order == "" or verif_date == "":
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Verificación EXP")
-                dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+                MessageHelper.show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "Verificación EXP", "warning")
 
             else:
                 commands_select_exp = ("""
@@ -1978,6 +1971,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             FROM verification."exp_verification"
                             WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
                             """)
+
                 commands_insert_exp = ("""
                             UPDATE verification."exp_verification"
                             SET "verif_exp_date" = %s, "verif_exp_state" = %s, "verif_exp_obs" = %s
@@ -1985,64 +1979,32 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             """)
                 conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_exp, (num_order, ))
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(commands_select_exp, (num_order, ))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_exp, (verif_date, verif_state, "Expedido", results[0][1], ))
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_exp, (verif_date, verif_state, "Expedido", results[0][1], ))
+                                conn.commit()
 
                         else:
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText("Ya ha datos existentes en el aviso de expedición\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
-
-                            del dlg_yes_no, new_icon_yes_no
+                            if MessageHelper.ask_yes_no("Ya ha datos existentes en el aviso de expedición\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+                                    conn.commit()
 
                     else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("EXP")
-                        dlg.setText("No hay EXP creado para este pedido")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        MessageHelper.show_message("No hay EXP creado para este pedido", "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Verificación EXP")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
             self.query_data()
 
@@ -2092,7 +2054,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
             elif item.column() == 8: # Msgbox for hydraulic test 1
@@ -2124,7 +2086,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
             elif item.column() == 9: # Msgbox for hydraulic test 2
@@ -2156,7 +2118,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
             elif item.column() == 10: # Msgbox for liquid test
@@ -2191,7 +2153,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
             elif item.column() == 1 and item.text() == 'PPI':
@@ -2267,10 +2229,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             # commit the changes
                 conn.commit()
 
-            show_message("Aviso Enviado", "info")
+            MessageHelper.show_message("Aviso Enviado", "info")
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
 

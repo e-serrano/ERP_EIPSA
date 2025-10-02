@@ -18,7 +18,7 @@ from ExportDocs_Menu import Ui_ExportDocs_Menu
 from tkinter.filedialog import askopenfilename
 import pandas as pd
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 from PDF_Styles import CustomPDF
 from PDF_Viewer import PDF_Viewer
 import matplotlib.pyplot as plt
@@ -1315,7 +1315,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     self.BottomLayout.addWidget(self.canvas2, 0, 1, 1, 1)
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error),'critical')
 
         except:
@@ -1378,7 +1378,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
         self.tableOffer.setSortingEnabled(False)
@@ -1411,7 +1411,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 self.Calendar.set_task_dates(task_dates)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
 # Function to show task of the selected date
@@ -1504,7 +1504,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 return value_to_return
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
 #Function to show dialog showing delayed offers
@@ -1542,14 +1542,14 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
         offers_delay=[x[0] for x in results]
 
         if len(offers_delay) != 0:
             offers_delay_text = "\n".join(offers_delay)
-            show_message("Las siguientes ofertas llevan presentadas más de 10 días:\n"
+            MessageHelper.show_message("Las siguientes ofertas llevan presentadas más de 10 días:\n"
                         "\n"
                         + offers_delay_text, 'information')
 
@@ -1689,7 +1689,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
 # Function to load number of notifications
@@ -1728,7 +1728,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     self.Button_Notification.setIcon(icon13)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
 # Function to open window with clock-ins

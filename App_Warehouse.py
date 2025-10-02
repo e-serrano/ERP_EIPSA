@@ -17,7 +17,7 @@ import pandas as pd
 from PDF_Styles import pending_orders
 from PDF_Viewer import PDF_Viewer
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1930,7 +1930,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.table_orders.hideColumn(i)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.table_orders.itemClicked.connect(self.item_clicked)
@@ -2010,7 +2010,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     table.setItemDelegate(AlignDelegate_drawings(table))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
         else:
@@ -2059,7 +2059,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.tableDimDwg.setItemDelegate(AlignDelegate_drawings(self.tableDimDwg))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
 # Function to open corresponding window when Suppliers button is clicked
@@ -2179,30 +2179,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                                 conn.commit()
 
                         else:
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {dim_drawing}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {dim_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                     else:
-                        show_message("No existe el plano dimensional " + dim_drawing, "critical")
+                        MessageHelper.show_message("No existe el plano dimensional " + dim_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to insert data on OF drawings
@@ -2254,30 +2241,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                                 conn.commit()
 
                         else:
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {of_drawing}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {of_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                     else:
-                        show_message("No existe el plano OF " + of_drawing, "critical")
+                        MessageHelper.show_message("No existe el plano OF " + of_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to insert data on M drawings
@@ -2329,30 +2303,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                                 conn.commit()
 
                         else:
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {m_drawing}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {m_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                     else:
-                        show_message("No existe el plano M " + m_drawing, "critical")
+                        MessageHelper.show_message("No existe el plano M " + m_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to insert data on dimensional drawings
@@ -2404,30 +2365,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                                 conn.commit()
 
                         else:
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {al_drawing}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                     else:
-                        show_message("No existe el plano almacén " + al_drawing, "critical")
+                        MessageHelper.show_message("No existe el plano almacén " + al_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to add new state
@@ -2456,17 +2404,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                                 cur.execute(commands_insertstate, (state,))
                             conn.commit()
 
-                        show_message("Datos insertados con éxito", "info")
+                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         self.state.setCurrentText(state)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
                         del dlg, new_icon
 
                     break
-                show_message("El estado no puede estar vacío", "warning")
+                MessageHelper.show_message("El estado no puede estar vacío", "warning")
             else:
                 break
 
@@ -2499,7 +2447,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     list_states = [x[0] for x in results_states]
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.state.addItems(list_states)
@@ -2553,7 +2501,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             self.pending_recep_supplier_pdf(df)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
     def pending_recep_supplier_pdf(self, df):
@@ -2616,7 +2564,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         pdf.set_fill_color(0, 255, 0)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
                 pdf.set_font("DejaVuSansCondensed", size=8)

@@ -9,7 +9,7 @@ import sys
 import psycopg2
 from PyQt6 import QtCore, QtGui, QtWidgets
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 from config import config, get_path
 import hashlib
 
@@ -305,7 +305,7 @@ class Ui_Login_Window(object):
         login_password = self.password_login.text()
 
         if login_username == '' or login_password == '':
-            show_message("Por favor, rellena los campos", "warning")
+            MessageHelper.show_message("Por favor, rellena los campos", "warning")
 
         else:
             # SQL Query for loading existing data in database
@@ -321,7 +321,7 @@ class Ui_Login_Window(object):
                         results = cursor.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
+                MessageHelper.show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
                 results = None
 
         # checking if username is correct
@@ -330,11 +330,11 @@ class Ui_Login_Window(object):
             hashed_password = hash_object.hexdigest()
 
             if not results:
-                show_message("Usuario incorrecto. Inténtalo de nuevo", "warning")
+                MessageHelper.show_message("Usuario incorrecto. Inténtalo de nuevo", "warning")
 
         # checking if password is correct
             elif hashed_password != results[0]:
-                show_message("Contraseña incorrecta. Inténtalo de nuevo", "warning")
+                MessageHelper.show_message("Contraseña incorrecta. Inténtalo de nuevo", "warning")
 
             else:
                 rol_app = results[3]
@@ -416,7 +416,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 else:
-                    show_message("La aplicación no está disponible para este usuario. Disculpe las molestias", "warning")
+                    MessageHelper.show_message("La aplicación no está disponible para este usuario. Disculpe las molestias", "warning")
 
 # Function when password has been forgotten
     def forgetpassword(self):

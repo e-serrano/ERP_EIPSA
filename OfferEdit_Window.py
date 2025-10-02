@@ -11,7 +11,7 @@ import psycopg2
 from config import config, get_path
 import os
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -661,7 +661,7 @@ class Ui_Edit_Offer_Window(object):
                     results_commercial=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
         list_material=[x[0] for x in results_producttype]
@@ -758,13 +758,13 @@ class Ui_Edit_Offer_Window(object):
             probability = self.Probability_EditOffer.currentText()
 
             if state in ['Presentada', 'Adjudicada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
-                show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
+                MessageHelper.show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
 
             elif state in ['Presentada', 'Adjudicada','Perdida'] and numitems is None:
-                show_message('El número de equipos no puede ser "None" ni estar vacío', "warning")
+                MessageHelper.show_message('El número de equipos no puede ser "None" ni estar vacío', "warning")
 
             elif state in ['Presentada', 'Adjudicada','Perdida'] and (not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0):
-                show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
+                MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
             else:
             #SQL Query for checking if offer number exists in database
@@ -783,14 +783,14 @@ class Ui_Edit_Offer_Window(object):
                             match=list(filter(lambda x:numoffer in x, results))
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
                 if numoffer=="" or (numoffer==" " or len(match)==0):
-                    show_message("Introduce un número de oferta válido", "warning")
+                    MessageHelper.show_message("Introduce un número de oferta válido", "warning")
 
                 elif numoffer=="" or (client=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems=='')))))))):
-                    show_message("Los campos no pueden estar vacíos", "warning")
+                    MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
                 else:
                     #SQL Query for updating values in database
@@ -817,7 +817,7 @@ class Ui_Edit_Offer_Window(object):
                         # commit the changes
                             conn.commit()
 
-                        show_message("Oferta editada con exito", "info")
+                        MessageHelper.show_message("Oferta editada con exito", "info")
 
                         self.NumOffer_EditOffer.setText('')
                         self.FinalClient_EditOffer.setText('')
@@ -840,7 +840,7 @@ class Ui_Edit_Offer_Window(object):
                         self.DelivTime_EditOffer.setText('')
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
 # Function to load offer information
@@ -871,10 +871,10 @@ class Ui_Edit_Offer_Window(object):
                     match=list(filter(lambda x:numoffer in x, results))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
         if len(match)==0:
-            show_message("El número de oferta introducido no existe", "warning")
+            MessageHelper.show_message("El número de oferta introducido no existe", "warning")
 
         else:
             self.Client_EditOffer.setCurrentText(str(results[0][1]))

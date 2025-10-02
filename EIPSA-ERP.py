@@ -4,7 +4,7 @@ from Login_Window import Ui_Login_Window
 import os
 from PyQt6 import QtCore
 import psutil
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 from config import get_path
 # import psycopg2
 # from config import config
@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #     else:
         #         print('Estado normal (OK), aplicación sigue funcionando')
         # except (Exception, psycopg2.DatabaseError) as error:
-        #     show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
+        #     MessageHelper.show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
 
         try:
             if os.path.exists(shutdown_file):
@@ -84,4 +84,4 @@ if __name__ == "__main__":
         sys.exit(app.exec())
 
     else:
-        show_message("Archivo de configuraión no encontrado.\nPonte en contacto con el administrador", "critical")
+        MessageHelper.show_message("Archivo de configuración no encontrado.\nPonte en contacto con el administrador", "critical")

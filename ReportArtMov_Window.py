@@ -18,7 +18,7 @@ from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -731,7 +731,7 @@ class Ui_ArtMov_Window(object):
                     results_supplies=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         list_supplies=[x[3] + ' | ' + x[4] + ' | ' +  str(x[0]) for x in results_supplies]
@@ -861,7 +861,7 @@ class Ui_ArtMov_Window(object):
                     self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
             print(error)
 

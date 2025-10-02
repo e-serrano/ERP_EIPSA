@@ -21,7 +21,7 @@ import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from tkinter.filedialog import *
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 
@@ -1084,7 +1084,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
                 conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.query_stock()
@@ -1140,7 +1140,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
                 self.tableStock.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.AllEditTriggers)
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
 # Function to delete register of database
@@ -1165,18 +1165,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
                 id_values.append(value)
 
         if len(id_values) != 0:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-
+            if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
                     with Database_Connection(config()) as conn:
                         with conn.cursor as cur:
@@ -1188,15 +1177,13 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_delete, data)
                         conn.commit()
 
-                    show_message("Registros eliminados con éxito", "info")
+                    MessageHelper.show_message("Registros eliminados con éxito", "info")
 
                     self.query_stock()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
-
-            del dlg_yes_no, new_icon_yes_no
 
 # Function to open menu to export data
     def export_data(self):
@@ -1206,7 +1193,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            show_message("No hay datos cargados", "warning")
+            MessageHelper.show_message("No hay datos cargados", "warning")
         else:
             final_data = []
 

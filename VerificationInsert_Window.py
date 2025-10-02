@@ -18,7 +18,7 @@ from tkinter.filedialog import askopenfilename, askopenfilenames
 import random
 from Verif_Order_Window import Ui_Verif_Order_Window
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -687,25 +687,13 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
                 cursor.close()
 
             else:
-                dlg_yes_no = QtWidgets.QMessageBox()
-                new_icon_yes_no = QtGui.QIcon()
-                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                dlg_yes_no.setText(f"El tag ya tiene imagen\n"
-                                    "¿Estás seguro de que deseas sobreescribir los datos?")
-                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                result = dlg_yes_no.exec()
-
-                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                if MessageHelper.ask_yes_no(f"El tag ya tiene imagen\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                     cursor = self.db_conn.cursor()
                     query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
                     cursor.execute(query, (path, record_id))
                     self.db_conn.commit()
                     cursor.close()
 
-                del dlg_yes_no, new_icon_yes_no
         except Exception as e:
             print(f"Error al guardar en DB: {e}")
             self.db_conn.rollback()
@@ -1541,7 +1529,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         results=cur.fetchall()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
             if len(results) != 0:
@@ -1639,7 +1627,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         self.tableTags.hideColumn(i)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
                 sort_column, sort_order = self.tableTags.get_sort_state()
@@ -1709,7 +1697,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.tableOthers.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
 # Funtion to load data of table wharehouse
@@ -1768,7 +1756,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.tableTags.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
 # Function to insert all data
@@ -1803,17 +1791,17 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         pressure2 = self.pressure2.text()
 
         if num_order == '' or test_date == '':
-            show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
+            MessageHelper.show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', test_date):
-            show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             if num_order not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS']:
                 selected_indexes = self.tableTags.selectedIndexes()
 
                 if len(selected_indexes) == 0 and self.tableTags.rowCount() != 0:
-                    show_message("No has seleccionado ningún TAG", "warning")
+                    MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                 else:
                     try:
@@ -1838,25 +1826,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos dimensionales\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos dimensionales\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = '{test_date}', final_verif_dim_state = '{state}', final_verif_dim_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                             elif column_index == 5 and self.tableTags.item(row_index, column_index).text() != '':
                                 item_date_eq = self.tableTags.item(row_index, 8)
@@ -1869,25 +1844,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos de equipo\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de equipo\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = '{test_date}', final_verif_of_eq_state = '{state}', final_verif_of_eq_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                             elif column_index == 6 and table_name == "tags_data.tags_temp" and self.tableTags.item(row_index, column_index).text() != '':
                                 item_date_sensor = self.tableTags.item(row_index, 9)
@@ -1900,25 +1862,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos de sensor\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de sensor\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = '{test_date}', final_verif_of_sensor_state = '{state}', final_verif_of_sensor_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                             if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
                                 item_date_ph1 = self.tableTags.item(row_index, 10)
@@ -1932,25 +1881,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_hydrotest)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                             if self.label_manometer2.checkState() == QtCore.Qt.CheckState.Checked:
                                 item_date_ph2 = self.tableTags.item(row_index, 11)
@@ -1964,25 +1900,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_hydrotest)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                             if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
                                 query_hn_liq = ("""SELECT liquid, heat_number FROM verification.liquid_heat_number""")
@@ -2010,25 +1933,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_liquidtest)
                                             conn.commit()
-
-                                    del dlg_yes_no, new_icon_yes_no
 
                         if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
                             self.label_manometer1.setCheckState(QtCore.Qt.CheckState.Unchecked)
@@ -2039,12 +1949,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
                             self.label_lptest.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
-                        show_message("Datos insertados con éxito", "info")
+                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         self.querytags()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
 # Function to update data for PPI, EXP, M drawings, OF drawings and Dimensional Drawings
@@ -2059,16 +1969,16 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         verif_notes = self.obs_test.toPlainText()
 
         if num_order == "" or verif_date == "":
-            show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "warning")
+            MessageHelper.show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', verif_date):
-            show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             selected_indexes = self.tableOthers.selectedIndexes()
 
             if len(selected_indexes) == 0 and self.tableOthers.rowCount() != 0:
-                show_message("No has seleccionado ningún elemento de Otros", "warning")
+                MessageHelper.show_message("No has seleccionado ningún elemento de Otros", "warning")
 
             else:
                 for index in selected_indexes:
@@ -2103,26 +2013,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText("Ya ha datos existentes en el PPI\n"
-                                                        "¿Deseas sobreescribirlos?\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no("Ya ha datos existentes en el PPI\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                     cur.execute(commands_insert_ppi, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
-                                    del dlg_yes_no, new_icon_yes_no
 
                             else:
-                                show_message("No hay PPI creado para este pedido", "critical")
+                                MessageHelper.show_message("No hay PPI creado para este pedido", "critical")
 
                         elif drawing_number == 'EXP':
                             commands_select_exp = ("""
@@ -2150,27 +2048,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText("Ya ha datos existentes en el EXP\n"
-                                                        "¿Deseas sobreescribirlos?\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-                                    
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no("Ya ha datos existentes en el EXP\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_exp, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
 
-                                    del dlg_yes_no, new_icon_yes_no
-
                             else:
-                                show_message("No hay EXP creado para este pedido", "critical")
+                                MessageHelper.show_message("No hay EXP creado para este pedido", "critical")
 
                         elif drawing_number[:2] == 'M-':
                             commands_select_m_drawing = ("""
@@ -2198,27 +2083,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_m_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
 
-                                    del dlg_yes_no, new_icon_yes_no
-
                             else:
-                                show_message("No existe el plano M " + drawing_number, "critical")
+                                MessageHelper.show_message("No existe el plano M " + drawing_number, "critical")
 
                         elif drawing_number[:2] == 'OF':
                             commands_select_of_drawing = ("""
@@ -2246,27 +2118,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_of_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
 
-                                    del dlg_yes_no, new_icon_yes_no
-
                             else:
-                                show_message("No existe el plano OF " + drawing_number, "critical")
+                                MessageHelper.show_message("No existe el plano OF " + drawing_number, "critical")
 
                         else:
                             commands_select_dim_drawing = ("""
@@ -2294,30 +2153,17 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         conn.commit()
 
                                 else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                                "¿Deseas sobreescribirlos?\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                    result = dlg_yes_no.exec()
-
-                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                         with Database_Connection(config()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_dim_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
 
-                                    del dlg_yes_no, new_icon_yes_no
-
                             else:
-                                show_message("No existe el plano Dim. " + drawing_number, "critical")
+                                MessageHelper.show_message("No existe el plano Dim. " + drawing_number, "critical")
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Verification", "critical")
+                        MessageHelper.show_message("Verification", "critical")
 
 # Function to update data for AL drawings
     def update_al_drawings(self):
@@ -2331,16 +2177,16 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         verif_notes = self.obs_test.toPlainText()
 
         if num_order == "" or verif_date == "":
-            show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "warning")
+            MessageHelper.show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', verif_date):
-            show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             selected_indexes = self.tableTags.selectedIndexes()
 
             if len(selected_indexes) == 0:
-                show_message("No has seleccionado ningún TAG", "warning")
+                MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
             else:
                 for index in selected_indexes:
@@ -2377,18 +2223,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     conn.commit()
 
                             else:
-                                dlg_yes_no = QtWidgets.QMessageBox()
-                                new_icon_yes_no = QtGui.QIcon()
-                                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                dlg_yes_no.setText(f"Ya ha datos existentes para el plano {al_drawing}\n"
-                                                    "¿Deseas sobreescribirlos?\n")
-                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                result = dlg_yes_no.exec()
-
-                                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
                                     with Database_Connection(config()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_al_drawing, (verif_date, verif_state, verif_notes, id_value, ))
@@ -2396,13 +2231,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     # commit the changes
                                         conn.commit()
 
-                                del dlg_yes_no, new_icon_yes_no
-
                         else:
-                            show_message("No existe el plano AL " + al_drawing, "critical")
+                            MessageHelper.show_message("No existe el plano AL " + al_drawing, "critical")
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
                     finally:
@@ -2419,14 +2252,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         if self.username == 'm.gil':
             if numorder == '':
-                show_message("Introduce un número de pedido", "warning")
+                MessageHelper.show_message("Introduce un número de pedido", "warning")
 
             else:
                 if numorder[:2] == 'AL':
                     selected_indexes = self.tableTags.selectedIndexes()
 
                     if len(selected_indexes) == 0:
-                        show_message("No has seleccionado ningún TAG", "warning")
+                        MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                     else:
                         self.fname_image = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
@@ -2449,7 +2282,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     self.query_tables()
 
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    show_message("Ha ocurrido el siguiente error:\n"
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
                         self.fname_doc = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
@@ -2471,7 +2304,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     self.query_tables()
 
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    show_message("Ha ocurrido el siguiente error:\n"
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
                 else:
@@ -2486,7 +2319,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if self.fname_image:
                                     if len(selected_indexes) == 0:
-                                        show_message("No has seleccionado ningún TAG", "warning")
+                                        MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                                         self.Button_SeePhoto.setVisible(True)
                                         self.Button_InsertPhoto.setVisible(True)
@@ -2509,12 +2342,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                 # commit the changes
                                                     conn.commit()
 
-                                            show_message("Datos insertados con éxito", "info")
+                                            MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                             self.querytags()
 
                                         except (Exception, psycopg2.DatabaseError) as error:
-                                            show_message("Ha ocurrido el siguiente error:\n"
+                                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                         + str(error), "critical")
                                 break
 
@@ -2524,11 +2357,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if self.fname_images:
                                     if len(selected_indexes) == 0:
-                                        show_message(QtWidgets.QMessageBox.Icon.Warning, "warning")
+                                        MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Warning, "warning")
 
                                     else:
                                         if len(selected_indexes) != len(self.fname_images):
-                                            show_message("La cantidad de tags seleccionados no coincide con la cantidad de fotos seleccionadas", "warning")
+                                            MessageHelper.show_message("La cantidad de tags seleccionados no coincide con la cantidad de fotos seleccionadas", "warning")
 
                                         else:
                                             try:
@@ -2548,12 +2381,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                     # commit the changes
                                                         conn.commit()
 
-                                                show_message("Datos insertados con éxito", "info")
+                                                MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                                 self.querytags()
 
                                             except (Exception, psycopg2.DatabaseError) as error:
-                                                show_message("Ha ocurrido el siguiente error:\n"
+                                                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                             + str(error), "critical")
                                 break
 
@@ -2563,7 +2396,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if self.fname_images:
                                     if len(selected_indexes) == 0:
-                                        show_message("No has seleccionado ningún TAG", "warning")
+                                        MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                                     else:
                                         try:
@@ -2583,16 +2416,16 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                 # commit the changes
                                                     conn.commit()
 
-                                            show_message("Datos insertados con éxito", "info")
+                                            MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                             self.querytags()
 
                                         except (Exception, psycopg2.DatabaseError) as error:
-                                            show_message("Ha ocurrido el siguiente error:\n"
+                                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                         + str(error), "critical")
                                 break
 
-                            show_message("Selecciona un tipo", "warning")
+                            MessageHelper.show_message("Selecciona un tipo", "warning")
 
                         else:
                             break
@@ -2655,7 +2488,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     list_manometers = [x[0] for x in results_manometers]
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         self.state_test.setItemDelegate(ColorDelegate())
@@ -2793,7 +2626,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 os.startfile(file_path)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Tipo Equipo':
@@ -2833,7 +2666,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message(QtWidgets.QMessageBox.Icon.Critical, "critical")
+                        MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Critical, "critical")
 
             elif header_text == 'Fecha OF Equipo':
                 if item.text() != '':
@@ -2862,7 +2695,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha OF Sensor':
@@ -2891,7 +2724,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha PH1':
@@ -2922,7 +2755,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha PH2':
@@ -2953,7 +2786,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha LP':
@@ -2985,7 +2818,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha Almacén':
@@ -3013,7 +2846,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Fecha Verif.':
@@ -3041,7 +2874,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text == 'Plano Dim.':
@@ -3076,7 +2909,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
             elif header_text in ['OF Equipo', 'OF Sensor']:
@@ -3111,7 +2944,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
         else:
@@ -3135,7 +2968,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 os.startfile(file_path)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
                 elif item.column() == (self.tableOthers.columnCount() - 1) and self.num_order.text().upper()[:3] == 'AL-':
@@ -3154,7 +2987,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 os.startfile(file_path)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
                 elif item.column() == 2 and item.text() == 'PPI':
@@ -3227,7 +3060,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
                 elif item.column() == 2 and item.text()[:3] == 'OF-':
@@ -3262,7 +3095,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
                 elif item.column() == 2 and item.text() not in ['PPI', 'EXP']:
@@ -3297,7 +3130,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        show_message("Ha ocurrido el siguiente error:\n"
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
 # Function to open temporary image
@@ -3327,12 +3160,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     # commit the changes
                     conn.commit()
 
-                show_message("Datos insertados con éxito", "warning")
+                MessageHelper.show_message("Datos insertados con éxito", "warning")
 
                 self.querytags()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
             self.fname_image = None
@@ -3340,7 +3173,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.Button_InsertPhoto.setVisible(False)
 
         else:
-            show_message("Elige foto o selecciona tags", "warning")
+            MessageHelper.show_message("Elige foto o selecciona tags", "warning")
 
 # Function to open window to check order verification
     def verif_order(self):
@@ -3385,7 +3218,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             selected_indexes = self.tableTags.selectedIndexes()
 
             if len(selected_indexes) == 0 and self.tableTags.rowCount() != 0:
-                show_message("No has seleccionado ningún TAG", "warning")
+                MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
             else:
                 try:
@@ -3401,184 +3234,80 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         if column_index == 4 and self.tableTags.item(row_index, column_index).text() != '':
                             item_date_dim = self.tableTags.item(row_index, 7)
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos dimensionales\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos dimensionales\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = {test_date}, final_verif_dim_state = {state}, final_verif_dim_obs = {notes}, fab_state = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         elif column_index == 5 and self.tableTags.item(row_index, column_index).text() != '':
                             item_date_eq = self.tableTags.item(row_index, 8)
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos de equipo\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de equipo\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = {test_date}, final_verif_of_eq_state = {state}, final_verif_of_eq_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         elif column_index == 6 and table_name == "tags_data.tags_temp" and self.tableTags.item(row_index, column_index).text() != '':
                             item_date_sensor = self.tableTags.item(row_index, 9)
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos de sensor\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de sensor\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = {test_date}, final_verif_of_sensor_state = {state}, final_verif_of_sensor_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         if column_index == 10 and self.tableTags.item(row_index, column_index).text() != '':
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph1_date = {test_date}, ph1_manometer = {manometer1}, ph1_pressure = {pressure1}, ph1_state = {state}, ph1_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_hydrotest)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         if column_index == 11 and self.tableTags.item(row_index, column_index).text() != '':
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph2_date = {test_date}, ph2_manometer = {manometer2}, ph2_pressure = {pressure2}, ph2_state = {state}, ph2_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_hydrotest)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         if column_index == 12 and self.tableTags.item(row_index, column_index).text() != '':
                             hn_liq1 = None
                             hn_liq2 = None
                             hn_liq3 = None
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_liquidtest = f"UPDATE {table_name} SET lp_date = {test_date}, lp_hn_liq1 = {hn_liq1}, lp_hn_liq2 = {hn_liq2}, lp_hn_liq3 = {hn_liq3}, lp_state = {state}, lp_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_liquidtest)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         if column_index == 22 and self.tableTags.item(row_index, column_index).text() != '':
                             images = 'NULL'
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene fotos\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene fotos\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_images = f"UPDATE {table_name} SET tag_images = {images} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_images)
                                     conn.commit()
 
-                            del dlg_yes_no, new_icon_yes_no
-
                         if column_index == 23 and self.tableTags.item(row_index, column_index).text() != '':
                             images = 'NULL'
 
-                            dlg_yes_no = QtWidgets.QMessageBox()
-                            new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                            dlg_yes_no.setWindowTitle("ERP EIPSA")
-                            dlg_yes_no.setText(f"El tag {tag} ya tiene fotos\n"
-                                                "¿Estás seguro de que deseas desverificar?")
-                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                            result = dlg_yes_no.exec()
-
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene fotos\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_images = f"UPDATE {table_name} SET tag_images2 = {images} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_images)
                                     conn.commit()
-
-                            del dlg_yes_no, new_icon_yes_no
 
                     if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
                         self.label_manometer1.setCheckState(QtCore.Qt.CheckState.Unchecked)
@@ -3589,12 +3318,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
                         self.label_lptest.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
-                    show_message("Datos insertados con éxito", "info")
+                    MessageHelper.show_message("Datos insertados con éxito", "info")
 
                     self.querytags()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to deverify AL drawings
@@ -3606,7 +3335,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         selected_indexes = self.tableTags.selectedIndexes()
 
         if len(selected_indexes) == 0:
-            show_message("No has seleccionado ningún TAG", "warning")
+            MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
         else:
             for index in selected_indexes:
@@ -3622,28 +3351,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             """)
                 try:
                 # execution of commands
-                    dlg_yes_no = QtWidgets.QMessageBox()
-                    new_icon_yes_no = QtGui.QIcon()
-                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {al_drawing}\n"
-                                        "¿Deseas desverificar?\n")
-                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    result = dlg_yes_no.exec()
-
-                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas desverificar?\n", "ERP EIPSA"):
                         with Database_Connection(config()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_al_drawing, (None, None, None, id_value, ))
                                 self.obs_test.setText('')
                             conn.commit()
 
-                    del dlg_yes_no, new_icon_yes_no
-
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message("Ha ocurrido el siguiente error:\n"
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
 # Function to deverify PPI, EXP, M drawings, OF drawings and Dimensional Drawings
@@ -3656,7 +3372,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         selected_indexes = self.tableOthers.selectedIndexes()
 
         if len(selected_indexes) == 0 and self.tableOthers.rowCount() != 0:
-            show_message("No has seleccionado ningún elemento de Otros", "warning")
+            MessageHelper.show_message("No has seleccionado ningún elemento de Otros", "warning")
 
         else:
             for index in selected_indexes:
@@ -3672,24 +3388,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         WHERE "id" = %s
                         """)
 
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("Ya ha datos existentes en el PPI\n"
-                                            "¿Deseas desverificar?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no("Ya ha datos existentes en el PPI\n¿Deseas desverificar?", "ERP EIPSA"):
                             with Database_Connection(config()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_ppi, (None, None, None, id_value, ))
                                 conn.commit()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                     elif drawing_number == 'EXP':
                         commands_insert_exp = ("""
@@ -3698,24 +3401,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         WHERE "id" = %s
                         """)
 
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("Ya ha datos existentes en el EXP\n"
-                                            "¿Deseas desverificar?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no("Ya ha datos existentes en el EXP\n¿Deseas desverificar?\n", "ERP EIPSA"):
                             with Database_Connection(config()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_exp, (None, None, None, id_value, ))
                                 conn.commit()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                     elif drawing_number[:2] == 'M-':
                         commands_insert_m_drawing = ("""
@@ -3724,23 +3414,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         WHERE "id" = %s
                         """)
 
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                    "¿Deseas desverificar?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
                             with Database_Connection(config()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_m_drawing, (None, None, None, id_value, ))
                                 conn.commit()
-                        del dlg_yes_no, new_icon_yes_no
 
                     elif drawing_number[:2] == 'OF':
                         commands_insert_of_drawing = ("""
@@ -3749,24 +3427,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         WHERE "id" = %s
                         """)
 
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                    "¿Deseas desverificar?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
                             with Database_Connection(config()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_of_drawing, (None, None, None, id_value, ))
                                 conn.commit()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                     else:
                         commands_insert_dim_drawing = ("""
@@ -3775,27 +3440,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         WHERE "id" = %s
                         """)
 
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
-                                    "¿Deseas desverificar?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
                             with Database_Connection(config()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_dim_drawing, (None, None, None, id_value, ))
                                 conn.commit()
 
-                        del dlg_yes_no, new_icon_yes_no
-
                 except (Exception, psycopg2.DatabaseError) as error:
-                    show_message(str(error), "critical")
+                    MessageHelper.show_message(str(error), "critical")
 
 
 if __name__ == "__main__":

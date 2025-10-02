@@ -13,7 +13,7 @@ from config import config, get_path
 import re
 from OfferClientAdd_Window import Ui_OfferClientAdd_Window
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import show_message
+from utils.Show_Message import MessageHelper
 
 
 class Ui_New_OfferReceived_Window(object):
@@ -350,7 +350,7 @@ class Ui_New_OfferReceived_Window(object):
                     results_producttype=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         list_material=[x[0] for x in results_producttype]
@@ -402,7 +402,7 @@ class Ui_New_OfferReceived_Window(object):
                     results_clients=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
         list_clients=[x[0] for x in results_clients]
@@ -427,13 +427,13 @@ class Ui_New_OfferReceived_Window(object):
         actual_date=actual_date.strftime("%d/%m/%Y")
 
         if numref=="" or (recepdate=="" or (limitdate=="" or (description=="" or items_number==""))):
-            show_message("Rellene todos los campos", "warning")
+            MessageHelper.show_message("Rellene todos los campos", "warning")
 
         elif not (items_number.isdigit() or (items_number.startswith('-') and items_number[1:].isdigit())) or float(items_number) < 0:
-            show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
+            MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', recepdate) or not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', limitdate):
-            show_message("Las fechas debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
+            MessageHelper.show_message("Las fechas debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             query_last_id = ("""SELECT id_offer
@@ -466,7 +466,7 @@ class Ui_New_OfferReceived_Window(object):
                 # commit the changes
                     conn.commit()
 
-                show_message("Oferta creada con éxito", "info")
+                MessageHelper.show_message("Oferta creada con éxito", "info")
 
                 self.FinalClient_NewOffer.setText('')
                 self.NumRef_NewOffer.setText('')
@@ -477,7 +477,7 @@ class Ui_New_OfferReceived_Window(object):
                 self.Notes_NewOffer.setText('')
 
             except (Exception, psycopg2.DatabaseError) as error:
-                show_message("Ha ocurrido el siguiente error:\n"
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
 # Function to open the 'NewClient' window and set up its UI
