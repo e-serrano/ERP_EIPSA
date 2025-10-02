@@ -442,7 +442,7 @@ class Ui_OTFabOrder_Window(object):
 
         df_of = pd.DataFrame(data_of)
         for row in range (self.tableOT.rowCount()):
-            if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100']):
+            if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
                 of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
             else:
                 of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
