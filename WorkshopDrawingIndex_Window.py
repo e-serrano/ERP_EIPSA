@@ -2626,15 +2626,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index))
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("El pedido introducido no existe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("El pedido introducido no existe", "warning")
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -2947,15 +2939,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("No hay datos cargados", "warning")
         else:
             final_data = []
 
@@ -3317,7 +3301,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
         if self.username in ['m.gil', 'j.martinez']:
             MessageHelper.show_message("Este módulo no esta disponible para tí corazón ❤️", "warning")
-            del dlg,new_icon
 
         else:
             num_order = self.Numorder_IndexDwg.text().upper()
@@ -4352,27 +4335,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.numorder = self.Numorder_IndexDwg.text()
 
             if self.numorder=="":
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Introduce un pedido")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Warning, "warning")
 
             else:
                 if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
 
                 else:
                     query = ('''
@@ -4398,15 +4365,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     + str(error), "critical")
 
                     if results_variable == None:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("EL número de pedido no existe")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("El número de pedido no existe", "warning")
 
                     else:
                         query_flow = ('''
