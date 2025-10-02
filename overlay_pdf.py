@@ -2,13 +2,14 @@ import os
 from fpdf import FPDF
 import io
 import pandas as pd
-from config import config
+from config import config, get_path
 import psycopg2
 from PyQt6 import QtCore, QtGui, QtWidgets
 import openpyxl
 from datetime import date
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class PDF(FPDF):
     def rotate(self, angle, x=None, y=None):
@@ -39,7 +40,7 @@ def new_content_notes(technical_note):
         io.BytesIO: A byte stream containing the generated PDF.
     """
     pdf = FPDF(unit='mm')
-    pdf.add_font('COURIERTXT', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/COURIERTXT.ttf")))
+    pdf.add_font('COURIERTXT', '', str(get_path("Resources", "Iconos", "COURIERTXT.ttf")))
     pdf.set_font("courier", "", 10)
     pdf.set_text_color(0, 0, 0)
 
@@ -95,7 +96,7 @@ def drawing_number(num_order, info_drawing, counter):
     Generates a PDF containing a new content based on the specified value and equipment type."
     """
     pdf = FPDF(unit='mm')
-    pdf.add_font('IDAutomationHC39M', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/IDAutomationHC39M_Free.ttf")))
+    pdf.add_font('IDAutomationHC39M', '', str(get_path("Resources", "Iconos", "IDAutomationHC39M_Free.ttf")))
     pdf.set_font("helvetica", "B", 12)
     pdf.set_text_color(49, 49, 229)
 
@@ -106,57 +107,46 @@ def drawing_number(num_order, info_drawing, counter):
     pdf.cell(37, 7, f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", align='C')
 
     order_id = f"{num_order} - {info_drawing[0].split('.')[0]}/{counter:02d} - {info_drawing[1]}"
+
     check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{order_id}'"
+
     insert_ot = ("""INSERT INTO fabrication.fab_order (
                     "id","tag","element","qty_element",
                     "ot_num","qty_ot","start_date")
                     VALUES (%s,%s,%s,%s,%s,%s,%s)
                     """)
-    # num_ot = 123
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_ot)
-        results=cur.fetchall()
+
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_ot)
+                results=cur.fetchall()
+
         if len(results) == 0:
-            data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
-            cur.execute(insert_ot, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
+                    cur.execute(insert_ot, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
+            workbook.close()
 
             num_ot_text = '{:06}'.format(int(num_ot) + 1)
+
         else:
             num_ot = '{:06}'.format(int(results[0][4]))
             num_ot_text = '{:06}'.format(int(num_ot))
 
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        print(error)
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("IDAutomationHC39M", size=16)
@@ -175,7 +165,7 @@ def drawing_number_landscape(num_order, info_drawing, counter):
     Generates a PDF containing a new content based on the specified value and equipment type."
     """
     pdf = FPDF(unit='mm')
-    pdf.add_font('IDAutomationHC39M', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/IDAutomationHC39M_Free.ttf")))
+    pdf.add_font('IDAutomationHC39M', '', str(get_path("Resources", "Iconos", "IDAutomationHC39M_Free.ttf")))
     pdf.set_font("helvetica", "B", 12)
     pdf.set_text_color(49, 49, 229)
 
@@ -186,57 +176,45 @@ def drawing_number_landscape(num_order, info_drawing, counter):
         pdf.cell(23, 4, f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", align='C')
 
     order_id = f"{num_order} - {info_drawing[0].split('.')[0]}/{counter:02d} - {info_drawing[1]}"
+
     check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{order_id}'"
+
     insert_ot = ("""INSERT INTO fabrication.fab_order (
                     "id","tag","element","qty_element",
                     "ot_num","qty_ot","start_date")
                     VALUES (%s,%s,%s,%s,%s,%s,%s)
                     """)
-    # num_ot = 123
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_ot)
-        results=cur.fetchall()
+
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_ot)
+                results=cur.fetchall()
+
         if len(results) == 0:
-            data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
-            cur.execute(insert_ot, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
+                    cur.execute(insert_ot, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
 
             num_ot_text = '{:06}'.format(int(num_ot) + 1)
+
         else:
             num_ot = '{:06}'.format(int(results[0][4]))
             num_ot_text = '{:06}'.format(int(num_ot))
 
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        print(error)
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("IDAutomationHC39M", size=16)
@@ -244,7 +222,7 @@ def drawing_number_landscape(num_order, info_drawing, counter):
     pdf.set_y(8)
     # with pdf.rotation(90):
     pdf.cell(60, 10, "*" + num_ot_text + "*", align='C')
-    
+
     pdf.set_font("helvetica", "B", 12)
 
     return io.BytesIO(pdf.output())
@@ -272,7 +250,7 @@ def general_dwg_m(num_order, item_data, material=None):
 
     pdf.set_xy(27, 248)
     pdf.cell(20, 10, str(cnt), align='C')
-    
+
     if material is not None:
         pdf.set_xy(47, 248)
         pdf.set_font("helvetica", "B", 8)
@@ -280,39 +258,22 @@ def general_dwg_m(num_order, item_data, material=None):
 
     if material is None:
         material = 'A105'
+
     query = ('''
         SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -351,34 +312,16 @@ def flange_dwg_flangedTW(num_order, material, count):
         JOIN validation_data.temp_tw_material AS tw_materials ON tw_materials.code_material = colors.material
         WHERE UPPER (tw_materials.tw_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -430,34 +373,16 @@ def bar_dwg_flangedTW(num_order, material, base_diam, item_data):
         JOIN validation_data.temp_tw_material AS tw_materials ON tw_materials.code_material = colors.material
         WHERE UPPER (tw_materials.tw_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -532,34 +457,16 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
         JOIN validation_data.temp_tw_material AS tw_materials ON tw_materials.code_material = colors.material
         WHERE UPPER (tw_materials.tw_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -637,34 +544,16 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping, gasket, typ
         JOIN validation_data.flow_flange_material AS flange_materials ON flange_materials.code_material = colors.material
         WHERE UPPER (flange_materials.flange_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -785,37 +674,20 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
         JOIN validation_data.flow_flange_material AS flange_materials ON flange_materials.code_material = colors.material
         WHERE UPPER (flange_materials.flange_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
         app = QtWidgets.QApplication.instance()
         if app is None:
             app = QtWidgets.QApplication([])
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -887,60 +759,46 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
         SELECT in_diam FROM validation_data.pipe_diam
         WHERE line_size = %s and sch = %s
         ''')
+
         query_inner_in_diam = ('''
         SELECT in_diam FROM validation_data.pipe_diam
         WHERE line_size = %s and sch = %s
         ''')
+
         query_outter_flange_size_rf = ('''
         SELECT dim_o, dim_w, dim_rf, dim_x, num_tal, dim_lrf, dim_tf, dim_h, dim_y FROM verification.flanges_verification
         WHERE code_flange = %s
         ''')
+
         query_inner_flange_size_rf = ('''
         SELECT dim_ah FROM verification.flanges_verification
         WHERE code_flange = %s
         ''')
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_outter_in_diam, (outter_size,outter_sch,))
-            results_outter_in_diam=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_outter_in_diam, (outter_size,outter_sch,))
+                    results_outter_in_diam=cur.fetchall()
 
-            cur.execute(query_inner_in_diam, (inner_size,inner_sch,))
-            results_inner_in_diam=cur.fetchall()
+                    cur.execute(query_inner_in_diam, (inner_size,inner_sch,))
+                    results_inner_in_diam=cur.fetchall()
 
-            if facing in ['RF', 'FF']:
-                cur.execute(query_outter_flange_size_rf, ('B16.5-' + outter_size + '-' + rating,))
-                results_outter_flange=cur.fetchall()
+                    if facing in ['RF', 'FF']:
+                        cur.execute(query_outter_flange_size_rf, ('B16.5-' + outter_size + '-' + rating,))
+                        results_outter_flange=cur.fetchall()
 
-                cur.execute(query_inner_flange_size_rf, ('B16.5-' + inner_size + '-' + rating,))
-                results_inner_flange=cur.fetchall()
+                        cur.execute(query_inner_flange_size_rf, ('B16.5-' + inner_size + '-' + rating,))
+                        results_inner_flange=cur.fetchall()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
             app = QtWidgets.QApplication.instance()
             if app is None:
                 app = QtWidgets.QApplication([])
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
         j_diam_outter = results_outter_in_diam[0][0]
         j_diam_innner = results_inner_in_diam[0][0]
@@ -1040,34 +898,16 @@ def tube_dwg_meterrun(num_order, size, schedule, tube_material, calibrated, item
         JOIN validation_data.flow_tube_material AS tube_materials ON tube_materials.code_material = colors.material
         WHERE UPPER (tube_materials.tube_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(tube_material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(tube_material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1155,34 +995,16 @@ def welding_dwg_meterrun(num_order, material, flange_type, item_data):
         JOIN validation_data.flow_flange_material AS flange_materials ON flange_materials.code_material = colors.material
         WHERE UPPER (flange_materials.flange_material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1242,34 +1064,16 @@ def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exteri
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1338,39 +1142,22 @@ def dwg_m_landscape(num_order, item_data, material=None):
     """
     if material is None:
         material = 'A105'
+
     query = ('''
         SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1424,34 +1211,16 @@ def dwg_dim_32219(num_order, material, item_data):
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1506,34 +1275,16 @@ def dwg_m_welding_32219(num_order, material, item_data):
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
@@ -1588,34 +1339,16 @@ def dwg_m_32219(num_order, material, item_data):
         FROM validation_data.material_color_code AS colors
         WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
         ''')
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(query,(material,))
-        results_colors=cur.fetchall()
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     first_color = results_colors[0][0]
     second_color = results_colors[0][1]
