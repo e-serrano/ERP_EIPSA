@@ -20,8 +20,6 @@ from Verif_Order_Window import Ui_Verif_Order_Window
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import show_message
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """

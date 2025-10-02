@@ -24,8 +24,6 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import show_message
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
-
 
 def imagen_to_base64(imagen):
     """

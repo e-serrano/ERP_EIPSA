@@ -16,8 +16,6 @@ import fnmatch
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import show_message
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
-
 
 def imagen_to_base64(imagen):
     """
@@ -312,7 +310,7 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -736,7 +734,7 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -1160,7 +1158,7 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -1385,7 +1383,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         Verif_Order_Window.resize(790, 595)
         Verif_Order_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Order_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             Verif_Order_Window.setStyleSheet(
@@ -1967,7 +1965,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             if num_order == "" or verif_date == "":
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Verificación EXP")
                 dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
@@ -2003,7 +2001,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
-                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_yes_no.setWindowIcon(new_icon_yes_no)
                             dlg_yes_no.setWindowTitle("ERP EIPSA")
                             dlg_yes_no.setText("Ya ha datos existentes en el aviso de expedición\n"
@@ -2019,7 +2017,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     else:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("EXP")
                         dlg.setText("No hay EXP creado para este pedido")
@@ -2033,7 +2031,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Verificación EXP")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2058,7 +2056,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 cell_content = item.text()
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Verificación")
                 dlg.setText(cell_content)
@@ -2069,7 +2067,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 cell_content = item.text()
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Verificación")
                 dlg.setText(cell_content)
@@ -2113,7 +2111,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Prueba Hidrostática 1")
                     dlg.setText("TAG: " + results[0][0] + "\n"
@@ -2145,7 +2143,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Prueba Hidrostática 2")
                     dlg.setText("TAG: " + results[0][0] + "\n"
@@ -2178,7 +2176,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Líquidos Penetrantes")
                     dlg.setText("TAG: " + results[0][0] + "\n"
