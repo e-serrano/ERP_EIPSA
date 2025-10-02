@@ -9,12 +9,15 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config, get_path
+from Database_Connection import createConnection
+import configparser
 import os
 from datetime import *
 import pandas as pd
 from PDF_Styles import pending_orders
 from PDF_Viewer import PDF_Viewer
-
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1479,6 +1482,68 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_PaletteM.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_PaletteM.setObjectName("Button_PaletteM")
         self.Header.addWidget(self.Button_PaletteM)
+
+        spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem9)
+        self.Button_Stock = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Stock.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Stock.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Stock.setToolTip('Inventario Oficina')
+        self.Button_Stock.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Stock.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Stock.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Stock.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Stock.setIcon(icon8)
+        self.Button_Stock.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Stock.setObjectName("Button_Stock")
+        self.Header.addWidget(self.Button_Stock)
+
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1733,6 +1798,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_Flanges.clicked.connect(self.flanges_information)
         self.Button_PaletteM.clicked.connect(self.colour_palette_M)
         self.Button_Supplies.clicked.connect(self.supplies_warehouse)
+        self.Button_Stock.clicked.connect(self.stock)
 
         self.query_all_order()
         self.load_values()
@@ -1755,6 +1821,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         populating the orders table with the results.
         """
         self.table_orders.setRowCount(0)
+
         commands_queryorder = ("""
                     SELECT num_order, 'YES' as al_date_check
                     FROM orders
@@ -1772,7 +1839,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                     ORDER BY num_order
                     """)
-        
+
         commands_querydates = ("""
                     WITH dim_check AS (
                         SELECT 
@@ -1821,19 +1888,15 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     ORDER BY num_order
                     """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryorder)
-            results=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_queryorder)
+                    results=cur.fetchall()
 
-            cur.execute(commands_querydates)
-            results_dates=cur.fetchall()
+                    cur.execute(commands_querydates)
+                    results_dates=cur.fetchall()
 
             df_orders=pd.DataFrame(results, columns=['num_order','al_check'])
             df_dates=pd.DataFrame(results_dates, columns=['num_order','dim_check', 'of_check', 'm_check'])
@@ -1866,25 +1929,9 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             for i in range (1,5):
                 self.table_orders.hideColumn(i)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.table_orders.itemClicked.connect(self.item_clicked)
 
@@ -1914,167 +1961,71 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             query_of_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_of_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
-            
+
             query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_dim_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
-            
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_dim_dwg, (num_order,))
-                results_dim=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                    # execution of commands
+                        cur.execute(query_dim_dwg, (num_order,))
+                        results_dim=cur.fetchall()
 
-                cur.execute(query_of_dwg, (num_order,))
-                results_of=cur.fetchall()
+                        cur.execute(query_of_dwg, (num_order,))
+                        results_of=cur.fetchall()
 
-                cur.execute(query_m_dwg, (num_order,))
-                results_m=cur.fetchall()
+                        cur.execute(query_m_dwg, (num_order,))
+                        results_m=cur.fetchall()
 
-                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                for table, results in [
+                    (self.tableDimDwg, results_dim),
+                    (self.tableOfDwg, results_of),
+                    (self.tableMDwg, results_m)
+                ]:
+                    table.setRowCount(len(results))
+                    table.setColumnCount(9)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    for row_idx, row in enumerate(results):
+                        for col_idx in range(9):
+                            if col_idx == 0:
+                                checkbox = QtWidgets.QCheckBox()
+                                checkbox.setChecked(False)
+                                table.setCellWidget(row_idx, col_idx, checkbox)
+                            else:
+                                value = row[col_idx] if row[col_idx] is not None else ''
+                                item = QtWidgets.QTableWidgetItem(str(value))
+                                item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                                table.setItem(row_idx, col_idx, item)
 
-                self.tableDimDwg.setRowCount(len(results_dim))
-                self.tableDimDwg.setColumnCount(9)
-                tablerow=0
-
-            # fill the Qt Table with the query results
-                for row in results_dim:
-                    for column in range(9):
-                        if column == 0:
-                            checkbox_others = QtWidgets.QCheckBox()
-                            checkbox_others.setChecked(False)
-                            self.tableDimDwg.setCellWidget(tablerow, column, checkbox_others)
-                        else:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                            it = QtWidgets.QTableWidgetItem(str(value))
-                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                            self.tableDimDwg.setItem(tablerow, column, it)
-
-                    tablerow+=1
-
-                self.tableOfDwg.setRowCount(len(results_of))
-                self.tableOfDwg.setColumnCount(9)
-                tablerow=0
-
-            # fill the Qt Table with the query results
-                for row in results_of:
-                    for column in range(9):
-                        if column == 0:
-                            checkbox_others = QtWidgets.QCheckBox()
-                            checkbox_others.setChecked(False)
-                            self.tableOfDwg.setCellWidget(tablerow, column, checkbox_others)
-                        else:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                            it = QtWidgets.QTableWidgetItem(str(value))
-                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                            self.tableOfDwg.setItem(tablerow, column, it)
-
-                    tablerow+=1
-
-                self.tableMDwg.setRowCount(len(results_m))
-                self.tableMDwg.setColumnCount(9)
-                tablerow=0
-
-            # fill the Qt Table with the query results
-                for row in results_m:
-                    for column in range(9):
-                        if column == 0:
-                            checkbox_others = QtWidgets.QCheckBox()
-                            checkbox_others.setChecked(False)
-                            self.tableMDwg.setCellWidget(tablerow, column, checkbox_others)
-                        else:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                            it = QtWidgets.QTableWidgetItem(str(value))
-                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                            self.tableMDwg.setItem(tablerow, column, it)
-
-                    tablerow+=1
-
-                self.tableDimDwg.hideColumn(1)
-                self.tableDimDwg.setHorizontalHeaderLabels(column_headers)
-                self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableDimDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
-                self.tableDimDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
-                self.tableDimDwg.verticalHeader().hide()
-                self.tableDimDwg.setItemDelegate(AlignDelegate_drawings(self.tableDimDwg))
-
-                self.tableOfDwg.hideColumn(1)
-                self.tableOfDwg.setHorizontalHeaderLabels(column_headers_of)
-                self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableOfDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
-                self.tableOfDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
-                self.tableOfDwg.verticalHeader().hide()
-                self.tableOfDwg.setItemDelegate(AlignDelegate_drawings(self.tableOfDwg))
-
-                self.tableMDwg.hideColumn(1)
-                self.tableMDwg.setHorizontalHeaderLabels(column_headers_m)
-                self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableMDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
-                self.tableMDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
-                self.tableMDwg.verticalHeader().hide()
-                self.tableMDwg.setItemDelegate(AlignDelegate_drawings(self.tableMDwg))
-                # self.tableOthers.setSortingEnabled(False)
-                # self.tableOthers.setHorizontalHeaderLabels(column_headers)
-                # self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                # self.tableOthers.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
-                # self.tableOthers.hideColumn(1)
-                # self.tableOthers.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
+                    column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim." if table == self.tableDimDwg else ("Nº Plano OF" if table == self.tableOfDwg else "Nº Plano M"),
+                                    "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                    table.hideColumn(1)
+                    table.setHorizontalHeaderLabels(column_headers)
+                    table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                    table.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
+                    table.verticalHeader().hide()
+                    table.setItemDelegate(AlignDelegate_drawings(table))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
+
         else:
             query_al_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.al_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
-            
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_al_dwg, (num_order,))
-                results_al=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                    # execution of commands
+                        cur.execute(query_al_dwg, (num_order,))
+                        results_al=cur.fetchall()
 
                 column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
                 self.tableDimDwg.setRowCount(len(results_al))
                 self.tableDimDwg.setColumnCount(9)
@@ -2107,22 +2058,9 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.tableDimDwg.verticalHeader().hide()
                 self.tableDimDwg.setItemDelegate(AlignDelegate_drawings(self.tableDimDwg))
 
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
@@ -2213,30 +2151,32 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             for row_value in row_list:
                 id_order = self.tableDimDwg.item(row_value, 1).text()
                 dim_drawing = self.tableDimDwg.item(row_value, 3).text()
+
                 commands_select_dim_drawing = ("""
                             SELECT warehouse_date
                             FROM verification."workshop_dim_drawings"
                             WHERE "id" = %s
                             """)
+
                 commands_insert_dim_drawing = ("""
                             UPDATE verification."workshop_dim_drawings"
                             SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
                             WHERE "id" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_dim_drawing, (id_order,))
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(commands_select_dim_drawing, (id_order,))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+                                conn.commit()
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2249,40 +2189,21 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                             dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                             result = dlg_yes_no.exec()
+
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+                                    conn.commit()
 
                             del dlg_yes_no, new_icon_yes_no
 
                     else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos Dimensionales")
-                        dlg.setText("No existe el plano dimensional " + dim_drawing)
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        show_message("No existe el plano dimensional " + dim_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to insert data on OF drawings
     def add_data_of_drawings(self, date, state, notes):
@@ -2305,30 +2226,32 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             for row_value in row_list:
                 id_order = self.tableOfDwg.item(row_value, 1).text()
                 of_drawing = self.tableOfDwg.item(row_value, 3).text()
+
                 commands_select_of_drawing = ("""
                             SELECT warehouse_date
                             FROM verification."workshop_of_drawings"
                             WHERE "id" = %s
                             """)
+
                 commands_insert_of_drawing = ("""
                             UPDATE verification."workshop_of_drawings"
                             SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
                             WHERE "id" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_of_drawing, (id_order,))
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(commands_select_of_drawing, (id_order,))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+                                conn.commit()
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2341,40 +2264,21 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                             dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                             result = dlg_yes_no.exec()
+
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+                                    conn.commit()
 
                             del dlg_yes_no, new_icon_yes_no
 
                     else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos OF")
-                        dlg.setText("No existe el plano OF " + of_drawing)
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        show_message("No existe el plano OF " + of_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to insert data on M drawings
     def add_data_m_drawings(self, date, state, notes):
@@ -2397,30 +2301,32 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             for row_value in row_list:
                 id_order = self.tableMDwg.item(row_value, 1).text()
                 m_drawing = self.tableMDwg.item(row_value, 3).text()
+
                 commands_select_m_drawing = ("""
                             SELECT warehouse_date
                             FROM verification."m_drawing_verification"
                             WHERE "id" = %s
                             """)
+
                 commands_insert_m_drawing = ("""
                             UPDATE verification."m_drawing_verification"
                             SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
                             WHERE "id" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_m_drawing, (id_order,))
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(commands_select_m_drawing, (id_order,))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+                                conn.commit()
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2433,40 +2339,21 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                             dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                             result = dlg_yes_no.exec()
+
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+                                    conn.commit()
 
                             del dlg_yes_no, new_icon_yes_no
 
                     else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos M")
-                        dlg.setText("No existe el plano M " + m_drawing)
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        show_message("No existe el plano M " + m_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to insert data on dimensional drawings
     def add_data_al_drawings(self, date, state, notes):
@@ -2489,30 +2376,32 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             for row_value in row_list:
                 id_order = self.tableDimDwg.item(row_value, 1).text()
                 al_drawing = self.tableDimDwg.item(row_value, 3).text()
+
                 commands_select_al_drawing = ("""
                             SELECT warehouse_date
                             FROM verification."al_drawing_verification"
                             WHERE "id" = %s
                             """)
+
                 commands_insert_al_drawing = ("""
                             UPDATE verification."al_drawing_verification"
                             SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
                             WHERE "id" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_al_drawing, (id_order,))
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(commands_select_al_drawing, (id_order,))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
+                                conn.commit()
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2525,40 +2414,21 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                             dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                             result = dlg_yes_no.exec()
+
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
+                                    conn.commit()
 
                             del dlg_yes_no, new_icon_yes_no
 
                     else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos Almacén")
-                        dlg.setText("No existe el plano almacén " + al_drawing)
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        show_message("No existe el plano almacén " + al_drawing, "critical")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to add new state
     def add_state(self):
@@ -2578,59 +2448,25 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             if clickedButton == 1:
                 state = dlg.textValue()
                 if state != '':
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        commands_insertstate = ("INSERT INTO verification.states_warehouse (state_warehouse) VALUES (%s)")
-                        cur.execute(commands_insertstate, (state,))
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                            # execution of commands
+                                commands_insertstate = ("INSERT INTO verification.states_warehouse (state_warehouse) VALUES (%s)")
+                                cur.execute(commands_insertstate, (state,))
+                            conn.commit()
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Nuevo estado")
-                        dlg.setText("Datos insertados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                        show_message("Datos insertados con éxito", "info")
 
                         self.state.setCurrentText(state)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
+                        show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
                         del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
 
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Nuevo estado")
-                dlg_error.setText("El estado no puede estar vacío")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                show_message("El estado no puede estar vacío", "warning")
             else:
                 break
 
@@ -2653,32 +2489,18 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             FROM verification.states_warehouse
                             ORDER BY "id"
                             """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_states)
-            results_states=cur.fetchall()
-            list_states = [x[0] for x in results_states]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(query_states)
+                    results_states=cur.fetchall()
+                    list_states = [x[0] for x in results_states]
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.state.addItems(list_states)
 
@@ -2702,26 +2524,23 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             Exception: If there is an issue with the database connection or query execution.
         """
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
         # execution of commands
-            commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
-                                            TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplies."unit_value",
-                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal
-                                        FROM 
-                                            purch_fact.supplier_ord_header AS supplier_ord_header
-                                            INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
-                                            INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
-                                            INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
-                                        WHERE 
-                                            supplier_ord_detail."pending" > 0 
-                                        ORDER BY
-                                            suppliers."name"
-                                        """)
-            cur.execute(commands_pending_client)
+                    commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
+                                                    TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplies."unit_value",
+                                                    supplier_ord_detail."pending" * supplies."unit_value" AS subtotal
+                                                FROM 
+                                                    purch_fact.supplier_ord_header AS supplier_ord_header
+                                                    INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
+                                                    INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
+                                                    INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
+                                                WHERE 
+                                                    supplier_ord_detail."pending" > 0 
+                                                ORDER BY
+                                                    suppliers."name"
+                                                """)
+                    cur.execute(commands_pending_client)
 
             results = cur.fetchall()
             df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal"])
@@ -2734,21 +2553,8 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             self.pending_recep_supplier_pdf(df)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
+            show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def pending_recep_supplier_pdf(self, df):
         """
@@ -2788,22 +2594,18 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             pdf.ln(0.5)
 
             for row in range(df_client.shape[0]):
-
                 query_delivnote = ("""
                             SELECT "date_delivnote", "notes"
                             FROM verification.delivnote_suppliers
                             WHERE "supplier_order_num" = %s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_delivnote,(str(df_client.iloc[row, 3]),))
-                    results_delivnote=cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(query_delivnote,(str(df_client.iloc[row, 3]),))
+                            results_delivnote=cur.fetchall()
 
                     date_delivnote = results_delivnote[0][0]
                     note_delivnote = results_delivnote[0][1]
@@ -2814,19 +2616,8 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                         pdf.set_fill_color(0, 255, 0)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 pdf.set_font("DejaVuSansCondensed", size=8)
                 pdf.multi_cell(3, 0.5, str(df_client.iloc[row, 1]), max_line_height=pdf.font_size, align='L', fill=True if date_delivnote is not None else False)
@@ -2944,7 +2735,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.ui.setupUi(self.supplies_window)
         self.supplies_window.show()
 
-# Function to open menu with different types of revisions
+# Function to open window to check flanges dimensions and information
     def flanges_information(self):
         """
         Initializes and displays the flanges information for the current user.
@@ -2954,6 +2745,26 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.ui=Ui_Verif_Flange_Information_Window(self.username)
         self.ui.setupUi(self.flange_information)
         self.flange_information.showMaximized()
+
+# Function to open window with stock information
+    def stock(self):
+        """
+        Opens the "Warehouse Stock" window, establishes a database connection.
+        """
+        from Warehouse_Stock_Window import Ui_Warehouse_Stock_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_warehouse_stock = createConnection(user_database, password_database)
+        if not db_warehouse_stock:
+            sys.exit()
+
+        self.warehouse_stock_window = Ui_Warehouse_Stock_Window(db_warehouse_stock, self.username)
+        self.warehouse_stock_window.showMaximized()
 
 
 
