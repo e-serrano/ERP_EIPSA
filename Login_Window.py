@@ -316,9 +316,10 @@ class Ui_Login_Window(object):
                         """)
             try:
                 with Database_Connection(config()) as conn:
-                    cursor = conn.cursor()
-                    cursor.execute(query_user_login, (login_username,))
-                    results = cursor.fetchone()
+                    with conn.cursor() as cursor:
+                        cursor.execute(query_user_login, (login_username,))
+                        results = cursor.fetchone()
+
             except (Exception, psycopg2.DatabaseError) as error:
                 show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
                 results = None

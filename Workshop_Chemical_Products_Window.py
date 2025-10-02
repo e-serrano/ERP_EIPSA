@@ -1172,9 +1172,9 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-                data=('',)
-                cur.execute(commands_new, data)
+                with conn.cursor() as cur:
+                    data=('',)
+                    cur.execute(commands_new, data)
                 conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:

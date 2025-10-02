@@ -1758,16 +1758,16 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
-                results_tags=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
+                    results_tags=cur.fetchall()
 
-                cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
-                results_drawings=cur.fetchall()
+                    cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
+                    results_drawings=cur.fetchall()
 
-                cur.execute(query_calibration, (self.numorder,))
-                results_calibration=cur.fetchall()
+                    cur.execute(query_calibration, (self.numorder,))
+                    results_calibration=cur.fetchall()
 
             self.table_tags.setRowCount(len(results_tags))
             tablerow=0
@@ -2085,10 +2085,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_path)
-                        results=cur.fetchall()
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(query_path)
+                            results=cur.fetchall()
 
                     file_path = os.path.normpath(results[0][0])
                     os.startfile(file_path)
@@ -2106,10 +2106,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query)
-                        results=cur.fetchall()
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(query)
+                            results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2138,10 +2138,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query)
-                        results=cur.fetchall()
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(query)
+                            results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2171,10 +2171,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 conn = None
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query)
-                        results=cur.fetchall()
+                        with conn.cursor() as cur:
+                        # execution of commands
+                            cur.execute(query)
+                            results=cur.fetchall()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2234,38 +2234,37 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
+                with conn.cursor() as cur:
+                    commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
+                                            "username","message","state","date_creation"
+                                            )
+                                            VALUES (%s,%s,%s,%s)
+                                            """)
 
-                commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
-                                        "username","message","state","date_creation"
-                                        )
-                                        VALUES (%s,%s,%s,%s)
-                                        """)
+                    commands_select_exp = ("""
+                                    SELECT verif_exp_date, id
+                                    FROM verification."exp_verification"
+                                    WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                    """)
 
-                commands_select_exp = ("""
-                                SELECT verif_exp_date, id
-                                FROM verification."exp_verification"
-                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                                """)
+                    commands_insert_exp = ("""
+                                    UPDATE verification."exp_verification"
+                                    SET "verif_exp_obs" = %s
+                                    WHERE "id" = %s
+                                    """)
 
-                commands_insert_exp = ("""
-                                UPDATE verification."exp_verification"
-                                SET "verif_exp_obs" = %s
-                                WHERE "id" = %s
-                                """)
+                    data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
+                    cur.execute(commands_notification_neworder, data)
 
-                data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
-                cur.execute(commands_notification_neworder, data)
+                    data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
+                    cur.execute(commands_notification_neworder, data_2)
 
-                data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
-                cur.execute(commands_notification_neworder, data_2)
+                    cur.execute(commands_select_exp, (num_order, ))
+                    results = cur.fetchall()
 
-                cur.execute(commands_select_exp, (num_order, ))
-                results = cur.fetchall()
-
-                if len(results) != 0:
-                    if results[0][0] is None:
-                        cur.execute(commands_insert_exp, ("Avisado", results[0][1], ))
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_exp, ("Avisado", results[0][1], ))
 
             # commit the changes
                 conn.commit()

@@ -552,13 +552,14 @@ class Ui_OfferRecToOf_Window(object):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(query_producttype)
-                results_producttype=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(query_producttype)
+                    results_producttype=cur.fetchall()
 
-                cur.execute(query_commercial)
-                results_commercial=cur.fetchall()
+                    cur.execute(query_commercial)
+                    results_commercial=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
@@ -675,16 +676,16 @@ class Ui_OfferRecToOf_Window(object):
 
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        data=(numoffer, state, responsible, client, finalclient,
-                            numref, recep_date, nacext, buyer,
-                            material, notes, amount, limit_date, rate_type,
-                            important_issues, recep_date, mails, portal, numitems, probability,
-                            last_update, presentation_date, tracking)
-                        cur.execute(commands_offerrectoof,data)
+                        with conn.cursor() as cur:
+                        # execution of commands one by one
+                            data=(numoffer, state, responsible, client, finalclient,
+                                numref, recep_date, nacext, buyer,
+                                material, notes, amount, limit_date, rate_type,
+                                important_issues, recep_date, mails, portal, numitems, probability,
+                                last_update, presentation_date, tracking)
+                            cur.execute(commands_offerrectoof,data)
 
-                        cur.execute(commands_deleterecoffer, (self.id_offer,))
+                            cur.execute(commands_deleterecoffer, (self.id_offer,))
 
                     # commit the changes
                         conn.commit()
@@ -729,10 +730,10 @@ class Ui_OfferRecToOf_Window(object):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_loaddataoffer,(self.id_offer,))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_loaddataoffer,(self.id_offer,))
+                    results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"

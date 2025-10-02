@@ -344,10 +344,10 @@ class Ui_New_OfferReceived_Window(object):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_productype)
-                results_producttype=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_productype)
+                    results_producttype=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
@@ -396,10 +396,10 @@ class Ui_New_OfferReceived_Window(object):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_clients)
-                results_clients=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
@@ -453,15 +453,15 @@ class Ui_New_OfferReceived_Window(object):
 
             try:
                 with Database_Connection(config()) as conn:
-                    cur = conn.cursor()
-                    cur.execute(query_last_id)
-                    last_id = cur.fetchone()
+                    with conn.cursor() as cur:
+                        cur.execute(query_last_id)
+                        last_id = cur.fetchone()
 
-                    if last_id:
-                        id_offer = f"R-{int(last_id[0].split('-')[1]) + 1}"
+                        if last_id:
+                            id_offer = f"R-{int(last_id[0].split('-')[1]) + 1}"
 
-                    data=(id_offer, self.username, client, finalclient, numref, material, actual_date, recepdate, limitdate, description, items_number, 'Recibida', notes)
-                    cur.execute(commands_newoffer, data)
+                        data=(id_offer, self.username, client, finalclient, numref, material, actual_date, recepdate, limitdate, description, items_number, 'Recibida', notes)
+                        cur.execute(commands_newoffer, data)
 
                 # commit the changes
                     conn.commit()

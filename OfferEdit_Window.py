@@ -652,13 +652,14 @@ class Ui_Edit_Offer_Window(object):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(query_producttype)
-                results_producttype=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(query_producttype)
+                    results_producttype=cur.fetchall()
 
-                cur.execute(query_commercial)
-                results_commercial=cur.fetchall()
+                    cur.execute(query_commercial)
+                    results_commercial=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
@@ -775,11 +776,11 @@ class Ui_Edit_Offer_Window(object):
                 conn = None
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_checkoffer,(numoffer,))
-                        results=cur.fetchall()
-                        match=list(filter(lambda x:numoffer in x, results))
+                        with conn.cursor() as cur:
+                        # execution of commands one by one
+                            cur.execute(commands_checkoffer,(numoffer,))
+                            results=cur.fetchall()
+                            match=list(filter(lambda x:numoffer in x, results))
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     show_message("Ha ocurrido el siguiente error:\n"
@@ -804,16 +805,15 @@ class Ui_Edit_Offer_Window(object):
                                 """)
                     try:
                         with Database_Connection(config()) as conn:
-                            cur = conn.cursor()
+                            with conn.cursor() as cur:
                         # execution of commands one by one
-                            data=(responsible, client, finalclient, numref, state, nacext, buyer,
-                                material, notes, amount, limit_date, rate_type,
-                                important_issues, tracking, recep_date, mails, last_update,
-                                presentation_date, portal, numitems, project, validity,
-                                delivterm, delivtime, payterm, probability,
-                                numoffer,)
-                            cur.execute(commands_updateoffer,data)
-
+                                data=(responsible, client, finalclient, numref, state, nacext, buyer,
+                                    material, notes, amount, limit_date, rate_type,
+                                    important_issues, tracking, recep_date, mails, last_update,
+                                    presentation_date, portal, numitems, project, validity,
+                                    delivterm, delivtime, payterm, probability,
+                                    numoffer,)
+                                cur.execute(commands_updateoffer,data)
                         # commit the changes
                             conn.commit()
 
@@ -865,11 +865,11 @@ class Ui_Edit_Offer_Window(object):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_loaddataoffer,(numoffer,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numoffer in x, results))
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_loaddataoffer,(numoffer,))
+                    results=cur.fetchall()
+                    match=list(filter(lambda x:numoffer in x, results))
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"

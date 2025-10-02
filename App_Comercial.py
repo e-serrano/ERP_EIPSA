@@ -1240,6 +1240,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         SELECT *
                         FROM users_data.initials
                         """)
+
             commands_graph1 = ("""
                         SELECT orders."order_month", CAST(SUM(orders."order_amount") AS numeric)
                         FROM offers
@@ -1251,6 +1252,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         GROUP BY orders."order_month"
                         ORDER BY orders."order_month"
                         """)
+
             commands_graph2 = ("""
                         SELECT COUNT(orders."num_order"), product_type."variable"
                         FROM offers
@@ -1265,20 +1267,20 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
             try:
                 with Database_Connection(config()) as conn:
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_responsible)
-                    results_responsible=cur.fetchall()
+                    with conn.cursor() as cur:
+                    # execution of commands
+                        cur.execute(commands_responsible)
+                        results_responsible=cur.fetchall()
 
-                    match=list(filter(lambda x:self.username in x, results_responsible))
-                    responsible=match[0][0]
+                        match=list(filter(lambda x:self.username in x, results_responsible))
+                        responsible=match[0][0]
 
-                    data=(responsible, date.today().year,)
-                    cur.execute(commands_graph1, data)
-                    results_graph1=cur.fetchall()
+                        data=(responsible, date.today().year,)
+                        cur.execute(commands_graph1, data)
+                        results_graph1=cur.fetchall()
 
-                    cur.execute(commands_graph2, data)
-                    results_graph2=cur.fetchall()
+                        cur.execute(commands_graph2, data)
+                        results_graph2=cur.fetchall()
 
                     months=[int(x[0]) for x in results_graph1]
                     amounts=[float(x[1]) for x in results_graph1]
@@ -1326,10 +1328,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Handles errors with a message box and updates the table widget with the data.
         """
         self.tableOffer.setRowCount(0)
+
         commands_responsible = ("""
                         SELECT *
                         FROM users_data.initials
                         """)
+
         commands_appcomercial = ("""
                     SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
                     FROM offers
@@ -1341,34 +1345,20 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ))
                     ORDER BY "num_offer"
                     """)
-        commands_appcomercial_coordination = ("""
-                    SELECT "num_offer","state", "responsible", "client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
-                    FROM offers
-                    WHERE ("responsible" not in ('a.calvo')
-                    AND
-                    ("state" = 'Presentada'
-                    OR
-                    "state" = 'Registrada'
-                    ))
-                    ORDER BY "num_offer"
-                    """)
+
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-                if responsible in ('l.bravo'):
-                    cur.execute(commands_appcomercial_coordination)
-                    results=cur.fetchall()
-                    number_columns = 12
-                    self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Prob. Adj", "Notas", "Ptos. Importantes", "Seguimiento"])
-                else:
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
                     cur.execute(commands_appcomercial,(responsible,))
                     results=cur.fetchall()
                     number_columns = 11
+
                 self.tableOffer.setRowCount(len(results))
                 tablerow=0
 
@@ -1409,10 +1399,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     """)
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_loaddatestasks,(self.name,))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_loaddatestasks,(self.name,))
+                    results=cur.fetchall()
 
                 dates_with_tasks_raw=[x[0] for x in results]
                 dates_with_tasks=list(set(dates_with_tasks_raw))
@@ -1479,12 +1469,13 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     "state" = 'Pendiente')
                     ORDER BY "task_date"
                     """)
+
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_loaddatestasks,(self.name,))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_loaddatestasks,(self.name,))
+                    results=cur.fetchall()
 
                 dict_responsibles_tasks={}
 
@@ -1540,14 +1531,15 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     """)
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-                cur.execute(commands_offerdelay,(responsible,delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
+                    cur.execute(commands_offerdelay,(responsible,delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+                    results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
@@ -1601,7 +1593,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             dlg.setWindowTitle("Ofertas")
             dlg.setText(cell_content)
             dlg.exec()
-
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
@@ -1670,14 +1661,15 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-                cur.execute(commands_queryrecoffer, (responsible,))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
+                    cur.execute(commands_queryrecoffer, (responsible,))
+                    results=cur.fetchall()
 
                 offers_rec_delay=[x[0] for x in results]
 
@@ -1711,29 +1703,29 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_tables_notifications)
-                results=cur.fetchall()
-                tables_names=[x[0] for x in results]
-
-                notifications = []
-
-                for table in tables_names:
-                    commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                    cur.execute(commands_notifications)
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(query_tables_notifications)
                     results=cur.fetchall()
+                    tables_names=[x[0] for x in results]
 
-                    for x in results:
-                        notifications.append(x)
+                    notifications = []
 
-                if len(notifications) != 0:
-                    icon13 = QtGui.QIcon()
-                    icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                else:
-                    icon13 = QtGui.QIcon()
-                    icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                self.Button_Notification.setIcon(icon13)
+                    for table in tables_names:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
+
+                        for x in results:
+                            notifications.append(x)
+
+                    if len(notifications) != 0:
+                        icon13 = QtGui.QIcon()
+                        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    else:
+                        icon13 = QtGui.QIcon()
+                        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    self.Button_Notification.setIcon(icon13)
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
@@ -1851,12 +1843,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                             UNION ALL
 
-                            SELECT id_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
+                            SELECT id_offer as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
                             FROM received_offers
                             WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE) as final_table
 
                             ORDER BY array_position(
-                            ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state)
+                            ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state), num_offer
                             """)
 
         query_weekly_summary = ("""
@@ -1898,37 +1890,37 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                             """)
 
         with Database_Connection(config()) as conn:
-            cur = conn.cursor()
+            with conn.cursor() as cur:
+                cur.execute(query_graph_1)
+                results_graph_1 = cur.fetchall()
 
-            cur.execute(query_graph_1)
-            results_graph_1 = cur.fetchall()
-            df_graph_1 = pd.DataFrame(results_graph_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
+                df_graph_1 = pd.DataFrame(results_graph_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
 
-            df_graph_1['Importe Oferta'] = df_graph_1['Importe Oferta']\
-                                        .str.replace('€', '', regex=False) \
-                                        .str.replace('.', '', regex=False) \
-                                        .str.replace(',', '.', regex=False) \
-                                        .astype(float)
+                df_graph_1['Importe Oferta'] = df_graph_1['Importe Oferta']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
 
-            df_graph_1['Importe Pedido'] = df_graph_1['Importe Pedido']\
-                                        .str.replace('€', '', regex=False) \
-                                        .str.replace('.', '', regex=False) \
-                                        .str.replace(',', '.', regex=False) \
-                                        .astype(float)
+                df_graph_1['Importe Pedido'] = df_graph_1['Importe Pedido']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
 
-            df_graph_1['Importe Final'] = df_graph_1.apply(lambda row: row['Importe Pedido'] if row['Estado'] == 'Adjudicada' else row['Importe Oferta'], axis=1)
+                df_graph_1['Importe Final'] = df_graph_1.apply(lambda row: row['Importe Pedido'] if row['Estado'] == 'Adjudicada' else row['Importe Oferta'], axis=1)
 
-            cur.execute(query_graph_2)
-            results_graph_2 = cur.fetchall()
-            df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
+                cur.execute(query_graph_2)
+                results_graph_2 = cur.fetchall()
+                df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
 
-            cur.execute(query_last_weekly_summary)
-            results_weekly = cur.fetchall()
-            df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
+                cur.execute(query_last_weekly_summary)
+                results_weekly = cur.fetchall()
+                df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
 
-            cur.execute(query_active_summary)
-            results_active = cur.fetchall()
-            df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe'])
+                cur.execute(query_active_summary)
+                results_active = cur.fetchall()
+                df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe'])
 
         pdf = CustomPDF()
 

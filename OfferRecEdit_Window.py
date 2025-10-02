@@ -407,13 +407,14 @@ class Ui_Edit_OfferRec_Window(object):
         conn = None
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(query_producttype)
-                results_producttype=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(query_producttype)
+                    results_producttype=cur.fetchall()
 
-                cur.execute(query_commercial)
-                results_commercial=cur.fetchall()
+                    cur.execute(query_commercial)
+                    results_commercial=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
@@ -470,10 +471,10 @@ class Ui_Edit_OfferRec_Window(object):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_clients)
-                results_clients=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
@@ -518,12 +519,12 @@ class Ui_Edit_OfferRec_Window(object):
 
                 try:
                     with Database_Connection(config()) as conn:
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        data=(responsible, client, finalclient, numref, state,
-                            material, description, limit_date, recep_date, numitems, notes,
-                            id_offer,)
-                        cur.execute(commands_updateoffer,data)
+                        with conn.cursor() as cur:
+                        # execution of commands one by one
+                            data=(responsible, client, finalclient, numref, state,
+                                material, description, limit_date, recep_date, numitems, notes,
+                                id_offer,)
+                            cur.execute(commands_updateoffer,data)
 
                     # commit the changes
                         conn.commit()
@@ -559,10 +560,10 @@ class Ui_Edit_OfferRec_Window(object):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_loaddataoffer,(self.id_offer,))
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_loaddataoffer,(self.id_offer,))
+                    results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"

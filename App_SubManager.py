@@ -1539,12 +1539,12 @@ class Ui_App_SubManager(object):
 
                             UNION ALL
 
-                            SELECT id_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
+                            SELECT id_offer as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
                             FROM received_offers
                             WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE) as final_table
 
                             ORDER BY array_position(
-                            ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state)
+                            ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state), num_offer
                             """)
 
         query_weekly_summary = ("""
@@ -1586,37 +1586,37 @@ class Ui_App_SubManager(object):
                             """)
 
         with Database_Connection(config()) as conn:
-            cur = conn.cursor()
+            with conn.cursor() as cur:
 
-            cur.execute(query_graph_1)
-            results_graph_1 = cur.fetchall()
-            df_graph_1 = pd.DataFrame(results_graph_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
+                cur.execute(query_graph_1)
+                results_graph_1 = cur.fetchall()
+                df_graph_1 = pd.DataFrame(results_graph_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
 
-            df_graph_1['Importe Oferta'] = df_graph_1['Importe Oferta']\
-                                        .str.replace('€', '', regex=False) \
-                                        .str.replace('.', '', regex=False) \
-                                        .str.replace(',', '.', regex=False) \
-                                        .astype(float)
+                df_graph_1['Importe Oferta'] = df_graph_1['Importe Oferta']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
 
-            df_graph_1['Importe Pedido'] = df_graph_1['Importe Pedido']\
-                                        .str.replace('€', '', regex=False) \
-                                        .str.replace('.', '', regex=False) \
-                                        .str.replace(',', '.', regex=False) \
-                                        .astype(float)
+                df_graph_1['Importe Pedido'] = df_graph_1['Importe Pedido']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
 
-            df_graph_1['Importe Final'] = df_graph_1.apply(lambda row: row['Importe Pedido'] if row['Estado'] == 'Adjudicada' else row['Importe Oferta'], axis=1)
+                df_graph_1['Importe Final'] = df_graph_1.apply(lambda row: row['Importe Pedido'] if row['Estado'] == 'Adjudicada' else row['Importe Oferta'], axis=1)
 
-            cur.execute(query_graph_2)
-            results_graph_2 = cur.fetchall()
-            df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
+                cur.execute(query_graph_2)
+                results_graph_2 = cur.fetchall()
+                df_graph_2 = pd.DataFrame(results_graph_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
 
-            cur.execute(query_last_weekly_summary)
-            results_weekly = cur.fetchall()
-            df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
+                cur.execute(query_last_weekly_summary)
+                results_weekly = cur.fetchall()
+                df_weekly = pd.DataFrame(results_weekly, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Tabla'])
 
-            cur.execute(query_active_summary)
-            results_active = cur.fetchall()
-            df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe'])
+                cur.execute(query_active_summary)
+                results_active = cur.fetchall()
+                df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe'])
 
         pdf = CustomPDF()
 

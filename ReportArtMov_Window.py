@@ -725,10 +725,11 @@ class Ui_ArtMov_Window(object):
         commands_supplies = "SELECT * FROM purch_fact.supplies ORDER BY purch_fact.supplies.reference ASC"
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_supplies)
-                results_supplies=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_supplies)
+                    results_supplies=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
             show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
@@ -823,11 +824,10 @@ class Ui_ArtMov_Window(object):
 
         try:
             with Database_Connection(config()) as conn:
-                cur = conn.cursor()
-
-            # execution of commands one by one
-                cur.execute(commands_supplies)
-                results=cur.fetchall()
+                with conn.cursor() as cur:
+                # execution of commands one by one
+                    cur.execute(commands_supplies)
+                    results=cur.fetchall()
 
                 self.df = pd.DataFrame(results, columns=["Nombre", "Nº Pedido", "Fecha Pedido", "Cantidad"])
 
