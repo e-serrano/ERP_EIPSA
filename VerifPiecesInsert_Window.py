@@ -7,13 +7,14 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from config import config
+from config import config, get_path
 import psycopg2
 import os
 from datetime import *
 from tkinter.filedialog import askopenfilename
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -43,32 +44,20 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
         try:
-            # read the connection parameters
-            params = config()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 state, red, green, blue = result
                 colors_dict[state] = QtGui.QColor(red, green, blue)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             # Handle the error appropriately
             pass
-        finally:
-            if conn is not None:
-                conn.close()
 
         return colors_dict
 
@@ -325,7 +314,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -514,7 +503,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         VerifPiecesInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
         # VerifPiecesInsert_Window.setMaximumSize(QtCore.QSize(800, 675))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         VerifPiecesInsert_Window.setWindowIcon(icon)
         if self.username in ['m.gil','j.tena']:
             VerifPiecesInsert_Window.setStyleSheet("QWidget {\n"
@@ -602,9 +591,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableWidget")
-        self.tableRecords.setColumnCount(10)
+        self.tableRecords.setColumnCount(12)
         self.tableRecords.setRowCount(0)
-        for i in range (10):
+        for i in range (12):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -698,6 +687,43 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.notes.setObjectName("notes")
         self.gridLayout_2.addWidget(self.notes, 3, 5, 1, 1)
+        self.label_num_order = QtWidgets.QLabel(parent=self.frame)
+        self.label_num_order.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_num_order.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_num_order.setFont(font)
+        self.label_num_order.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_num_order.setObjectName("label_num_order")
+        self.gridLayout_2.addWidget(self.label_num_order, 4, 0, 1, 1)
+        self.num_order = QtWidgets.QLineEdit(parent=self.frame)
+        self.num_order.setMinimumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.num_order.setFont(font)
+        self.num_order.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.num_order.setObjectName("num_order")
+        self.gridLayout_2.addWidget(self.num_order, 4, 2, 1, 1)
+        self.label_heat_number = QtWidgets.QLabel(parent=self.frame)
+        self.label_heat_number.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_heat_number.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_heat_number.setFont(font)
+        self.label_heat_number.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_heat_number.setObjectName("label_heat_number")
+        self.gridLayout_2.addWidget(self.label_heat_number, 4, 3, 1, 1)
+        self.heat_number = QtWidgets.QLineEdit(parent=self.frame)
+        self.heat_number.setMinimumSize(QtCore.QSize(105, 25))
+        self.heat_number.setMaximumSize(QtCore.QSize(16777215, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.heat_number.setFont(font)
+        self.heat_number.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.heat_number.setObjectName("heat_number")
+        self.gridLayout_2.addWidget(self.heat_number, 4, 5, 1, 1)
         self.label_description = QtWidgets.QLabel(parent=self.frame)
         self.label_description.setMinimumSize(QtCore.QSize(105, 25))
         self.label_description.setMaximumSize(QtCore.QSize(105, 25))
@@ -707,7 +733,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.label_description.setFont(font)
         self.label_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_description.setObjectName("label_description")
-        self.gridLayout_2.addWidget(self.label_description, 4, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_description, 5, 0, 1, 1)
         self.Button_AddDescription= QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddDescription.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_AddDescription.setMaximumSize(QtCore.QSize(30, 25))
@@ -752,10 +778,10 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_AddDescription.setObjectName("Button_AddDescription")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_AddDescription.setIcon(icon2)
         self.Button_AddDescription.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_2.addWidget(self.Button_AddDescription, 4, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddDescription, 5, 1, 1, 1)
         self.description = QtWidgets.QComboBox(parent=self.frame)
         self.description.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -763,7 +789,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.description.setFont(font)
         self.description.setObjectName("supplier")
         self.description.setEditable(True)
-        self.gridLayout_2.addWidget(self.description, 4, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.description, 5, 2, 1, 1)
         self.label_image = QtWidgets.QLabel(parent=self.frame)
         self.label_image.setMinimumSize(QtCore.QSize(105, 25))
         self.label_image.setMaximumSize(QtCore.QSize(105, 25))
@@ -773,7 +799,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.label_image.setFont(font)
         self.label_image.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_image.setObjectName("label_image")
-        self.gridLayout_2.addWidget(self.label_image, 4, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_image, 5, 3, 1, 1)
         self.Button_SearchImage = QtWidgets.QPushButton(parent=self.frame)
         self.Button_SearchImage.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_SearchImage.setMaximumSize(QtCore.QSize(30, 25))
@@ -818,11 +844,11 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_SearchImage.setObjectName("Button_SearchImage")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_SearchImage.setIcon(icon1)
         self.Button_SearchImage.setIconSize(QtCore.QSize(20, 20))
         self.Button_SearchImage.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_2.addWidget(self.Button_SearchImage, 4, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_SearchImage, 5, 4, 1, 1)
         self.image = QtWidgets.QLineEdit(parent=self.frame)
         self.image.setMinimumSize(QtCore.QSize(105, 25))
         # self.delivnote.setMaximumSize(QtCore.QSize(105, 25))
@@ -832,7 +858,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.image.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.image.setObjectName("delivnote")
         self.image.setReadOnly(True)
-        self.gridLayout_2.addWidget(self.image, 4, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.image, 5, 5, 1, 1)
         self.label_material = QtWidgets.QLabel(parent=self.frame)
         self.label_material.setMinimumSize(QtCore.QSize(105, 25))
         self.label_material.setMaximumSize(QtCore.QSize(105, 25))
@@ -842,7 +868,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.label_material.setFont(font)
         self.label_material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_material.setObjectName("label_material")
-        self.gridLayout_2.addWidget(self.label_material, 5, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_material, 6, 0, 1, 1)
         self.material = QtWidgets.QLineEdit(parent=self.frame)
         self.material.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -850,7 +876,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.material.setFont(font)
         self.material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.material.setObjectName("material")
-        self.gridLayout_2.addWidget(self.material, 5, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.material, 6, 2, 1, 1)
         self.label_document = QtWidgets.QLabel(parent=self.frame)
         self.label_document.setMinimumSize(QtCore.QSize(105, 25))
         self.label_document.setMaximumSize(QtCore.QSize(105, 25))
@@ -860,7 +886,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.label_document.setFont(font)
         self.label_document.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_document.setObjectName("label_document")
-        self.gridLayout_2.addWidget(self.label_document, 5, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_document, 6, 3, 1, 1)
         self.Button_SearchDocument = QtWidgets.QPushButton(parent=self.frame)
         self.Button_SearchDocument.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_SearchDocument.setMaximumSize(QtCore.QSize(30, 25))
@@ -905,11 +931,11 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_SearchDocument.setObjectName("Button_SearchDocument")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_SearchDocument.setIcon(icon3)
         self.Button_SearchDocument.setIconSize(QtCore.QSize(20, 20))
         self.Button_SearchDocument.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_2.addWidget(self.Button_SearchDocument, 5, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_SearchDocument, 6, 4, 1, 1)
         self.document = QtWidgets.QLineEdit(parent=self.frame)
         self.document.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -918,19 +944,19 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.document.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.document.setObjectName("document")
         self.document.setReadOnly(True)
-        self.gridLayout_2.addWidget(self.document, 5, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.document, 6, 5, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem1, 6, 2, 1, 1)
+        self.gridLayout_2.addItem(spacerItem1, 7, 2, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Insert.setObjectName("Button_Insert")
-        self.gridLayout_2.addWidget(self.Button_Insert, 7, 0, 1, 3)
+        self.gridLayout_2.addWidget(self.Button_Insert, 8, 0, 1, 3)
         self.Button_Edit = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Edit.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Edit.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Edit.setObjectName("Button_Edit")
-        self.gridLayout_2.addWidget(self.Button_Edit, 7, 3, 1, 3)
+        self.gridLayout_2.addWidget(self.Button_Edit, 8, 3, 1, 3)
 
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         VerifPiecesInsert_Window.setCentralWidget(self.centralwidget)
@@ -976,6 +1002,8 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.label_quantity.setText(_translate("VerifPiecesInsert_Window", "Cantidad:"))
         self.label_num_ot.setText(_translate("VerifPiecesInsert_Window", "Nº OT:"))
         self.label_notes.setText(_translate("VerifPiecesInsert_Window", "Notas:"))
+        self.label_num_order.setText(_translate("VerifPiecesInsert_Window", "Nº Pedido:"))
+        self.label_heat_number.setText(_translate("VerifPiecesInsert_Window", "Colada:"))
         self.label_description.setText(_translate("VerifPiecesInsert_Window", "Descripción:"))
         self.label_image.setText(_translate("VerifPiecesInsert_Window", "Foto:"))
         self.label_material.setText(_translate("VerifPiecesInsert_Window", "Material:"))
@@ -995,12 +1023,16 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(5)
         item.setText(_translate("VerifPiecesInsert_Window", "Cantidad"))
         item = self.tableRecords.horizontalHeaderItem(6)
-        item.setText(_translate("VerifPiecesInsert_Window", "Notas"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Nº Pedido"))
         item = self.tableRecords.horizontalHeaderItem(7)
-        item.setText(_translate("VerifPiecesInsert_Window", "Foto"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Colada"))
         item = self.tableRecords.horizontalHeaderItem(8)
-        item.setText(_translate("VerifPiecesInsert_Window", "PDF Plano"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Notas"))
         item = self.tableRecords.horizontalHeaderItem(9)
+        item.setText(_translate("VerifPiecesInsert_Window", "Foto"))
+        item = self.tableRecords.horizontalHeaderItem(10)
+        item.setText(_translate("VerifPiecesInsert_Window", "PDF Plano"))
+        item = self.tableRecords.horizontalHeaderItem(11)
         item.setText(_translate("VerifPiecesInsert_Window", "Estado"))
 
 # Function to query data and set values on table
@@ -1013,34 +1045,25 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
         query_material = ("""
                         SELECT pieces."id", pieces."num_ot", TO_CHAR(pieces."date_addition", 'dd/MM/yyyy'), pieces."description",
-                        pieces."material", pieces."quantity", pieces."notes", pieces."image", pieces."document", pieces."state"
+                        pieces."material", pieces."quantity", pieces."num_order", pieces."heat_number", pieces."notes", pieces."image", pieces."document", pieces."state"
                         FROM verification.warehouse_added_pieces AS pieces
                         ORDER BY pieces."id" DESC
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_material)
-            results=cur.fetchall()
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_material)
+                    results=cur.fetchall()
 
             self.tableRecords.setRowCount(len(results))
-            self.tableRecords.setColumnCount(10)
+            self.tableRecords.setColumnCount(12)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
-                    if column in [7,8]:
+                for column in range(12):
+                    if column in [9,10]:
                         value = row[column].split("/")[-1] if row[column] is not None else ''
                     else:
                         value = row[column]
@@ -1058,23 +1081,12 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.horizontalHeader().setSectionResizeMode( QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableRecords.hideColumn(0)
-            self.tableRecords.hideColumn(9)
+            self.tableRecords.hideColumn(11)
             # self.tableRecords.custom_sort(2, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to insert data record
     def insert(self):
@@ -1091,48 +1103,25 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         image = self.image.text()
         document = self.document.text()
         state = 'Realizado Por Mario' if self.username == 'm.gil' else 'Realizado Por Juan'
+        num_order = self.num_order.text()
+        heat_number = self.heat_number.text()
 
         if id_record != '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Este registro ya tiene datos. No puedes insertar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Este registro ya tiene datos. No puedes insertar", "warning")
 
         elif date_record == '' or (num_ot == '' or (description == '' or (material == '' or (quantity == '' or document == '')))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
 
         else:
-            conn = None
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                commands_insert = ("""INSERT INTO verification.warehouse_added_pieces
-                                    (date_addition, num_ot, description, material, quantity, notes, image, document, state) 
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-                data = (date_record, num_ot, description, material, quantity, notes, image, document, state)
-                cur.execute(commands_insert, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        commands_insert = ("""INSERT INTO verification.warehouse_added_pieces
+                                            (date_addition, num_ot, description, material, quantity, notes, image, document, state, num_order, heat_number) 
+                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
+                        data = (date_record, num_ot, description, material, quantity, notes, image, document, state, num_order, heat_number)
+                        cur.execute(commands_insert, data)
+                    conn.commit()
 
                 self.quantity.setText("")
                 self.num_ot.setText("")
@@ -1140,33 +1129,16 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                 self.material.setText("")
                 self.image.setText("")
                 self.document.setText("")
+                self.num_order.setText("")
+                self.heat_number.setText("")
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Piezas Taller")
-                dlg.setText("Datos insertados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+                MessageHelper.show_message("Datos insertados con éxito", "info")
 
                 self.query_values()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to edit data recor
     def edit(self):
@@ -1183,76 +1155,37 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         image = self.image.text()
         document = self.document.text()
         state = 'Realizado Por Mario' if self.username == 'm.gil' else 'Realizado Por Juan'
+        num_order = self.num_order.text()
+        heat_number = self.heat_number.text()
 
         if id_record == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona un registro para editar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona un registro para editar", "warning")
 
         elif date_record == '' or (num_ot == '' or (description == '' or (material == '' or (quantity == '' or document == '')))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
+
         else:
             query_edit = ("""
                         UPDATE verification.warehouse_added_pieces
                         SET "date_addition" = %s, "num_ot" = %s, "description" = %s, "material" = %s,
-                        "quantity" = %s, "notes" = %s, "image" = %s, "document" = %s, "state" = %s
+                        "quantity" = %s, "notes" = %s, "image" = %s, "document" = %s, "state" = %s,
+                        "num_order" = %s, "heat_number" = %s
                         WHERE "id" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_edit, (date_record, num_ot, description, material, quantity, notes, image, document, state, id_record,))
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_edit, (date_record, num_ot, description, material, quantity, notes, image, document, state, num_order, heat_number, id_record,))
+                    conn.commit()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos actualizados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Datos actualizados con éxito", "info")
 
                 self.query_values()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to load file
     def item_double_clicked(self, item):
@@ -1260,10 +1193,10 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         Opens detailed information when column is double-clicked.
         """
         if item.text() != '':
-            if item.column() in [7,8]:
+            if item.column() in [9,10]:
                 item_id = self.tableRecords.item(item.row(), 0).text()
 
-                if item.column() == 7:
+                if item.column() == 9:
                     query_path = ("""
                                 SELECT pieces."image"
                                 FROM verification.warehouse_added_pieces AS pieces
@@ -1275,39 +1208,19 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                                 FROM verification.warehouse_added_pieces AS pieces
                                 WHERE pieces."id" = %s
                                 """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_path, (item_id,))
-                    results=cur.fetchall()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                try:
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query_path, (item_id,))
+                            results=cur.fetchall()
 
                     file_path = os.path.normpath(results[0][0])
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to load form when selecting record
     def loadform(self, item):
@@ -1329,52 +1242,34 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.description.setCurrentText(data_order[3])
         self.material.setText(data_order[4])
         self.quantity.setText(data_order[5])
-        self.notes.setText(data_order[6])
+        self.num_order.setText(data_order[6])
+        self.heat_number.setText(data_order[7])
+        self.notes.setText(data_order[8])
 
         query_image_doc = ("""
                         SELECT image, document
                         FROM verification.warehouse_added_pieces
                         WHERE id = %s
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_image_doc, (data_order[0],))
-            results=cur.fetchall()
-            self.image.setText(results[0][0])
-            self.document.setText(results[0][1])
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_image_doc, (data_order[0],))
+                    results=cur.fetchall()
+                    self.image.setText(results[0][0])
+                    self.document.setText(results[0][1])
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to search pdf file
     def search_document(self):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
             self.document.setText(self.fname)
@@ -1384,7 +1279,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a image from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos JPG", "*.jpg")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
         if self.fname:
             self.image.setText(self.fname)
@@ -1396,7 +1291,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Nueva descripción')
         dlg.setLabelText('Introduce una nueva descripción:')
@@ -1406,59 +1301,22 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
             if clickedButton == 1:
                 description_piece = dlg.textValue()
                 if description_piece != '':
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        commands_insertdescription = ("INSERT INTO verification.warehouse_pieces (pieces_description) VALUES (%s)")
-                        cur.execute(commands_insertdescription, (description_piece,))
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                commands_insertdescription = ("INSERT INTO verification.warehouse_pieces (pieces_description) VALUES (%s)")
+                                cur.execute(commands_insertdescription, (description_piece,))
+                            conn.commit()
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Nueva descripción")
-                        dlg.setText("Datos insertados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         self.description.setCurrentText(description_piece)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Nueva descripción")
-                dlg_error.setText("La descripción no puede estar vacío")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La descripción no puede estar vacío", "warning")
             else:
                 break
 
@@ -1492,31 +1350,17 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                             FROM verification.warehouse_pieces
                             ORDER BY "pieces_description"
                             """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_description)
-            results_description=cur.fetchall()
-            list_description = [x[0] for x in results_description]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_description)
+                    results_description=cur.fetchall()
+                    list_description = [x[0] for x in results_description]
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.description.addItems([''] + list_description)
 
