@@ -595,7 +595,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
         num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        workbook = openpyxl.load_workbook(excel_file_path)
+        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
@@ -1002,7 +1002,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
         num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        workbook = openpyxl.load_workbook(excel_file_path)
+        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
@@ -1464,7 +1464,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
         num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        workbook = openpyxl.load_workbook(excel_file_path)
+        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
