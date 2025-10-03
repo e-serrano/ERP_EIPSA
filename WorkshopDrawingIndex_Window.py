@@ -2624,7 +2624,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
             self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
 
-            self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index))
+            self.tableDimDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableDimDwg, "Dimensionales"))
+            self.tableOfDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableOfDwg, "OF"))
+            self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableMDwg, "M"))
         else:
             MessageHelper.show_message("El pedido introducido no existe", "warning")
 
@@ -4274,7 +4276,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.query_drawings()
 
 # Function to open drawings
-    def open_drawings(self, index):
+    def open_drawings(self, index, table, drawing_type):
         """
         Opens a file based on the provided index and variable.
 
@@ -4286,37 +4288,32 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
 
         if index.column() == 1:
-            model = self.tableMDwg.model()
+            model = table.model()
             item_index = model.index(index.row(), 2)
             drawing_number = model.data(item_index)[:4]
 
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
-            if self.num_order[:2] == 'PA':
-                num_order = self.num_order
-                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
-                for folder in os.listdir(path):
-                    if num_order.replace("/", "-") in folder:
-                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
-                        for root, dirs, files in os.walk(folder_path):
-                            for filename in files:
-                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
-                                    file_path = os.path.join(root, filename)
-                                    file_path = os.path.normpath(file_path)
-                                    os.startfile(file_path)
+            base_folder = "//srvad01/base de datos de pedidos"
 
-            elif self.num_order[:2] == 'P-':
+            if self.num_order[:2] == "PA":
+                num_order = self.num_order
+                path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos Almacen")
+            elif self.num_order[:2] == "P-":
                 num_order = self.num_order[:8]
-                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
-                for folder in os.listdir(path):
-                    if num_order.replace("/", "-") in folder:
-                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
-                        for root, dirs, files in os.walk(folder_path):
-                            for filename in files:
-                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
-                                    file_path = os.path.join(root, filename)
-                                    file_path = os.path.normpath(file_path)
-                                    os.startfile(file_path)
+                path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
+            else:
+                return
+
+            for folder in os.listdir(path):
+                if num_order.replace("/", "-") in folder:
+                    folder_path = os.path.join(path, folder, "3-Fabricacion", f"Planos {drawing_type}")
+                    for root, dirs, files in os.walk(folder_path):
+                        for filename in files:
+                            if fnmatch.fnmatch(filename, f"{drawing_number}*"):
+                                file_path = os.path.normpath(os.path.join(root, filename))
+                                os.startfile(file_path)
+                                return
 
 # Function to generate drawings based on the order number and equipment type
     def generate_drawings(self):
