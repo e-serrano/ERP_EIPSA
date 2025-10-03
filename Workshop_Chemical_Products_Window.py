@@ -682,7 +682,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
-        # self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
         
         self.adjust_table()
 
@@ -750,7 +750,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
-        # self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        self.tableEquipment.doubleClicked.connect(lambda index: self.item_double_clicked(index))
         
         self.adjust_table()
 
@@ -1217,7 +1217,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         # self.tableEquipment.hideColumn(8)
         # self.tableEquipment.hideColumn(9)
         self.tableEquipment.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableEquipment.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableEquipment.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEquipment.verticalHeader().setVisible(False)
 
 # Function when item is double clicked
@@ -1229,6 +1229,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
             value = index.data()
 
             if value != '':
+                print(value)
                 try:
                     file_path = os.path.normpath(value)
                     os.startfile(file_path)
@@ -1363,7 +1364,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 if images_path:
                     commands_insert = ("""
                             UPDATE verification."chemical_products_workshop"
-                            SET "image" = %s
+                            SET "images" = %s
                             WHERE "id" = %s
                             """)
 
