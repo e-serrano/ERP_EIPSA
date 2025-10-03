@@ -315,9 +315,9 @@ class Ui_CreateFabOrder_Window(object):
         tablerow=1
 
         if self.variable in ['Caudal', 'Temperatura']:
-            list_columns = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+            list_columns = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         elif self.variable in ['Nivel']:
-            list_columns = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]
+            list_columns = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]
 
     # fill the Qt Table with the results
         for column in range(self.columns_number):
@@ -393,13 +393,19 @@ class Ui_CreateFabOrder_Window(object):
             for row in range(self.tableElements.rowCount()):
                 if row != 0:
                     for column in column_list:
-                        id_ot = self.tableElements.item(row, 1).text() + ' # ' + self.tableElements.item(row, column).text()
+                        if column == 1:
+                            id_ot = 'Plano Dimensional # ' + self.tableElements.item(row, column).text()
+                        else:
+                            id_ot = self.tableElements.item(row, 1).text() + ' # ' + self.tableElements.item(row, column).text()
+
                         ped_type_tag = self.tableElements.item(row, 1).text()
                         item_text = self.tableElements.item(row, column).text()
-                        if column == 2:
+
+                        if column in [1, 2]:
                             qty_item = 1
                         else:
                             qty_item = self.tableElements.item(row, column + 1).text()
+
                         if item_text != '':
                             otdata_list.append([id_ot, ped_type_tag, item_text, qty_item])
 

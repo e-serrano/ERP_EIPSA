@@ -17,6 +17,8 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from tkinter.filedialog import asksaveasfilename
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -217,59 +219,44 @@ class Ui_OTFabOrder_Window(object):
                         WHERE NOT "ot_num" LIKE '90%'
                         ORDER BY "ot_num" ASC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_numot)
-            results=cur.fetchall()
-            self.num_ot=results[-1][0]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_numot)
+                    results=cur.fetchall()
+                    self.num_ot=results[-1][0]
 
             excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
             workbook = load_workbook(excel_file_path, keep_vba=True)
             worksheet = workbook.active
             self.num_ot = worksheet['B2'].value
             self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         it = QtWidgets.QTableWidgetItem(str(self.num_ot))
         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 4, it)
+
         it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 5, it)
 
         for i in range(1,self.tableOT.rowCount()):
-            if self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text():
-                it = QtWidgets.QTableWidgetItem(str(self.num_ot))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                self.tableOT.setItem(i, 4, it)
-            else:
+            use_same_ot = "Plano Dimensional" in self.tableOT.item(i, 0).text()\
+                        or (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
+
+            # Incrementar num_ot solo si no usamos el mismo número y no es la primera fila
+            if not use_same_ot and i > 0:
                 self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
-                it = QtWidgets.QTableWidgetItem(str(self.num_ot))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                self.tableOT.setItem(i, 4, it)
+
+            it = QtWidgets.QTableWidgetItem(str(self.num_ot))
+            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.tableOT.setItem(i, 4, it)
+
             it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 5, it)
@@ -296,6 +283,7 @@ class Ui_OTFabOrder_Window(object):
         Launches a fabrication order (OT) by processing data from the model and 
         populating the order table with relevant attributes. Exports the final order table data to an Excel file, applying specific styles and formatting
         """
+        data_dim = []
         data_of = []
         data_trad = []
 
@@ -304,9 +292,11 @@ class Ui_OTFabOrder_Window(object):
                 if self.model.data(self.model.index(row, 0)) == element:
                     target_row = row
                     break
+
             if target_row is not None:
                 ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 8)) + '-' + self.model.data(self.model.index(target_row, 1))
                 if self.variable == 'Caudal':
+                    dim_dwg = self.model.data(self.model.index(target_row, 47))
                     num_of_plate = self.model.data(self.model.index(target_row, 48)) 
                     codefab_eq = self.model.data(self.model.index(target_row, 73))
                     trad_eq = self.model.data(self.model.index(target_row, 74))
@@ -334,13 +324,16 @@ class Ui_OTFabOrder_Window(object):
                     trad_tube = self.model.data(self.model.index(target_row, 123))
                     codefab_piece2 = self.model.data(self.model.index(target_row, 109))
                     trad_piece2 = self.model.data(self.model.index(target_row, 124))
+                    list_dim = [dim_dwg]
                     list_of = [num_of_plate]
                     list_trad = [codefab_eq, trad_eq, codefab_orifice_flange, trad_orifice_flange, codefab_line_flange,
                                         trad_line_flange, codefab_gasket, trad_gasket, codefab_bolts, trad_bolts,
                                         codefab_plugs, trad_plugs, codefab_extractor, trad_extractor, codefab_plate,
                                         trad_plate, codefab_nipple, trad_nipple, codefab_handle, trad_handle,
                                         codefab_chring, trad_chring, codefab_tube, trad_tube, codefab_piece2, trad_piece2]
+
                 elif self.variable == 'Temperatura':
+                    dim_dwg = self.model.data(self.model.index(target_row, 57))
                     num_of_sensor = self.model.data(self.model.index(target_row, 58))
                     num_of = self.model.data(self.model.index(target_row, 62))
                     codefab_eq = self.model.data(self.model.index(target_row, 81))
@@ -369,6 +362,7 @@ class Ui_OTFabOrder_Window(object):
                     trad_tw = self.model.data(self.model.index(target_row, 130))
                     codefab_cable = self.model.data(self.model.index(target_row, 117))
                     trad_cable = self.model.data(self.model.index(target_row, 131))
+                    list_dim = [dim_dwg]
                     list_of = [num_of, num_of_sensor]
                     list_trad = [codefab_eq, trad_eq, codefab_bar, trad_bar, codefab_tube,
                                         trad_tube, codefab_flange, trad_flange, codefab_sensor, trad_sensor,
@@ -377,6 +371,7 @@ class Ui_OTFabOrder_Window(object):
                                         codefab_plug, trad_plug, codefab_tw, trad_tw, codefab_cable, trad_cable]
 
                 elif self.variable == 'Nivel':
+                    dim_dwg = self.model.data(self.model.index(target_row, 51))
                     num_of = self.model.data(self.model.index(target_row, 52))
                     codefab_eq = self.model.data(self.model.index(target_row, 67))
                     trad_eq = self.model.data(self.model.index(target_row, 68))
@@ -414,6 +409,7 @@ class Ui_OTFabOrder_Window(object):
                     trad_niptub = self.model.data(self.model.index(target_row, 136))
                     codefab_antifrost = self.model.data(self.model.index(target_row, 118))
                     trad_antifrost = self.model.data(self.model.index(target_row, 137))
+                    list_dim = [dim_dwg]
                     list_of = [num_of]
                     list_trad = [codefab_eq, trad_eq, codefab_body, trad_body, codefab_cover,
                                         trad_cover, codefab_stud, trad_stud, codefab_niphex, trad_niphex,
@@ -423,6 +419,8 @@ class Ui_OTFabOrder_Window(object):
                                         trad_float, codefab_mica, trad_mica, codefab_flags, trad_flags,
                                         codefab_gasketflange, trad_gasketflange, codefab_niptub, trad_niptub, codefab_antifrost, trad_antifrost]
 
+                list_dim.insert(0, ped_type_tag)
+                data_dim.append(list_dim)
                 list_of.insert(0, ped_type_tag)
                 data_of.append(list_of)
                 list_trad.insert(0, ped_type_tag)
@@ -436,71 +434,69 @@ class Ui_OTFabOrder_Window(object):
                     if value == self.tableOT.item(row, 2).text():
                         trad_column = df_trad.columns[df_trad.columns.get_loc(column_codefab) + 1]
                         code_trad = row_df[trad_column]
+
                 it = QtWidgets.QTableWidgetItem(str(code_trad))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableOT.setItem(row, 7, it)
 
+        df_dim = pd.DataFrame(data_dim)
         df_of = pd.DataFrame(data_of)
         for row in range (self.tableOT.rowCount()):
-            if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
-                of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+            if "Plano Dimensional" in self.tableOT.item(row, 0).text():
+                drawing = df_dim[df_dim.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
             else:
-                of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
-            it = QtWidgets.QTableWidgetItem(str(of_drawing))
+                if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
+                    drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                else:
+                    drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
+
+            it = QtWidgets.QTableWidgetItem(str(drawing))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 8, it)
 
         for row in range (self.tableOT.rowCount()):
             check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{self.tableOT.item(row, 0).text()}'"
+
             commands_newot = ("""
                             INSERT INTO fabrication.fab_order (
                             "id","tag","element","qty_element",
                             "ot_num","qty_ot","start_date")
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
+
             commands_updateot = ("""
                                 UPDATE fabrication.fab_order SET
                                 "tag" = %s, "element" = %s, "qty_element" = %s,
                                 "ot_num" = %s, "qty_ot" = %s,"start_date" = %s
                                 WHERE "id" = %s
                                 """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(check_ot)
-                results=cur.fetchall()
-                if len(results) == 0:
-                    data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
-                        self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
-                    cur.execute(commands_newot, data)
-                else:
-                    data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
-                        self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
-                    cur.execute(commands_updateot, data)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+            # try:
+            #     with Database_Connection(config()) as conn:
+            #         with conn.cursor() as cur:
+            #             cur.execute(check_ot)
+            #             results=cur.fetchall()
+
+            #     if len(results) == 0:
+            #         data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
+            #             self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
+
+            #         with Database_Connection(config()) as conn:
+            #             with conn.cursor() as cur:
+            #                 cur.execute(commands_newot, data)
+            #             conn.commit()
+            #     else:
+            #         data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
+            #             self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
+
+            #         with Database_Connection(config()) as conn:
+            #             with conn.cursor() as cur:
+            #                 cur.execute(commands_updateot, data)
+            #             conn.commit()
+
+            # except (Exception, psycopg2.DatabaseError) as error:
+            #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+            #                 + str(error), "critical")
 
         table_data = []
 
@@ -509,6 +505,7 @@ class Ui_OTFabOrder_Window(object):
             for col in range(self.tableOT.columnCount()):
                 item = self.tableOT.item(row, col)
                 row_data.append(item.text() if item is not None else "")
+
             table_data.append(row_data)
 
         df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
@@ -553,11 +550,11 @@ class Ui_OTFabOrder_Window(object):
 
             wb.save(output_path)
 
-            excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-            workbook = load_workbook(excel_file_path)
-            worksheet = workbook.active
-            worksheet['B2'].value = self.num_ot
-            workbook.save(excel_file_path)
+            # excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            # workbook = load_workbook(excel_file_path, keep_vba=True)
+            # worksheet = workbook.active
+            # worksheet['B2'].value = self.num_ot
+            # workbook.save(excel_file_path)
 
 
 
