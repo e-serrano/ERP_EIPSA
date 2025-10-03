@@ -91,6 +91,69 @@ def new_content_tags(value, type_eq):
     return io.BytesIO(pdf.output())
 
 
+def general_dwg(num_ot, material=None):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+
+    Args:
+        material (str): The material code.
+    """
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.image(str(get_path("Resources", "Iconos", "QualityStamp.png")), x = 3, y = 10, w = 19, h = 11)
+
+    pdf.set_draw_color(255, 0, 0)
+
+    if material is None:
+        material = 'A105'
+
+    query = ('''
+        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
+        FROM validation_data.material_color_code AS colors
+        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
+        ''')
+
+    try:
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
+    first_color = results_colors[0][0]
+    second_color = results_colors[0][1]
+    border_color = results_colors[0][2]
+
+    pdf.set_line_width(1)
+    pdf.set_draw_color(*map(int, first_color.split(',')))
+    pdf.rect(20, 5, 185, 286, style='D')
+
+    pdf.set_draw_color(*map(int, second_color.split(',')))
+    pdf.rect(19, 4, 187, 288, style='D')
+
+    if border_color is not None:
+        pdf.set_draw_color(*map(int, border_color.split(',')))
+        pdf.rect(18, 3, 189, 290, style='D')
+
+    pdf.add_font('IDAutomationHC39M', '', str(get_path("Resources", "Iconos", "IDAutomationHC39M_Free.ttf")))
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("IDAutomationHC39M", size=16)
+    pdf.set_x(-9)
+    pdf.set_y(160)
+    with pdf.rotation(90):
+        pdf.cell(60, 10, "*" + num_ot + "*", align='C')
+
+    return io.BytesIO(pdf.output())
+
+
 def drawing_number(num_order, info_drawing, counter):
     """
     Generates a PDF containing a new content based on the specified value and equipment type."
