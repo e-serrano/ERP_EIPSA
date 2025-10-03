@@ -1229,7 +1229,6 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
             value = index.data()
 
             if value != '':
-                print(value)
                 try:
                     file_path = os.path.normpath(value)
                     os.startfile(file_path)
