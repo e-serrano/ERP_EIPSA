@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import configparser
-from Database_Connection import createConnection_name
+from DB_Connection import createConnection_name
 import os
 import sys
 

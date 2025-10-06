@@ -12,7 +12,7 @@ from config import config
 import os
 from datetime import *
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

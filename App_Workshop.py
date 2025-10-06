@@ -13,7 +13,7 @@ import os
 import configparser
 from config import config
 import psycopg2
-from Database_Connection import createConnection, createConnection_name
+from DB_Connection import createConnection, createConnection_name
 import sys
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

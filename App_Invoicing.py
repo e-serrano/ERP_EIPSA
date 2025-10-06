@@ -11,7 +11,7 @@ from PyQt6.QtCore import QUrl
 import sys
 from datetime import *
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from Clients_Window import Ui_Clients_Window
 from Banks_Window import Ui_Banks_Window
 from Countries_Window import Ui_Countries_Window

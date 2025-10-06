@@ -15,7 +15,7 @@ from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 from Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 

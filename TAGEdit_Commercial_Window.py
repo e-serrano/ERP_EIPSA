@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config
 import psycopg2
 import locale

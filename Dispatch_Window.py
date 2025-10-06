@@ -3,7 +3,7 @@ from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 import configparser
 from datetime import *
 import os

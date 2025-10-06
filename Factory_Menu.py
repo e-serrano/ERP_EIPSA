@@ -9,7 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 

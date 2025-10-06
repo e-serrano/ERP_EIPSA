@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt
 import re
 from config import config
 import configparser
-from Database_Connection import createConnection_name, createConnection
+from DB_Connection import createConnection_name, createConnection
 import psycopg2
 import os
 from tkinter.filedialog import asksaveasfilename, askopenfilename

@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt, QDate
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config
 import psycopg2
 import configparser

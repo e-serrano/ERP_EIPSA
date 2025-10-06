@@ -14,7 +14,7 @@ from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import os
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config, get_path
 import psycopg2
 import locale

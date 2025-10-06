@@ -13,7 +13,7 @@ from datetime import *
 import psycopg2
 import sys
 import configparser
-from Database_Connection import createConnection, createConnection_name
+from DB_Connection import createConnection, createConnection_name
 from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os

@@ -13,7 +13,7 @@ import psycopg2
 from PyQt6.QtCore import Qt
 import os
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 

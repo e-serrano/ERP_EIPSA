@@ -12,7 +12,7 @@ import psycopg2
 import sys
 from config import config, get_path
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from datetime import *
 
 

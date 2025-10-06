@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import sys
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from datetime import *
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 from TAGOfferToOrder_Window import Ui_TAGOfferToOrder_Window

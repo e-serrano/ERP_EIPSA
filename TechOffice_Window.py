@@ -1,7 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 import configparser
 from datetime import *
 import os

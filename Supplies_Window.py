@@ -7,7 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets, QtSql
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config
 import configparser
 import psycopg2

@@ -11,7 +11,7 @@ from PyQt6 import QtSql
 import re
 import configparser
 import locale
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication

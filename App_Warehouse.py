@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config, get_path
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 import configparser
 import os
 from datetime import *

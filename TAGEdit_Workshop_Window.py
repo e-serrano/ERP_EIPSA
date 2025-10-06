@@ -11,7 +11,7 @@ from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config
 import psycopg2
 import re

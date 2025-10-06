@@ -14,7 +14,7 @@ from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from Create_FabOrder_Window import Ui_CreateFabOrder_Window
 from Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
 from Create_Inspection import inspection
-from Database_Connection import createConnection
+from DB_Connection import createConnection
 from config import config
 import psycopg2
 import re
