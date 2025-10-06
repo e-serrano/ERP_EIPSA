@@ -12,7 +12,7 @@ import psycopg2
 from config import config
 import os
 import re
-from MoneyChange import obtain_money_change
+from utils.MoneyChange import obtain_money_change
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
