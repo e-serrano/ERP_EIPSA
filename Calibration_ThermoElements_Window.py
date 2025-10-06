@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-from config import config
+from config import config, get_path
 import psycopg2
 import locale
 import os
@@ -20,10 +20,10 @@ from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 import configparser
-from Database_Connection import createConnection
+from DB_Connection import createConnection
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 import shutil
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -472,7 +472,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         CalibrationThermoElements_Window.resize(790, 595)
         CalibrationThermoElements_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CalibrationThermoElements_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             CalibrationThermoElements_Window.setStyleSheet(
@@ -509,7 +509,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolSaveChanges.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolSaveChanges)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Save.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Save.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolSaveChanges.setIcon(icon)
         self.hcabspacer0=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer0)
@@ -521,7 +521,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
@@ -531,7 +531,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.toolShow.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolShow)
@@ -543,7 +543,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.toolExpExcel.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpExcel)
@@ -779,13 +779,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     subfolder_path = os.path.join(folder_path, subfolder)
 
                     try:
-                        conn = None
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-
                         if os.path.isdir(subfolder_path):
                             for csv_file in os.listdir(subfolder_path):
                                 if csv_file.endswith('setup.csv'):
@@ -871,8 +864,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         #Reading each row and inserting data in table
                             for name_folder in list_folders:
                                 sql_check = f"SELECT * FROM verification.calibration_thermoelements WHERE folder_data = '{name_folder}'"
-                                cur.execute(sql_check)
-                                results = cur.fetchall()
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(sql_check)
+                                        results = cur.fetchall()
 
                                 if len(results) == 0:
                                     df_filtrado = df_elements.loc[df_elements['folder_data'] == name_folder]
@@ -887,51 +882,23 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
                                     # Creating insertion query and executing it
                                         sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
-                                        cur.execute(sql_insertion)
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                        with Database_Connection(config()) as conn:
+                                            with conn.cursor() as cur:
+                                                cur.execute(sql_insertion)
+                                            conn.commit()
 
                         shutil.rmtree(subfolder_path)
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error en la carpeta " + subfolder + ":\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error en la carpeta " + subfolder + ":\n"
+                                    + str(error), "critical")
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Importar Calibraciones")
-                dlg.setText("Importación completada")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+                MessageHelper.show_message("Importación completada", "info")
                 del dlg, new_icon
 
                 self.query_calibration()
             else:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Importar Calibraciones")
-                dlg.setText("No se ha encontrado la carpeta de importación")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No se ha encontrado la carpeta de importación", "warning")
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -1278,7 +1245,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1306,7 +1273,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1379,7 +1346,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1394,7 +1361,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1440,15 +1407,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos cargados", "warning")
         else:
             final_data = []
 
@@ -1674,61 +1633,24 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     id_values.append(value)
 
             if len(id_values) != 0:
-                dlg_yes_no = QtWidgets.QMessageBox()
-                new_icon_yes_no = QtGui.QIcon()
-                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                result = dlg_yes_no.exec()
-                if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                    conn = None
+                if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                     try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
                         commands_delete = ("""DELETE FROM verification.calibration_thermoelements
                                             WHERE id = %s""")
                         for id_value in id_values:
                             data = (id_value,)
-                            cur.execute(commands_delete, data)
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_delete, data)
+                                conn.commit()
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Caibraciones")
-                        dlg.setText("Registros eliminados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                        MessageHelper.show_message("Registros eliminados con éxito", "info")
 
                         self.query_calibration()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                 del dlg_yes_no, new_icon_yes_no
 
@@ -1768,25 +1690,23 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                             WHERE id IN %s
                             ORDER BY id ASC
                             """)
+
             update_data = ("""UPDATE verification.calibration_thermoelements SET
                             master_1 = %s, element_1 = %s, master_2 = %s, element_2 = %s,
                             master_3 = %s, element_3 = %s, master_4 = %s, element_4 = %s
                             WHERE id = %s
                             """)
+
             delete_query = ("""
                             DELETE FROM verification.calibration_thermoelements
                             WHERE id IN %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_data,(tuple(id_values),))
-                results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_data,(tuple(id_values),))
+                        results=cur.fetchall()
 
                 df_data = pd.DataFrame(results, columns=['ID', 'Pedido', 'Tag', 'Patrón 1', 'Elemento 1', 'Patrón 2', 'Elemento 2', 'Patrón 3', 'Elemento 3', 'Patrón 4', 'Elemento 4'])
 
@@ -1830,7 +1750,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     int(final_df.loc[0, "ID"])
                 )
 
-                cur.execute(update_data, (values_to_update))
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(update_data, (values_to_update))
+                    conn.commit()
 
             # Delete the other data not necessary
                 id_to_keep = final_df.loc[0, "ID"]
@@ -1842,30 +1765,16 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 ids_to_delete.remove(id_to_keep)
 
                 if ids_to_delete:
-                    cur.execute(delete_query, (tuple(ids_to_delete),))
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(delete_query, (tuple(ids_to_delete),))
+                        conn.commit()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-                
                 self.query_calibration()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 
