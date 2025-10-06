@@ -15,7 +15,7 @@ from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 from Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -234,7 +234,7 @@ class Ui_Purchasing_Menu(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tag_com = createConnection(user_database, password_database)
+        db_tag_com = Create_DBconnection(user_database, password_database)
         if not db_tag_com:
             sys.exit()
 

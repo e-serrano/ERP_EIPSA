@@ -11,7 +11,7 @@ from PyQt6.QtCore import QUrl
 import sys
 from datetime import *
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from Clients_Window import Ui_Clients_Window
 from Banks_Window import Ui_Banks_Window
 from Countries_Window import Ui_Countries_Window
@@ -581,7 +581,7 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_invoices = createConnection(user_database, password_database)
+        db_invoices = Create_DBconnection(user_database, password_database)
         if not db_invoices:
             sys.exit()
 
@@ -633,7 +633,7 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_banks = createConnection(user_database, password_database)
+        db_banks = Create_DBconnection(user_database, password_database)
         if not db_banks:
             sys.exit()
 
@@ -652,7 +652,7 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_payway = createConnection(user_database, password_database)
+        db_payway = Create_DBconnection(user_database, password_database)
         if not db_payway:
             sys.exit()
 
@@ -671,7 +671,7 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_countries = createConnection(user_database, password_database)
+        db_countries = Create_DBconnection(user_database, password_database)
         if not db_countries:
             sys.exit()
 
@@ -1242,7 +1242,7 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_fact = createConnection(user_database, password_database)
+        db_tags_fact = Create_DBconnection(user_database, password_database)
         if not db_tags_fact:
             sys.exit()
 

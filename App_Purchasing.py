@@ -19,7 +19,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 
 
@@ -1326,7 +1326,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tag_com = createConnection(user_database, password_database)
+        db_tag_com = Create_DBconnection(user_database, password_database)
         if not db_tag_com:
             sys.exit()
 
@@ -1993,7 +1993,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_certificates = createConnection(user_database, password_database)
+        db_certificates = Create_DBconnection(user_database, password_database)
         if not db_certificates:
             sys.exit()
 

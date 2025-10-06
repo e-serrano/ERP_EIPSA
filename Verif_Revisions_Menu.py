@@ -9,7 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -296,7 +296,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_machines = createConnection(user_database, password_database)
+        db_machines = Create_DBconnection(user_database, password_database)
         if not db_machines:
             sys.exit()
 
@@ -316,7 +316,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_handtools = createConnection(user_database, password_database)
+        db_handtools = Create_DBconnection(user_database, password_database)
         if not db_handtools:
             sys.exit()
 
@@ -336,7 +336,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_calibers = createConnection(user_database, password_database)
+        db_calibers = Create_DBconnection(user_database, password_database)
         if not db_calibers:
             sys.exit()
 
@@ -356,7 +356,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_calibrated_masters = createConnection(user_database, password_database)
+        db_calibrated_masters = Create_DBconnection(user_database, password_database)
         if not db_calibrated_masters:
             sys.exit()
 
@@ -376,7 +376,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_thread_masters = createConnection(user_database, password_database)
+        db_thread_masters = Create_DBconnection(user_database, password_database)
         if not db_thread_masters:
             sys.exit()
 
@@ -396,7 +396,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_weldeq = createConnection(user_database, password_database)
+        db_weldeq = Create_DBconnection(user_database, password_database)
         if not db_weldeq:
             sys.exit()
 
@@ -416,7 +416,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_manometers_thermoelements = createConnection(user_database, password_database)
+        db_manometers_thermoelements = Create_DBconnection(user_database, password_database)
         if not db_manometers_thermoelements:
             sys.exit()
 
@@ -436,7 +436,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_gas_flowmeter = createConnection(user_database, password_database)
+        db_gas_flowmeter = Create_DBconnection(user_database, password_database)
         if not db_gas_flowmeter:
             sys.exit()
 
@@ -462,7 +462,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_chemical_products = createConnection(user_database, password_database)
+        db_chemical_products = Create_DBconnection(user_database, password_database)
         if not db_chemical_products:
             sys.exit()
 

@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
 import configparser
@@ -599,7 +599,7 @@ class Ui_Banks_Window(QtWidgets.QMainWindow):
 #     user_database = dbparam["user"]
 #     password_database = dbparam["password"]
 
-#     if not createConnection(user_database, password_database):
+#     if not Create_DBconnection(user_database, password_database):
 #         sys.exit()
 
 #     Banks_Window = Ui_Banks_Window()

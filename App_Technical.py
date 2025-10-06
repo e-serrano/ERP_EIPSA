@@ -13,7 +13,7 @@ from datetime import *
 import psycopg2
 import sys
 import configparser
-from DB_Connection import createConnection, createConnection_name
+from utils.Database_Manager import Create_DBconnection
 from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os
@@ -1823,7 +1823,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_index = createConnection_name(user_database, password_database, 'drawing_index')
+        db_index = Create_DBconnection(user_database, password_database, 'drawing_index')
         if not db_index:
             sys.exit()
 
@@ -1843,7 +1843,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_validation = createConnection(user_database, password_database)
+        db_validation = Create_DBconnection(user_database, password_database)
         if not db_validation:
             sys.exit()
 
@@ -1863,7 +1863,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_deliveries = createConnection(user_database, password_database)
+        db_deliveries = Create_DBconnection(user_database, password_database)
         if not db_deliveries:
             sys.exit()
 
@@ -1903,7 +1903,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_techoffice = createConnection(user_database, password_database)
+        db_techoffice = Create_DBconnection(user_database, password_database)
         if not db_techoffice:
             sys.exit()
 
@@ -1953,7 +1953,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = createConnection(user_database, password_database)
+        db_tags_tech = Create_DBconnection(user_database, password_database)
         if not db_tags_tech:
             sys.exit()
 
@@ -2081,7 +2081,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_doc = createConnection(user_database, password_database)
+        db_doc = Create_DBconnection(user_database, password_database)
         if not db_doc:
             sys.exit()
 
@@ -2775,7 +2775,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_manuf = createConnection(user_database, password_database)
+        db_manuf = Create_DBconnection(user_database, password_database)
         if not db_manuf:
             sys.exit()
 
@@ -2902,7 +2902,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())

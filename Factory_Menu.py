@@ -9,7 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -203,7 +203,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_nc = createConnection(user_database, password_database)
+        db_nc = Create_DBconnection(user_database, password_database)
         if not db_nc:
             sys.exit()
 
@@ -464,7 +464,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_manuf = createConnection(user_database, password_database)
+        db_manuf = Create_DBconnection(user_database, password_database)
         if not db_manuf:
             sys.exit()
 

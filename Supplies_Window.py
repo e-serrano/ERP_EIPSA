@@ -7,7 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets, QtSql
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from config import config
 import configparser
 import psycopg2
@@ -2231,7 +2231,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection(user_database, password_database)
+    db = Create_DBconnection(user_database, password_database)
     if not db:
         sys.exit()
 

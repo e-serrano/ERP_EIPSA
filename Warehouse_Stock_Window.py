@@ -11,7 +11,8 @@ from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Database_Connection, Create_DBconnection
+from utils.Show_Message import MessageHelper
 from config import config, get_path
 import psycopg2
 import locale
@@ -20,8 +21,6 @@ from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from tkinter.filedialog import *
-from utils.Database_Manager import Database_Connection
-from utils.Show_Message import MessageHelper
 
 
 
@@ -1230,7 +1229,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection(user_database, password_database)
+    db = Create_DBconnection(user_database, password_database)
     if not db:
         sys.exit()
 

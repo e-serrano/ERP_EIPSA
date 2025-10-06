@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from DB_Connection import createConnection, createConnection_name
+from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
 import locale
@@ -1275,7 +1275,7 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_machine = createConnection_name(user_database, password_database, 'machine_'+ str(value))
+        db_machine = Create_DBconnection(user_database, password_database, 'machine_'+ str(value))
         if not db_machine:
             sys.exit()
 
@@ -1594,7 +1594,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection(user_database, password_database)
+    db = Create_DBconnection(user_database, password_database)
     if not db:
         sys.exit()
 

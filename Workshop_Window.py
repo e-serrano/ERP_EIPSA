@@ -1,7 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
-from DB_Connection import createConnection_name
+from utils.Database_Manager import Create_DBconnection
 import configparser
 from datetime import *
 import os
@@ -1418,7 +1418,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
-            db_index = createConnection_name(user_database, password_database, 'drawing' + num_order + '-w')
+            db_index = Create_DBconnection(user_database, password_database, 'drawing' + num_order + '-w')
 
             if not db_index:
                 sys.exit()
@@ -2587,7 +2587,7 @@ if __name__ == "__main__":
     password_database = dbparam["password"]
 
     # Genera un nombre único para la conexión basado en el nombre de usuario y el contador
-    db_manufacture = createConnection_name(user_database, password_database, 'workshop_connection_test')
+    db_manufacture = Create_DBconnection(user_database, password_database, 'workshop_connection_test')
 
     if not db_manufacture:
         sys.exit()

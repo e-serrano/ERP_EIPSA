@@ -1786,7 +1786,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 #     user_database = dbparam["user"]
 #     password_database = dbparam["password"]
 
-#     db = createConnection(user_database, password_database)
+#     db = Create_DBconnection(user_database, password_database)
 #     if not db:
 #         sys.exit()
 

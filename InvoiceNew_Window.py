@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt
 import re
 from config import config
 import configparser
-from DB_Connection import createConnection_name, createConnection
+from utils.Database_Manager import Create_DBconnection
 import psycopg2
 import os
 from tkinter.filedialog import asksaveasfilename, askopenfilename
@@ -5749,7 +5749,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection_name(user_database, password_database, 'facturation')
+    db = Create_DBconnection(user_database, password_database, 'facturation')
     if not db:
         sys.exit()
 

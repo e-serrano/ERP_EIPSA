@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import configparser
-from DB_Connection import createConnection_name
+from utils.Database_Manager import Create_DBconnection
 import os
 import sys
 
@@ -365,7 +365,7 @@ class Ui_InvoiceSearch_Window(object):
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
-            db_invoices = createConnection_name(user_database, password_database, 'invoice ' + num_invoice)
+            db_invoices = Create_DBconnection(user_database, password_database, 'invoice ' + num_invoice)
             if not db_invoices:
                 sys.exit()
 

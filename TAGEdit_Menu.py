@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import sys
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from datetime import *
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 from TAGOfferToOrder_Window import Ui_TAGOfferToOrder_Window
@@ -201,7 +201,7 @@ class Ui_EditTags_Menu(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tag_com = createConnection(user_database, password_database)
+        db_tag_com = Create_DBconnection(user_database, password_database)
         if not db_tag_com:
             sys.exit()
 

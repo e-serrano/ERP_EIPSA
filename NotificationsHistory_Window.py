@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 import os
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -346,7 +346,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech_not = createConnection(user_database, password_database)
+        db_tags_tech_not = Create_DBconnection(user_database, password_database)
         if not db_tags_tech_not:
             sys.exit()  
 

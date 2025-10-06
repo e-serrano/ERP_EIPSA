@@ -11,7 +11,7 @@ from PyQt6 import QtSql
 import re
 import configparser
 import locale
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
@@ -1606,7 +1606,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection(user_database, password_database)
+    db = Create_DBconnection(user_database, password_database)
     if not db:
         sys.exit()
 

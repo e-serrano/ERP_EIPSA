@@ -13,7 +13,7 @@ import psycopg2
 from PyQt6.QtCore import Qt
 import os
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -892,7 +892,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db_validation = createConnection(user_database, password_database)
+    db_validation = Create_DBconnection(user_database, password_database)
     if not db_validation:
         sys.exit()
 

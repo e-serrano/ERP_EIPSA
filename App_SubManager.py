@@ -12,12 +12,11 @@ import psycopg2
 import sys
 from config import config, get_path
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Database_Connection, Create_DBconnection
 from datetime import *
 import re
 from PDF_Styles import CustomPDF
 from PDF_Viewer import PDF_Viewer
-from utils.Database_Manager import Database_Connection
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
@@ -1159,7 +1158,7 @@ class Ui_App_SubManager(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tag_com = createConnection(user_database, password_database)
+        db_tag_com = Create_DBconnection(user_database, password_database)
         if not db_tag_com:
             sys.exit()
 

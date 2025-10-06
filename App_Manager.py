@@ -12,7 +12,7 @@ import psycopg2
 import sys
 from config import config, get_path
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 from datetime import *
 
 
@@ -557,7 +557,7 @@ class Ui_App_Manager(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tag_com = createConnection(user_database, password_database)
+        db_tag_com = Create_DBconnection(user_database, password_database)
         if not db_tag_com:
             sys.exit()
 

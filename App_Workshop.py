@@ -13,7 +13,7 @@ import os
 import configparser
 from config import config
 import psycopg2
-from DB_Connection import createConnection, createConnection_name
+from utils.Database_Manager import Create_DBconnection
 import sys
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -652,7 +652,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = createConnection(user_database, password_database)
+        db_tags_tech = Create_DBconnection(user_database, password_database)
         if not db_tags_tech:
             sys.exit()
 
@@ -673,7 +673,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         password_database = dbparam["password"]
 
         # Genera un nombre único para la conexión basado en el nombre de usuario y el contador
-        db_manufacture = createConnection_name(user_database, password_database, 'workshop_connection')
+        db_manufacture = Create_DBconnection(user_database, password_database, 'workshop_connection')
 
         if not db_manufacture:
             sys.exit()
@@ -694,7 +694,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_assembly = createConnection_name(user_database, password_database, 'assembly_connection')
+        db_assembly = Create_DBconnection(user_database, password_database, 'assembly_connection')
         if not db_assembly:
             sys.exit()
 
@@ -714,7 +714,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_dispatch = createConnection(user_database, password_database)
+        db_dispatch = Create_DBconnection(user_database, password_database)
         if not db_dispatch:
             sys.exit()
 
@@ -901,7 +901,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_index = createConnection_name(user_database, password_database, 'drawing_index')
+        db_index = Create_DBconnection(user_database, password_database, 'drawing_index')
         if not db_index:
             sys.exit()
 
@@ -992,7 +992,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         password_database = dbparam["password"]
 
         if self.calibration_window is None or not self.calibration_window.isVisible():
-            db_calibration = createConnection(user_database, password_database)
+            db_calibration = Create_DBconnection(user_database, password_database)
             if not db_calibration:
                 sys.exit()
 

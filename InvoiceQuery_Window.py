@@ -12,7 +12,7 @@ from config import config
 import os
 from datetime import *
 import configparser
-from DB_Connection import createConnection
+from utils.Database_Manager import Create_DBconnection
 import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -723,7 +723,7 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
             # user_database = dbparam["user"]
             # password_database = dbparam["password"]
 
-            # db_invoices_query = createConnection(user_database, password_database)
+            # db_invoices_query = Create_DBconnection(user_database, password_database)
             # if not db_invoices_query:
             #     sys.exit()
 

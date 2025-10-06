@@ -13,7 +13,8 @@ from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from DB_Connection import createConnection_name, createConnection
+from utils.Database_Manager import Database_Connection, Create_DBconnection
+from utils.Show_Message import MessageHelper
 from config import config
 import psycopg2
 import locale
@@ -32,8 +33,6 @@ from pypdf import PdfReader, PdfWriter, Transformation
 import fnmatch
 import math
 import numpy as np
-from utils.Database_Manager import Database_Connection
-from utils.Show_Message import MessageHelper
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -3378,7 +3377,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         user_database = dbparam["user"]
                                         password_database = dbparam["password"]
 
-                                        db_tags_tech = createConnection(user_database, password_database)
+                                        db_tags_tech = Create_DBconnection(user_database, password_database)
                                         if not db_tags_tech:
                                             sys.exit()
 
@@ -5495,7 +5494,7 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection_name(user_database, password_database, 'drawing_index')
+    db = Create_DBconnection(user_database, password_database, 'drawing_index')
     if not db:
         sys.exit()
 

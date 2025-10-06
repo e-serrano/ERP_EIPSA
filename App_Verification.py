@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
 import sys
 import configparser
-from DB_Connection import createConnection, createConnection_name
+from utils.Database_Manager import Create_DBconnection
 import datetime
 import locale
 import psycopg2
@@ -848,7 +848,7 @@ class Ui_App_Verification(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_validation = createConnection(user_database, password_database)
+        db_validation = Create_DBconnection(user_database, password_database)
         if not db_validation:
             sys.exit()
 
@@ -869,7 +869,7 @@ class Ui_App_Verification(object):
         password_database = dbparam["password"]
 
         if self.edit_tags_app is None or not self.edit_tags_app.isVisible():
-            db_tags_tech = createConnection(user_database, password_database)
+            db_tags_tech = Create_DBconnection(user_database, password_database)
             if not db_tags_tech:
                 sys.exit()
             self.edit_tags_app = Ui_EditTags_Verification_Window(self.name, db_tags_tech, self.username)
@@ -912,7 +912,7 @@ class Ui_App_Verification(object):
         password_database = dbparam["password"]
 
         if self.calibration_window is None or not self.calibration_window.isVisible():
-            db_calibration = createConnection(user_database, password_database)
+            db_calibration = Create_DBconnection(user_database, password_database)
             if not db_calibration:
                 sys.exit()
 
@@ -986,7 +986,7 @@ class Ui_App_Verification(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_index = createConnection_name(user_database, password_database, 'drawing_index')
+        db_index = Create_DBconnection(user_database, password_database, 'drawing_index')
         if not db_index:
             sys.exit()
 
@@ -1041,7 +1041,7 @@ class Ui_App_Verification(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_nc = createConnection(user_database, password_database)
+        db_nc = Create_DBconnection(user_database, password_database)
         if not db_nc:
             sys.exit()
 

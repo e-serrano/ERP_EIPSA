@@ -9,14 +9,13 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config, get_path
-from DB_Connection import createConnection
+from utils.Database_Manager import Database_Connection, Create_DBconnection
 import configparser
 import os
 from datetime import *
 import pandas as pd
 from PDF_Styles import pending_orders
 from PDF_Viewer import PDF_Viewer
-from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
 
@@ -2707,7 +2706,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_warehouse_stock = createConnection(user_database, password_database)
+        db_warehouse_stock = Create_DBconnection(user_database, password_database)
         if not db_warehouse_stock:
             sys.exit()
 
