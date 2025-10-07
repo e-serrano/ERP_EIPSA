@@ -633,8 +633,8 @@ class Ui_OfferRecToOf_Window(object):
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
         mails=self.Mails_EditOffer.toPlainText()
-        last_update = self.LastUpdate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
-        presentation_date = self.PresDate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
+        last_update = self.LastUpdate_EditOffer.text() if self.LastUpdate_EditOffer.text() != '' else (None if self.LastUpdate_EditOffer.text() == 'None' else None)
+        presentation_date = self.PresDate_EditOffer.text() if self.PresDate_EditOffer.text() != '' else (None if self.PresDate_EditOffer.text() == 'None' else None)
         portal = self.Portal_EditOffer.currentText()
         numitems = self.NumItems_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
         probability=self.Probability_EditOffer.currentText()
@@ -649,7 +649,7 @@ class Ui_OfferRecToOf_Window(object):
             if numoffer=="" or numoffer==" ":
                 MessageHelper.show_message("Introduce un número de oferta válido", "warning")
 
-            elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or (rate_type=="" or numitems==''))))))))))):
+            elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems==''))))))))):
                 MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
             else:
