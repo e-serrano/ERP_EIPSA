@@ -493,23 +493,6 @@ class Ui_Edit_Offer_Window(object):
         self.NacExt_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_EditOffer.setObjectName("NacExt_EditOffer")
         self.gridLayout_2.addWidget(self.NacExt_EditOffer, 7, 1, 1, 1)
-        self.label_Probability = QtWidgets.QLabel(parent=self.frame)
-        self.label_Probability.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_Probability.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Probability.setFont(font)
-        self.label_Probability.setObjectName("label_Probability")
-        self.gridLayout_2.addWidget(self.label_Probability, 8, 0, 1, 1)
-        self.Probability_EditOffer = QtWidgets.QComboBox(parent=self.frame)
-        self.Probability_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
-        self.Probability_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Probability_EditOffer.setFont(font)
-        self.Probability_EditOffer.setObjectName("Probability_EditOffer")
-        self.gridLayout_2.addWidget(self.Probability_EditOffer, 8, 1, 1, 1)
         self.label_Portal = QtWidgets.QLabel(parent=self.frame)
         self.label_Portal.setMinimumSize(QtCore.QSize(90, 25))
         self.label_Portal.setMaximumSize(QtCore.QSize(90, 25))
@@ -562,6 +545,40 @@ class Ui_Edit_Offer_Window(object):
         self.PayTerm_EditOffer.setFont(font)
         self.PayTerm_EditOffer.setObjectName("PayTerm_EditOffer")
         self.gridLayout_2.addWidget(self.PayTerm_EditOffer, 7, 7, 1, 1)
+        self.label_Probability = QtWidgets.QLabel(parent=self.frame)
+        self.label_Probability.setMinimumSize(QtCore.QSize(90, 25))
+        self.label_Probability.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Probability.setFont(font)
+        self.label_Probability.setObjectName("label_Probability")
+        self.gridLayout_2.addWidget(self.label_Probability, 8, 0, 1, 1)
+        self.Probability_EditOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Probability_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
+        self.Probability_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Probability_EditOffer.setFont(font)
+        self.Probability_EditOffer.setObjectName("Probability_EditOffer")
+        self.gridLayout_2.addWidget(self.Probability_EditOffer, 8, 1, 1, 1)
+        self.label_Calculation = QtWidgets.QLabel(parent=self.frame)
+        self.label_Calculation.setMinimumSize(QtCore.QSize(90, 25))
+        self.label_Calculation.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Calculation.setFont(font)
+        self.label_Calculation.setObjectName("label_Calculation")
+        self.gridLayout_2.addWidget(self.label_Calculation, 8, 2, 1, 1)
+        self.Calculation_EditOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Calculation_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
+        self.Calculation_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Calculation_EditOffer.setFont(font)
+        self.Calculation_EditOffer.setObjectName("Calculation_EditOffer")
+        self.gridLayout_2.addWidget(self.Calculation_EditOffer, 8, 3, 1, 1)
         self.label_Mails = QtWidgets.QLabel(parent=self.frame)
         self.label_Mails.setMinimumSize(QtCore.QSize(130, 25))
         self.label_Mails.setMaximumSize(QtCore.QSize(130, 25))
@@ -649,7 +666,7 @@ class Ui_Edit_Offer_Window(object):
                         from users_data.registration
                         where profile = 'Comercial'
                         order by username ASC""")
-        conn = None
+
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
@@ -672,6 +689,7 @@ class Ui_Edit_Offer_Window(object):
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
         self.Probability_EditOffer.addItems(['Alta', 'Media', 'Baja'])
+        self.Calculation_EditOffer.addItems(['e.carrillo', 'e.serrano', 'N/A'])
 
         self.PayTerm_EditOffer.addItems(['', '100% entrega', '100% pedido', '90%-10%', '50%-50%', 'Otros'])
 
@@ -709,6 +727,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_PresDate.setText(_translate("Edit_Offer_Window", "Fecha Pres.:"))
         self.label_Responsible.setText(_translate("Edit_Offer_Window", "Responsable:"))
         self.label_Portal.setText(_translate("Edit_Offer_Window", "Portal:"))
+        self.label_Calculation.setText(_translate("Edit_Offer_Window", "Cálculos:"))
         self.label_NumItems.setText(_translate("Edit_Offer_Window", "Nº Equipos:"))
         self.label_Project.setText(_translate("Edit_Offer_Window", "Proyecto:"))
         self.label_Validity.setText(_translate("Edit_Offer_Window", "Validez:"))
@@ -756,6 +775,7 @@ class Ui_Edit_Offer_Window(object):
                         else ('50_50' if self.PayTerm_EditOffer.currentText() == '50%-50%'
                         else ('Others' if self.PayTerm_EditOffer.currentText() == 'Otros' else '')))))
             probability = self.Probability_EditOffer.currentText()
+            calculation = self.Calculation_EditOffer.currentText()
 
             if state in ['Presentada', 'Adjudicada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
                 MessageHelper.show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
@@ -800,7 +820,7 @@ class Ui_Edit_Offer_Window(object):
                                 "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
                                 "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s,
                                 "presentation_date" = %s, "portal" = %s, "items_number" = %s, "project" = %s, "validity" = %s,
-                                "delivery_term" = %s, "delivery_time" = %s, "payment_term" = %s, "probability" = %s
+                                "delivery_term" = %s, "delivery_time" = %s, "payment_term" = %s, "probability" = %s, "responsible_calculations" = %s
                                 WHERE "num_offer" = %s
                                 """)
                     try:
@@ -811,7 +831,7 @@ class Ui_Edit_Offer_Window(object):
                                     material, notes, amount, limit_date, rate_type,
                                     important_issues, tracking, recep_date, mails, last_update,
                                     presentation_date, portal, numitems, project, validity,
-                                    delivterm, delivtime, payterm, probability,
+                                    delivterm, delivtime, payterm, probability, calculation,
                                     numoffer,)
                                 cur.execute(commands_updateoffer,data)
                         # commit the changes
@@ -857,7 +877,7 @@ class Ui_Edit_Offer_Window(object):
                     offers."nac_ext", offers."buyer", offers."material", offers."notes", CAST(offers."offer_amount" AS numeric) AS "amount",
                     TO_CHAR(offers."limit_date", 'DD-MM-YYYY'), offers."rate_type", offers."important", offers."tracking", TO_CHAR(offers."recep_date", 'DD-MM-YYYY'),
                     offers."mails", TO_CHAR(offers."last_update", 'DD-MM-YYYY'), TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),  offers."portal",  offers."items_number",
-                    offers."responsible", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."probability"
+                    offers."responsible", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."probability", offers."responsible_calculations"
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -909,7 +929,8 @@ class Ui_Edit_Offer_Window(object):
                     else ('Otros' if str(results[0][25]) == 'Others' else str(results[0][25]))))))
 
             self.PayTerm_EditOffer.setCurrentText(payterm_text if str(results[0][25]) != 'None' else '')
-            self.Probability_EditOffer.setCurrentText(str(results[0][26]) if str(results[0][26]) != 'None' else '')
+            self.Probability_EditOffer.setCurrentText(str(results[0][26]))
+            self.Calculation_EditOffer.setCurrentText(str(results[0][27]))
 
 # Function to load client list
     def load_clients(self):
@@ -920,38 +941,21 @@ class Ui_Edit_Offer_Window(object):
             psycopg2.DatabaseError: If a database error occurs during the SQL execution.
         """
         self.Client_EditOffer.clear()
+
         commands_clients = ("""
                         SELECT * 
                         FROM clients_list
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clients)
-            results_clients=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_clients=[x[0] for x in results_clients]
         list_clients.sort()

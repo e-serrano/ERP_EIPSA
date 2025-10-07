@@ -532,7 +532,7 @@ class Ui_OfferRecToOf_Window(object):
         QtCore.QMetaObject.connectSlotsByName(OfferRecToOf_Window)
 
     #Adding items to ComboBox
-        list_state=['Registrada']
+        list_state=['Registrada', 'Presentada']
         self.State_EditOffer.addItems(list_state)
 
         list_nacext=['Exterior','Nacional']
@@ -549,7 +549,7 @@ class Ui_OfferRecToOf_Window(object):
                         from users_data.registration
                         where profile = 'Comercial'
                         order by username ASC""")
-        conn = None
+
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:

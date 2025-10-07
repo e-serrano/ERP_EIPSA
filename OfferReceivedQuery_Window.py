@@ -11,6 +11,8 @@ import psycopg2
 from config import config
 import pandas as pd
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -604,7 +606,7 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setText(_translate("QueryOfferReceived_Window", "Cancelar"))
 
 
-    # Function to delete all filters when tool button is clicked
+# Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
         """
         Resets all filters and updates the table model with unique values for each column.
@@ -638,19 +640,15 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
                         FROM received_offers
                         INNER JOIN product_type ON (received_offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
-                        ORDER BY received_offers."id_offer")
+                        ORDER BY received_offers."state" DESC, received_offers."id_offer" ASC)
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryoffer)
-            results=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryoffer)
+                    results=cur.fetchall()
+
             self.tableQueryOffer.setRowCount(0)
             self.tableQueryOffer.setRowCount(len(results))
             tablerow=0
@@ -674,26 +672,9 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
             # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Interactive)
             # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(15,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def euro_string_to_float(self, euro_str):
         """
@@ -781,26 +762,10 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
                 with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Oferta")
-                dlg.setText("Datos exportados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+                MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 
 #Function when clicking on table header
@@ -818,6 +783,6 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryOfferReceived_Window = Ui_QueryOfferReceived_Window()
+    QueryOfferReceived_Window = Ui_QueryOfferReceived_Window('a.calvo')
     QueryOfferReceived_Window.show()
     sys.exit(app.exec())
