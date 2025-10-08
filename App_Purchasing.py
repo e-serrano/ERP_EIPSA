@@ -19,7 +19,8 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
+from utils.Show_Message import MessageHelper
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 
 
@@ -1411,85 +1412,73 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         if not new_folder_path.exists():
             os.makedirs(new_folder_path, exist_ok=True)
 
+            commands_supplies = (""" SELECT * FROM purch_fact.supplies """)
+            commands_client_ord_header = (""" SELECT * FROM purch_fact.client_ord_header """)
+            commands_client_ord_details = (""" SELECT * FROM purch_fact.client_ord_detail """)
+            commands_supplier_ord_header = (""" SELECT * FROM purch_fact.supplier_ord_header """)
+            commands_supplier_ord_details = (""" SELECT * FROM purch_fact.supplier_ord_detail """)
+            commands_quotation_header = (""" SELECT * FROM purch_fact.quotation_header """)
+            commands_quotation_details = (""" SELECT * FROM purch_fact.quotation_details """)
+            commands_suppliers = (""" SELECT * FROM purch_fact.suppliers """)
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                commands_supplies = (""" SELECT * FROM purch_fact.supplies """)
-                cur.execute(commands_supplies)
-                results = cur.fetchall()
-                df_supplies = pd.DataFrame(results, columns=["ID", "ID Destino", "ID Clase", "Referencia", "Descripción", "Un. Med",
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_supplies)
+                        results_supplies = cur.fetchall()
+
+                        cur.execute(commands_client_ord_header)
+                        results_client_ord_header = cur.fetchall()
+
+                        cur.execute(commands_client_ord_details)
+                        results_client_ord_details = cur.fetchall()
+
+                        cur.execute(commands_supplier_ord_header)
+                        results_supplier_ord_header = cur.fetchall()
+
+                        cur.execute(commands_supplier_ord_details)
+                        results_supplier_ord_details = cur.fetchall()
+
+                        cur.execute(commands_quotation_header)
+                        results_quotation_header = cur.fetchall()
+
+                        cur.execute(commands_quotation_details)
+                        results_quotation_details = cur.fetchall()
+
+                        cur.execute(commands_suppliers)
+                        results_suppliers = cur.fetchall()
+
+                df_supplies = pd.DataFrame(results_supplies, columns=["ID", "ID Destino", "ID Clase", "Referencia", "Descripción", "Un. Med",
                                                             "Val. Unit.", "Notas", "Stock", "Stock Disponible", "Pendiente", "Ubicación"])
 
-                commands_client_ord_header = (""" SELECT * FROM purch_fact.client_ord_header """)
-                cur.execute(commands_client_ord_header)
-                results = cur.fetchall()
-                df_client_order_header = pd.DataFrame(results, columns=["ID", "ID Cliente", "Fecha Pedido", "Fecha Entrega", "Nº Pedido Cliente", "Notas",
+                df_client_order_header = pd.DataFrame(results_client_ord_header, columns=["ID", "ID Cliente", "Fecha Pedido", "Fecha Entrega", "Nº Pedido Cliente", "Notas",
                                                             "Fecha Entrega 1", "Albarán 1", "Fecha Entrega 2", "Albarán 2", "Fecha Entrega 3", "Albarán 3"])
 
-                commands_client_ord_details = (""" SELECT * FROM purch_fact.client_ord_detail """)
-                cur.execute(commands_client_ord_details)
-                results = cur.fetchall()
-                df_client_ord_details = pd.DataFrame(results, columns=["ID", "ID Pedido Cliente", "ID Suministro", "Cantidad", "Pendiente",
+                df_client_ord_details = pd.DataFrame(results_client_ord_details, columns=["ID", "ID Pedido Cliente", "ID Suministro", "Cantidad", "Pendiente",
                                                             "Fecha Entrega 1", "Cantidad 1", "Albarán 1",
                                                             "Fecha Entrega 2", "Cantidad 1", "Albarán 2",
                                                             "Fecha Entrega 3", "Cantidad 1", "Albarán 3", "Notas"])
 
-                commands_supplier_ord_header = (""" SELECT * FROM purch_fact.supplier_ord_header """)
-                cur.execute(commands_supplier_ord_header)
-                results = cur.fetchall()
-                df_supplier_ord_header = pd.DataFrame(results, columns=["ID", "ID Proveedor", "Fecha Pedido", "Fecha Entrega", "Notas", "Nº Pedido Proveedor",
+                df_supplier_ord_header = pd.DataFrame(results_supplier_ord_header, columns=["ID", "ID Proveedor", "Fecha Pedido", "Fecha Entrega", "Notas", "Nº Pedido Proveedor",
                                                             "S/Ref.", "Forma Envío", "Forma Pago", "Plazo Entrega", "Notas Pedido", "Subtotal",
                                                             "Fecha Entrega 1", "Albarán 1", "Fecha Entrega 2", "Albarán 2", "Fecha Entrega 3", "Albarán 3",
                                                             "Notas Finales", "ID Divisa"])
 
-                commands_supplier_ord_details = (""" SELECT * FROM purch_fact.supplier_ord_detail """)
-                cur.execute(commands_supplier_ord_details)
-                results = cur.fetchall()
-                df_supplier_ord_details = pd.DataFrame(results, columns=["ID", "ID Pedido Proveedor", "Posición", "ID Suministro", "Val. Unit.", "Descuento", "Cantidad", "Pendiente",
+                df_supplier_ord_details = pd.DataFrame(results_supplier_ord_details, columns=["ID", "ID Pedido Proveedor", "Posición", "ID Suministro", "Val. Unit.", "Descuento", "Cantidad", "Pendiente",
                                                             "Fecha Entrega 1", "Cantidad 1", "Albarán 1",
                                                             "Fecha Entrega 2", "Cantidad 1", "Albarán 2",
                                                             "Fecha Entrega 3", "Cantidad 1", "Albarán 3"])
 
-                commands_quotation_header = (""" SELECT * FROM purch_fact.quotation_header """)
-                cur.execute(commands_quotation_header)
-                results = cur.fetchall()
-                df_quotation_header = pd.DataFrame(results, columns=["ID", "ID Proveedor", "Fecha Cotización", "Notas"])
+                df_quotation_header = pd.DataFrame(results_quotation_header, columns=["ID", "ID Proveedor", "Fecha Cotización", "Notas"])
 
-                commands_quotation_details = (""" SELECT * FROM purch_fact.quotation_details """)
-                cur.execute(commands_quotation_details)
-                results = cur.fetchall()
-                df_quotation_details = pd.DataFrame(results, columns=["ID", "ID Cotización", "ID Suministro", "Cantidad", "ID Divisa", "Valor Divisa", "Valor", "Notas"])
+                df_quotation_details = pd.DataFrame(results_quotation_details, columns=["ID", "ID Cotización", "ID Suministro", "Cantidad", "ID Divisa", "Valor Divisa", "Valor", "Notas"])
 
-                commands_suppliers = (""" SELECT * FROM purch_fact.suppliers """)
-                cur.execute(commands_suppliers)
-                results = cur.fetchall()
-                df_suppliers = pd.DataFrame(results, columns=["ID", "Nombre", "CIF", "Dirección", "Nº Tlf.", "Fax", "Ciudad", "Provincia", "País",
+                df_suppliers = pd.DataFrame(results_suppliers, columns=["ID", "Nombre", "CIF", "Dirección", "Nº Tlf.", "Fax", "Ciudad", "Provincia", "País",
                                                                 "Código Postal", "ID Forma Pago", "Vto. Prog. 1", "Vto. Prog. 2", "ID IVA", "Notas"])
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             output_path_supplies = new_folder_path / "Suministros.xlsx"
             output_path_client_ord_header = new_folder_path / "Pedidos Cliente.xlsx"
@@ -1664,15 +1653,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                 # Save Excel
                 wb.save(output_path_suppliers)
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("BackUp realizado con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("BackUp realizado con éxito", "info")
 
 # Function to transform euros to float values
     def euros_to_float(self, value):
@@ -1833,47 +1814,27 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tables_notifications)
+                    results=cur.fetchall()
+                    tables_names=[x[0] for x in results]
 
-            notifications = []
+                    notifications = []
 
-            for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
-                results=cur.fetchall()
+                    for table in tables_names:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
 
-                for x in results:
-                    notifications.append(x)
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                        for x in results:
+                            notifications.append(x)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
@@ -1912,25 +1873,23 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         SELECT number_item, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
                         FROM verification.welding_equipment_masters
                         """)
+
         commands_insert_notification = ("""
                         INSERT INTO notifications.notifications_others (username, message, state)
                         VALUES (%s,%s,%s)
                         """)
+
         commands_check_notifications = ("""
                         SELECT *
                         FROM notifications.notifications_others
                         WHERE username = %s and message = %s and state = %s
                         """)
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_check_dates)
-            results_dates = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_check_dates)
+                    results_dates = cur.fetchall()
 
             df_data = pd.DataFrame(results_dates, columns=['Número', 'Instrumento', 'Certificado', 'Próxima Revisión', 'Meses Preaviso'])
             df_data = df_data.sort_values(by='Número')
@@ -1948,37 +1907,28 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                 warning_date = row.iloc[5]
                 warning_date = warning_date.date()
                 if warning_date < date.today():
-                    username = self.username
+                    usernames = [self.username, 'm.gil']
                     state = 'Pendiente'
                     message = (f"Número: {row.iloc[0]}\n"
                             f"Instrumento: {row.iloc[1]}\n"
                             f"Certificado: {row.iloc[2]}\n"
                             f"Próxima Revisión: {row.iloc[3]}")
 
-                    cur.execute(commands_check_notifications, (username,message,state,))
-                    results_notifications = cur.fetchall()
+                    for username in usernames:
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_check_notifications, (username,message,state,))
+                                results_notifications = cur.fetchall()
 
-                    if len(results_notifications) == 0:
-                        cur.execute(commands_insert_notification, (username,message,state,))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                        if len(results_notifications) == 0:
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_notification, (username,message,state,))
+                                conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to open window for liquid visual certificate
     def liquid_visual_certificate(self):
@@ -2040,69 +1990,59 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         conn = None
         try:
-            # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_check_snt)
-            results_snt = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_check_snt)
+                    results_snt = cur.fetchall()
+
             if date.today() >= results_snt[0][0] - timedelta(days=30):
-                cur.execute(commands_notify_snt)
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_notify_snt)
+                    conn.commit()
 
-            cur.execute(commands_check_iso)
-            results_iso = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_check_iso)
+                    results_iso = cur.fetchall()
+
             if date.today() >= results_iso[0][0] - timedelta(days=60):
-                cur.execute(commands_notify_iso)
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_notify_iso)
+                    conn.commit()
 
-            cur.execute(commands_check_visual)
-            results_visual = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_check_visual)
+                    results_visual = cur.fetchall()
+
             if date.today() >= results_visual[0][0] - timedelta(days=40):
-                cur.execute(commands_notify_visual)
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_notify_visual)
+                    conn.commit()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to export offers summary
     def offers_summary(self):
-        conn = None
-        try:
-            # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            commands_offers_1 = ("""
+        commands_offers_1 = ("""
                             SELECT num_offer, state, client, final_client, TO_CHAR(register_date, 'DD/MM/YYYY'), nac_ext, offer_amount, EXTRACT(YEAR FROM register_date) as offer_year
                             FROM offers
                             WHERE EXTRACT(YEAR FROM register_date) = %s
                             ORDER BY num_offer ASC
                             """)
-            commands_offers_2 = ("""
+
+        commands_offers_2 = ("""
                             SELECT num_offer, state, client, final_client, TO_CHAR(register_date, 'DD/MM/YYYY'), nac_ext, offer_amount, EXTRACT(YEAR FROM register_date) as offer_year
                             FROM offers
                             WHERE EXTRACT(YEAR FROM register_date) BETWEEN %s AND %s
                             ORDER BY num_offer ASC
                             """)
-
+        try:
             dlg = QtWidgets.QInputDialog()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2127,11 +2067,17 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                             if clickedButton2 == 1:
                                 date_2 = dlg2.textValue()
                                 if date_2 != '':
-                                    cur.execute(commands_offers_2, (date_1, date_2,))
+                                    query = commands_offers_2
+                                    data = (date_1, date_2,)
                                 else:
-                                    cur.execute(commands_offers_1, (date_1,))
+                                    query = commands_offers_1
+                                    data = (date_1,)
 
-                                results_offers = cur.fetchall()
+                                with Database_Connection(config()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(query, data)
+                                        results_offers = cur.fetchall()
+
                                 df_offers = pd.DataFrame(results_offers, columns=['Oferta', 'Estado', 'Cliente', 'Cliente Final', 'Fecha Reg.', 'Nac./Ext.', 'Importe', 'Año'])
 
                                 existing_workbook = r"\\nas01\DATOS\Comunes\ENRIQUE SERRANO\05 COSAS DANI\RESUMEN OFERTAS.xlsm"
@@ -2169,36 +2115,13 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                             else:
                                 break
                         break
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Resumen Ofertas")
-                    dlg_error.setText("El primer año no puede estar vacío")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("El primer año no puede estar vacío", "warning")
                 else:
                     break
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 

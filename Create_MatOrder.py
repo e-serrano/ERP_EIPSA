@@ -8,6 +8,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import openpyxl
 import re
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -49,55 +51,45 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         WHERE NOT "ot_num" LIKE '90%'
                         ORDER BY "ot_num" ASC
                         """)
+
     check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{numorder_pedmat + '-PEDMAT'}'"
+
     commands_otpedmat = ("""
                             INSERT INTO fabrication.fab_order (
                             "id","tag","element","qty_element",
                             "ot_num","qty_ot","start_date")
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(commands_numot)
-        results=cur.fetchall()
-        num_ot=results[-1][0]
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_numot)
+                results=cur.fetchall()
+                num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_otpedmat)
-        results=cur.fetchall()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_otpedmat)
+                results=cur.fetchall()
+
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-            cur.execute(commands_otpedmat, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_otpedmat, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        print(error)
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     for element in id_list:
         for row in range(model.rowCount()):
@@ -250,44 +242,28 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     FROM validation_data.flow_flange_material
                     WHERE flange_material = %s
                     """)
+
                 commands_tubematerial = ("""
                     SELECT tube_material
                     FROM validation_data.flow_tube_material
                     WHERE code = %s
                     """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands_flangecode,(model.data(model.index(target_row, 13)),))
-                    results=cur.fetchone()
-                    code=results[0]
-                    cur.execute(commands_tubematerial,(code,))
-                    results=cur.fetchall()
-                    materialtube = results[0][0]
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_flangecode,(model.data(model.index(target_row, 13)),))
+                            results=cur.fetchone()
+                            code=results[0]
+
+                            cur.execute(commands_tubematerial,(code,))
+                            results=cur.fetchall()
+                            materialtube = results[0][0]
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
                 qtytube = model.data(model.index(target_row, 107))
                 tube_list.append([code_tube,codefab_tube,tradcodtube,schtube,designtube,processtube,materialtube,qtytube])
                 all_list_parts.append(tube_list)
@@ -301,36 +277,18 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     AND
                     sch = %s)
                     """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands_thk,(model.data(model.index(target_row, 9)),model.data(model.index(target_row, 12)),))
-                    results=cur.fetchone()
-                    thkmin=results[0]
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_thk,(model.data(model.index(target_row, 9)),model.data(model.index(target_row, 12)),))
+                            results=cur.fetchone()
+                            thkmin=results[0]
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
                 modelpiece2 = ('Th mín ' + thkmin + 'mm')
                 designpiece2 = ''
                 processpiece2 = ''
@@ -339,44 +297,28 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     FROM validation_data.flow_flange_material
                     WHERE flange_material = %s
                     """)
+
                 commands_sheetmaterial = ("""
                     SELECT sheet_material
                     FROM validation_data.flow_sheet_material
                     WHERE code = %s
                     """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands_flangecode,(model.data(model.index(target_row, 13)),))
-                    results=cur.fetchone()
-                    code=results[0]
-                    cur.execute(commands_sheetmaterial,(code,))
-                    results=cur.fetchall()
-                    materialpiece2 = results[0]
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_flangecode,(model.data(model.index(target_row, 13)),))
+                            results=cur.fetchone()
+                            code=results[0]
+
+                            cur.execute(commands_sheetmaterial,(code,))
+                            results=cur.fetchall()
+                            materialpiece2 = results[0]
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
                 qtypiece2 = 1
                 piece2_list.append([code_piece2,codefab_piece2,tradcodpiece2,modelpiece2,designpiece2,processpiece2,materialpiece2,qtypiece2])
                 all_list_parts.append(piece2_list)
@@ -390,6 +332,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                     "f_tube", "qty_f_tube", "f_piece2", "qty_f_piece2"]
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
             columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
+
             values_equipments = [model.data(model.index(target_row, 72)), model.data(model.index(target_row, 73)), model.data(model.index(target_row, 74)), "Q-CAUD",
                                 model.data(model.index(target_row, 75)), model.data(model.index(target_row, 77)), model.data(model.index(target_row, 78)), model.data(model.index(target_row, 80)),
                                 model.data(model.index(target_row, 81)), model.data(model.index(target_row, 83)), model.data(model.index(target_row, 84)), model.data(model.index(target_row, 86)),
@@ -397,6 +340,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                 model.data(model.index(target_row, 96)), model.data(model.index(target_row, 95)), model.data(model.index(target_row, 96)), model.data(model.index(target_row, 98)),
                                 model.data(model.index(target_row, 99)), model.data(model.index(target_row, 101)), model.data(model.index(target_row, 102)), model.data(model.index(target_row, 104)),
                                 model.data(model.index(target_row, 105)), model.data(model.index(target_row, 107)), model.data(model.index(target_row, 108)), model.data(model.index(target_row, 110))]
+
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
                             model.data(model.index(target_row, 72)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 44)),
                             model.data(model.index(target_row, 33)), model.data(model.index(target_row, 68))]
@@ -414,61 +358,62 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(check_equipments)
-                results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(check_equipments)
+                        results=cur.fetchall()
+
                 if len(results) == 0:
-                    cur.execute(commands_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_equipments)
+                        conn.commit()
+
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
                     update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
-                    cur.execute(update_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(update_equipments)
+                        conn.commit()
 
                 for list_part in all_list_parts:
                     check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-                    cur.execute(check_parts)
-                    results=cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(check_parts)
+                            results=cur.fetchall()
+
                     if len(results) == 0:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'Q-CAUD'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-                        cur.execute(commands_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_parts)
+                            conn.commit()
+
                     else:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'Q-CAUD'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
                         update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-                        cur.execute(update_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(update_parts)
+                            conn.commit()
 
-                cur.execute(commands_tags)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_tags)
+                    conn.commit()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -503,36 +448,18 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                 WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                 """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands one by one
-        cur.execute(commands_client,(numorder,))
-        results=cur.fetchone()
-        client=results[2]
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_client,(numorder,))
+                results=cur.fetchone()
+                client=results[2]
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        print(error)
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
     excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
     excel_mat_order.save_excel()
 
@@ -575,54 +502,46 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         WHERE NOT "ot_num" LIKE '90%'
                         ORDER BY "ot_num" ASC
                         """)
+
     check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{numorder_pedmat + '-PEDMAT'}'"
+
     commands_otpedmat = ("""
                             INSERT INTO fabrication.fab_order (
                             "id","tag","element","qty_element",
                             "ot_num","qty_ot","start_date")
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(commands_numot)
-        results=cur.fetchall()
-        num_ot=results[-1][0]
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_numot)
+                results=cur.fetchall()
+                num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_otpedmat)
-        results=cur.fetchall()
+
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_otpedmat)
+                results=cur.fetchall()
+
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-            cur.execute(commands_otpedmat, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_otpedmat, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     for element in id_list:
         for row in range(model.rowCount()):
@@ -689,7 +608,6 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 flange_list.append([code_flange,codefab_flange,tradcodflange,modelflange,notesflange,processflange,materialflange,qtyflange])
                 all_list_parts.append(flange_list)
 
-            print(code_sensor)
             if code_sensor != '':
                 tradcodsensor = model.data(model.index(target_row, 123))
                 modelsensor = (model.data(model.index(target_row, 28)) + '-' + model.data(model.index(target_row, 27)) if code_sensor[:4] == 'Bime'
@@ -785,7 +703,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 notesextcable = ''
                 processextcable = ''
                 materialextcable = 'AC. INOX.' if model.data(model.index(target_row, 20)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else model.data(model.index(target_row, 20))
-                qtyextcable = float(model.data(model.index(target_row, 73)))/1000 if model.data(model.index(target_row, 73)) != '' else ''
+                qtyextcable = float(model.data(model.index(target_row, 73)))/1000 if model.data(model.index(target_row, 73)) != '' else 0
                 extcable_list.append([code_extcable,codefab_extcable,tradcodextcable,modelextcable,notesextcable,processextcable,materialextcable,qtyextcable])
                 all_list_parts.append(extcable_list)
 
@@ -796,8 +714,11 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                             "t_nippleextcomp", "qty_t_nippleextcomp", "t_spring", "qty_t_spring",
                                             "t_puntal", "qty_t_puntal", "t_plug", "qty_t_plug",
                                             "t_tw", "qty_t_tw", "t_extcable", "qty_t_extcable"]
+
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
+
             columns_tags = ["code", "equipment", "num_order", "order_material", "contractual_date", "inspection"]
+
             values_equipments = [model.data(model.index(target_row, 80)), model.data(model.index(target_row, 81)), model.data(model.index(target_row, 82)), "T-TEMP",
                                 model.data(model.index(target_row, 83)), model.data(model.index(target_row, 85)), model.data(model.index(target_row, 86)), model.data(model.index(target_row, 88)),
                                 model.data(model.index(target_row, 89)), model.data(model.index(target_row, 91)), model.data(model.index(target_row, 92)), model.data(model.index(target_row, 94)),
@@ -805,6 +726,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                 model.data(model.index(target_row, 101)), model.data(model.index(target_row, 103)), model.data(model.index(target_row, 104)), model.data(model.index(target_row, 106)),
                                 model.data(model.index(target_row, 107)), model.data(model.index(target_row, 109)), model.data(model.index(target_row, 110)), model.data(model.index(target_row, 112)),
                                 model.data(model.index(target_row, 113)), model.data(model.index(target_row, 115)), model.data(model.index(target_row, 116)), model.data(model.index(target_row, 118))]
+
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
                             model.data(model.index(target_row, 80)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 54)),
                             model.data(model.index(target_row, 38)), model.data(model.index(target_row, 76))]
@@ -822,60 +744,61 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 80))}'"
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(check_equipments)
-                results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(check_equipments)
+                        results=cur.fetchall()
+
                 if len(results) == 0:
-                    cur.execute(commands_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_equipments)
+                        conn.commit()
+
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
                     update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 80))}'"
-                    cur.execute(update_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(update_equipments)
+                        conn.commit()
 
                 for list_part in all_list_parts:
                     check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-                    cur.execute(check_parts)
-                    results=cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(check_parts)
+                            results=cur.fetchall()
+
                     if len(results) == 0:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'T-TEMP'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-                        cur.execute(commands_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_parts)
+                            conn.commit()
                     else:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'T-TEMP'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
                         update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-                        cur.execute(update_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(update_parts)
+                            conn.commit()
 
-                cur.execute(commands_tags)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_tags)
+                    conn.commit()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -909,35 +832,18 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands one by one
-        cur.execute(commands_client,(numorder,))
-        results=cur.fetchone()
-        client=results[2]
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_client,(numorder,))
+                results=cur.fetchone()
+                client=results[2]
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
     excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
     excel_mat_order.save_excel()
 
@@ -982,54 +888,46 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         WHERE NOT "ot_num" LIKE '90%'
                         ORDER BY "ot_num" ASC
                         """)
+
     check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{numorder_pedmat + '-PEDMAT'}'"
+
     commands_otpedmat = ("""
                             INSERT INTO fabrication.fab_order (
                             "id","tag","element","qty_element",
                             "ot_num","qty_ot","start_date")
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(commands_numot)
-        results=cur.fetchall()
-        num_ot=results[-1][0]
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_numot)
+                results=cur.fetchall()
+                num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_otpedmat)
-        results=cur.fetchall()
+
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_otpedmat)
+                results=cur.fetchall()
+
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-            cur.execute(commands_otpedmat, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_otpedmat, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     for element in id_list:
         for row in range(model.rowCount()):
@@ -1092,38 +990,20 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     FROM validation_data.level_cover_dim
                     WHERE cover = %s
                     """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
                     cover_num = model_num[2:6] if model_num[2:4] !='HH' else model_num[3:7]
                     cover_num = cover_num[:2] + '1' + cover_num[3:]
-                    cur.execute(commands_coverdim,(cover_num,))
-                    results=cur.fetchone()
-                    length=results[1]
-                    bores=results[2]
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_coverdim,(cover_num,))
+                            results=cur.fetchone()
+                            length=results[1]
+                            bores=results[2]
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 tradcodcover = model.data(model.index(target_row, 122))
                 modelcover = ('L=' + str(length))
@@ -1263,8 +1143,11 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                             "l_mica", "qty_l_mica", "l_flags", "qty_l_flags",
                                             "l_gasketflange", "qty_l_gasketflange", "l_nippletub", "qty_l_nippletub",
                                             "l_antifrost", "qty_l_antifrost"]
+
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
+
             columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
+
             values_equipments = [model.data(model.index(target_row, 66)), model.data(model.index(target_row, 67)), model.data(model.index(target_row, 68)), "N-Niveles",
                                 model.data(model.index(target_row, 69)), model.data(model.index(target_row, 71)), model.data(model.index(target_row, 72)), model.data(model.index(target_row, 74)),
                                 model.data(model.index(target_row, 75)), model.data(model.index(target_row, 77)), model.data(model.index(target_row, 78)), model.data(model.index(target_row, 80)),
@@ -1275,6 +1158,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                 model.data(model.index(target_row, 105)), model.data(model.index(target_row, 107)), model.data(model.index(target_row, 108)), model.data(model.index(target_row, 110)),
                                 model.data(model.index(target_row, 111)), model.data(model.index(target_row, 113)), model.data(model.index(target_row, 114)), model.data(model.index(target_row, 116)),
                                 model.data(model.index(target_row, 117)), model.data(model.index(target_row, 119))]
+
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
                             model.data(model.index(target_row, 66)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 48)),
                             model.data(model.index(target_row, 39)), model.data(model.index(target_row, 62))]
@@ -1292,60 +1176,62 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(check_equipments)
-                results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(check_equipments)
+                        results=cur.fetchall()
+
                 if len(results) == 0:
-                    cur.execute(commands_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_equipments)
+                        conn.commit()
+
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
                     update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
-                    cur.execute(update_equipments)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(update_equipments)
+                        conn.cursor()
 
                 for list_part in all_list_parts:
                     check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-                    cur.execute(check_parts)
-                    results=cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(check_parts)
+                            results=cur.fetchall()
+
                     if len(results) == 0:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'N-Niveles'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-                        cur.execute(commands_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_parts)
+                            conn.commit()
+
                     else:
                         list_part_modified = list_part[0].copy()
                         list_part_modified[-1] = 'N-Niveles'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
                         update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-                        cur.execute(update_parts)
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(update_parts)
+                            conn.commit()
 
-                cur.execute(commands_tags)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_tags)
+                    conn.commit()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -1381,35 +1267,18 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands one by one
-        cur.execute(commands_client,(numorder,))
-        results=cur.fetchone()
-        client=results[2]
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_client,(numorder,))
+                results=cur.fetchone()
+                client=results[2]
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
     excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
     excel_mat_order.save_excel()
 
@@ -1444,54 +1313,46 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                         WHERE NOT "ot_num" LIKE '90%'
                         ORDER BY "ot_num" ASC
                         """)
+
     check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{numorder_pedmat + '-PEDMAT'}'"
+
     commands_otpedmat = ("""
                             INSERT INTO fabrication.fab_order (
                             "id","tag","element","qty_element",
                             "ot_num","qty_ot","start_date")
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
-    conn = None
+
     try:
-    # read the connection parameters
-        params = config()
-    # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-    # execution of commands
-        cur.execute(commands_numot)
-        results=cur.fetchall()
-        num_ot=results[-1][0]
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_numot)
+                results=cur.fetchall()
+                num_ot=results[-1][0]
 
         excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
-        cur.execute(check_otpedmat)
-        results=cur.fetchall()
+
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_otpedmat)
+                results=cur.fetchall()
+
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-            cur.execute(commands_otpedmat, data)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_otpedmat, data)
+                conn.commit()
+
             worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
-    # close communication with the PostgreSQL database server
-        cur.close()
-    # commit the changes
-        conn.commit()
+
     except (Exception, psycopg2.DatabaseError) as error:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Ha ocurrido el siguiente error:\n"
-                    + str(error))
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
-    finally:
-        if conn is not None:
-            conn.close()
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     if len(id_list) != 0:
         model_list = []
@@ -1521,7 +1382,6 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     break
             if target_row is not None:
                 description = model.data(model.index(target_row, 8))
-                print(description)
 
             # Order for 2V-210 valves
                 if any(valve in description for valve in list_valves_210):
@@ -1612,8 +1472,6 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     data_lists = [
                     (model_list, "df_model"),]
 
-                    print(model_list)
-
         data_frames_with_data = []
 
         for data_list, df_name in data_lists:
@@ -1626,43 +1484,24 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if data_frames_with_data:
             df_combined = pd.concat(data_frames_with_data, ignore_index=True)
 
-        print(df_combined)
-
         commands_client = ("""
                             SELECT orders."num_order",orders."num_offer",offers."client"
                             FROM offers
                             INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                             WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                             """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_client,(numorder,))
-            results=cur.fetchone()
-            client=results[2]
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_client,(numorder,))
+                    results=cur.fetchone()
+                    client=results[2]
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
         excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
         excel_mat_order.save_excel()
 
