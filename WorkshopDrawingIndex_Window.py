@@ -4295,14 +4295,17 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             base_folder = "//srvad01/base de datos de pedidos"
 
-            if self.num_order[:2] == "PA":
-                num_order = self.num_order
-                path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos Almacen")
-            elif self.num_order[:2] == "P-":
-                num_order = self.num_order[:8]
-                path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
-            else:
-                return
+            num_order = self.num_order[:8]
+            path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
+
+            # if self.num_order[:2] == "PA":
+            #     num_order = self.num_order
+            #     path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos Almacen")
+            # elif self.num_order[:2] == "P-":
+            #     num_order = self.num_order[:8]
+            #     path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
+            # else:
+            #     return
 
             for folder in os.listdir(path):
                 if num_order.replace("/", "-") in folder:
@@ -4317,21 +4320,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 # Function to generate drawings based on the order number and equipment type
     def generate_drawings(self):
         if self.username in ['m.gil', 'j.martinez']:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Indice Planos")
-            dlg.setText("Este módulo no esta disponible para tí corazón ❤️")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Este módulo no esta disponible para tí corazón ❤️", "warning")
 
         else:
             self.numorder = self.Numorder_IndexDwg.text()
 
             if self.numorder=="":
-                MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Warning, "warning")
+                MessageHelper.show_message('Inserta el número de pedido', "warning")
 
             else:
                 if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
