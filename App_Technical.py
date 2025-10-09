@@ -695,11 +695,44 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ButtonFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.ButtonFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.ButtonFrame.setObjectName("ButtonFrame")
+
         if self.username in ['julian.martinez']:
             self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.ButtonFrame)
             self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
             self.verticalLayout_3.setSpacing(25)
             self.verticalLayout_3.setObjectName("verticalLayout_3")
+            self.Button_NewOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewOffer.setFont(font)
+            self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon3 = QtGui.QIcon()
+            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewOffer.setIcon(icon3)
+            self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewOffer.setCheckable(False)
+            self.Button_NewOffer.setAutoRepeat(False)
+            self.Button_NewOffer.setAutoExclusive(False)
+            self.Button_NewOffer.setObjectName("Button_NewOffer")
+            self.verticalLayout_3.addWidget(self.Button_NewOffer)
+            self.Button_EditOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_EditOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_EditOffer.setFont(font)
+            self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon4 = QtGui.QIcon()
+            icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_EditOffer.setIcon(icon4)
+            self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_EditOffer.setObjectName("Button_EditOffer")
+            self.verticalLayout_3.addWidget(self.Button_EditOffer)
+            
             self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
@@ -744,6 +777,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_FactoryTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_FactoryTimes.setObjectName("Button_FactoryTimes")
             self.verticalLayout_3.addWidget(self.Button_FactoryTimes)
+
         else:
             self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.ButtonFrame)
             self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
@@ -849,6 +883,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
             self.Button_QueryDoc.setObjectName("Button_QueryDoc")
             self.verticalLayout_3.addWidget(self.Button_QueryDoc)
+
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem4)
@@ -890,8 +925,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         App_Technical.setStatusBar(self.statusbar)
         self.tableDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-
         delay_date=QtCore.QDate.currentDate().addDays(-10)
+
         commands_documentation = ("""
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
                     FROM documentation
@@ -948,7 +983,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
         self.retranslateUi(App_Technical)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_QueryOrder.clicked.connect(self.query_order)
@@ -958,6 +992,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
         if self.username in ['julian.martinez']:
+            self.Button_NewOffer.clicked.connect(self.new_offer)
+            self.Button_EditOffer.clicked.connect(self.edit_offer)
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
@@ -979,9 +1015,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         App_Technical.setWindowTitle(_translate("App_Technical", "ERP EIPSA - Técnico"))
         self.HeaderName.setText(_translate("App_Technical", self.name))
+
         if self.username in ['julian.martinez']:
-            self.Button_EditTag.setText(_translate("App_Technical_2", "    Editar TAG(s)"))
-            self.Button_FactoryTimes.setText(_translate("App_Technical_2", "    Tiempos Fab."))
+            self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
+            self.Button_FactoryTimes.setText(_translate("App_Technical", "    Tiempos Fab."))
+            self.Button_NewOffer.setText(_translate("App_Technical", "        Nueva Oferta"))
+            self.Button_EditOffer.setText(_translate("App_Technical", "    Editar Oferta"))
+
         else:
             self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
             self.Button_QueryTag.setText(_translate("App_Technical", "    Consultar TAG(s)"))
@@ -1292,6 +1332,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
             self.Button_OT.clicked.connect(self.otorder)
             self.HeaderOT_scp.editingFinished.connect(self.save_otscp)
+        
         elif username in ["j.paredes"]:
             self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
@@ -1328,6 +1369,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Purchases.setToolTip("Compras")
             self.Header.addWidget(self.Button_Purchases)
             self.Button_Purchases.clicked.connect(self.purchase)
+        
         elif username in ["j.valtierra"]:
             self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
@@ -1551,6 +1593,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TestMenu.clicked.connect(self.insert_test)
             self.Button_Test.clicked.connect(self.query_test)
             self.Button_Nuclear.clicked.connect(self.nuclear_annex)
+
         elif username in ["j.martinez"]:
             self.Button_Factory = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Factory.setMinimumSize(QtCore.QSize(50, 50))
@@ -1737,6 +1780,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ClockIn.clicked.connect(self.clockin)
             self.Button_Index_Drawings.clicked.connect(self.index_drawing)
             self.Button_Verification.clicked.connect(self.verification)
+        
         elif username in ["s.sanchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -1773,6 +1817,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TechOffice.setToolTip("Oficina Técnica")
             self.Header.addWidget(self.Button_TechOffice)
             self.Button_TechOffice.clicked.connect(self.techoffice)
+        
         elif username in ["julian.martinez"]:
             self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
             self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
@@ -2897,12 +2942,41 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             else:
                 break
 
+# Function to open window for create offers
+    def new_offer(self):
+        """
+        Opens a new window for creating a new offer in the application. 
+        """
+        from OfferNew_Menu import Ui_NewOffer_Menu
+        self.new_offer_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_NewOffer_Menu(self.username)
+        self.ui.setupUi(self.new_offer_menu)
+        self.new_offer_menu.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+# Function to open window for edit offers
+    def edit_offer(self):
+        """
+        Opens a new window for editing an existing offer. 
+        """
+        from OfferEdit_Menu import Ui_EditOffer_Menu
+        self.edit_offer_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_EditOffer_Menu(self.username)
+        self.ui.setupUi(self.edit_offer_menu)
+        self.edit_offer_menu.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+
+
+
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())

@@ -11,20 +11,18 @@ from PyQt6.QtCore import QUrl
 import sys
 from datetime import *
 import configparser
-from utils.Database_Manager import Create_DBconnection
-from Clients_Window import Ui_Clients_Window
-from Banks_Window import Ui_Banks_Window
-from Countries_Window import Ui_Countries_Window
-from PayWay_Window import Ui_PayWay_Window
-from PasswordEdit_Window import Ui_EditPasswordWindow
+from utils.Database_Manager import Create_DBconnection, Database_Connection, Access_Connection
+from utils.Show_Message import MessageHelper
 import os
 from config import config, get_path
 import psycopg2
+from psycopg2.extras import execute_values
 import pandas as pd
 import re
 from PDF_Viewer import PDF_Viewer
 from PDF_Styles import pending_invoices, ag_int_liquid
 import math
+from config_keys import ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -379,6 +377,7 @@ class Ui_App_Invoicing(object):
         self.Button_Clients.setIconSize(QtCore.QSize(40, 40))
         self.Button_Clients.setObjectName("Button_Clients")
         self.verticalLayout_3.addWidget(self.Button_Clients)
+
         if self.name in ['Miguel Sahuquillo']:
             self.Button_Banks = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_Banks.setMinimumSize(QtCore.QSize(200, 50))
@@ -396,6 +395,8 @@ class Ui_App_Invoicing(object):
             self.Button_Banks.setObjectName("Button_Banks")
             self.Button_Banks.clicked.connect(self.banks)
             self.verticalLayout_3.addWidget(self.Button_Banks)
+            
+
         elif self.name in ['Javier Zofio']:
             self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_PendInvoice.setMinimumSize(QtCore.QSize(200, 50))
@@ -431,6 +432,7 @@ class Ui_App_Invoicing(object):
             self.Button_Countries.setObjectName("Button_Countries")
             self.Button_Countries.clicked.connect(self.countries)
             self.verticalLayout_3.addWidget(self.Button_Countries)
+
         elif self.name in ['Javier Zofio']:
             self.Button_Transactions = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_Transactions.setMinimumSize(QtCore.QSize(200, 50))
@@ -466,6 +468,40 @@ class Ui_App_Invoicing(object):
             self.Button_PayWay.setObjectName("Button_PayWay")
             self.Button_PayWay.clicked.connect(self.payway)
             self.verticalLayout_3.addWidget(self.Button_PayWay)
+            self.Button_NewOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewOffer.setFont(font)
+            self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon3 = QtGui.QIcon()
+            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewOffer.setIcon(icon3)
+            self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewOffer.setCheckable(False)
+            self.Button_NewOffer.setAutoRepeat(False)
+            self.Button_NewOffer.setAutoExclusive(False)
+            self.Button_NewOffer.setObjectName("Button_NewOffer")
+            self.verticalLayout_3.addWidget(self.Button_NewOffer)
+            self.Button_EditOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_EditOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_EditOffer.setFont(font)
+            self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon4 = QtGui.QIcon()
+            icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_EditOffer.setIcon(icon4)
+            self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_EditOffer.setObjectName("Button_EditOffer")
+            self.verticalLayout_3.addWidget(self.Button_EditOffer)
+            self.Button_NewOffer.clicked.connect(self.new_offer)
+            self.Button_EditOffer.clicked.connect(self.edit_offer)
+
         elif self.name in ['Javier Zofio']:
             self.Button_AgtInt = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_AgtInt.setMinimumSize(QtCore.QSize(200, 50))
@@ -498,6 +534,7 @@ class Ui_App_Invoicing(object):
             self.Button_ExpExcel.setObjectName("Button_ExpExcel")
             self.verticalLayout_3.addWidget(self.Button_ExpExcel)
             self.Button_AgtInt.clicked.connect(self.ag_int_liq)
+
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem5)
@@ -556,6 +593,8 @@ class Ui_App_Invoicing(object):
         self.Button_ExpirationInvoice.setText(_translate("App_Invoicing", "    Venc. Facturas"))
         self.Button_Clients.setText(_translate("App_Invoicing", "    Clientes"))
         self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
+        self.Button_NewOffer.setText(_translate("App_Invoicing", "        Nueva Oferta"))
+        self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
 
 # Function to open window to send documents
     def send_documents(self):
@@ -626,6 +665,7 @@ class Ui_App_Invoicing(object):
         """
         Opens the Banks Management window, allowing users to manage bank information.
         """
+        from Banks_Window import Ui_Banks_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -645,6 +685,7 @@ class Ui_App_Invoicing(object):
         """
         Opens the Payway Management window, allowing users to manage payment methods.
         """
+        from PayWay_Window import Ui_PayWay_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -664,6 +705,7 @@ class Ui_App_Invoicing(object):
         """
         Opens the Countries Management window, allowing users to manage country information.
         """
+        from Countries_Window import Ui_Countries_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -683,6 +725,7 @@ class Ui_App_Invoicing(object):
         """
         Opens the Clients Management window, allowing users to manage client information.
         """
+        from Clients_Window import Ui_Clients_Window
         self.clients_window=QtWidgets.QMainWindow()
         self.ui=Ui_Clients_Window(self.name, self.username)
         self.ui.setupUi(self.clients_window)
@@ -967,6 +1010,7 @@ class Ui_App_Invoicing(object):
         """
         Opens a new window for editing the user's password. 
         """
+        from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -1266,47 +1310,29 @@ class Ui_App_Invoicing(object):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tables_notifications)
+                    results=cur.fetchall()
+                    tables_names=[x[0] for x in results]
 
             notifications = []
 
             for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
-                results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
 
                 for x in results:
                     notifications.append(x)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
@@ -1325,6 +1351,122 @@ class Ui_App_Invoicing(object):
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
+
+# Function to open window for create offers
+    def new_offer(self):
+        """
+        Opens a new window for creating a new offer in the application. 
+        """
+        from OfferNew_Menu import Ui_NewOffer_Menu
+        self.new_offer_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_NewOffer_Menu(self.username)
+        self.ui.setupUi(self.new_offer_menu)
+        self.new_offer_menu.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+# Function to open window for edit offers
+    def edit_offer(self):
+        """
+        Opens a new window for editing an existing offer. 
+        """
+        from OfferEdit_Menu import Ui_EditOffer_Menu
+        self.edit_offer_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_EditOffer_Menu(self.username)
+        self.ui.setupUi(self.edit_offer_menu)
+        self.edit_offer_menu.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+
+# Function to update invoice data coming from Access File
+    def update_invoices(self):
+        with Access_Connection(ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD) as conn_access:
+            with conn_access.cursor() as cur_access:
+
+        # Últimos 50 registros
+                cur_access.execute("""
+                    SELECT TOP 50 FactencabId, FactencabNumFact, FactencabFecha
+                    FROM FACT_ENCAB
+                    ORDER BY FactencabId DESC
+                """)
+                access_rows = cur_access.fetchall()
+
+            # Convertimos a dict {id: (numfact, fecha)}
+                access_dict = {row[0]: (row[1], row[2]) for row in access_rows}
+                access_ids = list(access_dict.keys())
+                print(access_rows)
+
+        # =============================
+        # 🔸 2. Conexión a PostgreSQL
+        # =============================
+
+        # with Database_Connection(config()) as conn_pg:
+        #     with conn_pg.cursor() as cur_pg:
+        # # Leemos solo esos IDs en PG
+        #         cur_pg.execute("""
+        #             SELECT factencabid, factencabnumfact, factencabfecha
+        #             FROM fact_encab
+        #             WHERE factencabid = ANY(%s)
+        #         """, (access_ids,))
+        #         pg_rows = cur_pg.fetchall()
+        #     pg_dict = {row[0]: (row[1], row[2]) for row in pg_rows}
+
+        # # =============================
+        # # 🧮 3. Detectar cambios
+        # # =============================
+        #     access_set = set(access_dict.keys())
+        #     pg_set = set(pg_dict.keys())
+
+        #     # Insertar → están en Access pero no en PG
+        #     to_insert = access_set - pg_set
+
+        #     # Modificar → están en ambos pero con valores distintos
+        #     to_update = {
+        #         id_: access_dict[id_]
+        #         for id_ in (access_set & pg_set)
+        #         if access_dict[id_] != pg_dict[id_]
+        #     }
+
+        #     # Eliminar → están en PG pero no en Access
+        #     to_delete = pg_set - access_set
+
+        # # =============================
+        # # 🚀 4. Insertar y actualizar en bloque
+        # # =============================
+        # # Inserciones
+        #     with conn_pg.cursor() as cur_pg:
+        #         if to_insert:
+        #             insert_data = [(id_, access_dict[id_][0], access_dict[id_][1]) for id_ in to_insert]
+        #             execute_values(cur_pg, """
+        #                 INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha)
+        #                 VALUES %s
+        #             """, insert_data)
+
+        #         # Actualizaciones → usando UPSERT para evitar separar lógicas
+        #         if to_update:
+        #             upsert_data = [(id_, data[0], data[1]) for id_, data in to_update.items()]
+        #             execute_values(cur_pg, """
+        #                 INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha)
+        #                 VALUES %s
+        #                 ON CONFLICT (factencabid)
+        #                 DO UPDATE SET
+        #                     factencabnumfact = EXCLUDED.factencabnumfact,
+        #                     factencabfecha = EXCLUDED.factencabfecha
+        #             """, upsert_data)
+
+        #         # =============================
+        #         # 🧹 5. Eliminar registros
+        #         # =============================
+        #         if to_delete:
+        #             cur_pg.execute("""
+        #                 DELETE FROM fact_encab
+        #                 WHERE factencabid = ANY(%s)
+        #             """, (list(to_delete),))
+
+        #     conn_pg.commit()
+
+
+
+
 
 if __name__ == "__main__":
     import sys
