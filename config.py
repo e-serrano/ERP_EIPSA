@@ -2,6 +2,7 @@
 from configparser import ConfigParser
 from pathlib import Path
 import sys
+from config_keys import HOST_DATABASE
 
 # Base directory for the project (common folder for all PCs)
 if getattr(sys, 'frozen', False):
@@ -45,11 +46,14 @@ def config(filename=r"C:\Program Files\ERP EIPSA\database.ini", section='postgre
 
     # get section, default to postgresql
     db = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-        for param in params:
-            db[param[0]] = param[1]
-    else:
-        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-    # print(db)
+    required_keys = ['database', 'user', 'password']
+
+    for key in required_keys:
+        if parser.has_option(section, key):
+            db[key] = parser.get(section, key)
+        else:
+            raise Exception(f"Missing required parameter '{key}' in section '{section}'")
+
+    db['host'] = HOST_DATABASE
+
     return db
