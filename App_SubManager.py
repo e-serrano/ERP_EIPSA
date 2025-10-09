@@ -1535,26 +1535,26 @@ class Ui_App_SubManager(object):
                         COALESCE(offers.offer_amount, 0::money) AS offer_amount, COALESCE(orders.order_amount, 0::money) AS order_amount
                         FROM offers
                         LEFT JOIN orders ON offers.num_offer = orders.num_offer
-                        WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                        WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND offers.responsible_calculations <> 'N/A'
                         """)
 
         query_graph_calculation_2 = ("""
                             SELECT num_offer, state, responsible_calculations, 'offers' AS source_table
                             FROM offers
-                            WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND responsible_calculations IS NOT NULL
+                            WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND responsible_calculations <> 'N/A'
                             """)
 
         query_last_weekly_summary = ("""
                             SELECT * FROM (
                             SELECT num_offer, state, responsible, client, final_client, TO_CHAR(presentation_date, 'DD/MM/YYYY'), material, offer_amount, 'offers' AS source_table
                             FROM offers
-                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) AND register_date <= CURRENT_DATE
 
                             UNION ALL
 
                             SELECT id_offer as num_offer, state, responsible, client, final_client, '' as presentation_date, material, '' as offer_amount, 'received_offers' AS source_table
                             FROM received_offers
-                            WHERE register_date >= date_trunc('week', CURRENT_DATE) - interval '1 week' AND register_date <= CURRENT_DATE) as final_table
+                            WHERE register_date >= date_trunc('week', CURRENT_DATE) AND register_date <= CURRENT_DATE) as final_table
 
                             ORDER BY array_position(
                             ARRAY['Recibida', 'Registrada', 'Presentada', 'Adjudicada', 'Perdida', 'Declinada'], state), num_offer
@@ -1875,7 +1875,7 @@ class Ui_App_SubManager(object):
         pdf.set_fill_color(255, 255, 64)
         pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(19.75, 0.5, 'RESUMEN SEMANAL', fill=True)
-        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday()) - timedelta(weeks=1)).strftime('%d/%m/%Y'), fill=True, align='C')
+        pdf.cell(3, 0.5, (datetime.today() - timedelta(days=datetime.today().weekday())).strftime('%d/%m/%Y'), fill=True, align='C')
         pdf.cell(3, 0.5, '-', fill=True, align='C')
         pdf.cell(3, 0.5, (datetime.today().strftime('%d/%m/%Y')), fill=True, align='C')
         pdf.ln(0.5)
