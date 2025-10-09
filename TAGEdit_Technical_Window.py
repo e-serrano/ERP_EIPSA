@@ -2714,109 +2714,115 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         """
         Prompts for a flow material order number and processes it.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
 
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create material order for temperature elements
     def materialorder_temp(self):
         """
         Prompts for a temperature material order number and processes it.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
 
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create material order for level elements
     def materialorder_level(self):
         """
         Prompts for a level material order number and processes it.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
 
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create material order for others elements
     def materialorder_others(self):
         """
         Prompts for a material order number for other elements and processes it.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
 
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create fabrication order
     def faborder(self):
         """
         Opens a window to create a fabrication order if data is present.
         """
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Orden Fabricación")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
-                self.createfaborder_window=QtWidgets.QMainWindow()
-                self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
-                self.ui.setupUi(self.createfaborder_window)
-                self.createfaborder_window.showMaximized()
+        if self.username not in ['julian.martinez']:
+            if self.proxy.rowCount() == 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Orden Fabricación")
+                dlg.setText("No hay datos cargados")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+            else:
+                if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+                    self.createfaborder_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+                    self.ui.setupUi(self.createfaborder_window)
+                    self.createfaborder_window.showMaximized()
 
 # Function to set inspection number
     def setinspection(self):
         """
         Sets the inspection number if data is present.
         """
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Inspección")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
-                inspection(self.proxy, self.model, self.variable)
+        if self.username not in ['julian.martinez']:
+            if self.proxy.rowCount() == 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Inspección")
+                dlg.setText("No hay datos cargados")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+            else:
+                if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+                    inspection(self.proxy, self.model, self.variable)
 
 # Function to export data to excel
     def exporttoexcel(self):
@@ -2866,104 +2872,103 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
 # Function to import data from excel
     def importexcel(self):
-        if self.username not in ['julian.martinez']:
-            input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
 
-            if input_file:
-                params = config()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
+        if input_file:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
 
-            #Importing excel file into dataframe
-                df_table = pd.read_excel(input_file, keep_default_na=False, skiprows=1, dtype={'image': str, 'document':str})
-                df_table = df_table.fillna('')
-                df_table = df_table.astype(str)
+        #Importing excel file into dataframe
+            df_table = pd.read_excel(input_file, keep_default_na=False, skiprows=1, dtype={'image': str, 'document':str})
+            df_table = df_table.fillna('')
+            df_table = df_table.astype(str)
 
-                # df_table.replace('nan', '', inplace=True)
-                # df_table.replace('NaT', '', inplace=True)
+            # df_table.replace('nan', '', inplace=True)
+            # df_table.replace('NaT', '', inplace=True)
 
-                df_final = df_table.drop([
-                        "pmi_date",
-                        "ph1_date",
-                        "ph2_date",
-                        "lp_date",
-                        "hard_date",
-                        "final_verif_dim_date",
-                        "final_verif_of_eq_date",
-                        "tag_images"
-                        ],
-                        axis=1,
-                        errors="ignore",)
+            df_final = df_table.drop([
+                    "pmi_date",
+                    "ph1_date",
+                    "ph2_date",
+                    "lp_date",
+                    "hard_date",
+                    "final_verif_dim_date",
+                    "final_verif_of_eq_date",
+                    "tag_images"
+                    ],
+                    axis=1,
+                    errors="ignore",)
 
-                try:
-                    for index, row in df_table.iterrows():
-                        if "id_tag_flow" in row:
-                            id_value = row["id_tag_flow"]
-                            table_name = 'tags_data.tags_flow'
-                            where_clause = f"id_tag_flow = {id_value}"
+            try:
+                for index, row in df_table.iterrows():
+                    if "id_tag_flow" in row:
+                        id_value = row["id_tag_flow"]
+                        table_name = 'tags_data.tags_flow'
+                        where_clause = f"id_tag_flow = {id_value}"
 
-                        elif "id_tag_temp" in row:
-                            id_value = row["id_tag_temp"]
-                            table_name = 'tags_data.tags_temp'
-                            where_clause = f"id_tag_temp = {id_value}"
+                    elif "id_tag_temp" in row:
+                        id_value = row["id_tag_temp"]
+                        table_name = 'tags_data.tags_temp'
+                        where_clause = f"id_tag_temp = {id_value}"
 
-                        elif "id_tag_level" in row:
-                            id_value = row["id_tag_level"]
-                            table_name = 'tags_data.tags_level'
-                            where_clause = f"id_tag_level = {id_value}"
+                    elif "id_tag_level" in row:
+                        id_value = row["id_tag_level"]
+                        table_name = 'tags_data.tags_level'
+                        where_clause = f"id_tag_level = {id_value}"
 
-                        elif "id_tag_others" in row:
-                            id_value = row["id_tag_others"]
-                            table_name = 'tags_data.tags_others'
-                            where_clause = f"id_tag_others = {id_value}"
+                    elif "id_tag_others" in row:
+                        id_value = row["id_tag_others"]
+                        table_name = 'tags_data.tags_others'
+                        where_clause = f"id_tag_others = {id_value}"
 
-                        # Creating string for columns names and values
-                        columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
+                    # Creating string for columns names and values
+                    columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
 
-                        columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
-                                            else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
-                                            else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
-                                            else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date', 'calc_state_date','dwg_state_date','plug_number']
-                                            else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
+                    columns = ', '.join([column for column, _ in columns_values])
+                    values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                                        else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
+                                        else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
+                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date', 'calc_state_date','dwg_state_date','plug_number']
+                                        else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
-                    # Creating the SET  and WHERE clause with proper formatting
-                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                # Creating the SET  and WHERE clause with proper formatting
+                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
 
-                    # Creating the update query and executing it after checking existing tags and id
-                        sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                        cursor.execute(sql_update)
-                        conn.commit()
-
-                # Closing cursor and database connection
+                # Creating the update query and executing it after checking existing tags and id
+                    sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                    cursor.execute(sql_update)
                     conn.commit()
-                    cursor.close()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos actualizados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos actualizados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
