@@ -1,6 +1,24 @@
 import psycopg2
+import pyodbc
 from PyQt6 import QtSql
 from config_keys import HOST_DATABASE, NAME_DATABASE
+
+class Access_Connection():
+    def __init__(self, access_file, access_pwd):
+        self.config = (
+                                fr"DRIVER={{Microsoft Access Driver (*.mdb, *.accdb)}};"
+                                fr"DBQ={access_file};"
+                                fr"PWD={access_pwd};"
+                                )
+        self.connection = None
+
+    def __enter__(self):
+        self.connection = pyodbc.connect(**self.config, readonly=True)
+        return self.connection
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if self.connection:
+            self.connection.close()
 
 
 class Database_Connection():
