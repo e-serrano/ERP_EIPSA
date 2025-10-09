@@ -417,7 +417,7 @@ class Ui_New_OfferReceived_Window(object):
         client=self.Client_NewOffer.text()
         finalclient=self.FinalClient_NewOffer.text()
         numref=self.NumRef_NewOffer.text()
-        limitdate=self.LimitDate_NewOffer.text()
+        limitdate=self.LimitDate_NewOffer.text() if self.LimitDate_NewOffer.text() != '' else (None if self.LimitDate_NewOffer.text() == 'None' else None)
         recepdate=self.RecepDate_NewOffer.text()
         material=self.Material_NewOffer.currentText()
         description=self.Description_NewOffer.toPlainText()
@@ -426,13 +426,13 @@ class Ui_New_OfferReceived_Window(object):
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
 
-        if numref=="" or (recepdate=="" or (limitdate=="" or (description=="" or items_number==""))):
+        if numref=="" or (recepdate=="" or (description=="" or items_number=="")):
             MessageHelper.show_message("Rellene todos los campos", "warning")
 
         elif not (items_number.isdigit() or (items_number.startswith('-') and items_number[1:].isdigit())) or float(items_number) < 0:
             MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
-        elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', recepdate) or not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', limitdate):
+        elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', recepdate):
             MessageHelper.show_message("Las fechas debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
