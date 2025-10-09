@@ -7,12 +7,15 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from config import config
+from config import config, get_path
 import psycopg2
 from PyQt6.QtWidgets import QAbstractItemView
 import os
 from Email_Styles import email_offer1, email_offer2, email_offer3
 from datetime import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
+from utils.Emails import EmailOffer
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -260,7 +263,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -451,7 +454,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         ReclamationOffer_Window.setMinimumSize(QtCore.QSize(800, 700))
         # ReclamationOffer_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReclamationOffer_Window.setWindowIcon(icon)
         ReclamationOffer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -595,11 +598,12 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         Queries the database for offers to reclaim, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        conn = None
+
         commands_responsible = ("""
                         SELECT *
                         FROM users_data.initials
                         """)
+
         commands_queryrecoffer = ("""
                         SELECT offers."num_offer",offers."responsible",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
                         (offers."last_update" - offers."presentation_date") AS "difference_update", TO_CHAR(offers."last_rec", 'DD-MM-YYYY'),
@@ -629,25 +633,19 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_responsible)
-            results_responsible=cur.fetchall()
-            match=list(filter(lambda x:self.username in x, results_responsible))
-            responsible=match[0][0]
-            if self.username == 'l.bravo':
-                cur.execute(commands_queryrecoffer_coordinator)
-            else:
-                cur.execute(commands_queryrecoffer, (responsible,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
+                    if self.username == 'l.bravo':
+                        cur.execute(commands_queryrecoffer_coordinator)
+                    else:
+                        cur.execute(commands_queryrecoffer, (responsible,))
+
+                    results=cur.fetchall()
 
             self.tableReclamation.setRowCount(len(results))
             tablerow=0
@@ -684,19 +682,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 self.tableReclamation.hideColumn(1)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def sendmails(self):
         """
@@ -705,11 +692,13 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         """
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
+
         commands_responsiblemail = ("""
                                     SELECT email
                                     FROM users_data.registration
                                     WHERE username = %s
                                     """)
+
         commands_queryoffer = ("""
                                 SELECT offers."mails",offers."num_offer",offers."num_ref_offer",offers."presentation_date",offers."tracking",offers."rec_times"
                                 FROM offers
@@ -717,6 +706,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                 )
                                 ORDER BY offers."num_offer"
                                 """)
+
         commands_insertdataoffer = ("""
                                     UPDATE offers
                                     SET "last_rec" = %s, "type_rec" = %s, "tracking" = %s, "rec_times" = %s
@@ -737,53 +727,43 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 reclamation = 'Rec2'
             elif checkbox3 and checkbox3.isChecked():
                 reclamation = 'Rec3'
+
             offers_reclamation.append([offer,reclamation])
 
         list_checkboxes = [x[1] for x in offers_reclamation]
+
         if all(item is None for item in list_checkboxes):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("No has seleccionado ninguna oferta para reclamar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("No has seleccionado ninguna oferta para reclamar", "warning")
 
         else:
             try:
                 name, surname = [word.lower() for word in self.name.split()]
                 username = name[0] + "." + surname
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(username,)
-                cur.execute(commands_responsiblemail,data)
-                results_email=cur.fetchall()
-                email=results_email[0][0]
+
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        data=(username,)
+                        cur.execute(commands_responsiblemail,data)
+                        results_email=cur.fetchall()
+                        email=results_email[0][0]
 
                 for offer in offers_reclamation:
                     data=(offer[0],)
-                    cur.execute(commands_queryoffer,data)
-                    results_offers=cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_queryoffer,data)
+                            results_offers=cur.fetchall()
+
                     if results_offers[0][0] in ['None','']:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("La oferta" + offer[0] + " no puede ser reclamada porque no tiene mails de contacto")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("La oferta" + offer[0] + " no puede ser reclamada porque no tiene mails de contacto", "warning")
+
                     else:
                         if offer[1] == 'Rec1':
                             mail=email_offer1(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
                             mail.send_email()
+
+                            # email = EmailOffer(email, results_offers[0][0], results_offers[0][1], results_offers[0][2], results_offers[0][3])
+                            # email.send_email('offer_reminder_1')
 
                             if results_offers[0][4] is None:
                                 tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
@@ -791,9 +771,14 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                 tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
                             else:
                                 tracking = results_offers[0][4] + "\n" + date.today().strftime("%d/%m/%Y") + ": Reclamada"
+
                             rec_times = int(results_offers[0][5]) + 1 if results_offers[0][5] is not None else 1
                             data = (actual_date, offer[1], tracking, rec_times, offer[0],)
-                            cur.execute(commands_insertdataoffer,data)
+
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insertdataoffer,data)
+                                conn.commit()
 
                         elif offer[1] == 'Rec2':
                             mail=email_offer2(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
@@ -805,21 +790,26 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                 tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
                             else:
                                 tracking = results_offers[0][4] + "\n" + date.today().strftime("%d/%m/%Y") + ": Reclamada"
+
                             rec_times = int(results_offers[0][5]) + 1 if results_offers[0][5] is not None else 1
                             data = (actual_date, offer[1], tracking, rec_times, offer[0],)
-                            cur.execute(commands_insertdataoffer,data)
+
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insertdataoffer,data)
+                                conn.commit()
 
                         elif offer[1] == 'Rec3':
                             dlg1 = QtWidgets.QInputDialog()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg1.setWindowIcon(new_icon)
                             dlg1.setWindowTitle('Reclamación Oferta')
                             dlg1.setLabelText('Introduce el asunto:')
 
                             dlg2 = QtWidgets.QInputDialog()
                             new_icon2 = QtGui.QIcon()
-                            new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg2.setWindowIcon(new_icon2)
                             dlg2.setWindowTitle('Reclamación Oferta')
                             dlg2.setLabelText('Introduce el cuerpo del correo:')
@@ -843,64 +833,30 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                                         tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
                                                     else:
                                                         tracking = results_offers[0][4] + "\n" + date.today().strftime("%d/%m/%Y") + ": Reclamada"
+
                                                     rec_times = int(results_offers[0][5]) + 1 if results_offers[0][5] is not None else 1
                                                     data = (actual_date, offer[1], tracking, rec_times, offer[0],)
-                                                    cur.execute(commands_insertdataoffer,data)
+
+                                                    with Database_Connection(config()) as conn:
+                                                        with conn.cursor() as cur:
+                                                            cur.execute(commands_insertdataoffer,data)
+                                                        conn.commit()
                                                     break
                                                 else:
-                                                    dlg_error = QtWidgets.QMessageBox()
-                                                    new_icon = QtGui.QIcon()
-                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                    dlg_error.setWindowIcon(new_icon)
-                                                    dlg_error.setWindowTitle('Reclamación Oferta')
-                                                    dlg_error.setText("El cuerpo no puede estar vacío")
-                                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                    dlg_error.exec()
-                                                    del dlg_error,new_icon
+                                                    MessageHelper.show_message("El cuerpo no puede estar vacío","warning")
                                             else:
                                                 break
                                         break
                                     else:
-                                        dlg_error = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg_error.setWindowIcon(new_icon)
-                                        dlg_error.setWindowTitle('Reclamación Oferta')
-                                        dlg_error.setText("El asunto no puede estar vacío")
-                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                        dlg_error.exec()
-                                        del dlg_error,new_icon
+                                        MessageHelper.show_message("El asunto no puede estar vacío","warning")
                                 else:
                                     break
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Correos enviados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Correos enviados con éxito", "info")
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.ReclamationOffer()
 
@@ -916,7 +872,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Reclamación Ofertas")
             dlg.setText(cell_content)
@@ -932,6 +888,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         header_height = self.tableReclamation.horizontalHeader().height()
         popup_pos = self.tableReclamation.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableReclamation.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
 
 if __name__ == "__main__":
     import sys

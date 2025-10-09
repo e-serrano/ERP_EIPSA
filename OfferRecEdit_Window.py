@@ -423,6 +423,7 @@ class Ui_Edit_OfferRec_Window(object):
         self.Material_Edit_Offer.addItems(list_material)
 
         list_commercial=[x[0] for x in results_commercial]
+        list_commercial.append('m.sahuquillo')
         self.Responsible_Edit_Offer.addItems(list_commercial)
 
         self.State_Edit_Offer.addItems(['Recibida', 'No Ofertada'])

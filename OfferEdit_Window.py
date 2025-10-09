@@ -685,6 +685,7 @@ class Ui_Edit_Offer_Window(object):
         self.Material_EditOffer.addItems(list_material)
 
         list_commercial=[x[0] for x in results_commercial]
+        list_commercial.append('m.sahuquillo')
         self.Responsible_EditOffer.addItems(list_commercial)
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
