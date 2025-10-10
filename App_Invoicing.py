@@ -499,8 +499,38 @@ class Ui_App_Invoicing(object):
             self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
             self.Button_EditOffer.setObjectName("Button_EditOffer")
             self.verticalLayout_3.addWidget(self.Button_EditOffer)
+            self.Button_NewOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewOrder.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewOrder.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewOrder.setFont(font)
+            self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewOrder.setIcon(icon6)
+            self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewOrder.setObjectName("Button_NewOrder")
+            self.verticalLayout_3.addWidget(self.Button_NewOrder)
+            self.Button_NewTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewTag.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewTag.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewTag.setFont(font)
+            self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon9 = QtGui.QIcon()
+            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewTag.setIcon(icon9)
+            self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewTag.setObjectName("Button_NewTag")
+            self.verticalLayout_3.addWidget(self.Button_NewTag)
             self.Button_NewOffer.clicked.connect(self.new_offer)
             self.Button_EditOffer.clicked.connect(self.edit_offer)
+            self.Button_NewOrder.clicked.connect(self.new_order)
+            self.Button_NewTag.clicked.connect(self.new_tag)
 
         elif self.name in ['Javier Zofio']:
             self.Button_AgtInt = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -595,6 +625,8 @@ class Ui_App_Invoicing(object):
         self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
         self.Button_NewOffer.setText(_translate("App_Invoicing", "        Nueva Oferta"))
         self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
+        self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
+        self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
 
 # Function to open window to send documents
     def send_documents(self):
@@ -1375,6 +1407,29 @@ class Ui_App_Invoicing(object):
         self.ui.setupUi(self.edit_offer_menu)
         self.edit_offer_menu.show()
         # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+# Function to open window for create orders
+    def new_order(self):
+        """
+        Opens a new window for creating a new order. 
+        """
+        from OrderNewAddData_Window import Ui_New_OrderAddData_Window
+        self.new_orderAddData_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_OrderAddData_Window()
+        self.ui.setupUi(self.new_orderAddData_window)
+        self.new_orderAddData_window.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+# Function to open window for create tags
+    def new_tag(self):
+        """
+        Opens a new window for creating new tags. 
+        """
+        from TAGCreate_Menu import Ui_CreateTag_Menu
+        self.new_tag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_CreateTag_Menu()
+        self.ui.setupUi(self.new_tag_window)
+        self.new_tag_window.show()
 
 
 # Function to update invoice data coming from Access File

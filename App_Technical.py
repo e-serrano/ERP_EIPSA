@@ -13,7 +13,8 @@ from datetime import *
 import psycopg2
 import sys
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
+from utils.Show_Message import MessageHelper
 from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os
@@ -732,7 +733,34 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
             self.Button_EditOffer.setObjectName("Button_EditOffer")
             self.verticalLayout_3.addWidget(self.Button_EditOffer)
-            
+            self.Button_NewOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewOrder.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewOrder.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewOrder.setFont(font)
+            self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewOrder.setIcon(icon6)
+            self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewOrder.setObjectName("Button_NewOrder")
+            self.verticalLayout_3.addWidget(self.Button_NewOrder)
+            self.Button_NewTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_NewTag.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_NewTag.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_NewTag.setFont(font)
+            self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon9 = QtGui.QIcon()
+            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NewTag.setIcon(icon9)
+            self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NewTag.setObjectName("Button_NewTag")
+            self.verticalLayout_3.addWidget(self.Button_NewTag)
             self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
@@ -935,16 +963,12 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     )
                     ORDER BY "num_doc_eipsa"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_documentation)
-            results=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_documentation)
+                    results=cur.fetchall()
             self.tableDocs.setRowCount(len(results))
             tablerow=0
 
@@ -964,24 +988,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
             self.tableDocs.setSortingEnabled(False)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.retranslateUi(App_Technical)
         self.Button_Profile.clicked.connect(self.showMenu)
@@ -995,6 +1004,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_NewOffer.clicked.connect(self.new_offer)
             self.Button_EditOffer.clicked.connect(self.edit_offer)
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
+            self.Button_NewOrder.clicked.connect(self.new_order)
+            self.Button_NewTag.clicked.connect(self.new_tag)
+
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
             self.Button_NewDoc.clicked.connect(self.create_documents)
@@ -1017,10 +1029,12 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.HeaderName.setText(_translate("App_Technical", self.name))
 
         if self.username in ['julian.martinez']:
+            self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
             self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
             self.Button_FactoryTimes.setText(_translate("App_Technical", "    Tiempos Fab."))
             self.Button_NewOffer.setText(_translate("App_Technical", "        Nueva Oferta"))
             self.Button_EditOffer.setText(_translate("App_Technical", "    Editar Oferta"))
+            self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
 
         else:
             self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
@@ -2256,47 +2270,28 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tables_notifications)
+                    results=cur.fetchall()
 
-            notifications = []
+                    tables_names=[x[0] for x in results]
 
-            for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
-                results=cur.fetchall()
+                    notifications = []
 
-                for x in results:
-                    notifications.append(x)
+                    for table in tables_names:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                        for x in results:
+                            notifications.append(x)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
@@ -2966,7 +2961,28 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.edit_offer_menu.show()
         # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
+# Function to open window for create orders
+    def new_order(self):
+        """
+        Opens a new window for creating a new order. 
+        """
+        from OrderNewAddData_Window import Ui_New_OrderAddData_Window
+        self.new_orderAddData_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_OrderAddData_Window()
+        self.ui.setupUi(self.new_orderAddData_window)
+        self.new_orderAddData_window.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
+# Function to open window for create tags
+    def new_tag(self):
+        """
+        Opens a new window for creating new tags. 
+        """
+        from TAGCreate_Menu import Ui_CreateTag_Menu
+        self.new_tag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_CreateTag_Menu()
+        self.ui.setupUi(self.new_tag_window)
+        self.new_tag_window.show()
 
 
 
