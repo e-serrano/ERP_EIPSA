@@ -2462,7 +2462,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
-        self.tableWorkshop_PA.sortByColumn(sortColumn, sortOrder)
+        self.tableWorkshop_AL.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
     def on_actionSortDescending_triggered_AL(self):
@@ -2471,7 +2471,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
-        self.tableWorkshop_PA.sortByColumn(sortColumn, sortOrder)
+        self.tableWorkshop_AL.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered_AL(self):

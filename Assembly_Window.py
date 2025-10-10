@@ -14,6 +14,8 @@ from config import config
 import psycopg2
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -63,17 +65,12 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
         try:
-            # read the connection parameters
-            params = config()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 order, color_w, color_a = result
@@ -93,16 +90,9 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
                 colors_dict[order] = (color_w, color_a)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             # Handle the error appropriately
             pass
-        finally:
-            if conn is not None:
-                conn.close()
 
         return colors_dict
 
@@ -543,10 +533,205 @@ class EditableTableModel_PA(QtSql.QSqlTableModel):
         else:
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
+class CustomProxyModel_AL(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, list_expresions, column, action_name=None):
+        """
+        Updates filters for a specified column based on provided expressions and action name.
+
+        Args:
+            list_expresions (list): List of filter expressions to be applied.
+            column (int): Column index to which the filters are applied.
+            action_name (str, optional): Action to determine how filters are updated. Defaults to None.
+        """
+        for expresion in list_expresions:
+            if expresion or expresion == '':
+                if column in self.filters:
+                    if action_name or action_name == '':
+                        self.filters[column].remove(expresion)
+                    else:
+                        self.filters[column].append(expresion)
+                else:
+                    self.filters[column] = [expresion]
+            elif column in self.filters:
+                if action_name or action_name == '':
+                    self.filters[column].remove(expresion)
+                    if not self.filters[column]:
+                        del self.filters[column]
+                else:
+                    del self.filters[column]
+        self.invalidateFilter()
+
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            for expresion in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
+                        break
+
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+            else:
+                return False
+        return True
+
+class EditableTableModel_AL(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.pyqtSignal(str)
+
+    def __init__(self, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
+        super().__init__(parent, database)
+        self.column_range = column_range
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+        if index.column() in [0,1]:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
 
 class Ui_Assembly_Window(QtWidgets.QMainWindow):
     """
-    A main window for managing workshop-related data, including models and proxies for tables.
+    A main window for managing Assembly-related data, including models and proxies for tables.
 
     Inherits from:
         QtWidgets.QMainWindow: A top-level window that provides a main application window.
@@ -571,7 +756,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
     """
     def __init__(self, db, username):
         """
-        Initializes the Ui_Workshop_Window, setting up models, proxies, and internal state.
+        Initializes the Ui_Assembly_Window, setting up models, proxies, and internal state.
 
         Args:
             db (object): The database connection object.
@@ -582,6 +767,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.proxy_P = CustomProxyModel_P()
         self.model_PA = EditableTableModel_PA(database=db)
         self.proxy_PA = CustomProxyModel_PA()
+        self.model_AL = EditableTableModel_AL(database=db)
+        self.proxy_AL = CustomProxyModel_AL()
         self.checkbox_states_P = {}
         self.dict_valuesuniques_P = {}
         self.dict_ordersort_P = {}
@@ -592,11 +779,17 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.dict_ordersort_PA = {}
         self.action_checkbox_map_PA = {}
         self.checkbox_filters_PA = {}
+        self.checkbox_states_AL = {}
+        self.dict_valuesuniques_AL = {}
+        self.dict_ordersort_AL = {}
+        self.action_checkbox_map_AL = {}
+        self.checkbox_filters_AL = {}
         self.db = db
         self.username = username
         self.open_windows = {}
         self.model_P.dataChanged.connect(self.saveChanges)
         self.model_PA.dataChanged.connect(self.saveChanges)
+        self.model_AL.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -723,10 +916,15 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tab_PA = QtWidgets.QWidget()
         self.tab_PA.setObjectName("tab_PA")
         self.tabwidget.addTab(self.tab_PA, "PA-")
+        self.tab_AL = QtWidgets.QWidget()
+        self.tab_AL.setObjectName("tab_AL")
+        self.tabwidget.addTab(self.tab_AL, "AL-")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.tab_P)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.tab_PA)
         self.gridLayout_4.setObjectName("gridLayout_4")
+        self.gridLayout_5 = QtWidgets.QGridLayout(self.tab_AL)
+        self.gridLayout_5.setObjectName("gridLayout_5")
         self.hLayout_P = QtWidgets.QHBoxLayout()
         self.hLayout_P.setObjectName("hLayout_P")
         self.Button_ShowRef_P = QtWidgets.QPushButton(parent=self.frame)
@@ -774,9 +972,23 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.hLayout_PA.addWidget(self.Button_BG_PA)
         self.gridLayout_4.addLayout(self.hLayout_PA, 1, 0, 1, 1)
         self.tableAssembly_PA=QtWidgets.QTableView(parent=self.frame)
-        self.model_PA = EditableTableModel_P(database=self.db)
+        self.model_PA = EditableTableModel_PA(database=self.db)
         self.tableAssembly_PA.setObjectName("tableAssembly_PA")
         self.gridLayout_4.addWidget(self.tableAssembly_PA, 2, 0, 1, 1)
+
+        self.hLayout_AL = QtWidgets.QHBoxLayout()
+        self.hLayout_AL.setObjectName("hLayout_AL")
+        self.Button_All_AL = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_All_AL.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_All_AL.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_All_AL.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_All_AL.setObjectName("Button_All_AL")
+        self.hLayout_AL.addWidget(self.Button_All_AL)
+        self.gridLayout_5.addLayout(self.hLayout_AL, 1, 0, 1, 1)
+        self.tableAssembly_AL=QtWidgets.QTableView(parent=self.frame)
+        self.model_AL = EditableTableModel_AL(database=self.db)
+        self.tableAssembly_AL.setObjectName("tableAssembly_AL")
+        self.gridLayout_5.addWidget(self.tableAssembly_AL, 2, 0, 1, 1)
 
         self.gridLayout_2.addWidget(self.tabwidget, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -792,6 +1004,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tableAssembly_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.tableAssembly_PA.setSortingEnabled(True)
         self.tableAssembly_PA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableAssembly_AL.setSortingEnabled(True)
+        self.tableAssembly_AL.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         # Assembly_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(Assembly_Window)
@@ -827,6 +1041,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         Assembly_Window.setWindowTitle(_translate("EditTags_Window", "Montaje"))
         self.Button_All_P.setText(_translate("EditTags_Window", "Ver Todos"))
         self.Button_All_PA.setText(_translate("EditTags_Window", "Ver Todos"))
+        self.Button_All_AL.setText(_translate("EditTags_Window", "Ver Todos"))
         self.Button_BG_P.setText(_translate("EditTags_Window", "Pintar Fondo"))
         self.Button_BG_PA.setText(_translate("EditTags_Window", "Pintar Fondo"))
         self.Button_ShowRef_P.setText(_translate("EditTags_Window", "Ver Nº Ref"))
@@ -851,6 +1066,13 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.model_PA.select()
         self.proxy_PA.setSourceModel(self.model_PA)
         self.tableAssembly_PA.setModel(self.proxy_PA)
+
+        self.model_AL.setTable("public.orders_warehouse")
+        # self.model_AL.setFilter("num_order LIKE 'PA-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model_AL.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model_AL.select()
+        self.proxy_AL.setSourceModel(self.model_AL)
+        self.tableAssembly_AL.setModel(self.proxy_AL)
 
     # Getting the unique values for each column of the model
         for column in range(self.model_P.columnCount()):
@@ -882,6 +1104,21 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
+    # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][str(value)] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
         for i in range(1,4):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
@@ -902,6 +1139,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras']
+        
+        headers_AL=['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Cantidad', 'Detalle', 'Observaciones']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
         self.color_delegate = ColorDelegate(self)
@@ -964,6 +1203,21 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tableAssembly_PA.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_PA)
         self.tableAssembly_PA.doubleClicked.connect(self.query_order)
         self.model_PA.dataChanged.connect(self.saveChanges)
+
+        self.tableAssembly_AL.setItemDelegate(AlignDelegate(self.tableAssembly_AL))
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_5.addWidget(self.tableAssembly_AL, 3, 0, 1, 1)
+
+        self.model_AL.setAllColumnHeaders(headers_AL)
+
+        self.Button_All_AL.clicked.connect(self.query_all_AL_Assembly)
+        self.tableAssembly_AL.setSortingEnabled(False)
+        self.tableAssembly_AL.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_AL)
+        # self.tableAssembly_AL.doubleClicked.connect(self.query_order)
+        self.model_AL.dataChanged.connect(self.saveChanges)
 
         self.tableAssembly_P.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableAssembly_P, self.model_P, self.proxy_P)
         self.tableAssembly_PA.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableAssembly_PA, self.model_PA, self.proxy_PA)
@@ -1206,6 +1460,20 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     if value not in self.checkbox_states_PA[column]:
                         self.checkbox_states_PA[column][value] = True
             self.dict_valuesuniques_PA[column] = list_valuesUnique
+
+        self.model_AL.submitAll()
+
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            for row in range(self.model_AL.rowCount()):
+                value = self.model_AL.record(row).value(column)
+                if value not in list_valuesUnique:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    list_valuesUnique.append(str(value))
+                    if value not in self.checkbox_states_AL[column]:
+                        self.checkbox_states_AL[column][value] = True
+            self.dict_valuesuniques_AL[column] = list_valuesUnique
 
 
 # Function when header of each table is clicked
@@ -1918,27 +2186,19 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             state_column_index = index.sibling(index.row(), 0)
             value = str(state_column_index.data())
 
-            conn = None
             try:
-                # read the connection parameters
-                params = config()
-                # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-                # execution of commands
-                commands_colors = "UPDATE orders SET bg_color_assembly = %s WHERE num_order = %s"
-                cur.execute(commands_colors, (hex_color, value,))
-
-                # close communication with the PostgreSQL database server
-                cur.close()
-                # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        for index in selected_indexes:
+                            state_column_index = index.sibling(index.row(), 0)
+                            value = str(state_column_index.data())
+                        
+                            commands_colors = "UPDATE orders SET bg_color_assembly = %s WHERE num_order = %s"
+                            cur.execute(commands_colors, (hex_color, value,))
+                    conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
                 # Handle the error appropriately
                 pass
-            finally:
-                if conn is not None:
-                    conn.close()
 
         self.query_data()
 
@@ -1958,7 +2218,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         final_data2 = []
         final_data3 = []
 
-        visible_columns = [col for col in range(self.model_P.columnCount()) if not self.tableWorkshop_P.isColumnHidden(col)]
+        visible_columns = [col for col in range(self.model_P.columnCount()) if not self.tableAssembly_P.isColumnHidden(col)]
         visible_headers = self.model_P.getColumnHeaders(visible_columns)
         for row in range(self.proxy_P.rowCount()):
             tag_data = []
@@ -1976,7 +2236,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         df_P.columns = df_P.iloc[0]
         df_P = df_P[1:]
 
-        visible_columns = [col for col in range(self.model_PA.columnCount()) if not self.tableWorkshop_PA.isColumnHidden(col)]
+        visible_columns = [col for col in range(self.model_PA.columnCount()) if not self.tableAssembly_PA.isColumnHidden(col)]
         visible_headers = self.model_PA.getColumnHeaders(visible_columns)
         for row in range(self.proxy_PA.rowCount()):
             tag_data = []
@@ -1994,12 +2254,369 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         df_PA.columns = df_PA.iloc[0]
         df_PA = df_PA[1:]
 
+        visible_columns = [col for col in range(self.model_AL.columnCount()) if not self.tableAssembly_AL.isColumnHidden(col)]
+        visible_headers = self.model_AL.getColumnHeaders(visible_columns)
+        for row in range(self.proxy_AL.rowCount()):
+            tag_data = []
+            for column in visible_columns:
+                value = self.proxy_AL.data(self.proxy_AL.index(row, column))
+                if isinstance(value, QDate):
+                    value = value.toString("dd/MM/yyyy")
+                elif column in [3]:
+                    value = int(value) if value != '' else 0
+                tag_data.append(value)
+            final_data3.append(tag_data)
+
+        final_data3.insert(0, visible_headers)
+        df_AL = pd.DataFrame(final_data3)
+        df_AL.columns = df_AL.iloc[0]
+        df_AL = df_AL[1:]
+
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
         if output_path:
             df_P.to_excel(output_path, index=False, header=True)
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df_P.to_excel(writer, sheet_name='P-', index=False)
                 df_PA.to_excel(writer, sheet_name='PA-', index=False)
+                df_AL.to_excel(writer, sheet_name='AL-', index=False)
+
+
+# Function to load data
+    def query_all_AL_Assembly(self):
+        """
+        Queries the database for all orders AL-, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
+        self.model_AL.dataChanged.disconnect(self.saveChanges)
+        self.delete_allFilters_AL()
+        self.model_AL.setTable("public.orders_warehouse")
+        # self.model_AL.setFilter("num_order LIKE 'PA-%' AND num_order NOT LIKE '%R%'")
+        self.model_AL.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model_AL.select()
+        self.proxy_AL.setSourceModel(self.model_AL)
+        self.tableAssembly_AL.setModel(self.proxy_AL)
+
+        # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][str(value)] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
+        headers_AL=['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Cantidad', 'Detalle', 'Observaciones']
+
+        self.tableAssembly_AL.setItemDelegate(AlignDelegate(self.tableAssembly_AL))
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_5.addWidget(self.tableAssembly_AL, 3, 0, 1, 1)
+
+        self.model_AL.setAllColumnHeaders(headers_AL)
+
+        self.Button_All_AL.clicked.connect(self.query_all_AL_Assembly)
+        self.tableAssembly_AL.setSortingEnabled(False)
+        self.tableAssembly_AL.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_AL)
+        self.tableAssembly_AL.doubleClicked.connect(self.query_order)
+        self.model_AL.dataChanged.connect(self.saveChanges)
+
+        self.tableAssembly_AL.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableAssembly_AL, self.model_PA, self.proxy_PA)
+
+# Function to delete all filters
+    def delete_allFilters_AL(self):
+        """
+        Resets all filters and updates the table model with unique values for each column.
+        """
+        columns_number=self.model_AL.columnCount()
+        for index in range(columns_number):
+            if index in self.proxy_AL.filters:
+                del self.proxy_AL.filters[index]
+            self.model_PA.setIconColumnHeader(index, '')
+
+        self.checkbox_states_AL = {}
+        self.dict_valuesuniques_AL = {}
+        self.dict_ordersort_AL = {}
+        self.checkbox_filters_AL = {}
+
+        self.proxy_AL.invalidateFilter()
+        self.tableAssembly_AL.setModel(None)
+        self.tableAssembly_AL.setModel(self.proxy_AL)
+
+        # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][value] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
+# Function when header is clicked
+    def on_view_horizontalHeader_sectionClicked_AL(self, logicalIndex):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+        """
+        self.logicalIndex = logicalIndex
+        self.menuValues = QtWidgets.QMenu(self)
+        self.signalMapper = QtCore.QSignalMapper(self.tableAssembly_AL)
+
+        valuesUnique_view = []
+        for row in range(self.tableAssembly_AL.model().rowCount()):
+            index = self.tableAssembly_AL.model().index(row, self.logicalIndex)
+            value = index.data(Qt.ItemDataRole.DisplayRole)
+            if value not in valuesUnique_view:
+                if isinstance(value, QtCore.QDate):
+                    value=value.toString("dd/MM/yyyy")
+                valuesUnique_view.append(value)
+
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableAssembly_AL)
+        actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered_AL)
+        self.menuValues.addAction(actionSortAscending)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableAssembly_AL)
+        actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered_AL)
+        self.menuValues.addAction(actionSortDescending)
+        self.menuValues.addSeparator()
+
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableAssembly_AL)
+        actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered_AL)
+        self.menuValues.addAction(actionDeleteFilterColumn)
+        self.menuValues.addSeparator()
+
+        actionTextFilter = QtGui.QAction("Buscar...", self.tableAssembly_AL)
+        actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered_AL)
+        self.menuValues.addAction(actionTextFilter)
+        self.menuValues.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+        if not self.checkbox_states_AL[self.logicalIndex]['Seleccionar todo'] == True:
+            checkbox_all_widget.setChecked(False)
+        else:
+            checkbox_all_widget.setChecked(True)
+        
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_AL(checked, name))
+
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map_AL['Seleccionar todo'] = checkbox_all_widget
+
+        if len(self.dict_ordersort_AL) != 0 and self.logicalIndex in self.dict_ordersort_AL:
+            list_uniquevalues = sorted(list(set(self.dict_valuesuniques_AL[self.logicalIndex])))
+        else:
+            list_uniquevalues = sorted(list(set(valuesUnique_view)))
+
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+
+            if self.logicalIndex not in self.checkbox_filters_AL:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters_AL[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
+            else:
+                checkbox_widget.setChecked(True)
+
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_AL(checked, name))
+
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map_AL[actionName] = checkbox_widget
+
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
+
+        self.menuValues.addSeparator()
+
+        accept_button = QtGui.QAction("ACEPTAR", self.tableAssembly_AL)
+        accept_button.triggered.connect(self.menu_acceptbutton_triggered_AL)
+
+        cancel_button = QtGui.QAction("CANCELAR", self.tableAssembly_AL)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
+
+        self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu { background-color: rgb(255, 255, 255); }"
+                                        "QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        headerPos = self.tableAssembly_AL.mapToGlobal(self.tableAssembly_AL.horizontalHeader().pos())        
+
+        posY = headerPos.y() + self.tableAssembly_AL.horizontalHeader().height()
+        scrollX = self.tableAssembly_AL.horizontalScrollBar().value()
+        xInView = self.tableAssembly_AL.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posX = headerPos.x() + xInView - scrollX
+
+        self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+# Function when accept button of menu is clicked
+    def menu_acceptbutton_triggered_AL(self):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        """
+        for column, filters in self.checkbox_filters_AL.items():
+            if filters:
+                self.proxy_AL.setFilter(filters, column)
+            else:
+                self.proxy_AL.setFilter(None, column)
+
+# Function when select all checkbox is clicked
+    def on_select_all_toggled_AL(self, checked, action_name):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_AL.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states_PA[self.logicalIndex][checkbox_name] = checked
+
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_AL.values()):
+                self.model_AL.setIconColumnHeader(filterColumn, icono)
+            else:
+                self.model_AL.setIconColumnHeader(filterColumn, '')
+        
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_AL.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states_AL[self.logicalIndex][checkbox_widget.text()] = checked
+
+# Function when checkbox of header menu is clicked
+    def on_checkbox_toggled_AL(self, checked, action_name):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            if filterColumn not in self.checkbox_filters_AL:
+                self.checkbox_filters_AL[filterColumn] = [action_name]
+            else:
+                if action_name not in self.checkbox_filters_AL[filterColumn]:
+                    self.checkbox_filters_AL[filterColumn].append(action_name)
+        else:
+            if filterColumn in self.checkbox_filters_AL and action_name in self.checkbox_filters_AL[filterColumn]:
+                self.checkbox_filters_AL[filterColumn].remove(action_name)
+
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_AL.values()):
+            self.model_AL.setIconColumnHeader(filterColumn, '')
+        else:
+            self.model_AL.setIconColumnHeader(filterColumn, icono)
+
+# Function to delete individual column filter
+    def on_actionDeleteFilterColumn_triggered_AL(self):
+        """
+        Removes the filter from the selected column and updates the table model.
+        """
+        filterColumn = self.logicalIndex
+        if filterColumn in self.proxy_AL.filters:
+            del self.proxy_AL.filters[filterColumn]
+        self.model_AL.setIconColumnHeader(filterColumn, '')
+        self.proxy_AL.invalidateFilter()
+
+        # self.tableAssembly.setModel(None)
+        self.tableAssembly_AL.setModel(self.proxy_AL)
+
+        if filterColumn in self.checkbox_filters_AL:
+            del self.checkbox_filters_AL[filterColumn]
+
+        self.checkbox_states_AL[self.logicalIndex].clear()
+        self.checkbox_states_AL[self.logicalIndex]['Seleccionar todo'] = True
+        for row in range(self.tableAssembly_AL.model().rowCount()):
+            value = self.model_AL.record(row).value(filterColumn)
+            if isinstance(value, QtCore.QDate):
+                    value=value.toString("dd/MM/yyyy")
+            self.checkbox_states_AL[self.logicalIndex][str(value)] = True
+
+        self.tableAssembly_AL.setItemDelegate(AlignDelegate(self.tableAssembly_AL))
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+# Function to order column ascending
+    def on_actionSortAscending_triggered_AL(self):
+        """
+        Sorts the selected column in ascending order.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.AscendingOrder
+        self.tableAssembly_AL.sortByColumn(sortColumn, sortOrder)
+
+# Function to order column descending
+    def on_actionSortDescending_triggered_AL(self):
+        """
+        Sorts the selected column in descending order.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.DescendingOrder
+        self.tableAssembly_AL.sortByColumn(sortColumn, sortOrder)
+
+# Function when text is searched
+    def on_actionTextFilter_triggered_AL(self):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        """
+        filterColumn = self.logicalIndex
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Buscar')
+        clickedButton=dlg.exec()
+
+        if clickedButton == 1:
+            stringAction = dlg.textValue()
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+                stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
+                stringAction=stringAction.toString("yyyy-MM-dd")
+
+            filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+            # del self.proxy.filters[filterColumn]
+            self.proxy_AL.setFilter([stringAction], filterColumn)
+
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+            self.model_AL.setIconColumnHeader(filterColumn, icono)
+
+
+
 
 
 # Function to show or hide reference number in the table
@@ -2112,11 +2729,11 @@ if __name__ == "__main__":
     password_database = dbparam["password"]
 
     # Genera un nombre único para la conexión basado en el nombre de usuario y el contador
-    db_manufacture = Create_DBconnection(user_database, password_database, 'workshop_connection')
+    db_manufacture = Create_DBconnection(user_database, password_database, 'Assembly_connection')
 
     if not db_manufacture:
         sys.exit()
 
-    workshop_window = Ui_Assembly_Window(db_manufacture,'j.sanz')
-    workshop_window.show()
+    Assembly_window = Ui_Assembly_Window(db_manufacture,'j.sanz')
+    Assembly_window.show()
     sys.exit(app.exec())

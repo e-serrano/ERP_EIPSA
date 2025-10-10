@@ -1708,6 +1708,225 @@ class EditableTableModelM(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
+class CustomProxyModelAL(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
+        """
+        if expresion or expresion == '':
+            if column in self.filters:
+                if action_name or action_name == '':
+                    self.filters[column].remove(expresion)
+                else:
+                    self.filters[column].append((expresion, exact_match))
+            else:
+                self.filters[column] = [(expresion, exact_match)]
+        elif column in self.filters:
+            if action_name or action_name == '':
+                self.filters[column].remove(expresion)
+                if not self.filters[column]:
+                    del self.filters[column]
+            else:
+                del self.filters[column]
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
+                        break
+
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+            if not match_found:
+                return False
+        return True
+
+class EditableTableModelAL(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.pyqtSignal(str)
+
+    def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            database (QSqlDatabase, optional): The database to use. Defaults to None.
+        """
+        super().__init__(parent, database)
+        self.column_range = column_range
+        self.username = username
+
+    def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
+        super().setQuery(query)
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+        if self.username in ['j.sanz', 'j.zofio']:
+            if index.column() >= 7 or index.column() in [0,1]:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        else:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
 
 class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     """
@@ -1744,6 +1963,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.proxyOf = CustomProxyModelOf()
         self.modelM = EditableTableModelM(self.username, database=db)
         self.proxyM = CustomProxyModelM()
+        self.modelM = EditableTableModelAL(self.username, database=db)
+        self.proxyM = CustomProxyModelAL()
         self.db = db
         
         self.checkbox_states = {}
@@ -1757,6 +1978,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.modelDim.dataChanged.connect(self.saveChanges)
         self.modelOf.dataChanged.connect(self.saveChanges)
         self.modelM.dataChanged.connect(self.saveChanges)
+        self.modelAL.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
         """
@@ -2214,6 +2436,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.modelM = EditableTableModelM(self.username,database=self.db)
         self.tableMDwg.setObjectName("tableMDwg")
         self.splitter.addWidget(self.tableMDwg)
+        self.tableALDwg = QtWidgets.QTableView(parent=self.frame)
+        self.modelAL = EditableTableModelAL(self.username,database=self.db)
+        self.tableALDwg.setObjectName("tableALDwg")
+        self.splitter.addWidget(self.tableALDwg)
         self.layout_vertical.addWidget(self.splitter)
         self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 13)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -2390,244 +2616,320 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
         self.num_order = self.Numorder_IndexDwg.text().upper()
 
-        commands_queryorder = """
-                            SELECT orders."num_order", registration."name", registration."surname",
-                            TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material",
-                            orders."recep_date_workshop", orders."recep_date_assembly",
-                            orders."num_ref_order", orders."items_number", orders."order_extras"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
-                            WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ORDER BY orders."num_order"
-                            """
+        if self.num_order[:2] == 'AL':
+            self.query_drawingsAL()
 
-        try:
-            with Database_Connection(config()) as conn:
-                with conn.cursor() as cur:
-                    data = (self.num_order,)
-                    cur.execute(commands_queryorder, data)
-                    results_queryorder = cur.fetchall()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n" + str(error), "critical")
-
-        if len(results_queryorder) > 0:
-            self.Responsible_IndexDwg.setText(results_queryorder[0][1] + " " + results_queryorder[0][2])
-            self.ExpDate_IndexDwg.setText(results_queryorder[0][3])
-            self.Type_IndexDwg.setText(results_queryorder[0][4])
-            self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
-            self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
-            self.PO_IndexDwg.setText(str(results_queryorder[0][7]))
-            self.NumItems_IndexDwg.setText(str(results_queryorder[0][8]))
-            self.label_Extras.setText(str(results_queryorder[0][9])) if results_queryorder[0][9] is not None else self.label_Extras.setText("")
-
-            self.checkbox_states = {}
-            self.dict_valuesuniques = {}
-            self.dict_ordersort = {}
-            self.hiddencolumns = []
-
-        # Configuring the Dim Table
-            self.modelDim.dataChanged.disconnect(self.saveChanges)
-
-            self.modelDim.setTable("verification.workshop_dim_drawings")
-
-            self.tableDimDwg.setModel(None)
-            self.tableDimDwg.setModel(self.proxyDim)
-            self.modelDim.setFilter(f"num_order LIKE '{self.num_order}%'")
-            self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-            self.modelDim.select()
-            self.proxyDim.setSourceModel(self.modelDim)
-            self.tableDimDwg.setModel(self.proxyDim)
-
-            columns_number = self.modelDim.columnCount()
-            for column in range(columns_number):
-                self.tableDimDwg.setItemDelegateForColumn(column, None)
-
-            self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
-            self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableDimDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.username == 'm.gil':
-                self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-                self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-            else:
-                self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-            self.tableDimDwg.setObjectName("tableDimDwg")
-            self.tableDimDwg.setSortingEnabled(False)
-            self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
-            # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-            # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            self.splitter.addWidget(self.tableDimDwg)
-            # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
-
-        # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
-            self.modelDim.setAllColumnHeaders(headers)
-
-            self.tableDimDwg.hideColumn(0)
-            if self.username != 'm.gil':
-                self.tableDimDwg.hideColumn(4)
-            self.tableDimDwg.hideColumn(9)
-
-            self.tableDimDwg.verticalHeader().setDefaultSectionSize(50)
-
-        # Getting the unique values for each column of the model
-            for column in range(self.modelDim.columnCount()):
-                list_valuesUnique = []
-                if column not in self.checkbox_states:
-                    self.checkbox_states[column] = {}
-                    self.checkbox_states[column]["Seleccionar todo"] = True
-                    for row in range(self.modelDim.rowCount()):
-                        value = self.modelDim.record(row).value(column)
-                        if value not in list_valuesUnique:
-                            if isinstance(value, QtCore.QDate):
-                                value = value.toString("dd/MM/yyyy")
-                            list_valuesUnique.append(str(value))
-                            self.checkbox_states[column][value] = True
-                    self.dict_valuesuniques[column] = list_valuesUnique
-
-            self.modelDim.dataChanged.connect(self.saveChanges)
-
-        # Configuring the OF Table
-            self.modelOf.dataChanged.disconnect(self.saveChanges)
-
-            self.modelOf.setTable("verification.workshop_of_drawings")
-
-            self.tableOfDwg.setModel(None)
-            self.tableOfDwg.setModel(self.proxyOf)
-            self.modelOf.setFilter(f"num_order LIKE '{self.num_order}%'")
-            self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-            self.modelOf.select()
-            self.proxyOf.setSourceModel(self.modelOf)
-            self.tableOfDwg.setModel(self.proxyOf)
-
-            columns_number = self.modelOf.columnCount()
-            for column in range(columns_number):
-                self.tableOfDwg.setItemDelegateForColumn(column, None)
-
-            self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
-            self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableOfDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.username == 'm.gil':
-                self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-                self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-            else:
-                self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-            self.tableOfDwg.setObjectName("tableOfDwg")
-            self.tableOfDwg.setSortingEnabled(False)
-            self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
-            # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-            # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            self.splitter.addWidget(self.tableOfDwg)
-            # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
-
-        # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
-            self.modelOf.setAllColumnHeaders(headers)
-
-            self.tableOfDwg.hideColumn(0)
-            if self.username != 'm.gil':
-                self.tableOfDwg.hideColumn(4)
-            self.tableOfDwg.hideColumn(9)
-
-            self.tableOfDwg.verticalHeader().setDefaultSectionSize(50)
-
-        # Getting the unique values for each column of the model
-            for column in range(self.modelOf.columnCount()):
-                list_valuesUnique = []
-                if column not in self.checkbox_states:
-                    self.checkbox_states[column] = {}
-                    self.checkbox_states[column]["Seleccionar todo"] = True
-                    for row in range(self.modelOf.rowCount()):
-                        value = self.modelOf.record(row).value(column)
-                        if value not in list_valuesUnique:
-                            if isinstance(value, QtCore.QDate):
-                                value = value.toString("dd/MM/yyyy")
-                            list_valuesUnique.append(str(value))
-                            self.checkbox_states[column][value] = True
-                    self.dict_valuesuniques[column] = list_valuesUnique
-
-            self.modelOf.dataChanged.connect(self.saveChanges)
-
-        # Configuring the M Table
-            self.modelM.dataChanged.disconnect(self.saveChanges)
-
-            self.modelM.setTable("verification.m_drawing_verification")
-
-            self.tableMDwg.setModel(None)
-            self.tableMDwg.setModel(self.proxyM)
-            self.modelM.setFilter(f"num_order LIKE '{self.num_order}%'")
-            self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-            self.modelM.select()
-            self.proxyM.setSourceModel(self.modelM)
-            self.tableMDwg.setModel(self.proxyM)
-
-            columns_number = self.modelM.columnCount()
-            for column in range(columns_number):
-                self.tableMDwg.setItemDelegateForColumn(column, None)
-
-            self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
-            self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.username == 'm.gil':
-                self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-                self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-            else:
-                self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-            self.tableMDwg.setObjectName("tableMDwg")
-            self.tableMDwg.setSortingEnabled(False)
-            self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelM, self.proxyM))
-            # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-            # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-            self.splitter.addWidget(self.tableMDwg)
-            # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
-
-        # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Estado Emisión", "Observaciones",
-                "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén",
-                "Fecha Verif.", "Estado Verif.", "Obs. Verif."]
-            self.modelM.setAllColumnHeaders(headers)
-
-            self.tableMDwg.hideColumn(0)
-            if self.username != 'm.gil':
-                self.tableMDwg.hideColumn(4)
-            self.tableMDwg.hideColumn(9)
-            self.tableMDwg.hideColumn(12)
-
-            self.tableMDwg.verticalHeader().setDefaultSectionSize(50)
-
-        # Getting the unique values for each column of the model
-            for column in range(self.modelM.columnCount()):
-                list_valuesUnique = []
-                if column not in self.checkbox_states:
-                    self.checkbox_states[column] = {}
-                    self.checkbox_states[column]["Seleccionar todo"] = True
-                    for row in range(self.modelM.rowCount()):
-                        value = self.modelM.record(row).value(column)
-                        if value not in list_valuesUnique:
-                            if isinstance(value, QtCore.QDate):
-                                value = value.toString("dd/MM/yyyy")
-                            list_valuesUnique.append(str(value))
-                            self.checkbox_states[column][value] = True
-                    self.dict_valuesuniques[column] = list_valuesUnique
-
-            self.modelM.dataChanged.connect(self.saveChanges)
-
-            # self.selection_model = self.tableDimDwg.selectionModel()
-            # self.selection_model.selectionChanged.connect(self.countSelectedCells)
-
-            self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
-            self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
-            self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
-
-            self.tableDimDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableDimDwg, "Dimensionales"))
-            self.tableOfDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableOfDwg, "OF"))
-            self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableMDwg, "M"))
         else:
-            MessageHelper.show_message("El pedido introducido no existe", "warning")
+            commands_queryorder = """
+                                SELECT orders."num_order", registration."name", registration."surname",
+                                TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material",
+                                orders."recep_date_workshop", orders."recep_date_assembly",
+                                orders."num_ref_order", orders."items_number", orders."order_extras"
+                                FROM offers
+                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                                INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
+                                WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                                ORDER BY orders."num_order"
+                                """
+
+            try:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        data = (self.num_order,)
+                        cur.execute(commands_queryorder, data)
+                        results_queryorder = cur.fetchall()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n" + str(error), "critical")
+
+            if len(results_queryorder) > 0:
+                self.Responsible_IndexDwg.setText(results_queryorder[0][1] + " " + results_queryorder[0][2])
+                self.ExpDate_IndexDwg.setText(results_queryorder[0][3])
+                self.Type_IndexDwg.setText(results_queryorder[0][4])
+                self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
+                self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
+                self.PO_IndexDwg.setText(str(results_queryorder[0][7]))
+                self.NumItems_IndexDwg.setText(str(results_queryorder[0][8]))
+                self.label_Extras.setText(str(results_queryorder[0][9])) if results_queryorder[0][9] is not None else self.label_Extras.setText("")
+
+                self.checkbox_states = {}
+                self.dict_valuesuniques = {}
+                self.dict_ordersort = {}
+                self.hiddencolumns = []
+
+            # Configuring the Dim Table
+                self.modelDim.dataChanged.disconnect(self.saveChanges)
+
+                self.modelDim.setTable("verification.workshop_dim_drawings")
+
+                self.tableDimDwg.setModel(None)
+                self.tableDimDwg.setModel(self.proxyDim)
+                self.modelDim.setFilter(f"num_order LIKE '{self.num_order}%'")
+                self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+                self.modelDim.select()
+                self.proxyDim.setSourceModel(self.modelDim)
+                self.tableDimDwg.setModel(self.proxyDim)
+
+                columns_number = self.modelDim.columnCount()
+                for column in range(columns_number):
+                    self.tableDimDwg.setItemDelegateForColumn(column, None)
+
+                self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
+                self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableDimDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                if self.username == 'm.gil':
+                    self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                    self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                    self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                else:
+                    self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableDimDwg.setObjectName("tableDimDwg")
+                self.tableDimDwg.setSortingEnabled(False)
+                self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
+                # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                self.splitter.addWidget(self.tableDimDwg)
+                # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
+
+            # Change all column names
+                headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
+                self.modelDim.setAllColumnHeaders(headers)
+
+                self.tableDimDwg.hideColumn(0)
+                if self.username != 'm.gil':
+                    self.tableDimDwg.hideColumn(4)
+                self.tableDimDwg.hideColumn(9)
+
+                self.tableDimDwg.verticalHeader().setDefaultSectionSize(50)
+
+            # Getting the unique values for each column of the model
+                for column in range(self.modelDim.columnCount()):
+                    list_valuesUnique = []
+                    if column not in self.checkbox_states:
+                        self.checkbox_states[column] = {}
+                        self.checkbox_states[column]["Seleccionar todo"] = True
+                        for row in range(self.modelDim.rowCount()):
+                            value = self.modelDim.record(row).value(column)
+                            if value not in list_valuesUnique:
+                                if isinstance(value, QtCore.QDate):
+                                    value = value.toString("dd/MM/yyyy")
+                                list_valuesUnique.append(str(value))
+                                self.checkbox_states[column][value] = True
+                        self.dict_valuesuniques[column] = list_valuesUnique
+
+                self.modelDim.dataChanged.connect(self.saveChanges)
+
+            # Configuring the OF Table
+                self.modelOf.dataChanged.disconnect(self.saveChanges)
+
+                self.modelOf.setTable("verification.workshop_of_drawings")
+
+                self.tableOfDwg.setModel(None)
+                self.tableOfDwg.setModel(self.proxyOf)
+                self.modelOf.setFilter(f"num_order LIKE '{self.num_order}%'")
+                self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+                self.modelOf.select()
+                self.proxyOf.setSourceModel(self.modelOf)
+                self.tableOfDwg.setModel(self.proxyOf)
+
+                columns_number = self.modelOf.columnCount()
+                for column in range(columns_number):
+                    self.tableOfDwg.setItemDelegateForColumn(column, None)
+
+                self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
+                self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableOfDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                if self.username == 'm.gil':
+                    self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                    self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                    self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                else:
+                    self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableOfDwg.setObjectName("tableOfDwg")
+                self.tableOfDwg.setSortingEnabled(False)
+                self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
+                # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                self.splitter.addWidget(self.tableOfDwg)
+                # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
+
+            # Change all column names
+                headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
+                self.modelOf.setAllColumnHeaders(headers)
+
+                self.tableOfDwg.hideColumn(0)
+                if self.username != 'm.gil':
+                    self.tableOfDwg.hideColumn(4)
+                self.tableOfDwg.hideColumn(9)
+
+                self.tableOfDwg.verticalHeader().setDefaultSectionSize(50)
+
+            # Getting the unique values for each column of the model
+                for column in range(self.modelOf.columnCount()):
+                    list_valuesUnique = []
+                    if column not in self.checkbox_states:
+                        self.checkbox_states[column] = {}
+                        self.checkbox_states[column]["Seleccionar todo"] = True
+                        for row in range(self.modelOf.rowCount()):
+                            value = self.modelOf.record(row).value(column)
+                            if value not in list_valuesUnique:
+                                if isinstance(value, QtCore.QDate):
+                                    value = value.toString("dd/MM/yyyy")
+                                list_valuesUnique.append(str(value))
+                                self.checkbox_states[column][value] = True
+                        self.dict_valuesuniques[column] = list_valuesUnique
+
+                self.modelOf.dataChanged.connect(self.saveChanges)
+
+            # Configuring the M Table
+                self.modelM.dataChanged.disconnect(self.saveChanges)
+
+                self.modelM.setTable("verification.m_drawing_verification")
+
+                self.tableMDwg.setModel(None)
+                self.tableMDwg.setModel(self.proxyM)
+                self.modelM.setFilter(f"num_order LIKE '{self.num_order}%'")
+                self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+                self.modelM.select()
+                self.proxyM.setSourceModel(self.modelM)
+                self.tableMDwg.setModel(self.proxyM)
+
+                columns_number = self.modelM.columnCount()
+                for column in range(columns_number):
+                    self.tableMDwg.setItemDelegateForColumn(column, None)
+
+                self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
+                self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                if self.username == 'm.gil':
+                    self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                    self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                    self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                else:
+                    self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableMDwg.setObjectName("tableMDwg")
+                self.tableMDwg.setSortingEnabled(False)
+                self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelM, self.proxyM))
+                # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                self.splitter.addWidget(self.tableMDwg)
+                # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
+
+            # Change all column names
+                headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Estado Emisión", "Observaciones",
+                    "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén",
+                    "Fecha Verif.", "Estado Verif.", "Obs. Verif."]
+                self.modelM.setAllColumnHeaders(headers)
+
+                self.tableMDwg.hideColumn(0)
+                if self.username != 'm.gil':
+                    self.tableMDwg.hideColumn(4)
+                self.tableMDwg.hideColumn(9)
+                self.tableMDwg.hideColumn(12)
+
+                self.tableMDwg.verticalHeader().setDefaultSectionSize(50)
+
+            # Getting the unique values for each column of the model
+                for column in range(self.modelM.columnCount()):
+                    list_valuesUnique = []
+                    if column not in self.checkbox_states:
+                        self.checkbox_states[column] = {}
+                        self.checkbox_states[column]["Seleccionar todo"] = True
+                        for row in range(self.modelM.rowCount()):
+                            value = self.modelM.record(row).value(column)
+                            if value not in list_valuesUnique:
+                                if isinstance(value, QtCore.QDate):
+                                    value = value.toString("dd/MM/yyyy")
+                                list_valuesUnique.append(str(value))
+                                self.checkbox_states[column][value] = True
+                        self.dict_valuesuniques[column] = list_valuesUnique
+
+                self.modelM.dataChanged.connect(self.saveChanges)
+
+                # self.selection_model = self.tableDimDwg.selectionModel()
+                # self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+                self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
+                self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
+                self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
+
+                self.tableDimDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableDimDwg, "Dimensionales"))
+                self.tableOfDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableOfDwg, "OF"))
+                self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index, self.tableMDwg, "M"))
+            else:
+                MessageHelper.show_message("El pedido introducido no existe", "warning")
+
+
+    def query_drawingsAL(self):
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.hiddencolumns = []
+
+    # Configuring the AL Table
+        self.modelAL.dataChanged.disconnect(self.saveChanges)
+
+        self.modelAL.setTable("verification.al_drawing_verification")
+
+        self.tableALDwg.setModel(None)
+        self.tableALDwg.setModel(self.proxyM)
+        self.modelAL.setFilter(f"num_order LIKE '{self.num_order}%'")
+        self.modelAL.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+        self.modelAL.select()
+        self.proxyM.setSourceModel(self.modelAL)
+        self.tableALDwg.setModel(self.proxyM)
+
+        columns_number = self.modelAL.columnCount()
+        for column in range(columns_number):
+            self.tableALDwg.setItemDelegateForColumn(column, None)
+
+        self.tableALDwg.setItemDelegate(AlignDelegate_M(self.tableALDwg))
+        self.tableALDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableALDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'm.gil':
+            self.tableALDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableALDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableALDwg.setObjectName("tableALDwg")
+        self.tableALDwg.setSortingEnabled(False)
+        self.tableALDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableALDwg, self.modelAL, self.proxyM))
+        # self.tableALDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        # self.tableALDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.splitter.addWidget(self.tableALDwg)
+        # self.gridLayout_2.addWidget(self.tableALDwg, 5, 0, 1, 7)
+
+    # Change all column names
+        headers = ["ID", "Nº Pedido", "Nº Plano AL", "Observaciones", "Fecha Emisión", "Estado Emisión",
+            "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén",
+            "Fecha Verif.", "Estado Verif.", "Obs. Verif.", "Foto", "Plano"]
+        self.modelAL.setAllColumnHeaders(headers)
+
+        self.tableALDwg.hideColumn(0)
+        if self.username != 'm.gil':
+            self.tableALDwg.hideColumn(5)
+        self.tableALDwg.hideColumn(9)
+        self.tableALDwg.hideColumn(12)
+
+        self.tableALDwg.verticalHeader().setDefaultSectionSize(50)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.modelAL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]["Seleccionar todo"] = True
+                for row in range(self.modelAL.rowCount()):
+                    value = self.modelAL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.modelAL.dataChanged.connect(self.saveChanges)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -4293,6 +4595,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
+            # ERP-EIPSA-PEDIDOS
             base_folder = "//srvad01/base de datos de pedidos"
 
             num_order = self.num_order[:8]
