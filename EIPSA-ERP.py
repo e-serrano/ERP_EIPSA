@@ -71,6 +71,8 @@ if __name__ == "__main__":
     Exits the application when the login window is closed or if the configuration file is missing.
     """
     base_dir = r"C:\Program Files\ERP EIPSA"
+    # base_dir = r"%USERPROFILE%\Documents\ERP EIPSA"
+    # base_dir = os.path.expandvars(r"%USERPROFILE%\Documents\ERP EIPSA")
 
     # Full path of .ini file
     ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini"))
