@@ -424,6 +424,7 @@ class Ui_Edit_OfferRec_Window(object):
 
         list_commercial=[x[0] for x in results_commercial]
         list_commercial.append('m.sahuquillo')
+        list_commercial.append('julian.martinez')
         self.Responsible_Edit_Offer.addItems(list_commercial)
 
         self.State_Edit_Offer.addItems(['Recibida', 'No Ofertada'])
