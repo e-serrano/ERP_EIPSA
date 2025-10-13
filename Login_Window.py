@@ -12,6 +12,7 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from config import config, get_path
 import hashlib
+import traceback
 
 
 class Ui_Login_Window(object):
@@ -304,119 +305,133 @@ class Ui_Login_Window(object):
         login_username = self.username_login.text().lower() if self.username_login.text().lower() != 'm' else 'm.sahuquillo'
         login_password = self.password_login.text()
 
-        if login_username == '' or login_password == '':
-            MessageHelper.show_message("Por favor, rellena los campos", "warning")
+        try:
+            db_config = config()
+        except Exception as e:
+            print(e)
+            error_msg = traceback.format_exc()
+            MessageHelper.show_message(f"Error al leer configuración:\n{error_msg}", "critical")
+            results = None
 
         else:
-            # SQL Query for loading existing data in database
-            query_user_login = ("""
-                        SELECT password, name, surname, profile
-                        FROM users_data.registration
-                        WHERE username = %s
-                        """)
-            try:
-                with Database_Connection(config()) as conn:
-                    with conn.cursor() as cursor:
-                        cursor.execute(query_user_login, (login_username,))
-                        results = cursor.fetchone()
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                MessageHelper.show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
-                results = None
-
-        # checking if username is correct
-            password_bytes = login_password.encode('utf-8')
-            hash_object = hashlib.sha256(password_bytes)
-            hashed_password = hash_object.hexdigest()
-
-            if not results:
-                MessageHelper.show_message("Usuario incorrecto. Inténtalo de nuevo", "warning")
-
-        # checking if password is correct
-            elif hashed_password != results[0]:
-                MessageHelper.show_message("Contraseña incorrecta. Inténtalo de nuevo", "warning")
+            if login_username == '' or login_password == '':
+                MessageHelper.show_message("Por favor, rellena los campos", "warning")
 
             else:
-                rol_app = results[3]
+                # SQL Query for loading existing data in database
+                query_user_login = ("""
+                            SELECT password, name, surname, profile
+                            FROM users_data.registration
+                            WHERE username = %s
+                            """)
+                try:
+                    with Database_Connection(db_config) as conn:
+                        with conn.cursor() as cursor:
+                            cursor.execute(query_user_login, (login_username,))
+                            results = cursor.fetchone()
 
-                if rol_app == 'Comercial':
-                    from App_Comercial import Ui_App_Comercial
-                    self.ui_comercial = Ui_App_Comercial(results[1] + ' ' + results[2], login_username)
-                    self.ui_comercial.showMaximized()
-                    self.Login_Window.close()
+                except psycopg2.OperationalError as e:
+                    error_msg = traceback.format_exc()
+                    MessageHelper.show_message(f"Error de conexión a la base de datos:\n{error_msg}", "critical")
+                    results = None
+                except Exception as e:
+                    error_msg = traceback.format_exc()
+                    MessageHelper.show_message(f"Ocurrió un error inesperado:\n{error_msg}", "critical")
+                    results = None
 
-                elif rol_app == "Compras":
-                    from App_Purchasing import Ui_App_Purchasing
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_purchase = Ui_App_Purchasing(results[1] + ' ' + results[2], login_username)
-                    self.ui_purchase.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
+            # checking if username is correct
+                password_bytes = login_password.encode('utf-8')
+                hash_object = hashlib.sha256(password_bytes)
+                hashed_password = hash_object.hexdigest()
 
-                elif rol_app == "Técnico":
-                    from App_Technical import Ui_App_Technical
-                    self.app_window = Ui_App_Technical(results[1] + ' ' + results[2], login_username)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
+                if not results:
+                    MessageHelper.show_message("Usuario incorrecto. Inténtalo de nuevo", "warning")
 
-                elif rol_app == "Master":
-                    from App_Master import Ui_App_Master
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_master = Ui_App_Master(results[1] + ' ' + results[2], login_username)
-                    self.ui_master.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == "Almacén":
-                    from App_Warehouse import Ui_App_Warehouse
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_warehouse = Ui_App_Warehouse(results[1] + ' ' + results[2], login_username)
-                    self.ui_warehouse.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == "Taller":
-                    from App_Workshop import Ui_App_Workshop
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_workshop = Ui_App_Workshop(results[1] + ' ' + results[2], login_username)
-                    self.ui_workshop.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == "Dirección":
-                    from App_Manager import Ui_App_Manager
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_manager = Ui_App_Manager(results[1] + ' ' + results[2], login_username)
-                    self.ui_manager.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == "SubDirección":
-                    from App_SubManager import Ui_App_SubManager
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_managerf = Ui_App_SubManager(results[1] + ' ' + results[2], login_username)
-                    self.ui_managerf.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == "Facturación":
-                    from App_Invoicing import Ui_App_Invoicing
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_invoice = Ui_App_Invoicing(results[1] + ' ' + results[2], login_username)
-                    self.ui_invoice.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
-
-                elif rol_app == 'Verificación':
-                    from App_Verification import Ui_App_Verification
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_verification = Ui_App_Verification(results[1] + ' ' + results[2], login_username)
-                    self.ui_verification.setupUi(self.app_window)
-                    self.app_window.showMaximized()
-                    self.Login_Window.close()
+            # checking if password is correct
+                elif hashed_password != results[0]:
+                    MessageHelper.show_message("Contraseña incorrecta. Inténtalo de nuevo", "warning")
 
                 else:
-                    MessageHelper.show_message("La aplicación no está disponible para este usuario. Disculpe las molestias", "warning")
+                    rol_app = results[3]
+
+                    if rol_app == 'Comercial':
+                        from App_Comercial import Ui_App_Comercial
+                        self.ui_comercial = Ui_App_Comercial(results[1] + ' ' + results[2], login_username)
+                        self.ui_comercial.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Compras":
+                        from App_Purchasing import Ui_App_Purchasing
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_purchase = Ui_App_Purchasing(results[1] + ' ' + results[2], login_username)
+                        self.ui_purchase.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Técnico":
+                        from App_Technical import Ui_App_Technical
+                        self.app_window = Ui_App_Technical(results[1] + ' ' + results[2], login_username)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Master":
+                        from App_Master import Ui_App_Master
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_master = Ui_App_Master(results[1] + ' ' + results[2], login_username)
+                        self.ui_master.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Almacén":
+                        from App_Warehouse import Ui_App_Warehouse
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_warehouse = Ui_App_Warehouse(results[1] + ' ' + results[2], login_username)
+                        self.ui_warehouse.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Taller":
+                        from App_Workshop import Ui_App_Workshop
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_workshop = Ui_App_Workshop(results[1] + ' ' + results[2], login_username)
+                        self.ui_workshop.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Dirección":
+                        from App_Manager import Ui_App_Manager
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_manager = Ui_App_Manager(results[1] + ' ' + results[2], login_username)
+                        self.ui_manager.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "SubDirección":
+                        from App_SubManager import Ui_App_SubManager
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_managerf = Ui_App_SubManager(results[1] + ' ' + results[2], login_username)
+                        self.ui_managerf.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == "Facturación":
+                        from App_Invoicing import Ui_App_Invoicing
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_invoice = Ui_App_Invoicing(results[1] + ' ' + results[2], login_username)
+                        self.ui_invoice.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    elif rol_app == 'Verificación':
+                        from App_Verification import Ui_App_Verification
+                        self.app_window = QtWidgets.QMainWindow()
+                        self.ui_verification = Ui_App_Verification(results[1] + ' ' + results[2], login_username)
+                        self.ui_verification.setupUi(self.app_window)
+                        self.app_window.showMaximized()
+                        self.Login_Window.close()
+
+                    else:
+                        MessageHelper.show_message("La aplicación no está disponible para este usuario. Disculpe las molestias", "warning")
 
 # Function when password has been forgotten
     def forgetpassword(self):

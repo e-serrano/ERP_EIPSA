@@ -6,9 +6,7 @@ from PyQt6 import QtCore
 import psutil
 from utils.Show_Message import MessageHelper
 from config import get_path
-# import psycopg2
-# from config import config
-# from utils.Database_Manager import Database_Connection
+from config_keys import INI_FILE_PATH
 
 
 shutdown_file = get_path("Resources", "Logging", "shutdown.txt")
@@ -70,15 +68,9 @@ if __name__ == "__main__":
 
     Exits the application when the login window is closed or if the configuration file is missing.
     """
-    base_dir = r"C:\Program Files\ERP EIPSA"
-    # base_dir = r"%USERPROFILE%\Documents\ERP EIPSA"
-    # base_dir = os.path.expandvars(r"%USERPROFILE%\Documents\ERP EIPSA")
-
-    # Full path of .ini file
-    ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini"))
     app = QtWidgets.QApplication(sys.argv)
 
-    if os.path.exists(ini_file_path):
+    if INI_FILE_PATH.exists():
         log_window=MainWindow()
         ui=Ui_Login_Window()
         ui.setupUi(log_window)
