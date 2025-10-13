@@ -8,13 +8,12 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config  
+from config import config, get_path
 import os
 from Email_Styles import email_order_activation, email_order_activation_manager
 from datetime import *
-
-
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_OrderActivation_Window(object):
@@ -33,7 +32,7 @@ class Ui_OrderActivation_Window(object):
         OrderActivation_Window.setMinimumSize(QtCore.QSize(300, 650))
         OrderActivation_Window.setMaximumSize(QtCore.QSize(300, 650))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderActivation_Window.setWindowIcon(icon)
         OrderActivation_Window.setAutoFillBackground(False)
         OrderActivation_Window.setStyleSheet("QWidget {\n"
@@ -305,47 +304,31 @@ class Ui_OrderActivation_Window(object):
         numorder=self.numorder_orderactivation.text()
         adit_info=self.info_orderactivation.toPlainText()
 
-        extras_list =[]
+        checkbox_map = {
+            self.checkbox_pmi: "PMI",
+            self.checkbox_ultrasound: "Ultrasonidos",
+            self.checkbox_xray: "Radiografías",
+            self.checkbox_ph_ext: "Prueba Hidráulica Externa",
+            self.checkbox_lp: "Líquidos Penetrantes",
+            self.checkbox_calibration: "Calibración",
+            self.checkbox_stress: "Cálculos Stress",
+        }
 
-        if self.checkbox_pmi.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('PMI')
-
-        if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Ultrasonidos')
-
-        if self.checkbox_xray.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Radiografías')
-
-        if self.checkbox_ph_ext.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Prueba Hidráulica Externa')
-
-        if self.checkbox_lp.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Líquidos Penetrantes')
-
-        if self.checkbox_calibration.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Calibración')
-
-        if self.checkbox_stress.checkState() == QtCore.Qt.CheckState.Checked:
-            extras_list.append('Cálculos Stress')
+        extras_list = [label for checkbox, label in checkbox_map.items()
+                    if checkbox.checkState() == QtCore.Qt.CheckState.Checked]
 
         extras_text = '\n'.join(extras_list)
 
         if len(adit_info) == 0 or len(numorder) == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Activar Pedido")
-            dlg.setText("Hay que rellenar el nº pedido y la información adicional")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Hay que rellenar el nº pedido y la información adicional", "warning")
+
         else:
-            actual_date=date.today()
-            actual_date= actual_date.strftime("%d/%m/%Y")
+            actual_date=date.today().strftime("%d/%m/%Y")
 
             commands_responsible = ("""SELECT name, surname, email FROM users_data.registration
                                         WHERE username = %s
                                         """)
+
             commands_mail_sendto = ("""SELECT username, email FROM users_data.registration
                                 WHERE (profile = 'Técnico'
                                 OR
@@ -354,9 +337,11 @@ class Ui_OrderActivation_Window(object):
                                 profile = 'Taller'
                                 )
                                 """)
+
             commands_mail_manager = ("""SELECT email FROM users_data.registration
                                 WHERE (profile = 'Dirección')
                                 """)
+
             commands_queryorder = ("""
                                     SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time", orders."order_amount"
                                     FROM offers
@@ -364,41 +349,26 @@ class Ui_OrderActivation_Window(object):
                                     WHERE orders."num_order" = %s
                                     ORDER BY orders."num_order"
                                     """)
+
             commands_ultrasound = ("""UPDATE orders
                                         SET order_extras = %s
                                         WHERE num_order = %s""")
             try:
-                params = config()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
-
                 if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
-                    cursor.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
 
-                cursor.execute(commands_queryorder, (numorder,))
-                results_queryorder=cursor.fetchall()
+                            cur.execute(commands_queryorder, (numorder,))
+                            results_queryorder=cur.fetchall()
+
+                        conn.commit()
+
                 if not len(results_queryorder) > 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("TAGS pedido")
-                    dlg.setText("El pedido no se encuentra registrado en el sistema")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                # Closing cursor and database connection
-                    conn.commit()
-                    cursor.close()
+                    MessageHelper.show_message("El pedido no se encuentra registrado en el sistema", "warning")
 
                 else:
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-
                         username_responsible = results_queryorder[0][1]
                         num_ref_order = results_queryorder[0][2]
                         client = results_queryorder[0][3]
@@ -406,24 +376,27 @@ class Ui_OrderActivation_Window(object):
                         expected_date = results_queryorder[0][5]
                         delivery_time = results_queryorder[0][6]
                         order_amount = results_queryorder[0][7]
-                    # execution of commands
-                        cur.execute(commands_responsible, (username_responsible,))
-                        results_responsible=cur.fetchall()
-                        name_responsible = results_responsible[0][0] + " " + results_responsible[0][1]
-                        email_responsible = results_responsible[0][2]
 
-                        cur.execute(commands_mail_sendto)
-                        results_mailcopy=cur.fetchall()
-                        mails_copy_normal = [x[1] for x in results_mailcopy]
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_responsible, (username_responsible,))
+                                results_responsible=cur.fetchall()
 
-                        mails_sendto = [email_responsible]
+                                name_responsible = results_responsible[0][0] + " " + results_responsible[0][1]
+                                email_responsible = results_responsible[0][2]
 
-                        cur.execute(commands_mail_manager)
-                        results_manager=cur.fetchall()
-                        mails_manager = ['jj-franco@eipsa.es']
+                                cur.execute(commands_mail_sendto)
+                                results_mailcopy=cur.fetchall()
+                                mails_copy_normal = [x[1] for x in results_mailcopy]
 
-                        mails_copy_manager = [x[0] for x in results_manager]
-                        mails_copy_manager.insert(0, 'ana-calvo@eipsa.es', )
+                                mails_sendto = [email_responsible]
+
+                                cur.execute(commands_mail_manager)
+                                results_manager=cur.fetchall()
+                                mails_manager = ['jj-franco@eipsa.es']
+
+                                mails_copy_manager = [x[0] for x in results_manager]
+                                mails_copy_manager.insert(0, 'ana-calvo@eipsa.es', )
 
                         mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy_normal, adit_info, email_responsible, extras_text)
                         mail.send_email()
@@ -431,49 +404,15 @@ class Ui_OrderActivation_Window(object):
                         mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_manager, mails_copy_manager, adit_info, email_responsible, extras_text, order_amount)
                         mail.send_email()
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Activar Pedido")
-                        dlg.setText("Pedido activado con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
+                        MessageHelper.show_message("Pedido activado con éxito", "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 if __name__ == "__main__":
