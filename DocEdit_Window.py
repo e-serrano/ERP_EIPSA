@@ -961,10 +961,10 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.hideColumn(10)
 
         # Change all column names
-        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Tipo Doc.", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Tipo Doc.", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento", "Fecha Primera Rev", "Info/Review", "Doc. Resp.", "Días"]
         self.model.setAllColumnHeaders(headers)
 
-        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
+        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','HOLD', 'Información', 'Rechazado']))
         self.tableEditDocs.setItemDelegateForColumn(8, self.combo_itemtype)
 
     # Getting the unique values for each column of the model
