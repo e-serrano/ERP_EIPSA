@@ -955,42 +955,49 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         delay_date=QtCore.QDate.currentDate().addDays(-10)
 
-        commands_documentation = ("""
-                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
-                    FROM documentation
-                    WHERE (
-                    "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
-                    )
-                    ORDER BY "num_doc_eipsa"
-                    """)
+        if self.username in ['julian.martinez']:
+            self.update_principal_screen()
+        
+        else:
+            commands_documentation = ("""
+                        SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
+                        FROM documentation
+                        WHERE (
+                        "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
+                        )
+                        ORDER BY "num_doc_eipsa"
+                        """)
+            
+            column_headers = ['Nº Doc Eipsa', 'Nº Pedido', 'Título', 'Estado', 'Rev.', 'Fecha', ' Seguimiento']
 
-        try:
-            with Database_Connection(config()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(commands_documentation)
-                    results=cur.fetchall()
-            self.tableDocs.setRowCount(len(results))
-            tablerow=0
+            try:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_documentation)
+                        results=cur.fetchall()
+                self.tableDocs.setRowCount(len(results))
+                tablerow=0
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(7):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableDocs.setItem(tablerow, column, it)
+            # fill the Qt Table with the query results
+                for row in results:
+                    for column in range(7):
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableDocs.setItem(tablerow, column, it)
 
-                tablerow+=1
+                    tablerow+=1
 
-            self.tableDocs.verticalHeader().hide()
-            self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
-            self.tableDocs.setSortingEnabled(False)
+                self.tableDocs.setHorizontalHeaderLabels(column_headers)
+                self.tableDocs.verticalHeader().hide()
+                self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+                self.tableDocs.setSortingEnabled(False)
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), "critical")
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         self.retranslateUi(App_Technical)
         self.Button_Profile.clicked.connect(self.showMenu)
@@ -1043,20 +1050,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ImportDoc.setText(_translate("App_Technical", "    Importar Docum."))
             self.Button_EditDoc.setText(_translate("App_Technical", "    Editar Docum."))
             self.Button_QueryDoc.setText(_translate("App_Technical", "    Consultar Docum."))
-        item = self.tableDocs.horizontalHeaderItem(0)
-        item.setText(_translate("App_Technical", "Nº Doc Eipsa"))
-        item = self.tableDocs.horizontalHeaderItem(1)
-        item.setText(_translate("App_Technical", "Nº Pedido"))
-        item = self.tableDocs.horizontalHeaderItem(2)
-        item.setText(_translate("App_Technical", "Título"))
-        item = self.tableDocs.horizontalHeaderItem(3)
-        item.setText(_translate("App_Technical", "Estado"))
-        item = self.tableDocs.horizontalHeaderItem(4)
-        item.setText(_translate("App_Technical", "Revisión"))
-        item = self.tableDocs.horizontalHeaderItem(5)
-        item.setText(_translate("App_Technical", "Fecha"))
-        item = self.tableDocs.horizontalHeaderItem(6)
-        item.setText(_translate("App_Technical", "Seguimiento"))
 
 # Function to set up header buttons based on the username
     def set_header_buttons(self, username):
@@ -2947,7 +2940,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_NewOffer_Menu(self.username)
         self.ui.setupUi(self.new_offer_menu)
         self.new_offer_menu.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        if self.username in ['julian.martinez']:
+            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 # Function to open window for edit offers
     def edit_offer(self):
@@ -2959,7 +2953,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_EditOffer_Menu(self.username)
         self.ui.setupUi(self.edit_offer_menu)
         self.edit_offer_menu.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        if self.username in ['julian.martinez']:
+            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 # Function to open window for create orders
     def new_order(self):
@@ -2971,7 +2966,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_New_OrderAddData_Window()
         self.ui.setupUi(self.new_orderAddData_window)
         self.new_orderAddData_window.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        if self.username in ['julian.martinez']:
+            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 # Function to open window for create tags
     def new_tag(self):
@@ -2984,8 +2980,77 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.new_tag_window)
         self.new_tag_window.show()
 
+# Function to load values on table
+    def load_table(self):
+        """
+        Loads and displays offer data in a table widget.
+        Handles errors with a message box and updates the table widget with the data.
+        """
+        self.tableDocs.setRowCount(0)
 
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
 
+        commands_appcomercial = ("""
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
+                    FROM offers
+                    WHERE ("responsible" = %s
+                    AND
+                    ("state" = 'Presentada'
+                    OR
+                    "state" = 'Registrada'
+                    ))
+                    ORDER BY "num_offer"
+                    """)
+        
+        column_headers = ['Nº Oferta', 'Estado', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Prob. Adj.', 'Notas', 'Importante', 'Seguimiento']
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
+                    cur.execute(commands_appcomercial,(responsible,))
+                    results=cur.fetchall()
+                    number_columns = 11
+
+                self.tableDocs.setRowCount(len(results))
+                tablerow=0
+
+            # fill the Qt Table with the query results
+                for row in results:
+                    for column in range(number_columns):
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableDocs.setItem(tablerow, column, it)
+
+                    tablerow+=1
+
+                self.tableDocs.setHorizontalHeaderLabels(column_headers)
+                self.tableDocs.verticalHeader().hide()
+                self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
+
+        self.tableDocs.setSortingEnabled(False)
+
+# Function to update table and graphs at the same time
+    def update_principal_screen(self):
+        """
+        Updates the main screen by reloading the table data and updating the graphs.
+        """
+        self.load_table()
 
 
 if __name__ == "__main__":
