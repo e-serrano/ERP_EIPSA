@@ -7,6 +7,7 @@ import psutil
 from utils.Show_Message import MessageHelper
 from config import get_path
 from config_keys import INI_FILE_PATH
+from pathlib import Path
 
 
 shutdown_file = get_path("Resources", "Logging", "shutdown.txt")
@@ -71,6 +72,11 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
     if INI_FILE_PATH.exists():
+        ini_file = INI_FILE_PATH
+    else:
+        ini_file = Path(r"C:\Program Files\ERP EIPSA\database.ini")
+
+    if ini_file.exists():
         log_window=MainWindow()
         ui=Ui_Login_Window()
         ui.setupUi(log_window)

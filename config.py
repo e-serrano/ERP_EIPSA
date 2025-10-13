@@ -42,7 +42,12 @@ def config(section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
-    parser.read(INI_FILE_PATH)
+    if INI_FILE_PATH.exists():
+        ini_file = INI_FILE_PATH
+    else:
+        ini_file = Path(r"C:\Program Files\ERP EIPSA\database.ini")
+
+    parser.read(ini_file)
 
     # get section, default to postgresql
     db = {}
