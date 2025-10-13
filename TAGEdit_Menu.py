@@ -9,6 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import sys
 import configparser
+from config import config
 from utils.Database_Manager import Create_DBconnection
 from datetime import *
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
@@ -194,10 +195,7 @@ class Ui_EditTags_Menu(object):
         Args:
             EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
