@@ -879,10 +879,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
 "\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
@@ -1792,7 +1792,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Datos importados con éxito")

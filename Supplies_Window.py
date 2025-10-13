@@ -14,7 +14,7 @@ import psycopg2
 import os
 import re
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):

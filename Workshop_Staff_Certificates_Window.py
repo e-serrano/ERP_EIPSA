@@ -24,7 +24,7 @@ from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1301,7 +1301,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         Adds pdf paths to the selected master in the database.
         """
         actual_year = datetime.now().year
-        initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
+        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
 
         selected_indexes = self.tableCertificates.selectionModel().selectedIndexes()
         if not selected_indexes:

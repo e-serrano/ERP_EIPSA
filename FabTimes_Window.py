@@ -20,7 +20,7 @@ from datetime import datetime
 import re
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -492,7 +492,7 @@ class Ui_FabTimes_Window(object):
         FabTimes.resize(1165, 945)
         FabTimes.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         FabTimes.setWindowIcon(icon)
         if self.username == 'd.marquez':
             FabTimes.setStyleSheet("QWidget {\n"

@@ -24,7 +24,7 @@ from PDF_Styles import pending_invoices, ag_int_liquid
 import math
 from config_keys import ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 

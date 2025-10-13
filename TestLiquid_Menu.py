@@ -11,7 +11,7 @@ from TestLiquidInsert_Window import Ui_TestLiquidInsert_Window
 from TestLiquidQuery_Window import Ui_TestLiquidQuery_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestLiquid_Menu(object):

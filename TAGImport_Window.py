@@ -16,7 +16,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ImportTAG_Window(object):

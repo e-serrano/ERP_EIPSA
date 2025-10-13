@@ -27,7 +27,7 @@ from tkinter.filedialog import *
 from pandas.tseries.offsets import DateOffset
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):

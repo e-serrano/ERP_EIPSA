@@ -2162,10 +2162,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 if self.num_order_value[:2] == 'PA':
                     num_order = self.num_order_value
-                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                    path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
                     for folder in os.listdir(path):
                         if num_order.replace("/", "-") in folder:
-                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                            folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
                             for root, dirs, files in os.walk(folder_path):
                                 for filename in files:
                                     if fnmatch.fnmatch(filename, '*-PPI*'):
@@ -2175,10 +2175,10 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 elif self.num_order_value[:2] == 'P-':
                     num_order = self.num_order_value[:8]
-                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                    path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                     for folder in os.listdir(path):
                         if num_order.replace("/", "-") in folder:
-                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                            folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
                             for root, dirs, files in os.walk(folder_path):
                                 for filename in files:
                                     if fnmatch.fnmatch(filename, '*-PPI*'):

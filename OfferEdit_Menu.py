@@ -12,7 +12,7 @@ from OfferEdit_Window import Ui_Edit_Offer_Window
 from OfferReceivedQuery_Window import Ui_QueryOfferReceived_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOffer_Menu(object):

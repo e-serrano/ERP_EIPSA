@@ -35,7 +35,7 @@ import math
 import numpy as np
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -4596,7 +4596,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
             # ERP-EIPSA-PEDIDOS
-            base_folder = "//srvad01/base de datos de pedidos"
+            base_folder = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos"
 
             num_order = self.num_order[:8]
             path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
@@ -4721,20 +4721,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
 
                         if self.numorder[:2] == 'PA':
-                            path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                            path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
                             for folder in os.listdir(path):
                                 if self.numorder.replace("/", "-") in folder:
-                                    output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
+                                    output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
                         else:
-                            path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                            path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                             for folder in sorted(os.listdir(path)):
                                 if 'S00' in self.numorder:
                                     if self.numorder[:8].replace("/", "-") in folder:
-                                        output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
                                         break
                                 else:
                                     if self.numorder.replace("/", "-") in folder:
-                                        output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
                                         break
 
                         if not os.path.exists(output_path2):
@@ -5179,17 +5179,17 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                                     ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-' + ' ' + str(exterior_size.split(' ')[2])))
 
                                             if coded_connection in ['-0.75-0150', '-0.75-0300', '01-0150', '01-0300', '1.5-0150']:
-                                                drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
                                             else:
-                                                drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B-{coded_connection}.pdf"
-                                            drawing_path_2 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
-                                            drawing_path_3 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
-                                            drawing_path_4 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection}.pdf"
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B-{coded_connection}.pdf"
+                                            drawing_path_2 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
+                                            drawing_path_3 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
+                                            drawing_path_4 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection}.pdf"
                                             if 'BP' in self.client:
-                                                drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.3 TaponPrg 0.50-A105 forjado.pdf'}"
+                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.3 TaponPrg 0.50-A105 forjado.pdf'}"
                                             else:
-                                                drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.4 TaponPrg 0.50-A105 de barra.pdf'}"
-                                            drawing_path_6 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-02 TornilloTaponPrg.pdf"
+                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.4 TaponPrg 0.50-A105 de barra.pdf'}"
+                                            drawing_path_6 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-02 TornilloTaponPrg.pdf"
                                             
                                             description_1 = 'Bridas de desgaste PC ' + exterior_size
                                             description_2 = 'Cuerpos Válvula 2V260 ' + material
@@ -5206,9 +5206,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                                 drawing_path_6: description_6})
 
                                             if connection_3 == 'Flanged':
-                                                dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-1 Cnj V-260 Brid.pdf"
+                                                dim_drawing = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-1 Cnj V-260 Brid.pdf"
                                             else:
-                                                dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-2 Cnj V-260 Boqt.pdf"
+                                                dim_drawing = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-2 Cnj V-260 Boqt.pdf"
                                             description_dim = str(total_count) + ' válvulas ' + item
                                             dim_drawing_number = row['dim_drawing']
 
@@ -5273,7 +5273,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         grouped_equipment = df_grouped.groupby(['description', 'dim_drawing']).agg({"count": list}).reset_index()
                                         total_count = grouped_equipment['count'].explode().sum()
 
-                                        dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-0.0 Cnj CN-32219-A1.pdf"
+                                        dim_drawing = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-0.0 Cnj CN-32219-A1.pdf"
                                         dim_description = str(total_count) + ' Vainas Múltiples Tubo 3"'
                                         dim_drawing_number = grouped_equipment.iloc[0]['dim_drawing']
 
@@ -5385,7 +5385,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
         
         dataframe['drawing_path'] = dataframe.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
         axis=1)
 
         if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
@@ -5433,7 +5433,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe['drawing_path'] = dataframe.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
@@ -5461,7 +5461,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe['drawing_path'] = dataframe.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
@@ -5488,7 +5488,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         df_flanges['drawing_path'] = df_flanges.apply(
-        lambda row: rf"""\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
+        lambda row: rf"""\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
         axis=1)
 
         df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping', 'gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
@@ -5618,7 +5618,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         df_orifice_flanges['drawing_path'] = df_orifice_flanges.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if 'CORNER' not in str(row["notes_equipment"]) else rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\Q-CornerTaps\{str(row['drawing_code'])}.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if 'CORNER' not in str(row["notes_equipment"]) else rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\Q-CornerTaps\{str(row['drawing_code'])}.pdf",
         axis=1)
 
         df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
@@ -5640,7 +5640,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         df_line_flanges['drawing_path'] = df_line_flanges.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\L-Línea\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if row["reduction"] != 'REDUCTION' else rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\L-Línea\RF-RaisedFace\R-Reducciones\CMRBWNLRFR-00 CnjGen Reducc.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\L-Línea\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if row["reduction"] != 'REDUCTION' else rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\L-Línea\RF-RaisedFace\R-Reducciones\CMRBWNLRFR-00 CnjGen Reducc.pdf",
         axis=1)
 
         df_grouped = df_line_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'type_line_flange', 'reduction', 'final_pipe_int_diam', 'line_flange_height']).size().reset_index(name="count")
@@ -5708,7 +5708,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         df_tubes['pipe_ext_diam'] = df_tubes['size_orifice_flange'].map(pipe_ext_diam)
 
         df_tubes['drawing_path'] = df_tubes.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01b TuboMeterRun.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01b TuboMeterRun.pdf",
         axis=1)
 
         query_inner_in_diam = ('''
@@ -5737,7 +5737,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         df_welding = dataframe.copy()
 
         df_welding['drawing_path'] = df_welding.apply(
-        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01a TiposAcabadoSoldadura.pdf",
+        lambda row: rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01a TiposAcabadoSoldadura.pdf",
         axis=1)
 
         df_grouped = df_welding.groupby(['drawing_path','material', 'flange_type']).size().reset_index(name="count")
@@ -5747,15 +5747,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     def drawings_tw_32219(self, equipment_count):
         drawings_dict = {}
 
-        drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.0 ConjVainaMultipleTubo.pdf"
-        drawing_path_2 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.1 04.00-0900-RTJ BridaUnion.pdf"
-        drawing_path_3 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.2 TuboVaina.pdf"
-        drawing_path_4 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-2 TaponCierreVaina.pdf"
-        drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.3 TuboSensor.pdf"
-        drawing_path_6 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-3 AccesorioFijacion.pdf"
-        drawing_path_7= rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-1 Reduccion 0.25 SW-NPT.pdf"
-        drawing_path_8 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-4 SopTaponPurgador.pdf"
-        drawing_path_9 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-01.1 TaponPrg 0.25-AISI321.pdf"
+        drawing_path_1 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.0 ConjVainaMultipleTubo.pdf"
+        drawing_path_2 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.1 04.00-0900-RTJ BridaUnion.pdf"
+        drawing_path_3 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.2 TuboVaina.pdf"
+        drawing_path_4 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-2 TaponCierreVaina.pdf"
+        drawing_path_5 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.3 TuboSensor.pdf"
+        drawing_path_6 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-3 AccesorioFijacion.pdf"
+        drawing_path_7= rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-1 Reduccion 0.25 SW-NPT.pdf"
+        drawing_path_8 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-4 SopTaponPurgador.pdf"
+        drawing_path_9 = rf"\\ERP-EIPSA-DATOS\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-01.1 TaponPrg 0.25-AISI321.pdf"
         
         description_1 = 'Mapa Soldaduras'
         description_2 = str(equipment_count) + ' Bridas 4" 900# RTJ 321'

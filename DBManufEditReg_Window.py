@@ -15,7 +15,7 @@ from utils.Database_Manager import Create_DBconnection
 from PyQt6.QtCore import Qt
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

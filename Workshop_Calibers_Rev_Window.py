@@ -26,7 +26,7 @@ from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
 from PIL import Image, ExifTags
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1464,7 +1464,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected caliber's record in the database.
         Updates the image field for the specified caliber by selecting an image file from the filesystem.
         """
-        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica", filetypes=[("Archivos JPG", "*.jpg")],
+        images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
 
         if images_path:
@@ -1924,7 +1924,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
             if results_caliber[0][11] != '':
                 image_path = os.path.abspath(results_caliber[0][11])
                 corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
+                temp_image_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
                 corrected_image.save(temp_image_path)
                 pdf.image(temp_image_path, 12.55, 4.45, 7.25, 5.45)
             

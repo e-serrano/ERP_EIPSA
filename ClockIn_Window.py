@@ -6,7 +6,7 @@ from config import config
 import psycopg2
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
@@ -341,10 +341,10 @@ class MyCalendarApp(QMainWindow):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
 "\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())

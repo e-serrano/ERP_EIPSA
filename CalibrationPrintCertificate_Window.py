@@ -457,10 +457,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
-                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
                         for folder in os.listdir(path):
                             if numorder.replace("/", "-") in folder:
-                                output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/" + "Certificado Calibración " + sensor_type + ".pdf"
+                                output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/" + "Certificado Calibración " + sensor_type + ".pdf"
 
                                 if output_path2:
                                     try:
@@ -523,10 +523,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
-                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                         for folder in sorted(os.listdir(path)):
                             if numorder[:8].replace("/", "-") in folder:
-                                output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/" + numorder.replace("/", "-") + " Certificado Calibración " + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+                                output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/" + numorder.replace("/", "-") + " Certificado Calibración " + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
 
                                 if output_path2:
                                     try:
@@ -536,7 +536,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                     + str(error), "critical")
 
-                    output_path = r"\\nas01\DATOS\Comunes\MARIO GIL\VERIFICACION\CERTIFICADOS CALIBRACIÓN\\" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+                    output_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\MARIO GIL\VERIFICACION\CERTIFICADOS CALIBRACIÓN\\" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
 
                     if output_path:
                         try:

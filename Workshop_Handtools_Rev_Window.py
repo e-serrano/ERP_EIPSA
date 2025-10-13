@@ -26,7 +26,7 @@ from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
 from PIL import Image, ExifTags
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1306,7 +1306,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected hand tool's record in the database.
         Updates the image field for the specified hand tool by selecting an image file from the filesystem.
         """
-        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano", filetypes=[("Archivos JPG", "*.jpg")],
+        images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
 
         if images_path:
@@ -1651,7 +1651,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             if results_handtool[0][8] != '':
                 image_path = os.path.abspath(results_handtool[0][8])
                 corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
+                temp_image_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
                 corrected_image.save(temp_image_path)
                 pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
 

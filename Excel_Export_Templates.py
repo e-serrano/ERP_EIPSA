@@ -18,7 +18,7 @@ import re
 import numpy as np
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 # Templates for orders
@@ -167,7 +167,7 @@ class offer_flow:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -949,7 +949,7 @@ class offer_short_flow_spanish:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -1647,7 +1647,7 @@ class offer_short_flow_english:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -2419,7 +2419,7 @@ class offer_temp:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA TEMPERATURA.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA TEMPERATURA.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -3242,7 +3242,7 @@ class offer_short_temp_spanish:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -3985,7 +3985,7 @@ class offer_short_temp_english:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA - ingles.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA - ingles.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -4800,7 +4800,7 @@ class offer_level:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA NIVEL.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA NIVEL.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -5465,7 +5465,7 @@ class offer_short_level_spanish:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -6048,7 +6048,7 @@ class offer_short_level_english:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -6792,7 +6792,7 @@ class offer_flow_temp:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -7977,7 +7977,7 @@ class offer_flow_temp_level:
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA-NIVEL.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA-NIVEL.xlsx"
                 )
 
                 # Editing sheet COVER
@@ -9234,7 +9234,7 @@ class order_ovr:
             data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
             data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
 
-            self.wb_ovr = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
+            self.wb_ovr = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
 
             sheet_name = "ANNEX I"
             ws = self.wb_ovr[sheet_name]
@@ -9351,7 +9351,7 @@ class doc_situation:
 
         self.data_docs = pd.DataFrame(data=results_orders, columns=column_headers)
 
-        self.wb_doc = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA SITUACIÓN DOCS.xlsx")
+        self.wb_doc = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA SITUACIÓN DOCS.xlsx")
 
         sheet_name = "Doc"
         ws = self.wb_doc[sheet_name]
@@ -9804,7 +9804,7 @@ class spares_two_years:
             data_tags['MODEL NUMBER'] = data_tags.apply(lambda row: 'GAS_SP-' + str(row['MODEL NUMBER'])[:8] + '-' + row['GROUP'], axis=1)
             data_tags['SERIAL NUMBER'] = data_tags.apply(lambda row: 'SN-' + row['MODEL NUMBER'], axis=1)
 
-            self.wb_spares = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA REPUESTOS.xlsx")
+            self.wb_spares = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA REPUESTOS.xlsx")
 
             sheet_name = "APPENDIX 1"
             ws = self.wb_spares[sheet_name]
@@ -9965,11 +9965,11 @@ class nuclear_annexes:
         df['sensor'] = df['sensor'].map(dict_sensor_types)
 
         if self.annex == 'Anexo A':
-            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO A Termopar con union a masa.xlsx")
+            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO A Termopar con union a masa.xlsx")
         elif self.annex == 'Anexo B':
-            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO B Termopar aislado de masa.xlsx")
+            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO B Termopar aislado de masa.xlsx")
         elif self.annex == 'Anexo C':
-            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO C RTD.xlsx")
+            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO C RTD.xlsx")
 
         ws_initial = self.wb["Hoja1"]
 
@@ -10312,7 +10312,7 @@ class material_order:
         """
         # Loading Excel Template
         self.wb = load_workbook(
-            r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
+            r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
         )
         sheet_name = "Hoja1"  # Selecting template sheet
         ws = self.wb[sheet_name]

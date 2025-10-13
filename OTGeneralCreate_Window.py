@@ -12,7 +12,7 @@ import psycopg2
 import os
 from datetime import *
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):

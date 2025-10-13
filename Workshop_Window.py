@@ -15,7 +15,7 @@ import psycopg2
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import pandas as pd
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

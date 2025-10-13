@@ -11,7 +11,7 @@ from PAtoFactory_Window import Ui_PAtoFactory
 from InvoiceSend_Window import Ui_InvoiceSend_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_InvoiceSend_Menu(object):

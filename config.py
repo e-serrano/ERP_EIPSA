@@ -10,7 +10,7 @@ if getattr(sys, 'frozen', False):
     BASEDIR = Path(sys.executable).parent
 else:
     # If running as normal Python script
-    BASEDIR = Path(r"\\nas01\DATOS\Comunes\EIPSA-ERP")
+    BASEDIR = Path(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP")
 
 
 # Helper function to build paths

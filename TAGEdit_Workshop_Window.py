@@ -24,7 +24,7 @@ from tkinter.filedialog import asksaveasfilename
 from openpyxl import load_workbook
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -2663,7 +2663,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 groups = [df.iloc[i:i + 4] for i in range(0, len(df), 4)]
 
                 self.wb = load_workbook(
-                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA PEGATINAS.xlsx"
+                    r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA PEGATINAS.xlsx"
                 )
                 sheet_name = "Hoja1"  # Selecting template sheet
                 ws = self.wb[sheet_name]

@@ -27,7 +27,7 @@ from tkinter.filedialog import *
 from PIL import Image, ExifTags
 import math
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1464,7 +1464,7 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected equipment's record in the database.
         Updates the image field for the specified equipment by selecting an image file from the filesystem.
         """
-        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica", filetypes=[("Archivos JPG", "*.jpg")],
+        images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
 
         if images_path:

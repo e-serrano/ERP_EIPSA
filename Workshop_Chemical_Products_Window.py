@@ -1356,7 +1356,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION", filetypes=[("Archivos JPG", "*.jpg")],
+                images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION", filetypes=[("Archivos JPG", "*.jpg")],
                                     title="Seleccionar imagen")
 
                 if images_path:
@@ -1395,7 +1395,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                document_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/", filetypes=[("Archivos PDF", "*.pdf")],
+                document_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/", filetypes=[("Archivos PDF", "*.pdf")],
                                     title="Seleccionar Documento")
 
                 if document_path:

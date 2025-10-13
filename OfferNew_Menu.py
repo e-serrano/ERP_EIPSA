@@ -11,7 +11,7 @@ from OfferNew_Window import Ui_New_Offer_Window
 from OfferNewReceived_Window import Ui_New_OfferReceived_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_NewOffer_Menu(object):

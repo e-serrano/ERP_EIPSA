@@ -14,7 +14,7 @@ from datetime import *
 from tkinter.filedialog import askopenfilename, askopenfilenames, asksaveasfilename
 import PyPDF2
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1257,7 +1257,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                 self.query_values()
 
-                folder_path = '//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
+                folder_path = '//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
                 file_name = delivnote.split("/")[-1]
                 file_path = os.path.join(folder_path, file_name)
 
@@ -1333,7 +1333,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
             elif item.column() == 1:
                 name_pdf = item.text()
-                file_path = os.path.normpath("//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
+                file_path = os.path.normpath("//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
 
                 if os.path.isfile(file_path):
                     try:
@@ -1405,7 +1405,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
             self.delivnote.setText(self.fname)

@@ -2306,7 +2306,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             Exception: If there is an error during the database operation.
         """
 
-        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+        fname = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
 
         if fname:
             df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1", dtype={8: str})
@@ -2338,9 +2338,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 conn.commit()
                 cursor.close()
 
-                new_fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+                new_fname = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
 
-                new_fname = "//nas01/DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
+                new_fname = "//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
 
                 os.rename(fname, new_fname)
 
@@ -2578,7 +2578,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
 
                     if pdf_file:
-                        excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+                        excel_file = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
 
                         try:
                             reader = PdfReader(pdf_file)
@@ -2816,13 +2816,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.dbedit_window.show()
 
     def load_otscp(self):
-        with open(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt","rb") as ot_file:
+        with open(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt","rb") as ot_file:
             ot_number = ot_file.read().decode('utf-8')
             self.HeaderOT_scp.setText(str(ot_number))
 
     def save_otscp(self):
         ot_number = self.HeaderOT_scp.text()
-        with open(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt", "wb") as ot_file:
+        with open(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt", "wb") as ot_file:
             ot_file.write(ot_number.encode('utf-8'))
 
 # Function to open menu with purchase department functions

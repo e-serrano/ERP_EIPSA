@@ -16,7 +16,7 @@ from datetime import *
 import pandas as pd
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -894,7 +894,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         Inserts data into the database.
         """
         column_names = ["id", "temperature", "humidity", "DEW", "WBT", "MIX", "date_value", "time_value"]
-        fname = r'\\nas01\DATOS\Comunes\MARIO GIL\VERIFICACION\HIGROMETRO\importacion.txt'
+        fname = r'\\ERP-EIPSA-DATOS\DATOS\Comunes\MARIO GIL\VERIFICACION\HIGROMETRO\importacion.txt'
 
         df = pd.read_csv(fname, skiprows=6, sep='\s+', names=column_names)
 
@@ -921,7 +921,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             conn.commit()
             cursor.close()
 
-            new_fname = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
+            new_fname = "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
 
             os.rename(fname, new_fname)
 

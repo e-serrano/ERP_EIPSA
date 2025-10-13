@@ -15,7 +15,7 @@ from tkinter.filedialog import asksaveasfilename
 from datetime import *
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
@@ -523,7 +523,7 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 if self.longformat.isChecked() == True:
-                    doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
+                    doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
                     context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
@@ -564,9 +564,9 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                         answer, ok = QtWidgets.QInputDialog.getItem(self, "Acuse Pedido", "¿En inglés?:", ['Sí', 'No'], 0, False)
                         if ok and answer:
                             if answer == 'Sí':
-                                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido - Inglés.docx")
+                                doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido - Inglés.docx")
                             else:
-                                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
+                                doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
                             context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,

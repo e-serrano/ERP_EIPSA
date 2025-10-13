@@ -17,7 +17,7 @@ from openpyxl.styles import NamedStyle
 import tkinter as tk
 from tkinter import filedialog
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGOthers_Window(object):

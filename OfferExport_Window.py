@@ -12,7 +12,7 @@ from config import config
 import os
 from OfferExport_Form import Ui_ExportOffer_Form
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Window(object):

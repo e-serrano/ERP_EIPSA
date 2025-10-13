@@ -25,7 +25,7 @@ from tkinter.filedialog import *
 from datetime import datetime
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1306,7 +1306,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         Adds pdf paths to the selected master in the database.
         """
         actual_year = datetime.now().year
-        initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
+        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
 
         selected_indexes = self.tableCalibratedMasters.selectionModel().selectedIndexes()
         if not selected_indexes:

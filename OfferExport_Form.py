@@ -15,7 +15,7 @@ from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_fl
     offer_short_flow_english, offer_short_temp_english, offer_short_level_english
 from datetime import *
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Form(object):

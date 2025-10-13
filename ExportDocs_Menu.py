@@ -15,7 +15,7 @@ from config import config
 import psycopg2
 from Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 class Ui_ExportDocs_Menu(object):
     """

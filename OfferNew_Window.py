@@ -16,7 +16,7 @@ from OfferClientAdd_Window import Ui_OfferClientAdd_Window
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Offer_Window(object):

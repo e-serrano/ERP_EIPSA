@@ -19,7 +19,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -517,7 +517,7 @@ class Ui_ReportPurRefDate_Window(object):
         ReportPurRefDate_Window.resize(1165, 945)
         ReportPurRefDate_Window.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReportPurRefDate_Window.setWindowIcon(icon)
         if self.username == 'd.marquez':
             ReportPurRefDate_Window.setStyleSheet("QWidget {\n"

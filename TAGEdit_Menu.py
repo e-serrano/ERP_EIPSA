@@ -17,7 +17,7 @@ from TAGOfferToOrder_Window import Ui_TAGOfferToOrder_Window
 from TAGUpdate_Window import Ui_TAGUpdate_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditTags_Menu(object):

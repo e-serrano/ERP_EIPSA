@@ -14,7 +14,7 @@ import win32api
 import psutil
 import time
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 

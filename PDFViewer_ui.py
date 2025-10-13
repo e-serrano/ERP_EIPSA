@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (QMenu, QMenuBar, QSizePolicy, QSplitter, QStatusBar
 	QToolBar, QVBoxLayout, QWidget)
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_MainWindow(object):

@@ -11,7 +11,7 @@ from TestHardInsert_Window import Ui_TestHardInsert_Window
 from TestHardQuery_Window import Ui_TestHardQuery_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestHard_Menu(object):

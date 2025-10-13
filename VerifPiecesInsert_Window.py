@@ -1269,7 +1269,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
             self.document.setText(self.fname)
@@ -1279,7 +1279,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a image from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
+        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
         if self.fname:
             self.image.setText(self.fname)

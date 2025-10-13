@@ -2262,7 +2262,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                     else:
-                        self.fname_image = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
+                        self.fname_image = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
                                     title="Seleccionar imagen")
 
                         if self.fname_image:
@@ -2285,7 +2285,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                        self.fname_doc = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
+                        self.fname_doc = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
                                     title="Seleccionar PDF")
 
                         if self.fname_doc:
@@ -2996,10 +2996,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     
                     if self.num_order_value[:2] == 'PA':
                         num_order = self.num_order_value
-                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
                         for folder in os.listdir(path):
                             if num_order.replace("/", "-") in folder:
-                                folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                                folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
                                 for root, dirs, files in os.walk(folder_path):
                                     for filename in files:
                                         if fnmatch.fnmatch(filename, '*-PPI*'):
@@ -3013,10 +3013,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                     elif self.num_order_value[:2] == 'P-':
                         num_order = self.num_order_value[:8]
-                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                         for folder in os.listdir(path):
                             if num_order.replace("/", "-") in folder:
-                                folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                                folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
                                 for root, dirs, files in os.walk(folder_path):
                                     for filename in files:
                                         if fnmatch.fnmatch(filename, '*-PPI.pdf'):

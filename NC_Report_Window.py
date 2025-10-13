@@ -26,7 +26,7 @@ from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
 
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1577,7 +1577,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                 # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
                 # self.pdf_viewer.showMaximized()
 
-                output_path = "//nas01/DATOS/Comunes/GARANTIA DE CALIDAD EIPSA/No-Conformidad/INFORMES PDF/" + type_nc + "-" + num_nc + ".pdf"
+                output_path = "//ERP-EIPSA-DATOS/DATOS/Comunes/GARANTIA DE CALIDAD EIPSA/No-Conformidad/INFORMES PDF/" + type_nc + "-" + num_nc + ".pdf"
 
                 if output_path:
                     try:
@@ -1662,7 +1662,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                images_path = askdirectory(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/Informes No conformidad")
+                images_path = askdirectory(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/Informes No conformidad")
 
                 if images_path:
                     commands_insert = ("""

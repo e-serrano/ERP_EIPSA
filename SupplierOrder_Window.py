@@ -18,7 +18,7 @@ import os
 from PDF_Viewer import PDF_Viewer
 from datetime import *
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class CustomTableWidgetOrder(QtWidgets.QTableWidget):
@@ -1233,10 +1233,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
 "}")
         self.gridLayout_2.addWidget(self.DelivDate_SupplierOrder, 2, 10, 1, 1)
         self.label_DelivTerm = QtWidgets.QLabel(parent=self.frame)
@@ -3841,7 +3841,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             pdf_verification.set_x(x_position + 19.35)
             pdf_verification.ln(1)
 
-            output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + ".pdf"
+            output_path = "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + ".pdf"
 
             if output_path:
                 pdf_verification.output(output_path)

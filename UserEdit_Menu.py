@@ -11,7 +11,7 @@ from UserRegistration_Window import Ui_RegistrationWindow
 from UserDelete_Window import Ui_DeleteUser_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditUser_Menu(object):

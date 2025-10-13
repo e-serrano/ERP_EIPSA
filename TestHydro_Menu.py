@@ -11,7 +11,7 @@ from TestHydroInsert_Window import Ui_TestHydroInsert_Window
 from TestHydroQuery_Window import Ui_TestHydroQuery_Window
 import os
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestHydro_Menu(object):
