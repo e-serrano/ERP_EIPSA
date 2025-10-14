@@ -17,7 +17,7 @@ from matplotlib import ticker
 from ExportDocs_Menu import Ui_ExportDocs_Menu
 from tkinter.filedialog import askopenfilename
 import pandas as pd
-from utils.Database_Manager import Database_Connection
+from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from PDF_Styles import CustomPDF_A3
 from PDF_Viewer import PDF_Viewer
@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from io import BytesIO
 import numpy as np
+import sys
 
 
 
@@ -379,6 +380,42 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_RecOffer.setObjectName("Button_RecOffer")
         self.Button_RecOffer.setToolTip("Reclamar Ofertas")
         self.Header.addWidget(self.Button_RecOffer)
+        spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem12)
+        self.Button_FutureProjects = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_FutureProjects.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_FutureProjects.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_FutureProjects.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_FutureProjects.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_FutureProjects.setText("")
+        icon16 = QtGui.QIcon()
+        icon16.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Reclamation.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_FutureProjects.setIcon(icon16)
+        self.Button_FutureProjects.setIconSize(QtCore.QSize(40, 40))
+        self.Button_FutureProjects.setObjectName("Button_FutureProjects")
+        self.Button_FutureProjects.setToolTip("Proyectos Futuros")
+        self.Header.addWidget(self.Button_FutureProjects)
         spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem12)
 
@@ -925,6 +962,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_QueryTask.clicked.connect(self.querytask)
         self.Button_RecOffer.clicked.connect(self.reclamation_offer)
+        self.Button_FutureProjects.clicked.connect(self.future_projects)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.Calendar.activated.connect(self.show_selected_date_tasks)
@@ -1815,6 +1853,24 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 conn.close()
             else:
                 break
+
+
+    def future_projects(self):
+        """
+        Opens the "Future Projects" window, establishes a database connection and closes the current menu.
+        """
+        from Future_Projects_Window import Ui_Future_Projects_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = Create_DBconnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.future_projects_window = Ui_Future_Projects_Window(db_tag_com)
+        self.future_projects_window.showMaximized()
+
 
 # Function to generate reports
     def generate_report(self):
