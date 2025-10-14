@@ -1126,6 +1126,11 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         for i in range(27,33):
             self.tableWorkshop_P.hideColumn(i)
             self.tableWorkshop_PA.hideColumn(i)
+        for i in range(34, self.model_P.columnCount()):
+            self.tableWorkshop_P.hideColumn(i)
+        for i in range(34, self.model_PA.columnCount()):
+            self.tableWorkshop_PA.hideColumn(i)
+
 
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
@@ -1523,6 +1528,9 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         for i in range(27,33):
             self.tableWorkshop_P.hideColumn(i)
 
+        for i in range(34, self.model_P.columnCount()):
+            self.tableAssembly_P.hideColumn(i)
+
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
                 '','','','F. Prevista Montaje','','','','','','','OK','','','','','','','Extras']
@@ -1864,6 +1872,9 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             self.tableWorkshop_PA.hideColumn(i)
         for i in range(27,33):
             self.tableWorkshop_PA.hideColumn(i)
+
+        for i in range(34, self.model_PA.columnCount()):
+            self.tableAssembly_PA.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
