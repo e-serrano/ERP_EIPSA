@@ -1011,11 +1011,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         """
         Opens a new window for creating a new offer in the application. 
         """
-        from OfferNew_Menu import Ui_NewOffer_Menu
-        self.new_offer_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_NewOffer_Menu(self.username)
-        self.ui.setupUi(self.new_offer_menu)
-        self.new_offer_menu.show()
+        # from OfferNew_Menu import Ui_NewOffer_Menu
+        # self.new_offer_menu=QtWidgets.QMainWindow()
+        # self.ui=Ui_NewOffer_Menu(self.username)
+        # self.ui.setupUi(self.new_offer_menu)
+        # self.new_offer_menu.show()
+        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+        from OfferNew_Window import Ui_New_Offer_Window
+        self.projectoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_Offer_Window(self.username)
+        self.ui.setupUi(self.projectoffer_window)
+        self.projectoffer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 # Function to open window for edit offers
