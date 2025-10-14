@@ -9,11 +9,9 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config, get_path
-import os
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Offer_Window(object):
@@ -63,7 +61,7 @@ class Ui_Edit_Offer_Window(object):
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .4em;\n"
 "  text-align: center;\n"
 "  vertical-align: baseline;\n"
 "  white-space: nowrap;\n"
@@ -527,43 +525,6 @@ class Ui_Edit_Offer_Window(object):
         font.setPointSize(10)
         self.LastUpdate_EditOffer.setFont(font)
         self.gridLayout_2.addWidget(self.LastUpdate_EditOffer, 8, 5, 1, 1)
-        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_Notes.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Notes.setFont(font)
-        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_Notes.setObjectName("label_Notes")
-        self.gridLayout_2.addWidget(self.label_Notes, 1, 6, 1, 1)
-        self.label_ImportantIssues = QtWidgets.QLabel(parent=self.frame)
-        self.label_ImportantIssues.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_ImportantIssues.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_ImportantIssues.setFont(font)
-        self.label_ImportantIssues.setObjectName("label_ImportantIssues")
-        self.gridLayout_2.addWidget(self.label_ImportantIssues, 3, 6, 1, 1)
-        self.label_Tracking = QtWidgets.QLabel(parent=self.frame)
-        self.label_Tracking.setMinimumSize(QtCore.QSize(95, 25))
-        self.label_Tracking.setMaximumSize(QtCore.QSize(95, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Tracking.setFont(font)
-        self.label_Tracking.setObjectName("label_Tracking")
-        self.gridLayout_2.addWidget(self.label_Tracking, 5, 6, 1, 1)
-        self.label_Actions = QtWidgets.QLabel(parent=self.frame)
-        self.label_Actions.setMinimumSize(QtCore.QSize(95, 25))
-        self.label_Actions.setMaximumSize(QtCore.QSize(95, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Actions.setFont(font)
-        self.label_Actions.setObjectName("label_Actions")
-        self.gridLayout_2.addWidget(self.label_Actions, 7, 6, 1, 1)
         self.label_Priority = QtWidgets.QLabel(parent=self.frame)
         self.label_Priority.setMinimumSize(QtCore.QSize(95, 25))
         self.label_Priority.setMaximumSize(QtCore.QSize(95, 25))
@@ -573,38 +534,34 @@ class Ui_Edit_Offer_Window(object):
         self.label_Priority.setFont(font)
         self.label_Priority.setObjectName("label_Priority")
         self.gridLayout_2.addWidget(self.label_Priority, 8, 6, 1, 1)
-        self.Notes_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
-        self.Notes_EditOffer.setMaximumSize(QtCore.QSize(150, 16777215))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Notes_EditOffer.setFont(font)
-        self.Notes_EditOffer.setObjectName("Notes_EditOffer")
-        self.gridLayout_2.addWidget(self.Notes_EditOffer, 1, 7, 2, 1)
-        self.ImportantIssues_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.ImportantIssues_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
-        self.ImportantIssues_EditOffer.setMaximumSize(QtCore.QSize(150, 16777215))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.ImportantIssues_EditOffer.setFont(font)
-        self.ImportantIssues_EditOffer.setObjectName("ImportantIssues_EditOffer")
-        self.gridLayout_2.addWidget(self.ImportantIssues_EditOffer, 3, 7, 2, 1)
-        self.Tracking_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Tracking_EditOffer.setMinimumSize(QtCore.QSize(150, 75))
-        self.Tracking_EditOffer.setMaximumSize(QtCore.QSize(150, 16777215))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Tracking_EditOffer.setFont(font)
-        self.Tracking_EditOffer.setObjectName("Tracking_EditOffer")
-        self.gridLayout_2.addWidget(self.Tracking_EditOffer, 5, 7, 2, 1)
-        self.Actions_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Actions_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
-        self.Actions_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Actions_EditOffer.setFont(font)
-        self.Actions_EditOffer.setObjectName("Actions_EditOffer")
-        self.gridLayout_2.addWidget(self.Actions_EditOffer, 7, 7, 1, 1)
+        self.Button_Notes = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notes.setMinimumSize(QtCore.QSize(275, 30))
+        self.Button_Notes.setMaximumSize(QtCore.QSize(275, 30))
+        self.Button_Notes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Notes.setAutoDefault(True)
+        self.Button_Notes.setObjectName("Button_Notes")
+        self.gridLayout_2.addWidget(self.Button_Notes, 1, 6, 1, 2)
+        self.Button_Important = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Important.setMinimumSize(QtCore.QSize(275, 30))
+        self.Button_Important.setMaximumSize(QtCore.QSize(275, 30))
+        self.Button_Important.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Important.setAutoDefault(True)
+        self.Button_Important.setObjectName("Button_Important")
+        self.gridLayout_2.addWidget(self.Button_Important, 3, 6, 1, 2)
+        self.Button_Tracking = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Tracking.setMinimumSize(QtCore.QSize(275, 30))
+        self.Button_Tracking.setMaximumSize(QtCore.QSize(275, 30))
+        self.Button_Tracking.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Tracking.setAutoDefault(True)
+        self.Button_Tracking.setObjectName("Button_Tracking")
+        self.gridLayout_2.addWidget(self.Button_Tracking, 5, 6, 1, 2)
+        self.Button_Actions = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Actions.setMinimumSize(QtCore.QSize(275, 30))
+        self.Button_Actions.setMaximumSize(QtCore.QSize(275, 30))
+        self.Button_Actions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Actions.setAutoDefault(True)
+        self.Button_Actions.setObjectName("Button_Actions")
+        self.gridLayout_2.addWidget(self.Button_Actions, 7, 6, 1, 2)
         self.Priority_EditOffer = QtWidgets.QComboBox(parent=self.frame)
         self.Priority_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
         self.Priority_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
@@ -680,10 +637,14 @@ class Ui_Edit_Offer_Window(object):
         self.Button_Cancel.clicked.connect(Edit_Offer_Window.close) # type: ignore
         self.Button_EditOffer.clicked.connect(self.editoffer) # type: ignore
         self.NumOffer_EditOffer.returnPressed.connect(self.queryofferdata)
+        self.Button_Notes.clicked.connect(self.show_dialog_notes)
+        self.Button_Important.clicked.connect(self.show_dialog_important)
+        self.Button_Tracking.clicked.connect(self.show_dialog_tracking)
+        self.Button_Actions.clicked.connect(self.show_dialog_actions)
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
     #Adding items to ComboBox
-        list_state=['Adjudicada','Budgetary','Declinada','Presentada','Perdida','Registrada']
+        list_state=['Adjudicada', 'Budgetary', 'Declinada', 'En Estudio', 'No Ofertada', 'Presentada', 'Perdida', 'Registrada']
         self.State_EditOffer.addItems(list_state)
 
         list_nacext=['Exterior','Nacional']
@@ -725,7 +686,7 @@ class Ui_Edit_Offer_Window(object):
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
         self.Probability_EditOffer.addItems(['Alta', 'Media', 'Baja'])
-        self.Priority_EditOffer.addItems(['Alta', 'Media', 'Baja'])
+        self.Priority_EditOffer.addItems(['Alta', 'Media', 'Baja', ''])
         self.Calculation_EditOffer.addItems(['e.carrillo', 'e.serrano', 'N/A'])
 
         self.PayTerm_EditOffer.addItems(['', '100% entrega', '100% pedido', '90%-10%', '50%-50%', 'Otros'])
@@ -754,11 +715,8 @@ class Ui_Edit_Offer_Window(object):
         self.label_RecepDate.setText(_translate("Edit_Offer_Window", "Fecha Recep.:"))
         self.label_Buyer.setText(_translate("Edit_Offer_Window", "Comprador:"))
         self.label_Material.setText(_translate("Edit_Offer_Window", "Material:"))
-        self.label_Notes.setText(_translate("Edit_Offer_Window", "Notas:"))
         self.label_RateType.setText(_translate("Edit_Offer_Window", "Tipo Tarifa:"))
         self.label_Amount.setText(_translate("Edit_Offer_Window", "Importe (€):"))
-        self.label_ImportantIssues.setText(_translate("Edit_Offer_Window", "Importante:"))
-        self.label_Tracking.setText(_translate("Edit_Offer_Window", "Seguimiento:"))
         self.label_Mails.setText(_translate("Edit_Offer_Window", "Mails Contacto:"))
         self.label_LastUpdate.setText(_translate("Edit_Offer_Window", "Última Act.:"))
         self.label_PresDate.setText(_translate("Edit_Offer_Window", "Fecha Pres.:"))
@@ -772,9 +730,13 @@ class Ui_Edit_Offer_Window(object):
         self.label_DelivTime.setText(_translate("Edit_Offer_Window", "Plazo Entrega:"))
         self.label_PayTerm.setText(_translate("Edit_Offer_Window", "Forma Pago:"))
         self.label_Priority.setText(_translate("Edit_Offer_Window", "Prioridad:"))
-        self.label_Actions.setText(_translate("Edit_Offer_Window", "Acciones:"))
+
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
+        self.Button_Notes.setText(_translate("Edit_Offer_Window", "Notas"))
+        self.Button_Important.setText(_translate("Edit_Offer_Window", "Importante"))
+        self.Button_Tracking.setText(_translate("Edit_Offer_Window", "Seguimiento"))
+        self.Button_Actions.setText(_translate("Edit_Offer_Window", "Acciones"))
 
 # Function to edit offer information
     def editoffer(self):
@@ -791,14 +753,11 @@ class Ui_Edit_Offer_Window(object):
             nacext=self.NacExt_EditOffer.currentText()
             buyer=self.Buyer_EditOffer.text()
             material=self.Material_EditOffer.currentText()
-            notes=self.Notes_EditOffer.toPlainText()
             amount=self.Amount_EditOffer.text() if self.Amount_EditOffer.text() not in ['None',''] else str(0)
             amount=amount.replace(".",",")
             limit_date=self.LimitDate_EditOffer.text() if self.LimitDate_EditOffer.text() != '' else (None if self.LimitDate_EditOffer.text() == 'None' else None)
             recep_date=self.RecepDate_EditOffer.text() if self.RecepDate_EditOffer.text() != '' else (None if self.RecepDate_EditOffer.text() == 'None' else None)
             rate_type=self.RateType_EditOffer.text()
-            important_issues=self.ImportantIssues_EditOffer.toPlainText()
-            tracking=self.Tracking_EditOffer.toPlainText()
             mails=self.Mails_EditOffer.toPlainText()
             last_update = self.LastUpdate_EditOffer.text() if self.LastUpdate_EditOffer.text() not in ['None', ''] else None
             presentation_date = self.PresDate_EditOffer.text() if self.PresDate_EditOffer.text() not in ['None', ''] else None
@@ -816,7 +775,6 @@ class Ui_Edit_Offer_Window(object):
             probability = self.Probability_EditOffer.currentText()
             calculation = self.Calculation_EditOffer.currentText()
             priority = self.Priority_EditOffer.currentText()
-            actions=self.Actions_EditOffer.toPlainText()
 
             if state in ['Presentada', 'Adjudicada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
                 MessageHelper.show_message('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos', "warning")
@@ -858,11 +816,11 @@ class Ui_Edit_Offer_Window(object):
                     commands_updateoffer = ("""
                                 UPDATE offers
                                 SET "responsible" = %s, "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
-                                "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
-                                "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s,
+                                "material" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
+                                "recep_date" = %s, "mails" = %s, "last_update" = %s,
                                 "presentation_date" = %s, "portal" = %s, "items_number" = %s, "project" = %s, "validity" = %s,
                                 "delivery_term" = %s, "delivery_time" = %s, "payment_term" = %s, "probability" = %s, "responsible_calculations" = %s,
-                                "priority" = %s, "actions" = %s
+                                "priority" = %s
                                 WHERE "num_offer" = %s
                                 """)
                     try:
@@ -870,11 +828,11 @@ class Ui_Edit_Offer_Window(object):
                             with conn.cursor() as cur:
                         # execution of commands one by one
                                 data=(responsible, client, finalclient, numref, state, nacext, buyer,
-                                    material, notes, amount, limit_date, rate_type,
-                                    important_issues, tracking, recep_date, mails, last_update,
+                                    material, amount, limit_date, rate_type,
+                                    recep_date, mails, last_update,
                                     presentation_date, portal, numitems, project, validity,
                                     delivterm, delivtime, payterm, probability, calculation,
-                                    priority, actions,
+                                    priority,
                                     numoffer,)
                                 cur.execute(commands_updateoffer,data)
                         # commit the changes
@@ -886,13 +844,10 @@ class Ui_Edit_Offer_Window(object):
                         self.FinalClient_EditOffer.setText('')
                         self.NumRef_EditOffer.setText('')
                         self.Buyer_EditOffer.setText('')
-                        self.Notes_EditOffer.setText('')
                         self.Amount_EditOffer.setText('')
                         self.LimitDate_EditOffer.setText('')
                         self.RecepDate_EditOffer.setText('')
                         self.RateType_EditOffer.setText('')
-                        self.ImportantIssues_EditOffer.setText('')
-                        self.Tracking_EditOffer.setText('')
                         self.Mails_EditOffer.setText('')
                         self.LastUpdate_EditOffer.setText('')
                         self.PresDate_EditOffer.setText('')
@@ -901,7 +856,6 @@ class Ui_Edit_Offer_Window(object):
                         self.Validity_EditOffer.setText('')
                         self.DelivTerm_EditOffer.setText('')
                         self.DelivTime_EditOffer.setText('')
-                        self.Actions_EditOffer.setText('')
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -921,7 +875,8 @@ class Ui_Edit_Offer_Window(object):
                     offers."nac_ext", offers."buyer", offers."material", offers."notes", CAST(offers."offer_amount" AS numeric) AS "amount",
                     TO_CHAR(offers."limit_date", 'DD-MM-YYYY'), offers."rate_type", offers."important", offers."tracking", TO_CHAR(offers."recep_date", 'DD-MM-YYYY'),
                     offers."mails", TO_CHAR(offers."last_update", 'DD-MM-YYYY'), TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),  offers."portal",  offers."items_number",
-                    offers."responsible", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."probability", offers."responsible_calculations"
+                    offers."responsible", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."probability", offers."responsible_calculations",
+                    offers."priority", offers."actions"
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -948,12 +903,12 @@ class Ui_Edit_Offer_Window(object):
             self.NacExt_EditOffer.setCurrentText(str(results[0][5]))
             self.Buyer_EditOffer.setText(str(results[0][6]) if str(results[0][6]) != 'None' else '')
             self.Material_EditOffer.setCurrentText(str(results[0][7]))
-            self.Notes_EditOffer.setText(str(results[0][8]) if str(results[0][8]) != 'None' else '')
+            self.notes = (str(results[0][8]) if str(results[0][8]) != 'None' else '')
             self.Amount_EditOffer.setText(str(results[0][9]))
             self.LimitDate_EditOffer.setText(str(results[0][10]))
             self.RateType_EditOffer.setText(str(results[0][11]))
-            self.ImportantIssues_EditOffer.setText(str(results[0][12]) if str(results[0][12]) != 'None' else '')
-            self.Tracking_EditOffer.setText(str(results[0][13]) if str(results[0][13]) != 'None' else '')
+            self.important = (str(results[0][12]) if str(results[0][12]) != 'None' else '')
+            self.tracking = (str(results[0][13]) if str(results[0][13]) != 'None' else '')
             self.RecepDate_EditOffer.setText(str(results[0][14]) if str(results[0][14]) != 'None' else '')
             self.Mails_EditOffer.setText(str(results[0][15]) if str(results[0][15]) != 'None' else '')
             self.LastUpdate_EditOffer.setText(str(results[0][16]) if str(results[0][16]) != 'None' else '')
@@ -975,6 +930,8 @@ class Ui_Edit_Offer_Window(object):
             self.PayTerm_EditOffer.setCurrentText(payterm_text if str(results[0][25]) != 'None' else '')
             self.Probability_EditOffer.setCurrentText(str(results[0][26]))
             self.Calculation_EditOffer.setCurrentText(str(results[0][27]))
+            self.Priority_EditOffer.setCurrentText(str(results[0][28]))
+            self.actions = (str(results[0][29]) if str(results[0][29]) != 'None' else '')
 
 # Function to load client list
     def load_clients(self):
@@ -1005,7 +962,208 @@ class Ui_Edit_Offer_Window(object):
         list_clients.sort()
         self.Client_EditOffer.addItems(list_clients)
 
+# Functions to show dialogs to insert notes, important issues, tracking and actions
+    def show_dialog_notes(self):
+        """
+        Displays a dialog window allowing the user to view and edit notes.
+        The dialog is only shown if the Offer number is not empty.
+        """
+        if self.NumOffer_EditOffer.text() != '':
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
 
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_notes)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.notes)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.show()
+
+            self.dialog = dlg
+
+    def show_dialog_important(self):
+        """
+        Displays a dialog window allowing the user to view and edit important.
+        The dialog is only shown if the Offer number is not empty.
+        """
+        if self.NumOffer_EditOffer.text() != '':
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_important)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.important)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.show()
+
+            self.dialog = dlg
+
+    def show_dialog_tracking(self):
+        """
+        Displays a dialog window allowing the user to view and edit tracking.
+        The dialog is only shown if the Offer number is not empty.
+        """
+        if self.NumOffer_EditOffer.text() != '':
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_tracking)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.tracking)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.show()
+
+            self.dialog = dlg
+
+    def show_dialog_actions(self):
+        """
+        Displays a dialog window allowing the user to view and edit actions.
+        The dialog is only shown if the Offer number is not empty.
+        """
+        if self.NumOffer_EditOffer.text() != '':
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_actions)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.actions)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.show()
+
+            self.dialog = dlg
+
+
+# Functions to save notes, important issues, tracking and actions
+    def save_notes(self):
+        """
+        Saves the offer notes to the database.
+        """
+        num_offer = self.NumOffer_EditOffer.text()
+        self.notes = self.te.toPlainText()
+
+        commands_update_notes = ("""
+                        UPDATE offers
+                        SET "notes" = %s
+                        WHERE "num_offer" = %s
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.notes, num_offer,)
+                    cur.execute(commands_update_notes, data)
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+    def save_important(self):
+        """
+        Saves the offer important to the database.
+        """
+        num_offer = self.NumOffer_EditOffer.text()
+        self.important = self.te.toPlainText()
+
+        commands_update_important = ("""
+                        UPDATE offers
+                        SET "important" = %s
+                        WHERE "num_offer" = %s
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.important, num_offer,)
+                    cur.execute(commands_update_important, data)
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+    def save_tracking(self):
+        """
+        Saves the offer tracking to the database.
+        """
+        num_offer = self.NumOffer_EditOffer.text()
+        self.tracking = self.te.toPlainText()
+
+        commands_update_tracking = ("""
+                        UPDATE offers
+                        SET "tracking" = %s
+                        WHERE "num_offer" = %s
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.tracking, num_offer,)
+                    cur.execute(commands_update_tracking, data)
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+    def save_actions(self):
+        """
+        Saves the offer actions to the database.
+        """
+        num_offer = self.NumOffer_EditOffer.text()
+        self.actions = self.te.toPlainText()
+
+        commands_update_actions = ("""
+                        UPDATE offers
+                        SET "actions" = %s
+                        WHERE "num_offer" = %s
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.actions, num_offer,)
+                    cur.execute(commands_update_actions, data)
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 if __name__ == "__main__":
