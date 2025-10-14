@@ -892,7 +892,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                                     + str(error), "critical")
 
                 MessageHelper.show_message("Importación completada", "info")
-                del dlg, new_icon
 
                 self.query_calibration()
             else:
