@@ -1153,10 +1153,7 @@ class Ui_App_SubManager(object):
         Opens a window for editing tags.
         """
         from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

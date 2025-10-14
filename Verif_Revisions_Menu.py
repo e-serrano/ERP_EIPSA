@@ -9,6 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
+from config import config
 from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -289,10 +290,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Machines" window, establishes a database connection.
         """
         from Workshop_Machines_Window import Ui_Workshop_Machines_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -309,10 +307,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Handtools" window, establishes a database connection.
         """
         from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -329,10 +324,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibers" window, establishes a database connection.
         """
         from Workshop_Calibers_Window import Ui_Workshop_Calibers_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -349,10 +341,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibrated Masters" window, establishes a database connection.
         """
         from Workshop_Calibrated_Masters_Window import Ui_Workshop_Calibrated_Masters_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -369,10 +358,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibers" window, establishes a database connection.
         """
         from Workshop_Thread_Masters_Window import Ui_Workshop_Thread_Masters_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -389,10 +375,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Weld Equipment" window, establishes a database connection.
         """
         from Workshop_WeldEq_Masters_Window import Ui_Workshop_WeldEq_Masters_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -409,10 +392,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
         """
         from Workshop_Manometers_Thermoelements_Window import Ui_Workshop_Manometers_Thermoelements_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -429,10 +409,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Gas_Flowmeters" window, establishes a database connection.
         """
         from Workshop_Gas_Flowmeters_Window import Ui_Workshop_Gas_Flowmeters_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -455,10 +432,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
         """
         from Workshop_Chemical_Products_Window import Ui_Workshop_Chemical_Products_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

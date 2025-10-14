@@ -645,10 +645,7 @@ class Ui_App_Invoicing(object):
         Opens the New Invoice window, where users can create new invoices.
         """
         from InvoiceNew_Window import Ui_InvoiceNew_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -698,10 +695,7 @@ class Ui_App_Invoicing(object):
         Opens the Banks Management window, allowing users to manage bank information.
         """
         from Banks_Window import Ui_Banks_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -718,10 +712,7 @@ class Ui_App_Invoicing(object):
         Opens the Payway Management window, allowing users to manage payment methods.
         """
         from PayWay_Window import Ui_PayWay_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -738,10 +729,7 @@ class Ui_App_Invoicing(object):
         Opens the Countries Management window, allowing users to manage country information.
         """
         from Countries_Window import Ui_Countries_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1311,10 +1299,7 @@ class Ui_App_Invoicing(object):
         Opens a window for editing tags in the facturation system.
         """
         from TAGEdit_Facturation_Window import Ui_EditTags_Facturation_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

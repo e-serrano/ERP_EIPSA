@@ -1327,10 +1327,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         value = index.data()
 
         from Workshop_Calibers_Rev_Window import Ui_Workshop_Calibers_Rev_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

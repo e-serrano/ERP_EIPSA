@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
+from config import config
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -196,10 +197,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         Opens a window for viewing NC reports from the database.
         """
         from NC_Report_Window import Ui_NC_Report_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -457,10 +455,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         Opens the database manufacturing editing window.
         """
         from DBManufEditReg_Window import Ui_DBEditRegManuf_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

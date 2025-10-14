@@ -1868,10 +1868,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1888,10 +1885,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window for editing the database records.
         """
         from DBEditReg_Window import Ui_DBEditReg_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1908,10 +1902,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window displaying the deliveries table.
         """
         from Deliveries_Window import Ui_Deliveries_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1948,10 +1939,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window displaying the orders table for technical office data.
         """
         from TechOffice_Window import Ui_TechOffice_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1998,10 +1986,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a new window for editing existing tags. 
         """
         from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2126,10 +2111,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window for editing existing documents in the database.
         """
         from DocEdit_Window import Ui_EditDoc_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2801,10 +2783,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens the database manufacturing editing window.
         """
         from DBManufEditReg_Window import Ui_DBEditRegManuf_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

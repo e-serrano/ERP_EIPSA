@@ -841,10 +841,7 @@ class Ui_App_Verification(object):
         Open the database editing window.
         """
         from DBEditRegVerif_Window import Ui_DBEditRegVerif_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -861,10 +858,7 @@ class Ui_App_Verification(object):
         Open a new window for querying tags.
         """
         from TAGEdit_Verification_Window import Ui_EditTags_Verification_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -904,10 +898,7 @@ class Ui_App_Verification(object):
         Open a new window for calibrating thermo elements.
         """
         from Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -979,10 +970,7 @@ class Ui_App_Verification(object):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1034,10 +1022,7 @@ class Ui_App_Verification(object):
         Establishes a database connection and opens the NC report window for the current user.
         """
         from NC_Report_Window import Ui_NC_Report_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

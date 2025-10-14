@@ -16,6 +16,7 @@ from Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
+from config import config
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -227,10 +228,7 @@ class Ui_Purchasing_Menu(object):
         Opens the 'supplies' window. Sets up UI for the user.
         """
 
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

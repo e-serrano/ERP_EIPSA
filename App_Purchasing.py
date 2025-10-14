@@ -1320,10 +1320,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         """
         Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
         """
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1936,10 +1933,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         Opens a new window for liquid visual certificate.
         """
         from Workshop_Staff_Certificates_Window import Ui_Workshop_Staff_Certificates_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

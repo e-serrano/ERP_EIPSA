@@ -645,10 +645,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Opens a window for querying tags.
         """
         from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -665,10 +662,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Opens the workshop window for manufacturing operations.
         """
         from Workshop_Window import Ui_Workshop_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -687,10 +681,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Opens the assembly window for managing assembly operations.
         """
         from Assembly_Window import Ui_Assembly_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -707,10 +698,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Opens the dispatch window for managing dispatch operations.
         """
         from Dispatch_Window import Ui_Dispatch_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -894,10 +882,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -984,10 +969,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Open a new window for calibrating thermo elements.
         """
         from Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
+        dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
