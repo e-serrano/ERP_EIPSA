@@ -111,6 +111,7 @@ class Ui_App_Invoicing(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+
         if self.name == 'Miguel Sahuquillo':
             self.Button_Sending = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Sending.setMinimumSize(QtCore.QSize(50, 50))
@@ -182,6 +183,42 @@ class Ui_App_Invoicing(object):
             icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Tags.setIcon(icon1)
             self.Button_Tags.clicked.connect(self.edit_tag)
+            self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Order_Control.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Order_Control.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Order_Control.setToolTip('Control Pedidos')
+            self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Order_Control.setText("")
+            self.Button_Order_Control.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Order_Control.setObjectName("Button_Order_Control")
+            self.Header.addWidget(self.Button_Order_Control)
+            icon1 = QtGui.QIcon()
+            icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Order_Control.setIcon(icon1)
+            self.Button_Order_Control.clicked.connect(self.order_control)
+
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -395,27 +432,6 @@ class Ui_App_Invoicing(object):
             self.Button_Banks.setObjectName("Button_Banks")
             self.Button_Banks.clicked.connect(self.banks)
             self.verticalLayout_3.addWidget(self.Button_Banks)
-            
-
-        elif self.name in ['Javier Zofio']:
-            self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_PendInvoice.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_PendInvoice.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_PendInvoice.setFont(font)
-            self.Button_PendInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_PendInvoice.setText(("  Fact. Ptes S/Cliente"))
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_PendInvoice.setIcon(icon7)
-            self.Button_PendInvoice.setIconSize(QtCore.QSize(40, 40))
-            self.Button_PendInvoice.setObjectName("Button_PendInvoice")
-            self.verticalLayout_3.addWidget(self.Button_PendInvoice)
-            self.Button_PendInvoice.clicked.connect(self.pending_invoice)
-
-        if self.name in ['Miguel Sahuquillo']:
             self.Button_Countries = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_Countries.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_Countries.setMaximumSize(QtCore.QSize(200, 50))
@@ -432,26 +448,6 @@ class Ui_App_Invoicing(object):
             self.Button_Countries.setObjectName("Button_Countries")
             self.Button_Countries.clicked.connect(self.countries)
             self.verticalLayout_3.addWidget(self.Button_Countries)
-
-        elif self.name in ['Javier Zofio']:
-            self.Button_Transactions = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_Transactions.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_Transactions.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_Transactions.setFont(font)
-            self.Button_Transactions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Transactions.setText(("  Datos Cobro-Pago"))
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Payments.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Transactions.setIcon(icon7)
-            self.Button_Transactions.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Transactions.setObjectName("Button_Transactions")
-            self.verticalLayout_3.addWidget(self.Button_Transactions)
-            self.Button_Transactions.clicked.connect(self.query_transactions)
-
-        if self.name in ['Miguel Sahuquillo']:
             self.Button_PayWay = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_PayWay.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_PayWay.setMaximumSize(QtCore.QSize(200, 50))
@@ -533,6 +529,40 @@ class Ui_App_Invoicing(object):
             self.Button_NewTag.clicked.connect(self.new_tag)
 
         elif self.name in ['Javier Zofio']:
+            self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_PendInvoice.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_PendInvoice.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_PendInvoice.setFont(font)
+            self.Button_PendInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_PendInvoice.setText(("  Fact. Ptes S/Cliente"))
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_PendInvoice.setIcon(icon7)
+            self.Button_PendInvoice.setIconSize(QtCore.QSize(40, 40))
+            self.Button_PendInvoice.setObjectName("Button_PendInvoice")
+            self.verticalLayout_3.addWidget(self.Button_PendInvoice)
+            self.Button_PendInvoice.clicked.connect(self.pending_invoice)
+
+            self.Button_Transactions = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_Transactions.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_Transactions.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_Transactions.setFont(font)
+            self.Button_Transactions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Transactions.setText(("  Datos Cobro-Pago"))
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Payments.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Transactions.setIcon(icon7)
+            self.Button_Transactions.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Transactions.setObjectName("Button_Transactions")
+            self.verticalLayout_3.addWidget(self.Button_Transactions)
+            self.Button_Transactions.clicked.connect(self.query_transactions)
+
             self.Button_AgtInt = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_AgtInt.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_AgtInt.setMaximumSize(QtCore.QSize(200, 50))
@@ -623,10 +653,12 @@ class Ui_App_Invoicing(object):
         self.Button_ExpirationInvoice.setText(_translate("App_Invoicing", "    Venc. Facturas"))
         self.Button_Clients.setText(_translate("App_Invoicing", "    Clientes"))
         self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
-        self.Button_NewOffer.setText(_translate("App_Invoicing", "        Nueva Oferta"))
-        self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
-        self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
-        self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
+
+        if self.username in ['m.sahuquillo']:
+            self.Button_NewOffer.setText(_translate("App_Invoicing", "        Nueva Oferta"))
+            self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
+            self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
+            self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
 
 # Function to open window to send documents
     def send_documents(self):
@@ -1415,6 +1447,24 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_CreateTag_Menu()
         self.ui.setupUi(self.new_tag_window)
         self.new_tag_window.show()
+
+# Function to open window to edit orders
+    def order_control(self):
+        """
+        Opens the order window for managing order operations.
+        """
+        from Invoicing_Order_Control_Window import Ui_Invoicing_Order_Control_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_order_control = Create_DBconnection(user_database, password_database, 'order_control_connection')
+        if not db_order_control:
+            sys.exit()
+
+        self.order_control_window = Ui_Invoicing_Order_Control_Window(db_order_control, self.username)
+        self.order_control_window.showMaximized()
+
 
 
 # Function to update invoice data coming from Access File
