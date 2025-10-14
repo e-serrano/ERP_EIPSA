@@ -57,6 +57,25 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
                 option.backgroundBrush = color
 
+class AlignDelegate_Docs(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
+    def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center and setting color for cells.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        super(AlignDelegate_Docs, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
     Custom QTableWidget that supports filtering and sorting features.
@@ -3016,7 +3035,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                 self.tableDocs.setHorizontalHeaderLabels(column_headers)
                 self.tableDocs.verticalHeader().hide()
-                self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+                self.tableDocs.setItemDelegate(AlignDelegate_Docs(self.tableDocs))
+
+                self.tableDocs.itemDoubleClicked.connect(self.on_item_double_clicked)
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3030,6 +3051,45 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Updates the main screen by reloading the table data and updating the graphs.
         """
         self.load_table()
+
+# Function to check if column index of double clicked cell is equal to first column index
+    def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
+        if item.column() == 0:
+            self.editofferform(item)
+        elif item.column() in [8, 9, 10]:
+            cell_content = item.text()
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Ofertas")
+            dlg.setText(cell_content)
+            dlg.exec()
+
+# Function when double clicked cell is in client column
+    def editofferform(self, item):
+        """
+        Opens the offer edit form for the offer number displayed in the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item containing the offer number.
+        """
+        from OfferEdit_Window import Ui_Edit_Offer_Window
+        num_offer=item.text()
+        self.edit_offer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Edit_Offer_Window(self.username, num_offer)
+        self.ui.setupUi(self.edit_offer_window)
+        self.edit_offer_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+
+
+
 
 
 if __name__ == "__main__":
