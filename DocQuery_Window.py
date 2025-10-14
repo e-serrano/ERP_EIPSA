@@ -8,11 +8,13 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config
+from config import config, get_path
 import pandas as pd
 from PyQt6.QtWidgets import QFileDialog
 import os
 import locale
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -34,12 +36,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         """
         super(AlignDelegate, self).initStyleOption(option, index)
 
-        if index.column() == 15:
+        if index.column() == 18:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft
         else:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 11:  # Check column and paint when apply
+        if index.column() == 14:  # Check column and paint when apply
             value = index.data()
 
             if value == "Aprobado":  
@@ -170,18 +172,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         Args:
             column_index (int): The index of the column from which to delete the filter.
         """
-        # if column_index in self.column_filters:
-        #     del self.column_filters[column_index]
-        # if column_index in self.checkbox_states:
-        #     del self.checkbox_states[column_index]
-        # if column_index in self.rows_hidden:
-        #     for item in self.rows_hidden[column_index]:
-        #         self.setRowHidden(item, False)
-        #         if item in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.remove(item)
-        #     del self.rows_hidden[column_index]
-        # header_item = self.horizontalHeaderItem(column_index)
-        # header_item.setIcon(QtGui.QIcon())
 
         if column_index in self.column_filters:
             del self.column_filters[column_index]
@@ -233,73 +223,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
             filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
         """
-        # if column_index not in self.column_filters:
-        #     self.column_filters[column_index] = set()
-
-        # if text_filter is None:
-        #     if value is None:
-        #         self.column_filters[column_index] = set()
-        #     elif checked:
-        #         self.column_filters[column_index].add(value)
-        #     elif value in self.column_filters[column_index]:
-        #         self.column_filters[column_index].remove(value)
-
-        # rows_to_hide = set()
-        # for row in range(self.rowCount()):
-        #     show_row = True
-
-        #     # Check filters for all columns
-        #     for col, filters in self.column_filters.items():
-        #         item = self.item(row, col)
-        #         if item:
-        #             item_value = item.text()
-        #             if text_filter is None:
-        #                 if filters and item_value not in filters:
-        #                     show_row = False
-        #                     break
-
-        # # Filtering by text
-        #     if text_filter is not None:
-        #         filter_dialog.accept()
-        #         item = self.item(row, column_index)
-        #         if item:
-        #             if text_filter.upper() in item.text().upper():
-        #                 self.column_filters[column_index].add(item.text())
-        #             else:
-        #                 show_row = False
-
-        #     if not show_row:
-        #         if row not in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.add(row)
-        #             rows_to_hide.add(row)
-        #     else:
-        #         if row in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.remove(row)
-
-        # # Update hidden rows for this column depending on checkboxes
-        # if checked and text_filter is None:
-        #     if column_index not in self.rows_hidden:
-        #         self.rows_hidden[column_index] = set(rows_to_hide)
-        #     else:
-        #         self.rows_hidden[column_index].update(rows_to_hide)
-
-        # # Update hidden rows for this column depending on filtered text
-        # if text_filter is not None and value is None:
-        #     if column_index not in self.rows_hidden:
-        #         self.rows_hidden[column_index] = set(rows_to_hide)
-        #     else:
-        #         self.rows_hidden[column_index].update(rows_to_hide)
-
-        # # Iterate over all rows to hide them as necessary
-        # for row in range(self.rowCount()):
-        #     self.setRowHidden(row, row in self.general_rows_to_hide)
-
-        # header_item = self.horizontalHeaderItem(column_index)
-        # if len(self.general_rows_to_hide) > 0:
-        #     header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
-        # else:
-        #     header_item.setIcon(QtGui.QIcon())
-
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
         if column_index not in self.rows_hidden:
@@ -460,7 +383,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column_index in [1,2,13]:
+        if column_index in [1,2,16]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
@@ -606,9 +529,9 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem3, 1, 1, 1, 1)
         self.tableQueryDoc = CustomTableWidget()
         self.tableQueryDoc.setObjectName("tableQueryDoc")
-        self.tableQueryDoc.setColumnCount(16)
+        self.tableQueryDoc.setColumnCount(19)
         self.tableQueryDoc.setRowCount(0)
-        for i in range(16):
+        for i in range(19):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -680,14 +603,20 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         item = self.tableQueryDoc.horizontalHeaderItem(10)
         item.setText(_translate("QueryDoc_Window", "Crítico"))
         item = self.tableQueryDoc.horizontalHeaderItem(11)
-        item.setText(_translate("QueryDoc_Window", "Estado"))
+        item.setText(_translate("QueryDoc_Window", "Info/Review"))
         item = self.tableQueryDoc.horizontalHeaderItem(12)
-        item.setText(_translate("QueryDoc_Window", "Nº Revisión"))
+        item.setText(_translate("QueryDoc_Window", "Días Envío"))
         item = self.tableQueryDoc.horizontalHeaderItem(13)
-        item.setText(_translate("QueryDoc_Window", "Fecha"))
+        item.setText(_translate("QueryDoc_Window", "Repsonsable"))
         item = self.tableQueryDoc.horizontalHeaderItem(14)
-        item.setText(_translate("QueryDoc_Window", "Seguimiento"))
+        item.setText(_translate("QueryDoc_Window", "Estado"))
         item = self.tableQueryDoc.horizontalHeaderItem(15)
+        item.setText(_translate("QueryDoc_Window", "Nº Revisión"))
+        item = self.tableQueryDoc.horizontalHeaderItem(16)
+        item.setText(_translate("QueryDoc_Window", "Fecha"))
+        item = self.tableQueryDoc.horizontalHeaderItem(17)
+        item.setText(_translate("QueryDoc_Window", "Seguimiento"))
+        item = self.tableQueryDoc.horizontalHeaderItem(18)
         item.setText(_translate("QueryDoc_Window", "Historial Rev."))
         self.Button_Export.setText(_translate("QueryDoc_Window", "Exportar"))
 
@@ -697,9 +626,11 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.tableQueryDoc.setRowCount(0)
+
         commands_queryalldoc = ("""
                         SELECT documentation."num_order", TO_CHAR(orders."order_date", 'DD-MM-YYYY'), TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), orders."num_ref_order", offers."client", product_type."variable", documentation."num_doc_client",
-                        documentation."num_doc_eipsa", documentation."doc_title", document_type."doc_type", documentation."critical", documentation."state",
+                        documentation."num_doc_eipsa", documentation."doc_title", document_type."doc_type", documentation."critical", documentation."review_info", documentation."sending_days",
+                        documentation."doc_responsible", documentation."state",
                         documentation."revision", "state_date", documentation."tracking", hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
@@ -709,23 +640,19 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                         INNER JOIN product_type ON (product_type."material" = offers."material")
                         ORDER BY documentation."num_order"
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryalldoc)
-            results=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryalldoc)
+                    results=cur.fetchall()
 
             self.tableQueryDoc.setRowCount(len(results))
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(16):
+                for column in range(19):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -746,24 +673,9 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
             self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def expand_cell(self, item):
         """
@@ -773,7 +685,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         Args:
             item (QTableWidgetItem): The table item to be expanded.
         """
-        if item.column() in [14, 15]:
+        if item.column() in [17, 18]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -803,26 +715,10 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                 with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Documentación")
-                dlg.setText("Datos exportados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+                MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Documentación")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
