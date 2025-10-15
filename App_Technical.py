@@ -2004,17 +2004,22 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         Opens a new window for editing existing tags. 
         """
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
         from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
         dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = Create_DBconnection(user_database, password_database)
-        if not db_tags_tech:
+        db_tag = Create_DBconnection(user_database, password_database)
+        if not db_tag:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tags_tech)
-        self.edit_tags_app.show()
+        if self.username:
+            self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag)
+        else:
+            self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tag)
+
+        self.edit_tags_app.showMaximized()
 
 # Function to open window for tag query
     def query_tag(self):
@@ -2933,11 +2938,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         Opens a new window for creating a new offer in the application. 
         """
-        from OfferNew_Menu import Ui_NewOffer_Menu
-        self.new_offer_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_NewOffer_Menu(self.username)
-        self.ui.setupUi(self.new_offer_menu)
-        self.new_offer_menu.show()
+        from OfferNew_Window import Ui_New_Offer_Window
+        self.projectoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_Offer_Window(self.username)
+        self.ui.setupUi(self.projectoffer_window)
+        self.projectoffer_window.show()
         if self.username in ['julian.martinez']:
             self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 

@@ -1745,7 +1745,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
@@ -1804,53 +1804,40 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                             title="Seleccionar archivo Excel")
 
                     if fname:
-                        params = config()
-                        conn = psycopg2.connect(**params)
-                        cursor = conn.cursor()
-
                     #Importing excel file into dataframe
                         df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
                         df_table = df_table.astype(str)
                         df_table.replace('nan', 'N/A', inplace=True)
 
                         try:
+                            with Database_Connection(config()) as conn:
+                                with conn.cursor() as cur:
                     # Loop through each row of the DataFrame and insert the data into the table
-                            for index, row in df_table.iterrows():
-                                # Create a list of pairs (column_name, column_value) for each column with value
-                                    columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                                    for index, row in df_table.iterrows():
+                                        # Create a list of pairs (column_name, column_value) for each column with value
+                                            columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
 
-                                # Creating string for columns names
-                                    columns = ', '.join([column for column, _ in columns_values])
+                                        # Creating string for columns names
+                                            columns = ', '.join([column for column, _ in columns_values])
 
-                                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                                    values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount']
-                                                        else ('NULL' if value == '' and column in ['order_date','expected_date','register_date','recep_date','limit_date',
-                                                        'presentation_date', 'items_number']
-                                                        else "'{}'".format(value.replace('\'', '\'\''))) for column, value in columns_values])
+                                        # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                                            values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount']
+                                                                else ('NULL' if value == '' and column in ['order_date','expected_date','register_date','recep_date','limit_date',
+                                                                'presentation_date', 'items_number']
+                                                                else "'{}'".format(value.replace('\'', '\'\''))) for column, value in columns_values])
 
-                                # Creating insertion query and executing it
-                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    cursor.execute(sql_insertion)
+                                        # Creating insertion query and executing it
+                                            sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                            cur.execute(sql_insertion)
 
-                            cursor.close()
-                            conn.commit()
+                                conn.commit()
 
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Datos importados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg, new_icon
-                            break
+                            MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Information, "info")
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            print(error)
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), 'critical')
+
             else:
                 break
 

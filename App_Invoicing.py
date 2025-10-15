@@ -523,10 +523,25 @@ class Ui_App_Invoicing(object):
             self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
             self.Button_NewTag.setObjectName("Button_NewTag")
             self.verticalLayout_3.addWidget(self.Button_NewTag)
+            self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_EditTag.setFont(font)
+            self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon10 = QtGui.QIcon()
+            icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_EditTag.setIcon(icon10)
+            self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
+            self.Button_EditTag.setObjectName("Button_EditTag")
+            self.verticalLayout_3.addWidget(self.Button_EditTag)
             self.Button_NewOffer.clicked.connect(self.new_offer)
             self.Button_EditOffer.clicked.connect(self.edit_offer)
             self.Button_NewOrder.clicked.connect(self.new_order)
             self.Button_NewTag.clicked.connect(self.new_tag)
+            self.Button_EditTag.clicked.connect(self.edit_tag)
 
         elif self.name in ['Javier Zofio']:
             self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -659,6 +674,7 @@ class Ui_App_Invoicing(object):
             self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
             self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
             self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
+            self.Button_EditTag.setText(_translate("App_Comercial", "    Editar TAG(s)"))
 
 # Function to open window to send documents
     def send_documents(self):
@@ -1406,12 +1422,11 @@ class Ui_App_Invoicing(object):
         """
         Opens a new window for creating a new offer in the application. 
         """
-        from OfferNew_Menu import Ui_NewOffer_Menu
-        self.new_offer_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_NewOffer_Menu(self.username)
-        self.ui.setupUi(self.new_offer_menu)
-        self.new_offer_menu.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        from OfferNew_Window import Ui_New_Offer_Window
+        self.projectoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_Offer_Window(self.username)
+        self.ui.setupUi(self.projectoffer_window)
+        self.projectoffer_window.show()
 
 # Function to open window for edit offers
     def edit_offer(self):
@@ -1447,6 +1462,27 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_CreateTag_Menu()
         self.ui.setupUi(self.new_tag_window)
         self.new_tag_window.show()
+
+# Function to open window to edit tags
+    def edit_tag(self):
+        """
+        Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
+
+        Args:
+            EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
+        """
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = Create_DBconnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
+
 
 # Function to open window to edit orders
     def order_control(self):
