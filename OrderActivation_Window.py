@@ -354,15 +354,15 @@ class Ui_OrderActivation_Window(object):
                                         SET order_extras = %s
                                         WHERE num_order = %s""")
             try:
-                if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
-                    with Database_Connection(config()) as conn:
-                        with conn.cursor() as cur:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
                             cur.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
 
-                            cur.execute(commands_queryorder, (numorder,))
-                            results_queryorder=cur.fetchall()
+                        cur.execute(commands_queryorder, (numorder,))
+                        results_queryorder=cur.fetchall()
 
-                        conn.commit()
+                    conn.commit()
 
                 if not len(results_queryorder) > 0:
                     MessageHelper.show_message("El pedido no se encuentra registrado en el sistema", "warning")
