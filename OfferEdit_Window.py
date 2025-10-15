@@ -685,9 +685,9 @@ class Ui_Edit_Offer_Window(object):
         self.Responsible_EditOffer.addItems(list_commercial)
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
-        self.Probability_EditOffer.addItems(['Alta', 'Media', 'Baja'])
-        self.Priority_EditOffer.addItems(['Alta', 'Media', 'Baja', ''])
-        self.Calculation_EditOffer.addItems(['e.carrillo', 'e.serrano', 'N/A'])
+        self.Probability_EditOffer.addItems(['', 'Alta', 'Media', 'Baja'])
+        self.Priority_EditOffer.addItems(['', 'Alta', 'Media', 'Baja'])
+        self.Calculation_EditOffer.addItems(['N/A', 'e.carrillo', 'e.serrano', ])
 
         self.PayTerm_EditOffer.addItems(['', '100% entrega', '100% pedido', '90%-10%', '50%-50%', 'Otros'])
 
