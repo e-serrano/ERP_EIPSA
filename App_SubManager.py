@@ -1795,11 +1795,12 @@ class Ui_App_SubManager(object):
             pdf.set_font('DejaVuSansCondensed', size=6)
             for _, row in df_weekly.iterrows():
                 # getting the required height of the row
-                h_client = pdf.get_multicell_height(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
-                h_clfinal = pdf.get_multicell_height(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-                h_material = pdf.get_multicell_height(2.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+                line_h = pdf.font_size * 1.5
+                h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+                h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+                h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
 
-                row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+                row_height = max(h_client, h_clfinal, h_material, line_h)
 
                 # Setting values for table
                 pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
@@ -1807,21 +1808,15 @@ class Ui_App_SubManager(object):
                 pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
-                if h_client > h_clfinal and h_client > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-                    pdf.set_xy(x + 3, y)  # move to correct position
-                else:
-                    pdf.cell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+                pdf.set_xy(x + 3, y)
 
-                if h_clfinal > h_client and h_clfinal > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-                    pdf.set_xy(x + 3.5, y)
-                else:
-                    pdf.cell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+                pdf.set_xy(x + 3.5, y)
 
                 pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
@@ -1829,13 +1824,10 @@ class Ui_App_SubManager(object):
                 pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
                 pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
-                if h_material > h_client and h_material > h_clfinal:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(2.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-                    pdf.set_xy(x + 2.75, y)
-                else:
-                    pdf.cell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+                pdf.set_xy(x + 2.75, y)
 
                 pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
                 pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
@@ -1881,11 +1873,12 @@ class Ui_App_SubManager(object):
                 pdf.set_font('DejaVuSansCondensed', size=6)
                 for _, row in df_received.iterrows():
                     # getting the required height of the row
-                    h_client = pdf.get_multicell_height(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
-                    h_clfinal = pdf.get_multicell_height(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-                    h_material = pdf.get_multicell_height(2.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+                    line_h = pdf.font_size * 1.5
+                    h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+                    h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+                    h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
 
-                    row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+                    row_height = max(h_client, h_clfinal, h_material, line_h)
 
                     # Setting values for table
                     pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
@@ -1893,21 +1886,15 @@ class Ui_App_SubManager(object):
                     pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
                     pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
-                    if h_client > h_clfinal and h_client > h_material:
-                        x = pdf.get_x()
-                        y = pdf.get_y()
-                        pdf.multi_cell(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-                        pdf.set_xy(x + 3, y)  # move to correct position
-                    else:
-                        pdf.cell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+                    pdf.set_xy(x + 3, y)
 
-                    if h_clfinal > h_client and h_clfinal > h_material:
-                        x = pdf.get_x()
-                        y = pdf.get_y()
-                        pdf.multi_cell(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-                        pdf.set_xy(x + 3.5, y)
-                    else:
-                        pdf.cell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+                    pdf.set_xy(x + 3.5, y)
 
                     pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
                     pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
@@ -1915,13 +1902,10 @@ class Ui_App_SubManager(object):
                     pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
                     pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
-                    if h_material > h_client and h_material > h_clfinal:
-                        x = pdf.get_x()
-                        y = pdf.get_y()
-                        pdf.multi_cell(2.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-                        pdf.set_xy(x + 2.75, y)
-                    else:
-                        pdf.cell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                    x = pdf.get_x()
+                    y = pdf.get_y()
+                    pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+                    pdf.set_xy(x + 2.75, y)
 
                     pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
                     pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
@@ -1961,11 +1945,12 @@ class Ui_App_SubManager(object):
             pdf.set_font('DejaVuSansCondensed', size=6)
             for _, row in df_registered.iterrows():
                 # getting the required height of the row
-                h_client = pdf.get_multicell_height(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
-                h_clfinal = pdf.get_multicell_height(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-                h_material = pdf.get_multicell_height(2.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+                line_h = pdf.font_size * 1.5
+                h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+                h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+                h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
 
-                row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+                row_height = max(h_client, h_clfinal, h_material, line_h)
 
                 # Setting values for table
                 pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
@@ -1973,21 +1958,15 @@ class Ui_App_SubManager(object):
                 pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
-                if h_client > h_clfinal and h_client > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-                    pdf.set_xy(x + 3, y)  # move to correct position
-                else:
-                    pdf.cell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+                pdf.set_xy(x + 3, y)
 
-                if h_clfinal > h_client and h_clfinal > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-                    pdf.set_xy(x + 3.5, y)
-                else:
-                    pdf.cell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+                pdf.set_xy(x + 3.5, y)
 
                 pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
@@ -1995,13 +1974,10 @@ class Ui_App_SubManager(object):
                 pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
                 pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
-                if h_material > h_client and h_material > h_clfinal:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(2.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-                    pdf.set_xy(x + 2.75, y)
-                else:
-                    pdf.cell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+                pdf.set_xy(x + 2.75, y)
 
                 pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
                 pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
@@ -2043,11 +2019,12 @@ class Ui_App_SubManager(object):
             pdf.set_font('DejaVuSansCondensed', size=6)
             for _, row in df_presented.iterrows():
                 # getting the required height of the row
-                h_client = pdf.get_multicell_height(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']))
-                h_clfinal = pdf.get_multicell_height(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-                h_material = pdf.get_multicell_height(2.75, 0.3, '' if row['Material'] is None else str(row['Material']))
+                line_h = pdf.font_size * 1.5
+                h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+                h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+                h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
 
-                row_height = max(h_client, h_clfinal, h_material, 0.3)  # altura mínima 0.3
+                row_height = max(h_client, h_clfinal, h_material, line_h)
 
                 # Setting values for table
                 pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
@@ -2055,21 +2032,15 @@ class Ui_App_SubManager(object):
                 pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
-                if h_client > h_clfinal and h_client > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3, 0.3, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
-                    pdf.set_xy(x + 3, y)  # move to correct position
-                else:
-                    pdf.cell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+                pdf.set_xy(x + 3, y)
 
-                if h_clfinal > h_client and h_clfinal > h_material:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(3.5, 0.3, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
-                    pdf.set_xy(x + 3.5, y)
-                else:
-                    pdf.cell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+                pdf.set_xy(x + 3.5, y)
 
                 pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
                 pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
@@ -2077,13 +2048,10 @@ class Ui_App_SubManager(object):
                 pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
                 pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
-                if h_material > h_client and h_material > h_clfinal:
-                    x = pdf.get_x()
-                    y = pdf.get_y()
-                    pdf.multi_cell(2.75, 0.3, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
-                    pdf.set_xy(x + 2.75, y)
-                else:
-                    pdf.cell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1, align='C')
+                x = pdf.get_x()
+                y = pdf.get_y()
+                pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+                pdf.set_xy(x + 2.75, y)
 
                 pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
                 pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
