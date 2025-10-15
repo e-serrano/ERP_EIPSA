@@ -9,10 +9,12 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config import config
+from config import config, get_path
 import os
 import re
 from utils.MoneyChange import obtain_money_change
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -43,7 +45,7 @@ class Ui_New_Order_Window(object):
         New_Order.setMinimumSize(QtCore.QSize(775, 425))
         New_Order.setMaximumSize(QtCore.QSize(775, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources","Iconos","icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Order.setWindowIcon(icon)
         New_Order.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -237,15 +239,33 @@ class Ui_New_Order_Window(object):
         self.label_num_items.setFont(font)
         self.label_num_items.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_num_items.setObjectName("label_num_items")
-        self.gridlayoutprincipal.addWidget(self.label_num_items, 3, 1, 1, 1)
+        self.gridlayoutprincipal.addWidget(self.label_num_items, 3, 0, 1, 1)
         self.NumItems_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumItems_NewOrder.setMinimumSize(QtCore.QSize(105, 25))
-        self.NumItems_NewOrder.setMaximumSize(QtCore.QSize(105, 25))
+        self.NumItems_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.NumItems_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumItems_NewOrder.setFont(font)
         self.NumItems_NewOrder.setObjectName("NumItems_NewOrder")
-        self.gridlayoutprincipal.addWidget(self.NumItems_NewOrder, 3, 2, 1, 1)
+        self.gridlayoutprincipal.addWidget(self.NumItems_NewOrder, 3, 1, 1, 1)
+        self.label_warranty_bond = QtWidgets.QLabel(parent=self.frame)
+        self.label_warranty_bond.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_warranty_bond.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_warranty_bond.setFont(font)
+        self.label_warranty_bond.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_warranty_bond.setObjectName("label_warranty_bond")
+        self.gridlayoutprincipal.addWidget(self.label_warranty_bond, 3, 2, 1, 1)
+        self.WarrantyBond_NewOrder = QtWidgets.QComboBox(parent=self.frame)
+        self.WarrantyBond_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.WarrantyBond_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.WarrantyBond_NewOrder.setFont(font)
+        self.WarrantyBond_NewOrder.setObjectName("WarrantyBond_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.WarrantyBond_NewOrder, 3, 3, 1, 1)
         self.verticalLayout.addLayout(self.gridlayoutprincipal)
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem2)
@@ -302,6 +322,7 @@ class Ui_New_Order_Window(object):
         New_Order.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.NumOffer_NewOrder.setText(self.num_offer)
+        self.WarrantyBond_NewOrder.addItems(['Aplica', 'No Aplica'])
 
         self.retranslateUi(New_Order)
         self.Button_Cancel.clicked.connect(New_Order.close) # type: ignore
@@ -323,6 +344,7 @@ class Ui_New_Order_Window(object):
         self.label_Notes.setText(_translate("New_Order", "Notas:"))
         self.label_Amount.setText(_translate("New_Order", "Importe:"))
         self.label_num_items.setText(_translate("New_Order", "Nº Equipos:"))
+        self.label_warranty_bond.setText(_translate("New_Order", "Aval:"))
         self.Button_NewOrder.setText(_translate("New_Order", "Crear Pedido"))
         self.Button_Cancel.setText(_translate("New_Order", "Cancelar"))
         self.euromoney.setText(_translate("New_Order", "€"))
@@ -341,24 +363,17 @@ class Ui_New_Order_Window(object):
         initial_amount=self.Amount_NewOrder.text()
         num_items=self.NumItems_NewOrder.text()
         state="Adjudicada"
-        actual_date=date.today()
-        actual_date= actual_date.strftime("%d/%m/%Y")
+        actual_date=date.today().strftime("%d/%m/%Y")
+        warranty_bond=self.WarrantyBond_NewOrder.currentText()
 
         if numorder=="" or (numoffer=="" or  (numref=="" or (initial_amount=="" or (num_items=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))))):
             self.label_error_neworder.setText('Rellene todos los campos y seleccione el tipo de moneda. Solo el campo notas pueden estar en blanco')
 
         elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3}[A-Za-z]*)$', numorder):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Nuevo Pedido")
-            dlg.setText("El número de pedido debe tener el siguiente formato\n" +
+            MessageHelper.show_message("El número de pedido debe tener el siguiente formato\n" +
                         "- P-XX/YYY-SZZ\n" + 
                         "- P-XX/YYY-SZZR\n" + 
-                        "- PA-XX/YYY")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+                        "- PA-XX/YYY", "warning")
 
         else:
             if self.dollarmoney.isChecked()==True:
@@ -375,151 +390,96 @@ class Ui_New_Order_Window(object):
                         FROM offers
                         WHERE "num_offer" = %s
                         """)
+
             commands_order = ("""
                         SELECT *
                         FROM orders
                         WHERE "num_order" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_offer,(numoffer,))
-                results_offer=cur.fetchall()
-                match_offer=list(filter(lambda x:numoffer in x, results_offer))
-                cur.execute(commands_order,(numorder,))
-                results_order=cur.fetchall()
-                match_order=list(filter(lambda x:numorder in x, results_order))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_offer,(numoffer,))
+                        results_offer=cur.fetchall()
+                        match_offer=list(filter(lambda x:numoffer in x, results_offer))
+                        cur.execute(commands_order,(numorder,))
+                        results_order=cur.fetchall()
+                        match_order=list(filter(lambda x:numorder in x, results_order))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if len(match_offer)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Nuevo Pedido")
-                dlg.setText("El número de oferta introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+                MessageHelper.show_message("El número de oferta introducido no existe", "warning")
 
             elif len(match_order)>0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Nuevo Pedido")
-                dlg.setText("El número de pedido introducido ya existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+                MessageHelper.show_message("El número de pedido introducido ya existe", "warning")
 
             else:
                 commands_neworder = ("""
                             INSERT INTO orders (
-                            "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount","items_number"
+                            "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount","items_number", "warranty_bond"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);
                             UPDATE offers
                             SET "state" = %s
                             WHERE "num_offer" = %s;
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
                     if self.dollarmoney.isChecked()==True:
                         notes += ' // IMPORTE DE OFERTA EN DOLARES (' + initial_amount + '). Tipo de cambio: ' + str(round(change_type, 2)) + '$ - 1€ ' + actual_date
 
-                    data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
-                    cur.execute(commands_neworder, data)
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, warranty_bond, state, numoffer)
+                            cur.execute(commands_neworder, data)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido")
-                    dlg.setText("Pedido creado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
+                            MessageHelper.show_message("Pedido creado con éxito", "info")
 
-                    self.NumOrder_NewOrder.setText('')
-                    self.NumOffer_NewOrder.setText('')
-                    self.NumRef_NewOrder.setText('')
-                    self.ExpectDate_NewOrder.setText('')
-                    self.Notes_NewOrder.setText('')
-                    self.Amount_NewOrder.setText('')
+                            self.NumOrder_NewOrder.setText('')
+                            self.NumOffer_NewOrder.setText('')
+                            self.NumRef_NewOrder.setText('')
+                            self.ExpectDate_NewOrder.setText('')
+                            self.Notes_NewOrder.setText('')
+                            self.Amount_NewOrder.setText('')
 
-                    commands_usernames = ("""SELECT username FROM users_data.registration
-                        WHERE profile IN ('Técnico', 'Taller')
-                        """)
-                    commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
-                                            "username","message","state","date_creation"
-                                            )
-                                            VALUES (%s,%s,%s,%s)
-                                            """)
-                    commands_project_client = ("""SELECT client, project FROM offers WHERE num_offer = %s""")
+                            commands_usernames = ("""SELECT username FROM users_data.registration
+                                WHERE profile IN ('Técnico', 'Taller')
+                                """)
+                            commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
+                                                    "username","message","state","date_creation"
+                                                    )
+                                                    VALUES (%s,%s,%s,%s)
+                                                    """)
+                            commands_project_client = ("""SELECT client, project FROM offers WHERE num_offer = %s""")
 
-                    cur.execute(commands_usernames)
-                    results_usernames=cur.fetchall()
-                    results_usernames.append(['m.sahuquillo',])
+                            cur.execute(commands_usernames)
+                            results_usernames=cur.fetchall()
+                            results_usernames.append(['m.sahuquillo',])
 
-                    cur.execute(commands_project_client, (self.num_offer,))
-                    results_project_client=cur.fetchall()
+                            cur.execute(commands_project_client, (self.num_offer,))
+                            results_project_client=cur.fetchall()
 
-                    for user_data in results_usernames:
-                        if numorder[-1] != 'R':
-                            if user_data[0] == 'e.carrillo':
-                                data = (user_data[0], "Nuevo pedido: " + numorder + "\nProyecto: " + results_project_client[0][1] + "\nCliente: " + results_project_client[0][0], "Pendiente", actual_date)
-                            else:
-                                data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
-                            cur.execute(commands_notification_neworder, data)
-                        else:
-                            if user_data[0] == 'm.sahuquillo':
-                                data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
-                                cur.execute(commands_notification_neworder, data)
+                            for user_data in results_usernames:
+                                if numorder[-1] != 'R':
+                                    if user_data[0] == 'e.carrillo':
+                                        data = (user_data[0], "Nuevo pedido: " + numorder + "\nProyecto: " + results_project_client[0][1] + "\nCliente: " + results_project_client[0][0], "Pendiente", actual_date)
+                                    else:
+                                        data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                                    cur.execute(commands_notification_neworder, data)
+                                else:
+                                    if user_data[0] == 'm.sahuquillo':
+                                        data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                                        cur.execute(commands_notification_neworder, data)
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 
 # Function to convert dollars to euros
@@ -542,10 +502,13 @@ class Ui_New_Order_Window(object):
         else:
             return None
 
-# if __name__ == "__main__":
-#     app = QtWidgets.QApplication(sys.argv)
-#     New_Order = QtWidgets.QMainWindow()
-#     ui = Ui_New_Order_Window('O-23/095')
-#     ui.setupUi(New_Order)
-#     New_Order.show()
-#     sys.exit(app.exec())
+
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    New_Order = QtWidgets.QMainWindow()
+    ui = Ui_New_Order_Window('O-23/095')
+    ui.setupUi(New_Order)
+    New_Order.show()
+    sys.exit(app.exec())
