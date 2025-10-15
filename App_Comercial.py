@@ -410,7 +410,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 "}")
         self.Button_FutureProjects.setText("")
         icon16 = QtGui.QIcon()
-        icon16.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Reclamation.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon16.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Future_Projects.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_FutureProjects.setIcon(icon16)
         self.Button_FutureProjects.setIconSize(QtCore.QSize(40, 40))
         self.Button_FutureProjects.setObjectName("Button_FutureProjects")
