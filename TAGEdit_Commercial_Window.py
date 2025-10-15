@@ -1341,6 +1341,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 success = False
 
         if success:
+            print('a')
             db.commit()
 
             for row in self.model.getModifiedRows():

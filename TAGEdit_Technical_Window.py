@@ -1255,6 +1255,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         """
         Saves changes made to the data models and updates unique values for each column.
         """
+        print('a')
         self.model.submitAll()
 
         for column in range(self.model.columnCount()):
