@@ -502,7 +502,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(7,34):
             self.tableOrders.hideColumn(i)
-        for i in range(37,self.model.columnCount()):
+        for i in range(37,39):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
@@ -568,7 +568,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(7,34):
             self.tableOrders.hideColumn(i)
-        for i in range(37,self.model.columnCount()):
+        for i in range(37,39):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
