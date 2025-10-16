@@ -2014,12 +2014,30 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if not db_tag:
             sys.exit()
 
-        if self.username:
-            self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag)
-        else:
+        if self.username != 'julian.martinez':
             self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tag)
+            self.edit_tags_app.showMaximized()
 
-        self.edit_tags_app.showMaximized()
+        else:
+            while True:
+                role, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un perfil:", ['Comercial', 'Técnico'], 0, False)
+                if ok and role:
+                    role_type = role
+                    if role_type != '':
+                        while True:
+                            if role_type == 'Comercial':
+                                self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag)
+                                self.edit_tags_app.showMaximized()
+                                break
+                            elif role_type == 'Técnico':
+                                self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tag)
+                                self.edit_tags_app.showMaximized()
+                                break
+                        break
+                    MessageHelper.show_message("Selecciona un perfil", "warning")
+                    break
+                else:
+                    break
 
 # Function to open window for tag query
     def query_tag(self):

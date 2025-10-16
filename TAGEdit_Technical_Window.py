@@ -377,6 +377,13 @@ class EditableTableModel(QtSql.QSqlTableModel):
             else:
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
             
+        elif self.username == 'julian.martinez':
+            if index.column() == 0 or index.column() in self.column_range:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+            
         else:
             if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
@@ -1523,10 +1530,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
 
-            if self.username in ['julian.martinez']:
-                self.model.column_range = range(0,columns_number)
-            else:
-                self.model.column_range = list(range(self.initial_column,self.initial_column + 4)) + list(range(self.initial_column2,columns_number))
+            self.model.column_range = list(range(self.initial_column,self.initial_column + 4)) + list(range(self.initial_column2,columns_number))
 
             if self.variable == 'Caudal':
                 for i in range(72,125):
@@ -1543,9 +1547,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(154,156):
                     self.tableEditTags.hideColumn(i)
-                for i in range(157,columns_number-1):
+                for i in range(157,columns_number):
                     self.tableEditTags.hideColumn(i)
-                if self.username not in ['j.martinez']:
+                if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(30)
 
             elif self.variable == 'Temperatura':
@@ -1565,9 +1569,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(164,166):
                     self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number-1):
+                for i in range(167,columns_number):
                     self.tableEditTags.hideColumn(i)
-                if self.username not in ['j.martinez']:
+                if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(35)
 
             elif self.variable == 'Nivel':
@@ -1585,9 +1589,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,169):
                     self.tableEditTags.hideColumn(i)
-                for i in range(170,columns_number-1):
+                for i in range(170,columns_number):
                     self.tableEditTags.hideColumn(i)
-                if self.username not in ['j.martinez']:
+                if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(36)
 
             elif self.variable == 'Otros':
@@ -1603,12 +1607,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(54,56):
                     self.tableEditTags.hideColumn(i)
-                for i in range(57,columns_number-1):
+                for i in range(57,columns_number):
                     self.tableEditTags.hideColumn(i)
-                if self.username not in ['j.martinez']:
+                if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(11)
 
-            if self.username not in ['j.martinez']:
+            if self.username not in ['j.martinez','julian.martinez']:
                 if self.variable == 'Caudal':
                     self.tableEditTags.hideColumn(30)
                 elif self.variable == 'Temperatura':
@@ -3406,6 +3410,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('julian.martinez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
