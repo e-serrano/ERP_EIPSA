@@ -1489,12 +1489,12 @@ class Ui_App_Invoicing(object):
         """
         Opens the order window for managing order operations.
         """
-        from Invoicing_Order_Control_Window import Ui_Invoicing_Order_Control_Window
+        from Order_Control_Invoicing_Window import Ui_Invoicing_Order_Control_Window
         dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_order_control = Create_DBconnection(user_database, password_database, 'order_control_connection')
+        db_order_control = Create_DBconnection(user_database, password_database, 'order_control_invoice_connection')
         if not db_order_control:
             sys.exit()
 

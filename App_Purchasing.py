@@ -974,6 +974,67 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_OfferSummary.setObjectName("Button_OfferSummary")
         self.Button_OfferSummary.setToolTip("Resumen Ofertas")
         self.Header.addWidget(self.Button_OfferSummary)
+
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Order_Control.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Order_Control.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Order_Control.setToolTip('Control Pedidos')
+        self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Order_Control.setText("")
+        self.Button_Order_Control.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Order_Control.setObjectName("Button_Order_Control")
+        self.Header.addWidget(self.Button_Order_Control)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Order_Control.setIcon(icon1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1260,6 +1321,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Times.clicked.connect(self.times)
         self.Button_OfferSummary.clicked.connect(self.offers_summary)
         self.Button_Notification.clicked.connect(self.notifications)
+        self.Button_Order_Control.clicked.connect(self.order_control)
 
         self.backup_data()
         self.warning_calibration()
@@ -2117,6 +2179,22 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
+# Function to open window to edit orders
+    def order_control(self):
+        """
+        Opens the order window for managing order operations.
+        """
+        from Order_Control_Purchasing_Window import Ui_Purchasing_Order_Control_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_order_control = Create_DBconnection(user_database, password_database, 'order_control_purchase_connection')
+        if not db_order_control:
+            sys.exit()
+
+        self.order_control_window = Ui_Purchasing_Order_Control_Window(db_order_control, self.username)
+        self.order_control_window.showMaximized()
 
 
 

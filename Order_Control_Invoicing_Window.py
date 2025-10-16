@@ -4,20 +4,14 @@ from PyQt6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
 import configparser
 from datetime import *
-from config import config, get_path
+from config import get_path
 import re
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QMimeData, QDate
 from PyQt6.QtGui import QKeySequence
 import sys
-from config import config
-import psycopg2
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from utils.Database_Manager import Database_Connection
-from utils.Show_Message import MessageHelper
-
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -337,8 +331,8 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             if self.db:
                 self.db.close()
                 del self.db
-                if QtSql.QSqlDatabase.contains("order_control_connection"):
-                    QtSql.QSqlDatabase.removeDatabase("order_control_connection")
+                if QtSql.QSqlDatabase.contains("order_control_invoice_connection"):
+                    QtSql.QSqlDatabase.removeDatabase("order_control_invoice_connection")
         except Exception as e:
             print("Error closing connection:", e)
 
@@ -472,8 +466,8 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        Invoicing_Order_Control_Window.setWindowTitle(_translate("EditTags_Window", "Control Pedidos"))
-        self.Button_All.setText(_translate("EditTags_Window", "Ver Todos"))
+        Invoicing_Order_Control_Window.setWindowTitle(_translate("Invoicing_Order_Control_Window", "Control Pedidos"))
+        self.Button_All.setText(_translate("Invoicing_Order_Control_Window", "Ver Todos"))
 
 # Function to load orders on tables
     def query_data(self):
@@ -504,14 +498,16 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
                 self.dict_valuesuniques[column] = list_valuesUnique
 
         self.tableOrders.hideColumn(1)
-        self.tableOrders.hideColumn(3)
-        for i in range(5,34):
+        for i in range(3,6):
             self.tableOrders.hideColumn(i)
-        self.tableOrders.hideColumn(36)
+        for i in range(7,34):
+            self.tableOrders.hideColumn(i)
+        for i in range(37,self.model.columnCount()):
+            self.tableOrders.hideColumn(i)
 
-        headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+        headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Fecha Vto. Aval']
+                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
@@ -519,9 +515,9 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.tableOrders.setItemDelegateForColumn(14, self.color_delegate)
         self.tableOrders.setItemDelegateForColumn(16, self.color_delegate)
         self.tableOrders.setItemDelegateForColumn(19, self.color_delegate)
-        self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
+        # self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
         self.tableOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableOrders.horizontalHeader().setSectionResizeMode(35, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(36, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setDefaultSectionSize(80)
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)
@@ -568,14 +564,16 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
                 self.dict_valuesuniques[column] = list_valuesUnique
 
         self.tableOrders.hideColumn(1)
-        self.tableOrders.hideColumn(3)
-        for i in range(5,34):
+        for i in range(3,6):
             self.tableOrders.hideColumn(i)
-        self.tableOrders.hideColumn(36)
+        for i in range(7,34):
+            self.tableOrders.hideColumn(i)
+        for i in range(37,self.model.columnCount()):
+            self.tableOrders.hideColumn(i)
 
-        headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+        headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Fecha Vto. Aval']
+                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
@@ -583,9 +581,9 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.tableOrders.setItemDelegateForColumn(14, self.color_delegate)
         self.tableOrders.setItemDelegateForColumn(16, self.color_delegate)
         self.tableOrders.setItemDelegateForColumn(19, self.color_delegate)
-        self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
+        # self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
         self.tableOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableOrders.horizontalHeader().setSectionResizeMode(35, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(36, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setDefaultSectionSize(80)
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)
