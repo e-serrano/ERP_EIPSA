@@ -521,9 +521,9 @@ class Ui_New_Offer_Window(object):
         self.Material_NewOffer.addItems(list_material)
 
         self.Portal_NewOffer.addItems(['Sí', 'No'])
-        self.Probability_NewOffer.addItems(['Alta', 'Media', 'Baja'])
+        self.Probability_NewOffer.addItems(['', 'Alta', 'Media', 'Baja'])
 
-        self.Calculation_NewOffer.addItems(['e.carrillo', 'e.serrano', 'N/A'])
+        self.Calculation_NewOffer.addItems(['', 'e.carrillo', 'e.serrano', 'N/A'])
 
         self.load_clients()
 
