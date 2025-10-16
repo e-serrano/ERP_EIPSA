@@ -898,7 +898,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableEditDocs.hideColumn(10)
 
 # Function to save changes into database
     def saveChanges(self, topLeft, bottomRight):
@@ -958,7 +957,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         self.tableEditDocs.setSortingEnabled(False)
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableEditDocs.hideColumn(10)
 
         # Change all column names
         headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Tipo Doc.", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento", "Fecha Primera Rev", "Info/Review", "Doc. Resp.", "Días"]
@@ -1033,7 +1031,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
         self.tableEditDocs.setItemDelegateForColumn(8, self.combo_itemtype)
-        self.tableEditDocs.hideColumn(10)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -1271,7 +1268,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableEditDocs.hideColumn(10)
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
