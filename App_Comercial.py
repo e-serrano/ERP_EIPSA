@@ -1889,13 +1889,13 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                             COALESCE(offers.offer_amount, 0::money) AS offer_amount, COALESCE(orders.order_amount, 0::money) AS order_amount
                             FROM offers
                             LEFT JOIN orders ON offers.num_offer = orders.num_offer
-                            WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND (offers.responsible_calculations IS DISTINCT FROM 'N/A')
+                            WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND (offers.responsible_calculations NOT IN ('N/A', '') AND offers.responsible_calculations IS NOT NULL)
                             """)
 
             query_graph_calculation_2 = ("""
                                 SELECT num_offer, state, responsible_calculations, 'offers' AS source_table
                                 FROM offers
-                                WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND (offers.responsible_calculations IS DISTINCT FROM 'N/A')
+                                WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND (offers.responsible_calculations NOT IN ('N/A', '') AND offers.responsible_calculations IS NOT NULL)
                                 """)
 
             query_last_weekly_summary = ("""
@@ -1918,7 +1918,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 WHERE register_date >= %s AND register_date <= %s) as final_table
 
                                 ORDER BY array_position(
-                                ARRAY['No Ofertada', 'Declinada', 'Perdida', 'Recibida', 'Registrada', 'Presentada', 'Adjudicada'], state), num_offer
+                                ARRAY['No Ofertada', 'Declinada', 'Perdida', 'Recibida', 'Registrada', 'En Estudio', 'Presentada', 'Adjudicada'], state), num_offer
                                 """)
 
             query_active_summary = ("""
@@ -1927,7 +1927,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
                                 probability, '' as priority, material, items_number, offer_amount, actions
                                 FROM offers
-                                WHERE state IN ('Registrada', 'Presentada')
+                                WHERE state IN ('Registrada', 'En Estudio', 'Presentada')
 
                                 UNION ALL
 
@@ -1935,7 +1935,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 TO_CHAR(recep_date, 'DD/MM/YYYY'), '' as presentation_date, TO_CHAR(limit_date, 'DD/MM/YYYY'),
                                 '' as probability, '' as priority, material, items_number, '' as offer_amount, '' as actions
                                 FROM received_offers
-                                WHERE state IN ('Recibida')) as final_table
+                                WHERE state IN ('Registrada')) as final_table
 
                                 ORDER BY state
                                 """)
@@ -2128,14 +2128,17 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         pdf.ln(0.5)
 
         pdf.set_fill_color(3, 174, 236)
-        pdf.cell(4, 0.5, 'RECIBIDAS:')
-        pdf.cell(4, 0.5, str(df_weekly.shape[0]), align='L')
-        pdf.cell(2.35, 0.5, '')
-        pdf.cell(4, 0.5, 'REALIZADAS:')
-        pdf.cell(4, 0.5, str(df_weekly[df_weekly['Tabla'] == 'offers'].shape[0]), align='L')
-        pdf.cell(2.35, 0.5, '')
-        pdf.cell(4, 0.5, 'ADJUDICADAS:')
-        pdf.cell(4, 0.5, str(df_weekly[df_weekly['Estado'] == 'Adjudicada'].shape[0]), align='L')
+        pdf.cell(3, 0.5, 'REGISTRADAS:')
+        pdf.cell(3, 0.5, str(df_weekly.shape[0]), align='L')
+        pdf.cell(1.5, 0.5, '')
+        pdf.cell(3, 0.5, 'EN ESTUDIO:')
+        pdf.cell(3, 0.5, str(df_weekly[df_weekly['Estado'] == 'En Estudio'].shape[0]), align='L')
+        pdf.cell(1.5, 0.5, '')
+        pdf.cell(3, 0.5, 'REALIZADAS:')
+        pdf.cell(3, 0.5, str(df_weekly[~df_weekly['Estado'].isin(['Registrada', 'En Estudio'])].shape[0]), align='L')
+        pdf.cell(1.5, 0.5, '')
+        pdf.cell(3, 0.5, 'ADJUDICADAS:')
+        pdf.cell(3, 0.5, str(df_weekly[df_weekly['Estado'] == 'Adjudicada'].shape[0]), align='L')
         pdf.ln(0.5)
 
         pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
@@ -2215,11 +2218,11 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
         pdf.set_fill_color(3, 174, 236)
 
-        df_received = df_active[df_active['Estado'] == 'Recibida'].sort_values(by=['Responsable', 'Nº Oferta'])
+        df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Responsable', 'Nº Oferta'])
 
-        if df_received.shape[0] > 0:
+        if df_registered.shape[0] > 0:
             pdf.cell(3, 0.5, 'REGISTRADAS:')
-            pdf.cell(3, 0.5, str(df_received.shape[0]), align='L')
+            pdf.cell(3, 0.5, str(df_registered.shape[0]), align='L')
             pdf.ln(0.5)
 
             pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
@@ -2240,7 +2243,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             pdf.ln()
 
             pdf.set_font('DejaVuSansCondensed', size=6)
-            for _, row in df_received.iterrows():
+            for _, row in df_registered.iterrows():
                 # getting the required height of the row
                 line_h = pdf.font_size * 1.5
                 h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
@@ -2290,14 +2293,14 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             pdf.set_font('DejaVuSansCondensed-Bold', size=7)
             pdf.cell(20.75, 0.3, '')
             pdf.cell(5, 0.3, 'TOTAL:', align='R')
-            pdf.cell(3, 0.3, self.euro_format(df_received['Importe Euros'].sum()), align='C')
+            pdf.cell(3, 0.3, self.euro_format(df_registered['Importe Euros'].sum()), align='C')
             pdf.ln()
 
-        df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Responsable', 'Nº Oferta'])
+        df_study = df_active[df_active['Estado'] == 'En Estudio'].sort_values(by=['Responsable', 'Nº Oferta'])
 
         pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(3, 0.5, 'EN ESTUDIO:')
-        pdf.cell(3, 0.5, str(df_registered.shape[0]), align='L')
+        pdf.cell(3, 0.5, str(df_study.shape[0]), align='L')
         pdf.ln(0.5)
 
         pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
@@ -2318,7 +2321,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         pdf.ln()
 
         pdf.set_font('DejaVuSansCondensed', size=6)
-        for _, row in df_registered.iterrows():
+        for _, row in df_study.iterrows():
             # getting the required height of the row
             line_h = pdf.font_size * 1.5
             h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
@@ -2368,7 +2371,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         pdf.set_font('DejaVuSansCondensed-Bold', size=7)
         pdf.cell(20.75, 0.3, '')
         pdf.cell(5, 0.3, 'TOTAL:', align='R')
-        pdf.cell(3, 0.3, self.euro_format(df_registered['Importe Euros'].sum()), align='C')
+        pdf.cell(3, 0.3, self.euro_format(df_study['Importe Euros'].sum()), align='C')
         pdf.ln()
 
         df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
@@ -2487,8 +2490,8 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
     def graphs_commercial_report(self, df_graph_commercial_1, df_graph_commercial_2):
         final_state_mapping = {
-            "Registrada": ["Adjudicada", "Declinada", "No Ofertada", "Perdida", "Presentada", "Registrada"],
-            "No Ofertada": ["No Ofertada", "Declinada"],
+            "Registrada": ["Adjudicada", "Declinada", "No Ofertada", "Perdida", "Presentada", "Registrada", "En Estudio"],
+            "No Ofertada": ["No Ofertada", "Declinada", "En Estudio"],
             "Ofertada": ["Adjudicada", "Perdida", "Presentada"],
             "No PO": ["Perdida", "Presentada"],
             "PO": ["Adjudicada"]
