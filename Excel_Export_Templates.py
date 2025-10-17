@@ -8,7 +8,7 @@ from copy import deepcopy
 from tkinter.filedialog import asksaveasfilename
 from tkinter import Tk
 from datetime import *
-from config import config
+from config import config, get_path
 import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from PyQt6 import QtGui, QtWidgets
@@ -10353,6 +10353,49 @@ class material_order:
         if output_path:
             self.wb.save(output_path)
 
+class future_projects:
+    """
+    A class to manage future projects report.
+    
+    Attributes:
+        num_order (str): The order number.
+    """
+    def __init__(self, df):
+        """
+        Initializes an future_projects instance with dataframe with data.
+        
+        Args:
+            df (str): The order number.
+        """
+        self.df = df
+
+        self.wb = load_workbook(str(get_path("Plantillas Exportación", "TEMPLATE OPPORTUNITIES.xlsx")))
+
+        sheet_name = "PROJECTS"
+        ws = self.wb[sheet_name]
+
+        last_row = 11
+        for index, row in df.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                cell.value = value
+
+            last_row = last_row + 1
+
+        self.save_excel()
+
+    def save_excel(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar Informe",
+        )
+        if output_path:
+            self.wb.save(output_path)
+            return output_path
 
 # offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
 # offer_short_temp('O-23/001', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
