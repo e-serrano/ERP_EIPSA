@@ -620,7 +620,7 @@ class Ui_New_Offer_Window(object):
         elif not (items_number.isdigit() or (items_number.startswith('-') and items_number[1:].isdigit())) or float(items_number) < 0:
             MessageHelper.show_message("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0", "warning")
 
-        elif not re.match(r'^[A-Z]{1,3}-\d{2}/\d{3}[A-Z\d-]*$', numoffer):
+        elif not re.match(r'^(R-\d+|[A-Z]{1,3}-\d{2}/\d{3}[A-Z\d-]*)$', numoffer):
             MessageHelper.show_message("El formato de número de oferta no es válido", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', recepdate) or not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', limitdate):
