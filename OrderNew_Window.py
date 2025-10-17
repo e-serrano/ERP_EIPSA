@@ -322,7 +322,7 @@ class Ui_New_Order_Window(object):
         New_Order.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.NumOffer_NewOrder.setText(self.num_offer)
-        self.WarrantyBond_NewOrder.addItems(['Aplica', 'No Aplica'])
+        self.WarrantyBond_NewOrder.addItems(['No Aplica', 'Aplica'])
 
         self.retranslateUi(New_Order)
         self.Button_Cancel.clicked.connect(New_Order.close) # type: ignore
