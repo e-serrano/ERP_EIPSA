@@ -374,9 +374,9 @@ class Ui_Edit_Order_Window(object):
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
-                    cur.execute(commands_checkorder,(numorder,))
+                    cur.execute(commands_checkorder,(self.original_numorder,))
                     results=cur.fetchall()
-                    match=list(filter(lambda x:numorder in x, results))
+                    match=list(filter(lambda x:self.original_numorder in x, results))
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -392,14 +392,14 @@ class Ui_Edit_Order_Window(object):
             #SQL Query for updating values in database
             commands_editorder = ("""
                         UPDATE orders
-                        SET "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s, "items_number" = %s, "regularisation" = %s
+                        SET "num_order" = %s, "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s, "items_number" = %s, "regularisation" = %s
                         WHERE "num_order" = %s
                         """)
 
             try:
                 with Database_Connection(config()) as conn:
                     with conn.cursor() as cur:
-                        data=(numoffer,numref,expectdate,notes,amount,num_items,regularisation,numorder,)
+                        data=(numorder,numoffer,numref,expectdate,notes,amount,num_items,regularisation,self.original_numorder,)
                         cur.execute(commands_editorder,data)
                     conn.commit()
 
@@ -423,7 +423,7 @@ class Ui_Edit_Order_Window(object):
         Queries the database for order data based on the order number provided by the user. It displays the retrieved information 
         in the corresponding form fields.
         """
-        numorder=self.NumOrder_EditOrder.text()
+        self.original_numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""
                     SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",CAST("order_amount" AS numeric) AS "amount","items_number", "regularisation"
@@ -434,9 +434,9 @@ class Ui_Edit_Order_Window(object):
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
-                    cur.execute(commands_loaddataorder,(numorder,))
+                    cur.execute(commands_loaddataorder,(self.original_numorder,))
                     results=cur.fetchall()
-                    match=list(filter(lambda x:numorder in x, results))
+                    match=list(filter(lambda x:self.original_numorder in x, results))
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
