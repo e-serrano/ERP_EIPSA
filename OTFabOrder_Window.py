@@ -471,32 +471,32 @@ class Ui_OTFabOrder_Window(object):
                                 WHERE "id" = %s
                                 """)
 
-            # try:
-            #     with Database_Connection(config()) as conn:
-            #         with conn.cursor() as cur:
-            #             cur.execute(check_ot)
-            #             results=cur.fetchall()
+            try:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(check_ot)
+                        results=cur.fetchall()
 
-            #     if len(results) == 0:
-            #         data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
-            #             self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
+                if len(results) == 0:
+                    data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
+                        self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
 
-            #         with Database_Connection(config()) as conn:
-            #             with conn.cursor() as cur:
-            #                 cur.execute(commands_newot, data)
-            #             conn.commit()
-            #     else:
-            #         data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
-            #             self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_newot, data)
+                        conn.commit()
+                else:
+                    data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
+                        self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
 
-            #         with Database_Connection(config()) as conn:
-            #             with conn.cursor() as cur:
-            #                 cur.execute(commands_updateot, data)
-            #             conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_updateot, data)
+                        conn.commit()
 
-            # except (Exception, psycopg2.DatabaseError) as error:
-            #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-            #                 + str(error), "critical")
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         table_data = []
 
@@ -508,7 +508,7 @@ class Ui_OTFabOrder_Window(object):
 
             table_data.append(row_data)
 
-        df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
+        df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO'])
 
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
@@ -550,11 +550,11 @@ class Ui_OTFabOrder_Window(object):
 
             wb.save(output_path)
 
-            # excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-            # workbook = load_workbook(excel_file_path, keep_vba=True)
-            # worksheet = workbook.active
-            # worksheet['B2'].value = self.num_ot
-            # workbook.save(excel_file_path)
+            excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            workbook = load_workbook(excel_file_path, keep_vba=True)
+            worksheet = workbook.active
+            worksheet['B2'].value = self.num_ot
+            workbook.save(excel_file_path)
 
 
 
