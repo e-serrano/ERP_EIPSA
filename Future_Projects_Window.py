@@ -641,7 +641,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Future_Projects_Window)
 
         self.model.dataChanged.connect(self.saveChanges)
-        # self.query_projects()
+        self.query_projects()
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
@@ -756,12 +756,12 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableProjects, 3, 0, 1, 1)
         self.tableProjects.setSortingEnabled(False)
         self.tableProjects.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableProjects.hideColumn(10)
+        self.tableProjects.hideColumn(0)
 
         # Change all column names
-        headers = ["Award Date - Quarter", "End User", "Contractor", "Project Name", 
+        headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                     "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA products", "Actions"]
+                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions"]
         self.model.setAllColumnHeaders(headers)
 
     # Getting the unique values for each column of the model
@@ -815,11 +815,12 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableProjects, 3, 0, 1, 1)
         self.tableProjects.setSortingEnabled(False)
         self.tableProjects.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableProjects.hideColumn(0)
 
         # Change all column names
-        headers = ["Award Date - Quarter", "End User", "Contractor", "Project Name", 
+        headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                     "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA products", "Actions"]
+                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions"]
 
         self.model.setAllColumnHeaders(headers)
 
