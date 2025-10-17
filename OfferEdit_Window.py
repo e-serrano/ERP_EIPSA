@@ -26,7 +26,7 @@ class Ui_Edit_Offer_Window(object):
             num_offer (str, optionañ): offer number associated with the window.
         """
         self.username = username
-        self.num_offer = num_offer
+        self.original_numoffer = num_offer
 
     def setupUi(self, Edit_Offer_Window):
         """
@@ -693,8 +693,8 @@ class Ui_Edit_Offer_Window(object):
 
         self.load_clients()
 
-        if self.num_offer is not None:
-            self.NumOffer_EditOffer.setText(self.num_offer)
+        if self.original_numoffer is not None:
+            self.NumOffer_EditOffer.setText(self.original_numoffer)
             self.queryofferdata()
 
 # Function to translate and updates the text of various UI elements
@@ -815,7 +815,7 @@ class Ui_Edit_Offer_Window(object):
                     #SQL Query for updating values in database
                     commands_updateoffer = ("""
                                 UPDATE offers
-                                SET "responsible" = %s, "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
+                                SET "num_offer" = %s, "responsible" = %s, "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
                                 "material" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
                                 "recep_date" = %s, "mails" = %s, "last_update" = %s,
                                 "presentation_date" = %s, "portal" = %s, "items_number" = %s, "project" = %s, "validity" = %s,
@@ -827,13 +827,13 @@ class Ui_Edit_Offer_Window(object):
                         with Database_Connection(config()) as conn:
                             with conn.cursor() as cur:
                         # execution of commands one by one
-                                data=(responsible, client, finalclient, numref, state, nacext, buyer,
+                                data=(numoffer, responsible, client, finalclient, numref, state, nacext, buyer,
                                     material, amount, limit_date, rate_type,
                                     recep_date, mails, last_update,
                                     presentation_date, portal, numitems, project, validity,
                                     delivterm, delivtime, payterm, probability, calculation,
                                     priority,
-                                    numoffer,)
+                                    self.original_numoffer,)
                                 cur.execute(commands_updateoffer,data)
                         # commit the changes
                             conn.commit()
@@ -867,7 +867,7 @@ class Ui_Edit_Offer_Window(object):
         Queries the database for offer data based on the offer number provided by the user. It displays the retrieved information 
         in the corresponding form fields.
         """
-        numoffer=self.NumOffer_EditOffer.text()
+        self.original_numoffer=self.NumOffer_EditOffer.text()
 
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
@@ -885,9 +885,9 @@ class Ui_Edit_Offer_Window(object):
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
-                    cur.execute(commands_loaddataoffer,(numoffer,))
+                    cur.execute(commands_loaddataoffer,(self.original_numoffer,))
                     results=cur.fetchall()
-                    match=list(filter(lambda x:numoffer in x, results))
+                    match=list(filter(lambda x:self.original_numoffer in x, results))
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
