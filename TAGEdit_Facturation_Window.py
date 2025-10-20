@@ -1834,7 +1834,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2"]
+                            "Est. Fact.", "Fotos 2", "Nº Factura"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
@@ -1870,7 +1870,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2"]
+                            "Est. Fact.", "Fotos 2", "Nº Factura"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
@@ -1907,7 +1907,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2"]
+                            "Est. Fact.", "Fotos 2", "Nº Factura"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
@@ -1921,7 +1921,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2"]
+                            "Est. Fact.", "Fotos 2", "Nº Factura"]
 
             list_invoice_state = ['', 'Facturado']
             
