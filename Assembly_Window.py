@@ -2148,10 +2148,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         if item.column() == 0:
             num_order = item.data()
             from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-            config_obj = configparser.ConfigParser()
-            config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-            dbparam = config_obj["postgresql"]
-            # set your parameters for the database connection URI using the keys from the configfile.ini
+            dbparam = config()
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
@@ -2732,10 +2729,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
+    dbparam = config()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

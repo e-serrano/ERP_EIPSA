@@ -1327,31 +1327,35 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         # self.model.submitAll()
 
-        if self._saving1:
-            return  # Avoid recursive entries
-        self._saving1 = True
+        # if self._saving1:
+        #     return  # Avoid recursive entries
+        # self._saving1 = True
 
-        db = self.model.database()
-        db.transaction()
+        # db = self.model.database()
+        # print("Base conectada:", db.databaseName())
+        # print("Host:", db.hostName())
+        # db.transaction()
 
-        success = True
-        for row in self.model.getModifiedRows():
-            if not self.model.submit():
-                print(f"❌ Error guardando fila {row}: {self.model.lastError().text()}")
-                success = False
+        # success = True
+        # for row in self.model.getModifiedRows():
+        #     if not self.model.submit():
+        #         print(f"❌ Error guardando fila {row}: {self.model.lastError().text()}")
+        #         success = False
 
-        if success:
-            print('a')
-            db.commit()
+        # if success:
+        #     print('a')
+        #     db.commit()
 
-            for row in self.model.getModifiedRows():
-                top_left = self.model.index(row, 0)
-                bottom_right = self.model.index(row, self.model.columnCount() - 1)
-                self.model.dataChanged.emit(top_left, bottom_right)
-        else:
-            db.rollback()
+        #     for row in self.model.getModifiedRows():
+        #         top_left = self.model.index(row, 0)
+        #         bottom_right = self.model.index(row, self.model.columnCount() - 1)
+        #         self.model.dataChanged.emit(top_left, bottom_right)
+        # else:
+        #     db.rollback()
 
-        self.model.clearModifiedRows()
+        # self.model.clearModifiedRows()
+
+        self.model.submitAll()
 
         for column in range(self.model.columnCount()):
             list_valuesUnique = []
@@ -3435,10 +3439,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
+    dbparam = config()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

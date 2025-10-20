@@ -188,14 +188,14 @@ def general_dwg_landscape(num_ot, material=None):
 
     pdf.set_line_width(1)
     pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(6, 19, 198, 270, style='D')
+    pdf.rect(5, 18, 199, 271, style='D')
 
     pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(5, 18, 200, 272, style='D')
+    pdf.rect(4, 17, 201, 273, style='D')
 
     if border_color is not None:
         pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(4, 17, 202, 274, style='D')
+        pdf.rect(3, 16, 203, 275, style='D')
 
     pdf.set_xy(18, 263)
 

@@ -716,10 +716,7 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
             num_invoice = self.tableQueryInvoice.item(item.row(), 0).text()
 
             # from InvoiceNew_Window import Ui_InvoiceNew_Window
-            # config_obj = configparser.ConfigParser()
-            # config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-            # dbparam = config_obj["postgresql"]
-            # # set your parameters for the database connection URI using the keys from the configfile.ini
+            # dbparam = config()
             # user_database = dbparam["user"]
             # password_database = dbparam["password"]
 

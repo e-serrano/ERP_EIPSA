@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
 import configparser
 from datetime import *
-from config import get_path
+from config import get_path, config
 import re
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QMimeData, QDate
@@ -1048,10 +1048,7 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
+    dbparam = config()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

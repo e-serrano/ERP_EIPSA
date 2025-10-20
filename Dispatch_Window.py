@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection
+from config import config
 import configparser
 from datetime import *
 import os
@@ -1184,10 +1185,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
+    dbparam = config()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

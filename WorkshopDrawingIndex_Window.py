@@ -3672,10 +3672,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         break
                                     else:
                                         from TAGEdit_WorkshopDrawings_Window import Ui_EditTags_WorkshopDrawings_Window
-                                        config_obj = configparser.ConfigParser()
-                                        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-                                        dbparam = config_obj["postgresql"]
-                                        # set your parameters for the database connection URI using the keys from the configfile.ini
+                                        dbparam = config()
                                         user_database = dbparam["user"]
                                         password_database = dbparam["password"]
 
@@ -5410,8 +5407,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         return grouped_flanges
 
     def create_df_bars_flanged_tw(self, dataframe):
-        dataframe['bore_diameter'] = dataframe.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
-        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)) - 3, axis=1)
+        dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip().replace(',', '.'),axis=1)
+
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - int(row['dim_tw'].split('//')[1].strip()) - 3,axis=1)
 
         if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
             dataframe['base_diam'] = dataframe.apply(
@@ -5785,10 +5783,7 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
+    dbparam = config()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
