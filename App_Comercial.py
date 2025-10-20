@@ -845,13 +845,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        if self.username == 'l.bravo':
-            number_columns = 12
-        else:
-            number_columns = 11
-        self.tableOffer.setColumnCount(number_columns)
+        self.tableOffer.setColumnCount(12)
         self.tableOffer.setRowCount(0)
-        for i in range(number_columns):
+        for i in range(12):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -1040,6 +1036,8 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         item.setText(_translate("App_Comercial", "Ptos. Importantes"))
         item = self.tableOffer.horizontalHeaderItem(10)
         item.setText(_translate("App_Comercial", "Seguimiento"))
+        item = self.tableOffer.horizontalHeaderItem(11)
+        item.setText(_translate("App_Comercial", "Acciones"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
@@ -1380,7 +1378,8 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         """)
 
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability","notes","important","tracking"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability",
+                    "notes","important","tracking","actions"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -1402,7 +1401,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                     cur.execute(commands_appcomercial,(responsible,))
                     results=cur.fetchall()
-                    number_columns = 11
+                    number_columns = 12
 
                 self.tableOffer.setRowCount(len(results))
                 tablerow=0
@@ -1629,7 +1628,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.clientresume(item)
         elif item.column() == 0:
             self.editofferform(item)
-        elif item.column() in [8, 9, 10]:
+        elif item.column() in [8, 9, 10, 11]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
