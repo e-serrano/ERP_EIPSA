@@ -1800,6 +1800,43 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Verification.setIconSize(QtCore.QSize(int(40), int(40)))
             self.Button_Verification.setObjectName("Button_Verification")
             self.Header.addWidget(self.Button_Verification)
+            spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem)
+            self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Order_Control.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Order_Control.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Order_Control.setToolTip('Control Pedidos')
+            self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Order_Control.setText("")
+            self.Button_Order_Control.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Order_Control.setObjectName("Button_Order_Control")
+            self.Header.addWidget(self.Button_Order_Control)
+            icon1 = QtGui.QIcon()
+            icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Order_Control.setIcon(icon1)
+            self.Button_Order_Control.clicked.connect(self.order_control)
             
             self.Button_Factory.clicked.connect(self.factory)
             self.Button_OT.clicked.connect(self.otorder)
@@ -3111,7 +3148,22 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.edit_offer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
+# Function to open window to edit orders
+    def order_control(self):
+        """
+        Opens the order window for managing order operations.
+        """
+        from Order_Control_Technical_Window import Ui_Technical_Order_Control_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
 
+        db_order_control = Create_DBconnection(user_database, password_database, 'order_control_technical_connection')
+        if not db_order_control:
+            sys.exit()
+
+        self.order_control_window = Ui_Technical_Order_Control_Window(db_order_control, self.username)
+        self.order_control_window.showMaximized()
 
 
 
@@ -3119,7 +3171,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())
