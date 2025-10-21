@@ -182,7 +182,7 @@ class Ui_App_Invoicing(object):
             icon1 = QtGui.QIcon()
             icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Tags.setIcon(icon1)
-            self.Button_Tags.clicked.connect(self.edit_tag)
+            self.Button_Tags.clicked.connect(self.edit_tag_invoicing)
             self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Order_Control.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Order_Control.setMaximumSize(QtCore.QSize(50, 50))
@@ -541,7 +541,7 @@ class Ui_App_Invoicing(object):
             self.Button_EditOffer.clicked.connect(self.edit_offer)
             self.Button_NewOrder.clicked.connect(self.new_order)
             self.Button_NewTag.clicked.connect(self.new_tag)
-            self.Button_EditTag.clicked.connect(self.edit_tag)
+            self.Button_EditTag.clicked.connect(self.edit_tag_commercial)
 
         elif self.name in ['Javier Zofio']:
             self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -653,6 +653,8 @@ class Ui_App_Invoicing(object):
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.load_notifications()
+
+        # self.update_invoices()
 
 
 # Function to translate and updates the text of various UI elements
@@ -1342,7 +1344,7 @@ class Ui_App_Invoicing(object):
         return messsage
 
 # Function to open window for tag edition
-    def edit_tag(self):
+    def edit_tag_invoicing(self):
         """
         Opens a window for editing tags in the facturation system.
         """
@@ -1464,7 +1466,7 @@ class Ui_App_Invoicing(object):
         self.new_tag_window.show()
 
 # Function to open window to edit tags
-    def edit_tag(self):
+    def edit_tag_commercial(self):
         """
         Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
 
@@ -1505,90 +1507,83 @@ class Ui_App_Invoicing(object):
 
 # Function to update invoice data coming from Access File
     def update_invoices(self):
+    # Connection to access file
         with Access_Connection(ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD) as conn_access:
             with conn_access.cursor() as cur_access:
 
-        # Últimos 50 registros
+            # Obtain data from last 50 registers of access file
                 cur_access.execute("""
-                    SELECT TOP 50 FactencabId, FactencabNumFact, FactencabFecha
+                    SELECT TOP 50 FactencabId, FactencabNumFact, FactencabFecha, FactencabNuRef
                     FROM FACT_ENCAB
                     ORDER BY FactencabId DESC
-                """)
+                    """)
                 access_rows = cur_access.fetchall()
 
-            # Convertimos a dict {id: (numfact, fecha)}
-                access_dict = {row[0]: (row[1], row[2]) for row in access_rows}
+            # Convert to dict for easier comparison
+                access_dict = {row[0]: (row[1], row[2], row[3]) for row in access_rows}
                 access_ids = list(access_dict.keys())
-                print(access_rows)
 
-        # =============================
-        # 🔸 2. Conexión a PostgreSQL
-        # =============================
+    # Connection to PostgreSQL
+        with Database_Connection(config()) as conn_pg:
+            with conn_pg.cursor() as cur_pg:
 
-        # with Database_Connection(config()) as conn_pg:
-        #     with conn_pg.cursor() as cur_pg:
-        # # Leemos solo esos IDs en PG
-        #         cur_pg.execute("""
-        #             SELECT factencabid, factencabnumfact, factencabfecha
-        #             FROM fact_encab
-        #             WHERE factencabid = ANY(%s)
-        #         """, (access_ids,))
-        #         pg_rows = cur_pg.fetchall()
-        #     pg_dict = {row[0]: (row[1], row[2]) for row in pg_rows}
+        # Read existing data from PostgreSQL
+                cur_pg.execute("""
+                    SELECT factencabid, factencabnumfact, factencabfecha, nuref
+                    FROM fact_encab
+                    WHERE factencabid = ANY(%s)
+                """, (access_ids,))
+                pg_rows = cur_pg.fetchall()
+            pg_dict = {row[0]: (row[1], row[2], row[3]) for row in pg_rows}
 
-        # # =============================
-        # # 🧮 3. Detectar cambios
-        # # =============================
-        #     access_set = set(access_dict.keys())
-        #     pg_set = set(pg_dict.keys())
+            access_set = set(access_dict.keys())
+            pg_set = set(pg_dict.keys())
 
-        #     # Insertar → están en Access pero no en PG
-        #     to_insert = access_set - pg_set
+            # Insert data in Access but not in PG
+            to_insert = access_set - pg_set
 
-        #     # Modificar → están en ambos pero con valores distintos
-        #     to_update = {
-        #         id_: access_dict[id_]
-        #         for id_ in (access_set & pg_set)
-        #         if access_dict[id_] != pg_dict[id_]
-        #     }
+            # Modify data in both but with different values
+            to_update = {
+                id_: access_dict[id_]
+                for id_ in (access_set & pg_set)
+                if access_dict[id_] != pg_dict[id_]
+            }
 
-        #     # Eliminar → están en PG pero no en Access
-        #     to_delete = pg_set - access_set
+            # Delete data in PG but not in Access
+            to_delete = pg_set - access_set
 
-        # # =============================
-        # # 🚀 4. Insertar y actualizar en bloque
-        # # =============================
-        # # Inserciones
-        #     with conn_pg.cursor() as cur_pg:
-        #         if to_insert:
-        #             insert_data = [(id_, access_dict[id_][0], access_dict[id_][1]) for id_ in to_insert]
-        #             execute_values(cur_pg, """
-        #                 INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha)
-        #                 VALUES %s
-        #             """, insert_data)
+        # Bulk database operations
+            with conn_pg.cursor() as cur_pg:
+                # Insertions
+                if to_insert:
+                    insert_data = [(id_, access_dict[id_][0], access_dict[id_][1], access_dict[id_][2]) for id_ in to_insert]
+                    execute_values(cur_pg, """
+                        INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha, nuref)
+                        VALUES %s
+                    """, insert_data)
 
-        #         # Actualizaciones → usando UPSERT para evitar separar lógicas
-        #         if to_update:
-        #             upsert_data = [(id_, data[0], data[1]) for id_, data in to_update.items()]
-        #             execute_values(cur_pg, """
-        #                 INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha)
-        #                 VALUES %s
-        #                 ON CONFLICT (factencabid)
-        #                 DO UPDATE SET
-        #                     factencabnumfact = EXCLUDED.factencabnumfact,
-        #                     factencabfecha = EXCLUDED.factencabfecha
-        #             """, upsert_data)
+                # Updates with UPSERT to avoid logic separations
+                if to_update:
+                    print('a')
+                    upsert_data = [(id_, data[0], data[1], data[2]) for id_, data in to_update.items()]
+                    execute_values(cur_pg, """
+                        INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha, nuref)
+                        VALUES %s
+                        ON CONFLICT (factencabid)
+                        DO UPDATE SET
+                            factencabnumfact = EXCLUDED.factencabnumfact,
+                            factencabfecha = EXCLUDED.factencabfecha,
+                            nuref = EXCLUDED.nuref
+                    """, upsert_data)
 
-        #         # =============================
-        #         # 🧹 5. Eliminar registros
-        #         # =============================
-        #         if to_delete:
-        #             cur_pg.execute("""
-        #                 DELETE FROM fact_encab
-        #                 WHERE factencabid = ANY(%s)
-        #             """, (list(to_delete),))
+                # Deletions
+                if to_delete:
+                    cur_pg.execute("""
+                        DELETE FROM fact_encab
+                        WHERE factencabid = ANY(%s)
+                    """, (list(to_delete),))
 
-        #     conn_pg.commit()
+            conn_pg.commit()
 
 
 
