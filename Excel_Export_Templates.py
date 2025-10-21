@@ -1,6 +1,6 @@
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle
+from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle, Border, Side
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.utils import get_column_letter
@@ -10396,6 +10396,122 @@ class future_projects:
         if output_path:
             self.wb.save(output_path)
             return output_path
+
+class order_reports:
+    """
+    A class to manage future projects report.
+    
+    Attributes:
+        num_order (str): The order number.
+    """
+    def __init__(self, df1, df2, df3):
+        """
+        Initializes an order_reports instance with dataframe with data.
+        
+        Args:
+            df (str): The order number.
+        """
+        self.df1 = df1
+        self.df2 = df2
+        self.df3 = df3
+
+        self.wb = load_workbook(str(get_path("Plantillas Exportación", "TEMPLATE ORDERS REPORT.xlsx")))
+
+        sheet_name = "PEDIDOS"
+        ws = self.wb[sheet_name]
+
+        date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+        currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
+        last_row = 11
+        for index, row in df1.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                if col_num in [7, 8, 15, 16, 17, 19, 22, 23, 24, 26, 27, 28]:
+                    if value is not None:
+                        if isinstance(value, datetime):
+                            cell.value = value
+                        else:
+                            try:
+                                cell.value = datetime.strptime(str(value), "%d/%m/%Y")
+                            except ValueError:
+                                cell.value = value
+                    else:
+                        cell.value = value
+                    cell.style = date_style
+                elif col_num in [34]:
+                    cell.value = value
+                    cell.style = currency_style
+                else:
+                    cell.value = value
+
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            last_row = last_row + 1
+
+        last_row = last_row + 2
+        for col_num, header in enumerate(df2.columns, start=1):
+            cell = ws.cell(row=last_row, column=col_num)
+            cell.value = header
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell._style = ws["A10"]._style
+        last_row += 1
+
+        for index, row in df2.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                if col_num in [3, 6]:
+                    cell.value = value
+                    cell.style = currency_style
+                else:
+                    cell.value = value
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = last_row + 1
+
+        last_row = last_row + 2
+        for col_num, header in enumerate(df3.columns, start=1):
+            cell = ws.cell(row=last_row, column=col_num)
+            cell.value = header
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell._style = ws["A10"]._style
+        last_row += 1
+
+        for index, row in df3.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                cell.value = value
+                cell.style = currency_style
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = last_row + 1
+
+
+        self.save_excel()
+
+    def save_excel(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar Informe",
+        )
+        if output_path:
+            self.wb.save(output_path)
+            return output_path
+
 
 # offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
 # offer_short_temp('O-23/001', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
