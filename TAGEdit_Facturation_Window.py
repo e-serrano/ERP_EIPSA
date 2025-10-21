@@ -11,8 +11,8 @@ from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from utils.Database_Manager import Create_DBconnection
-from config import config
+from utils.Database_Manager import Create_DBconnection, Database_Connection
+from config import config, get_path
 import psycopg2
 import re
 import configparser
@@ -21,6 +21,7 @@ from datetime import *
 import os
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename, askopenfilename
+from utils.Show_Message import MessageHelper
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1369,7 +1370,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.toolImpExcel.clicked.connect(self.importexcel)
-        self.toolInvoice.clicked.connect(self.send_to_invoice)
+        self.toolInvoice.clicked.connect(self.invoice_order)
         self.tooladdItem.clicked.connect(self.add_item)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
@@ -1834,7 +1835,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2", "Nº Factura"]
+                            "Factura", "Fotos 2", "% Factura"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
@@ -1870,7 +1871,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2", "Nº Factura"]
+                            "Factura", "Fotos 2", "% Factura"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
@@ -1907,7 +1908,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2", "Nº Factura"]
+                            "Factura", "Fotos 2", "% Factura"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
@@ -1921,26 +1922,16 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
                             "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Est. Fact.", "Fotos 2", "Nº Factura"]
+                            "Factura", "Fotos 2", "% Factura"]
 
-            list_invoice_state = ['', 'Facturado']
-            
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
-                self.tableEditTags.setItemDelegateForColumn(165, self.combo_itemtype)
             elif self.variable == 'Temperatura':
                 self.model.setAllColumnHeaders(headers_temp)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
-                self.tableEditTags.setItemDelegateForColumn(175, self.combo_itemtype)
             elif self.variable == 'Nivel':
                 self.model.setAllColumnHeaders(headers_level)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
-                self.tableEditTags.setItemDelegateForColumn(178, self.combo_itemtype)
             elif self.variable == 'Otros':
                 self.model.setAllColumnHeaders(headers_others)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
-                self.tableEditTags.setItemDelegateForColumn(64, self.combo_itemtype)
 
         # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
@@ -2047,20 +2038,14 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
                 self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-                list_invoice_state = ['', 'Facturado']
-                
                 if self.variable2 == 'Caudal':
                     self.model2.setAllColumnHeaders(headers_flow)
-                    self.tableEditTags2.setItemDelegateForColumn(165, self.combo_itemtype)
                 elif self.variable2 == 'Temperatura':
                     self.model2.setAllColumnHeaders(headers_temp)
-                    self.tableEditTags2.setItemDelegateForColumn(175, self.combo_itemtype)
                 elif self.variable2 == 'Nivel':
                     self.model2.setAllColumnHeaders(headers_level)
-                    self.tableEditTags2.setItemDelegateForColumn(178, self.combo_itemtype)
                 elif self.variable2 == 'Otros':
                     self.model2.setAllColumnHeaders(headers_others)
-                    self.tableEditTags2.setItemDelegateForColumn(64, self.combo_itemtype)
 
             # Getting the unique values for each column of the model
                 for column in range(self.model2.columnCount()):
@@ -2645,9 +2630,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
 
                     columns = ', '.join([column for column, _ in columns_values])
-                    values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact'] and value.endswith('.0')
+                    values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact','percent_invoiced'] and value.endswith('.0')
                                         else (f"'{value.replace('.', ',')}'" if column in ['amount_fact']
-                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_delivery']
+                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_delivery','percent_invoiced']
                                         else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
@@ -2722,6 +2707,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 text = self.get_selected_text(selected_indexes)
                 if isinstance(text, QtCore.QDate):
                     text=text.toString("dd/MM/yyyy")
+                elif isinstance(text, int):
+                    text=str(text)
                 clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
@@ -3116,6 +3103,68 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
+# Function to invoice a complete order
+    def invoice_order(self):
+        icon_path = os.path.abspath(str(get_path("Resources", "Iconos", "icon.ico")))
+        icon = QtGui.QIcon(QtGui.QPixmap(icon_path))
+
+    # Dialog to input order number
+        dlg = QtWidgets.QInputDialog()
+        dlg.setWindowIcon(icon)
+        dlg.setWindowTitle("Facturar")
+        dlg.setLabelText("Introduce el número de pedido:")
+        if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
+            return
+        num_order = dlg.textValue().strip()
+        if not num_order:
+            MessageHelper.show_message("El número de pedido no puede estar vacío", "warning")
+            return
+
+    # Dialog to input invoice number
+        dlg2 = QtWidgets.QInputDialog()
+        dlg2.setWindowIcon(icon)
+        dlg2.setWindowTitle("Facturar")
+        dlg2.setLabelText("Introduce el número de factura:")
+        if dlg2.exec() != QtWidgets.QDialog.DialogCode.Accepted:
+            return
+        num_invoice = dlg2.textValue().strip()
+        if not num_invoice:
+            MessageHelper.show_message("El número de factura no puede estar vacío", "warning")
+            return
+        
+        if num_order and num_invoice:
+            query_update_flow = ("""
+                UPDATE tags_data.tags_flow
+                SET invoice_number = %s, percent_invoiced = 100, amount_fact = amount
+                WHERE num_order = %s""")
+            
+            query_update_temp = ("""
+                UPDATE tags_data.tags_temp
+                SET invoice_number = %s, percent_invoiced = 100, amount_fact = amount
+                WHERE num_order = %s""")
+
+            query_update_level = ("""
+                UPDATE tags_data.tags_level
+                SET invoice_number = %s, percent_invoiced = 100, amount_fact = amount
+                WHERE num_order = %s""")
+            
+            query_update_others = ("""
+                UPDATE tags_data.tags_others
+                SET invoice_number = %s, percent_invoiced = 100, amount_fact = amount
+                WHERE num_order = %s""")
+            
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_update_flow, (num_invoice, num_order))
+                    cur.execute(query_update_temp, (num_invoice, num_order))
+                    cur.execute(query_update_level, (num_invoice, num_order))
+                    cur.execute(query_update_others, (num_invoice, num_order))
+                conn.commit()
+
+            MessageHelper.show_message("Pedidos facturados correctamente", "info")
+
+
+
 
 if __name__ == "__main__":
     import sys
@@ -3128,6 +3177,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsFacturation_Window = Ui_EditTags_Facturation_Window('Ernesto Carrillo',db)
+    EditTagsFacturation_Window = Ui_EditTags_Facturation_Window('Miguel Sahuquillo',db)
     EditTagsFacturation_Window.show()
     sys.exit(app.exec())
