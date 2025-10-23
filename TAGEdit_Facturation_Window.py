@@ -24,7 +24,6 @@ from tkinter.filedialog import asksaveasfilename, askopenfilename
 from utils.Show_Message import MessageHelper
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -195,7 +194,7 @@ class FreezeTableWidget(QtWidgets.QTableView):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -358,7 +357,7 @@ class FreezeTableWidget2(QtWidgets.QTableView):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -649,7 +648,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         match_found = True
                         break
                 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
@@ -1136,7 +1135,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         EditTagsFacturation_Window.resize(790, 595)
         EditTagsFacturation_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTagsFacturation_Window.setWindowIcon(icon)
         EditTagsFacturation_Window.setStyleSheet(
 ".QFrame {\n"
@@ -1160,7 +1159,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -1170,7 +1169,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -1180,7 +1179,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setToolTip("Exportar a Excel")
         self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
 
@@ -1191,7 +1190,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolImpExcel.setToolTip("Importar Excel")
         self.hcab.addWidget(self.toolImpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolImpExcel.setIcon(icon)
         self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -1200,7 +1199,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolInvoice.setObjectName("Invoice_Button")
         self.toolInvoice.setToolTip("Exportar a Factura")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolInvoice.setIcon(icon)
         self.toolInvoice.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolInvoice)
@@ -1212,7 +1211,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.tooladdItem.setToolTip("Añadir Item")
         self.hcab.addWidget(self.tooladdItem)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.tooladdItem.setIcon(icon)
         self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
 
@@ -1509,29 +1508,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.numorder = self.Numorder_EditTags.text()
 
-        if self.numorder=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena alguno de los campos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-            self.model.dataChanged.connect(self.saveChanges)
-
-        else:
+        if self.numorder != "":
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
@@ -1543,47 +1522,20 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         WHERE
                         UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(self.numorder,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query,(self.numorder,))
+                            results_variable=cur.fetchone()
+                            self.variable = results_variable[1] if results_variable != None else ''
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
+                    MessageHelper.show_message("El número de pedido no existe", "warning")
 
                 else:
                     query_flow = ('''
@@ -1606,57 +1558,39 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         FROM tags_data.tags_others
                         WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_flow,(self.numorder,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(self.numorder,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(self.numorder,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(self.numorder,))
-                        results_others=cur.fetchall()
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(query_flow,(self.numorder,))
+                                results_flow=cur.fetchall()
+                                cur.execute(query_temp,(self.numorder,))
+                                results_temp=cur.fetchall()
+                                cur.execute(query_level,(self.numorder,))
+                                results_level=cur.fetchall()
+                                cur.execute(query_others,(self.numorder,))
+                                results_others=cur.fetchall()
 
-                        if len(results_flow) != 0 and len(results_temp) != 0:
-                            self.variable = 'Caudal+Temp'
-                        elif len(results_flow) != 0 and len(results_level) != 0:
-                            self.variable = 'Caudal+Nivel'
-                        elif len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
+                                if len(results_flow) != 0 and len(results_temp) != 0:
+                                    self.variable = 'Caudal+Temp'
+                                elif len(results_flow) != 0 and len(results_level) != 0:
+                                    self.variable = 'Caudal+Nivel'
+                                elif len(results_flow) != 0:
+                                    self.variable = 'Caudal'
+                                elif len(results_temp) != 0:
+                                    self.variable = 'Temperatura'
+                                elif len(results_level) != 0:
+                                    self.variable = 'Nivel'
+                                elif len(results_others) != 0:
+                                    self.variable = 'Otros'
+                                else:
+                                    self.variable = ''
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
+                # Setting the table depenging on the variable
                     if self.variable == 'Caudal+Temp':
                         self.variable = 'Caudal'
                         self.variable2 = 'Temperatura'
@@ -1720,360 +1654,361 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
                     self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
-        if self.variable != '':
-            self.tableEditTags.setModel(None)
-            self.tableEditTags.setModel(self.proxy)
-            self.model.select()
+            if self.variable != '':
+                self.tableEditTags.setModel(None)
+                self.tableEditTags.setModel(self.proxy)
+                self.model.select()
 
-            self.proxy.setSourceModel(self.model)
-            self.tableEditTags.setModel(self.proxy)
-
-            columns_number=self.model.columnCount()
-            for column in range(columns_number):
-                self.tableEditTags.setItemDelegateForColumn(column, None)
-            self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 9))
-
-            if self.variable == 'Caudal':
-                for i in range(3,4):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(9,30):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(31,68):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(69)
-                for i in range(71,157):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(166)
-
-            elif self.variable == 'Temperatura':
-                for i in range(3,4):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(9,35):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(36,76):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(77)
-                for i in range(79,167):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(176)
-
-            elif self.variable == 'Nivel':
-                for i in range(3,4):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(10,36):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(39,62):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(63)
-                for i in range(65,170):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(179)
-
-            elif self.variable == 'Otros':
-                for i in range(3,4):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(9,11):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(12,21):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(22)
-                for i in range(24,57):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(66)
-
-
-            # self.tableEditTags.verticalHeader().hide()
-            self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
-            self.color_delegate = ColorDelegate_Position(self)
-            self.tableEditTags.setItemDelegateForColumn(self.column_position, self.color_delegate)
-            self.color_delegate = ColorDelegate_Subposition(self)
-            self.tableEditTags.setItemDelegateForColumn(self.column_subposition, self.color_delegate)
-            self.color_delegate = ColorDelegate_DifferenceAmount(self)
-            self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-            self.tableEditTags.setObjectName("tableEditTags")
-            self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
-            self.tableEditTags.setSortingEnabled(False)
-            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
-            self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-            self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-        # Change all column names
-            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Pos.", "Subpos.", "Tipo", "Tamaño Línea",
-                            "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                            "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                            "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
-                            "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "F. Cont.", "Ø Orif. (mm)",
-                            "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                            "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
-                            "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                            "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
-                            "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo",
-                            "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
-                            "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
-                            "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
-                            "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
-                            "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
-                            "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
-                            "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
-                            "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
-                            "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
-                            "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
-                            "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Factura", "Fotos 2", "% Factura"]
-
-            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
-                            "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
-                            "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
-                            "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
-                            "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
-                            "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.", "Stress",
-                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
-                            "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                            "Notas Sensor", "Est. Fab. Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                            "Est. Fab. TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
-                            "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                            "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
-                            "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
-                            "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
-                            "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
-                            "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
-                            "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
-                            "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
-                            "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
-                            "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
-                            "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
-                            "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
-                            "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
-                            "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
-                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
-                            "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
-                            "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
-                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Factura", "Fotos 2", "% Factura"]
-
-            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
-                            "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
-                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
-                            "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
-                            "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
-                            "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
-                            "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
-                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
-                            "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
-                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
-                            "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                            "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
-                            "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
-                            "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
-                            "Cant. Válv.", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida", "Cod. DV",
-                            "Cod. Fab. DV", "Cant. DV", "Cod. Escala", "Cod. Fab. Escala", "Cant. Escala",
-                            "Cod. Ilum.", "Cod. Fab. Ilum", "Cant. Ilum", "Cod. Junta Vidrio", "Cod. Fab. Junta Vidrio",
-                            "Cant. Junta Vidrio", "Cod. Vidrio", "Cod. Fab. Vidrio", "Cant. Vidrio", "Cod. Flotador",
-                            "Cod. Fab. Flotador", "Cant. Flotador", "Cod. Mica", "Cod. Fab. Mica", "Cant. Mica",
-                            "Cod. Flags", "Cod. Fab. Flags", "Cant. Flags", "Cod. Junta Brida", "Cod. Fab. Junta Brida",
-                            "Cant. Junta Brida", "Cod. Niplo Tubo", "Cod. Fab. Niplo Tubo", "Cant. Niplo Tubo", "Cod. Antifrost",
-                            "Cod. Fab. Antifrost", "Cant. Antifrost", "Pedido Tipo Tag", "Trad. Cuerpo", "Trad. Cubierta",
-                            "Trad. Tornillería", "Trad. Niplo Hex.", "Trad. Válv", "Trad. Brida", "Trad. DV",
-                            "Trad. Escala", "Trad. Ilum.", "Trad. Junta Vidrio", "Trad. Vidrio", "Trad. Flotador",
-                            "Trad. Mica", "Trad. Flags", "Trad. Junta Brida", "Trad. Niplo Tubo", "Trad. Antifrost",
-                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Factura", "Fotos 2", "% Factura"]
-
-            headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
-                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN",
-                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                            "Factura", "Fotos 2", "% Factura"]
-
-            if self.variable == 'Caudal':
-                self.model.setAllColumnHeaders(headers_flow)
-            elif self.variable == 'Temperatura':
-                self.model.setAllColumnHeaders(headers_temp)
-            elif self.variable == 'Nivel':
-                self.model.setAllColumnHeaders(headers_level)
-            elif self.variable == 'Otros':
-                self.model.setAllColumnHeaders(headers_others)
-
-        # Getting the unique values for each column of the model
-            for column in range(self.model.columnCount()):
-                list_valuesUnique = []
-                if column not in self.checkbox_states:
-                    self.checkbox_states[column] = {}
-                    self.checkbox_states[column]['Seleccionar todo'] = True
-                    for row in range(self.model.rowCount()):
-                        value = self.model.record(row).value(column)
-                        if value not in list_valuesUnique:
-                            if isinstance(value, QtCore.QDate):
-                                value=value.toString("dd/MM/yyyy")
-                            list_valuesUnique.append(str(value))
-                            self.checkbox_states[column][value] = True
-                    self.dict_valuesuniques[column] = list_valuesUnique
-
-            self.model.dataChanged.connect(self.saveChanges)
-            self.selection_model = self.tableEditTags.selectionModel()
-            self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model))
-
-            if self.variable2 is not None:
-                self.tableEditTags2.show()
-                self.checkbox_states2 = {}
-                self.dict_valuesuniques2 = {}
-                self.dict_ordersort2 = {}
-                self.hiddencolumns2 = []
-
-                self.tableEditTags2.setModel(None)
-                self.tableEditTags2.setModel(self.proxy2)
-                self.model2.select()
-
-                self.proxy2.setSourceModel(self.model2)
-                self.tableEditTags2.setModel(self.proxy2)
+                self.proxy.setSourceModel(self.model)
+                self.tableEditTags.setModel(self.proxy)
 
                 columns_number=self.model.columnCount()
                 for column in range(columns_number):
                     self.tableEditTags.setItemDelegateForColumn(column, None)
-                self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 3)) + list(range(self.initial_column2_,columns_number - 8))
+                self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 9))
 
+            # Hiding unnecesary columns depending on the variable type
                 if self.variable == 'Caudal':
                     for i in range(3,4):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(9,30):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(31,68):
-                        self.tableEditTags2.hideColumn(i)
-                    self.tableEditTags2.hideColumn(69)
-                    for i in range(71,157):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
+                    self.tableEditTags.hideColumn(69)
+                    for i in range(72,157):
+                        self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(166)
 
                 elif self.variable == 'Temperatura':
                     for i in range(3,4):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(9,35):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(36,76):
-                        self.tableEditTags2.hideColumn(i)
-                    self.tableEditTags2.hideColumn(77)
-                    for i in range(79,167):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
+                    self.tableEditTags.hideColumn(77)
+                    for i in range(80,167):
+                        self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(176)
 
                 elif self.variable == 'Nivel':
                     for i in range(3,4):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(10,36):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(39,62):
-                        self.tableEditTags2.hideColumn(i)
-                    self.tableEditTags2.hideColumn(63)
-                    for i in range(65,170):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
+                    self.tableEditTags.hideColumn(63)
+                    for i in range(66,170):
+                        self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(179)
 
                 elif self.variable == 'Otros':
                     for i in range(3,4):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(9,11):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
                     for i in range(12,21):
-                        self.tableEditTags2.hideColumn(i)
-                    self.tableEditTags2.hideColumn(22)
-                    for i in range(24,57):
-                        self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(i)
+                    self.tableEditTags.hideColumn(22)
+                    for i in range(25,57):
+                        self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(66)
 
-                # self.tableEditTags.verticalHeader().hide()
-                self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
+            # Setting delegates, resizing modes and header stles
+                self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
                 self.color_delegate = ColorDelegate_Position(self)
-                self.tableEditTags2.setItemDelegateForColumn(self.column_position2, self.color_delegate)
+                self.tableEditTags.setItemDelegateForColumn(self.column_position, self.color_delegate)
                 self.color_delegate = ColorDelegate_Subposition(self)
-                self.tableEditTags2.setItemDelegateForColumn(self.column_subposition2, self.color_delegate)
+                self.tableEditTags.setItemDelegateForColumn(self.column_subposition, self.color_delegate)
                 self.color_delegate = ColorDelegate_DifferenceAmount(self)
-                self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
-                self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-                self.tableEditTags2.setObjectName("tableEditTags2")
-                self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
-                self.tableEditTags2.setSortingEnabled(False)
-                self.tableEditTags2.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags2, self.model2, self.proxy2))
-                self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
+                self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableEditTags.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableEditTags.setObjectName("tableEditTags")
+                self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+                self.tableEditTags.setSortingEnabled(False)
+                self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
+                self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-                if self.variable2 == 'Caudal':
-                    self.model2.setAllColumnHeaders(headers_flow)
-                elif self.variable2 == 'Temperatura':
-                    self.model2.setAllColumnHeaders(headers_temp)
-                elif self.variable2 == 'Nivel':
-                    self.model2.setAllColumnHeaders(headers_level)
-                elif self.variable2 == 'Otros':
-                    self.model2.setAllColumnHeaders(headers_others)
+            # Change all column names
+                headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Tamaño Línea",
+                                "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
+                                "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                                "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
+                                "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
+                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "F. Cont.", "Ø Orif. (mm)",
+                                "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                                "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
+                                "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
+                                "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
+                                "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
+                                "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
+                                "Cantidad Extractor", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo",
+                                "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
+                                "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
+                                "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
+                                "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
+                                "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
+                                "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
+                                "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
+                                "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
+                                "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
+                                "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
+                                "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Factura", "Fotos 2", "% Factura"]
+
+                headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
+                                "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
+                                "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
+                                "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
+                                "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
+                                "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
+                                "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.", "Stress",
+                                "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
+                                "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
+                                "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
+                                "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
+                                "Notas Sensor", "Est. Fab. Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
+                                "Est. Fab. TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                                "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
+                                "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
+                                "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
+                                "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
+                                "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
+                                "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
+                                "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
+                                "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
+                                "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
+                                "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
+                                "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
+                                "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
+                                "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
+                                "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
+                                "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
+                                "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
+                                "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
+                                "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Factura", "Fotos 2", "% Factura"]
+
+                headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
+                                "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
+                                "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
+                                "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
+                                "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
+                                "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
+                                "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
+                                "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
+                                "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
+                                "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
+                                "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
+                                "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
+                                "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
+                                "Cant. Válv.", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida", "Cod. DV",
+                                "Cod. Fab. DV", "Cant. DV", "Cod. Escala", "Cod. Fab. Escala", "Cant. Escala",
+                                "Cod. Ilum.", "Cod. Fab. Ilum", "Cant. Ilum", "Cod. Junta Vidrio", "Cod. Fab. Junta Vidrio",
+                                "Cant. Junta Vidrio", "Cod. Vidrio", "Cod. Fab. Vidrio", "Cant. Vidrio", "Cod. Flotador",
+                                "Cod. Fab. Flotador", "Cant. Flotador", "Cod. Mica", "Cod. Fab. Mica", "Cant. Mica",
+                                "Cod. Flags", "Cod. Fab. Flags", "Cant. Flags", "Cod. Junta Brida", "Cod. Fab. Junta Brida",
+                                "Cant. Junta Brida", "Cod. Niplo Tubo", "Cod. Fab. Niplo Tubo", "Cant. Niplo Tubo", "Cod. Antifrost",
+                                "Cod. Fab. Antifrost", "Cant. Antifrost", "Pedido Tipo Tag", "Trad. Cuerpo", "Trad. Cubierta",
+                                "Trad. Tornillería", "Trad. Niplo Hex.", "Trad. Válv", "Trad. Brida", "Trad. DV",
+                                "Trad. Escala", "Trad. Ilum.", "Trad. Junta Vidrio", "Trad. Vidrio", "Trad. Flotador",
+                                "Trad. Mica", "Trad. Flags", "Trad. Junta Brida", "Trad. Niplo Tubo", "Trad. Antifrost",
+                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Factura", "Fotos 2", "% Factura"]
+
+                headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
+                                "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN",
+                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Factura", "Fotos 2", "% Factura"]
+
+                if self.variable == 'Caudal':
+                    self.model.setAllColumnHeaders(headers_flow)
+                elif self.variable == 'Temperatura':
+                    self.model.setAllColumnHeaders(headers_temp)
+                elif self.variable == 'Nivel':
+                    self.model.setAllColumnHeaders(headers_level)
+                elif self.variable == 'Otros':
+                    self.model.setAllColumnHeaders(headers_others)
 
             # Getting the unique values for each column of the model
-                for column in range(self.model2.columnCount()):
+                for column in range(self.model.columnCount()):
                     list_valuesUnique = []
-                    if column not in self.checkbox_states2:
-                        self.checkbox_states2[column] = {}
-                        self.checkbox_states2[column]['Seleccionar todo'] = True
-                        for row in range(self.model2.rowCount()):
-                            value = self.model2.record(row).value(column)
+                    if column not in self.checkbox_states:
+                        self.checkbox_states[column] = {}
+                        self.checkbox_states[column]['Seleccionar todo'] = True
+                        for row in range(self.model.rowCount()):
+                            value = self.model.record(row).value(column)
                             if value not in list_valuesUnique:
                                 if isinstance(value, QtCore.QDate):
                                     value=value.toString("dd/MM/yyyy")
                                 list_valuesUnique.append(str(value))
-                                self.checkbox_states2[column][value] = True
-                        self.dict_valuesuniques2[column] = list_valuesUnique
+                                self.checkbox_states[column][value] = True
+                        self.dict_valuesuniques[column] = list_valuesUnique
 
-                self.model2.dataChanged.connect(self.saveChanges)
-                self.selection_model = self.tableEditTags2.selectionModel()
-                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model2))
+                self.model.dataChanged.connect(self.saveChanges)
+                self.selection_model = self.tableEditTags.selectionModel()
+                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model))
 
-                self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
+                if self.variable2 is not None:
+                    self.tableEditTags2.show()
+                    self.checkbox_states2 = {}
+                    self.dict_valuesuniques2 = {}
+                    self.dict_ordersort2 = {}
+                    self.hiddencolumns2 = []
+
+                    self.tableEditTags2.setModel(None)
+                    self.tableEditTags2.setModel(self.proxy2)
+                    self.model2.select()
+
+                    self.proxy2.setSourceModel(self.model2)
+                    self.tableEditTags2.setModel(self.proxy2)
+
+                    columns_number=self.model.columnCount()
+                    for column in range(columns_number):
+                        self.tableEditTags.setItemDelegateForColumn(column, None)
+                    self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 3)) + list(range(self.initial_column2_,columns_number - 8))
+
+                # Hiding unnecesary columns depending on the variable type
+                    if self.variable2 == 'Caudal':
+                        for i in range(3,4):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(9,30):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(31,68):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags2.hideColumn(69)
+                        for i in range(71,157):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(166)
+
+                    elif self.variable2 == 'Temperatura':
+                        for i in range(3,4):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(9,35):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(36,76):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags2.hideColumn(77)
+                        for i in range(79,167):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(176)
+
+                    elif self.variable2 == 'Nivel':
+                        for i in range(3,4):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(10,36):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(39,62):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags2.hideColumn(63)
+                        for i in range(65,170):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(179)
+
+                    elif self.variable2 == 'Otros':
+                        for i in range(3,4):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(9,11):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(12,21):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags2.hideColumn(22)
+                        for i in range(24,57):
+                            self.tableEditTags2.hideColumn(i)
+                        self.tableEditTags.hideColumn(66)
+
+                # Setting delegates, resizing modes and header stles
+                    self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
+                    self.color_delegate = ColorDelegate_Position(self)
+                    self.tableEditTags2.setItemDelegateForColumn(self.column_position2, self.color_delegate)
+                    self.color_delegate = ColorDelegate_Subposition(self)
+                    self.tableEditTags2.setItemDelegateForColumn(self.column_subposition2, self.color_delegate)
+                    self.color_delegate = ColorDelegate_DifferenceAmount(self)
+                    self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
+                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                    self.tableEditTags2.setObjectName("tableEditTags2")
+                    self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
+                    self.tableEditTags2.setSortingEnabled(False)
+                    self.tableEditTags2.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags2, self.model2, self.proxy2))
+                    self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                    self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+                    if self.variable2 == 'Caudal':
+                        self.model2.setAllColumnHeaders(headers_flow)
+                    elif self.variable2 == 'Temperatura':
+                        self.model2.setAllColumnHeaders(headers_temp)
+                    elif self.variable2 == 'Nivel':
+                        self.model2.setAllColumnHeaders(headers_level)
+                    elif self.variable2 == 'Otros':
+                        self.model2.setAllColumnHeaders(headers_others)
+
+                # Getting the unique values for each column of the model
+                    for column in range(self.model2.columnCount()):
+                        list_valuesUnique = []
+                        if column not in self.checkbox_states2:
+                            self.checkbox_states2[column] = {}
+                            self.checkbox_states2[column]['Seleccionar todo'] = True
+                            for row in range(self.model2.rowCount()):
+                                value = self.model2.record(row).value(column)
+                                if value not in list_valuesUnique:
+                                    if isinstance(value, QtCore.QDate):
+                                        value=value.toString("dd/MM/yyyy")
+                                    list_valuesUnique.append(str(value))
+                                    self.checkbox_states2[column][value] = True
+                            self.dict_valuesuniques2[column] = list_valuesUnique
+
+                    self.model2.dataChanged.connect(self.saveChanges)
+                    self.selection_model = self.tableEditTags2.selectionModel()
+                    self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model2))
+
+                    self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
+                else:
+                    self.tableEditTags2.hide()
+
             else:
-                self.tableEditTags2.hide()
+                self.model.dataChanged.connect(self.saveChanges)
 
-        else:
-            self.model.dataChanged.connect(self.saveChanges)
-
-        self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
+            self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -2325,7 +2260,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2370,7 +2305,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2505,7 +2440,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("Buscar")
         clickedButton = dlg.exec()
@@ -2520,7 +2455,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
@@ -2550,15 +2485,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos cargados", "warning")
         else:
             final_data = []
 
@@ -2589,10 +2516,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
 
         if input_file:
-            params = config()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-
         #Importing excel file into dataframe
             df_table = pd.read_excel(input_file, skiprows=1, dtype={'inspection': str, 'rn_delivery': str})
             df_table = df_table.astype(str)
@@ -2604,76 +2527,56 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             df_final = df_table.iloc[:, [0] + list(range(9, df_table.shape[1]))].copy()
 
+            id_column = df_final.columns[0]
+            if id_column == 'id_tag_flow':
+                table_name = 'tags_data.tags_flow'
+            elif id_column == 'id_tag_temp':
+                table_name = 'tags_data.tags_temp'
+            elif id_column == 'id_tag_level':
+                table_name = 'tags_data.tags_level'
+            elif id_column == 'id_tag_others':
+                table_name = 'tags_data.tags_others'
+            else:
+                raise ValueError(f"No se reconoce el ID {id_column} para ninguna tabla")
+
             try:
-                for index, row in df_final.iterrows():
-                    if "id_tag_flow" in row:
-                        id_value = row["id_tag_flow"]
-                        table_name = 'tags_data.tags_flow'
-                        where_clause = f"id_tag_flow = {id_value}"
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cursor:
+                        for _, row in df_final.iterrows():
+                            id_value = row[id_column]
 
-                    elif "id_tag_temp" in row:
-                        id_value = row["id_tag_temp"]
-                        table_name = 'tags_data.tags_temp'
-                        where_clause = f"id_tag_temp = {id_value}"
+                            set_clauses = []
 
-                    elif "id_tag_level" in row:
-                        id_value = row["id_tag_level"]
-                        table_name = 'tags_data.tags_level'
-                        where_clause = f"id_tag_level = {id_value}"
+                            for column, value in row.items():
+                                if column == id_column:
+                                    continue
 
-                    elif "id_tag_others" in row:
-                        id_value = row["id_tag_others"]
-                        table_name = 'tags_data.tags_others'
-                        where_clause = f"id_tag_others = {id_value}"
+                                if value == '':
+                                    set_clauses.append(f"{column} = NULL")
+                                elif column == 'amount_fact':
+                                    set_clauses.append(f"{column} = '{value.replace('.', ',')}'")
+                                elif column in ['pos_fact', 'subpos_fact', 'percent_invoiced']:
+                                    if value.endswith('.0'):
+                                        value = int(float(value))
+                                    set_clauses.append(f"{column} = '{value}'")
+                                else:
+                                    safe_value = str(value).replace("'", "''")
+                                    set_clauses.append(f"{column} = '{safe_value}'")
 
-                    # Creating string for columns names and values
-                    columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
+                            set_clause = ", ".join(set_clauses)
+                            where_clause = f"{id_column} = {id_value}"
+                            sql_update = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause};"
 
-                    columns = ', '.join([column for column, _ in columns_values])
-                    values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact','percent_invoiced'] and value.endswith('.0')
-                                        else (f"'{value.replace('.', ',')}'" if column in ['amount_fact']
-                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_delivery','percent_invoiced']
-                                        else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
-
-                # Creating the SET  and WHERE clause with proper formatting
-                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-
-                # Creating the update query and executing it after checking existing tags and id
-                    sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                    cursor.execute(sql_update)
+                            cursor.execute(sql_update)
                     conn.commit()
 
-            # Closing cursor and database connection
-                conn.commit()
-                cursor.close()
+                MessageHelper.show_message("Datos actualizados con éxito", "info")
 
                 self.query_tags()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos actualizados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
@@ -2880,7 +2783,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Facturar')
         dlg.setLabelText('Introduce el número de factura:')
@@ -2938,7 +2841,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 if len(results_check) == 0:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ese nº de factura no está registrado\n"
@@ -3007,7 +2910,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3043,16 +2946,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to insert new item
     def add_item(self):
@@ -3066,42 +2961,24 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             elif self.variable == 'Otros':
                 table_name = "tags_data.tags_others"
 
-            params = config()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-            
             try:
-                # Creating the update query and executing it after checking existing tags and id
-                # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
-                # cursor.execute(sql_offer)
-                # results_offer = cursor.fetchall()
-                # num_offer = results_offer[0][0]
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                    # Creating the update query and executing it after checking existing tags and id
+                    # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
+                    # cursor.execute(sql_offer)
+                    # results_offer = cursor.fetchall()
+                    # num_offer = results_offer[0][0]
 
-                sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
-                cursor.execute(sql_insert)
-                conn.commit()
-
-            # Closing cursor and database connection
-                conn.commit()
-                cursor.close()
+                        sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
+                        cur.execute(sql_insert)
+                    conn.commit()
 
                 self.query_tags()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to invoice a complete order
     def invoice_order(self):
