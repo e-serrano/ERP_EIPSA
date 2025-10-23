@@ -476,7 +476,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("num_order NOT LIKE '%PA%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -504,10 +504,13 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(37,39):
             self.tableOrders.hideColumn(i)
+        for i in range(42,self.model.columnCount()):
+            self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval']
+                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval', '', '', 'Referencia Aval',
+                'Banco Aval', 'Importe Aval']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
@@ -518,6 +521,9 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         # self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
         self.tableOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setSectionResizeMode(36, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(39, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(40, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(41, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setDefaultSectionSize(80)
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)
@@ -542,7 +548,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.delete_allFilters()
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%'")
+        self.model.setFilter("num_order NOT LIKE '%PA%'")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -570,10 +576,13 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(37,39):
             self.tableOrders.hideColumn(i)
+        for i in range(42,self.model.columnCount()):
+            self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval']
+                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval', '', '', 'Referencia Aval',
+                'Banco Aval', 'Importe Aval']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
@@ -584,6 +593,9 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         # self.tableOrders.setItemDelegateForColumn(35, self.color_delegate)
         self.tableOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setSectionResizeMode(36, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(39, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(40, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOrders.horizontalHeader().setSectionResizeMode(41, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOrders.horizontalHeader().setDefaultSectionSize(80)
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)

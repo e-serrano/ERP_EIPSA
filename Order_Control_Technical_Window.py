@@ -476,7 +476,7 @@ class Ui_Technical_Order_Control_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.model.setTable("public.orders")
-        self.model.setFilter("(num_order NOT LIKE '%R%' AND num_order NOT LIKE 'PA-%') AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("(num_order NOT LIKE '%R%') AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -501,6 +501,8 @@ class Ui_Technical_Order_Control_Window(QtWidgets.QMainWindow):
         for i in range(6,13):
             self.tableOrders.hideColumn(i)
         for i in range(14,42):
+            self.tableOrders.hideColumn(i)
+        for i in range(44,self.model.columnCount()):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','Fecha Pedido','Fecha Cont.','Notas Comercial','','','','','','','','Fecha Env Fab','F. Prev. Taller','',
@@ -544,7 +546,7 @@ class Ui_Technical_Order_Control_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.delete_allFilters()
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%'")
+        self.model.setFilter("num_order NOT LIKE '%R%'")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -569,6 +571,8 @@ class Ui_Technical_Order_Control_Window(QtWidgets.QMainWindow):
         for i in range(6,13):
             self.tableOrders.hideColumn(i)
         for i in range(14,42):
+            self.tableOrders.hideColumn(i)
+        for i in range(44,self.model.columnCount()):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','Fecha Pedido','Fecha Cont.','Notas Comercial','','','','','','','','Fecha Env Fab','F. Prev. Taller','',
