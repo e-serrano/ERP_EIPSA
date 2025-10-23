@@ -101,8 +101,18 @@ class Ui_New_Offer_Window(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        # spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        # self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.label_NextNumOffer = QtWidgets.QLabel(parent=self.frame)
+        self.label_NextNumOffer.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_NextNumOffer.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NextNumOffer.setFont(font)
+        self.label_NextNumOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_NextNumOffer.setObjectName("label_NextNumOffer")
+        self.gridLayout_2.addWidget(self.label_NextNumOffer, 0, 0, 1, 2)
         self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
         self.label_NumOffer.setMinimumSize(QtCore.QSize(150, 25))
         self.label_NumOffer.setMaximumSize(QtCore.QSize(150, 25))
@@ -227,6 +237,14 @@ class Ui_New_Offer_Window(object):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.gridLayout_2.addWidget(self.Button_NewClient, 2, 1, 1, 1)
+        self.NextNumOffer_NewOffer = QtWidgets.QLabel(parent=self.frame)
+        self.NextNumOffer_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.NextNumOffer_NewOffer.setMaximumSize(QtCore.QSize(400, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NextNumOffer_NewOffer.setFont(font)
+        self.NextNumOffer_NewOffer.setObjectName("NextNumOffer_NewOffer")
+        self.gridLayout_2.addWidget(self.NextNumOffer_NewOffer, 0, 2, 1, 4)
         self.NumOffer_NewOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.NumOffer_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
         self.NumOffer_NewOffer.setMaximumSize(QtCore.QSize(175, 25))
@@ -526,6 +544,7 @@ class Ui_New_Offer_Window(object):
         self.Calculation_NewOffer.addItems(['', 'e.carrillo', 'e.serrano', 'N/A'])
 
         self.load_clients()
+        self.load_offers_number()
 
 
 # Function to translate and updates the text of various UI elements
@@ -535,6 +554,7 @@ class Ui_New_Offer_Window(object):
         """
         _translate = QtCore.QCoreApplication.translate
         New_Offer.setWindowTitle(_translate("New_Offer", "Nueva Oferta"))
+        self.label_NextNumOffer.setText(_translate("New_Offer", "Últimas Ofertas Reg.:"))
         self.label_NumOffer.setText(_translate("New_Offer", "*Nº Oferta:"))
         self.label_Client.setText(_translate("New_Offer", "*Cliente:"))
         self.label_FinalClient.setText(_translate("New_Offer", "Cl. Final / Planta:"))
@@ -556,6 +576,7 @@ class Ui_New_Offer_Window(object):
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.Button_NewClient.setText(_translate("New_Offer", "+"))
 
+# Function to load clients list from database
     def load_clients(self):
         """
         Loads the list of clients from the database into the client selection widget.
@@ -588,6 +609,57 @@ class Ui_New_Offer_Window(object):
             self.Mails_NewOffer.setText("copia:jj-franco@eipsa.es,ana-calvo@eipsa.es")
         else:
             self.Mails_NewOffer.setText("copia:jj-franco@eipsa.es")
+
+# Function to load last offers numbers from database
+    def load_offers_number(self):
+        query_next_o = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'O-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_oe = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'OE-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_or = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'OR-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_r = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'R-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_next_o)
+                    results_o = cur.fetchone()
+
+                    cur.execute(query_next_oe)
+                    results_oe = cur.fetchone()
+
+                    cur.execute(query_next_or)
+                    results_or = cur.fetchone()
+
+                    cur.execute(query_next_r)
+                    results_r = cur.fetchone()
+
+                self.NextNumOffer_NewOffer.setText(results_o[0] + " / " + results_oe[0] + " / " + results_or[0] + " / " + results_r[0])
+
+        except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to create a new offer
     def NewOffer(self):
