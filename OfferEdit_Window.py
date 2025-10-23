@@ -749,7 +749,7 @@ class Ui_Edit_Offer_Window(object):
             client=self.Client_EditOffer.currentText()
             finalclient=self.FinalClient_EditOffer.text()
             numref=self.NumRef_EditOffer.text()
-            state=self.State_EditOffer.currentText().split()[0]
+            state=self.State_EditOffer.currentText()
             nacext=self.NacExt_EditOffer.currentText()
             buyer=self.Buyer_EditOffer.text()
             material=self.Material_EditOffer.currentText()
