@@ -7,11 +7,12 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from config import config
+from config import config, get_path
 import psycopg2
 import os
+from utils.Database_Manager import Database_Connection, Create_DBconnection
+from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
@@ -239,7 +240,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -447,7 +448,7 @@ class Ui_Clients_Window(object):
         Clients_Window.setObjectName("Clients_Window")
         Clients_Window.resize(int(1174//self.scale), int(600//self.scale))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Clients_Window.setWindowIcon(icon)
         Clients_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -477,7 +478,7 @@ class Ui_Clients_Window(object):
         self.label_Code.setFont(font)
         self.label_Code.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Code.setObjectName("label_Code")
-        self.gridLayout_2.addWidget(self.label_Code, 1, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Code, 1, 1, 1, 2)
         self.Code_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Code_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Code_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -485,7 +486,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Code_Clients.setFont(font)
         self.Code_Clients.setObjectName("Code_Clients")
-        self.gridLayout_2.addWidget(self.Code_Clients, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.Code_Clients, 1, 3, 1, 1)
         self.label_Name = QtWidgets.QLabel(parent=self.frame)
         self.label_Name.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Name.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -495,7 +496,7 @@ class Ui_Clients_Window(object):
         self.label_Name.setFont(font)
         self.label_Name.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Name.setObjectName("label_Name")
-        self.gridLayout_2.addWidget(self.label_Name, 1, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Name, 1, 4, 1, 2)
         self.Name_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Name_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Name_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -503,7 +504,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Name_Clients.setFont(font)
         self.Name_Clients.setObjectName("Name_Clients")
-        self.gridLayout_2.addWidget(self.Name_Clients, 1, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Name_Clients, 1, 6, 1, 1)
         self.label_CIF = QtWidgets.QLabel(parent=self.frame)
         self.label_CIF.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_CIF.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -513,7 +514,7 @@ class Ui_Clients_Window(object):
         self.label_CIF.setFont(font)
         self.label_CIF.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_CIF.setObjectName("label_CIF")
-        self.gridLayout_2.addWidget(self.label_CIF, 1, 5, 1, 2)
+        self.gridLayout_2.addWidget(self.label_CIF, 1, 7, 1, 2)
         self.Cif_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Cif_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.Cif_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -521,7 +522,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Cif_Clients.setFont(font)
         self.Cif_Clients.setObjectName("Cif_Clients")
-        self.gridLayout_2.addWidget(self.Cif_Clients, 1, 8, 1, 1)
+        self.gridLayout_2.addWidget(self.Cif_Clients, 1, 10, 1, 1)
         self.label_Address = QtWidgets.QLabel(parent=self.frame)
         self.label_Address.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Address.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -531,7 +532,7 @@ class Ui_Clients_Window(object):
         self.label_Address.setFont(font)
         self.label_Address.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Address.setObjectName("label_Address")
-        self.gridLayout_2.addWidget(self.label_Address, 2, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Address, 2, 1, 1, 2)
         self.Address_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Address_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Address_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -539,7 +540,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Address_Clients.setFont(font)
         self.Address_Clients.setObjectName("Address_Clients")
-        self.gridLayout_2.addWidget(self.Address_Clients, 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.Address_Clients, 2, 3, 1, 1)
         self.label_ZipCode = QtWidgets.QLabel(parent=self.frame)
         self.label_ZipCode.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         self.label_ZipCode.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
@@ -549,7 +550,7 @@ class Ui_Clients_Window(object):
         self.label_ZipCode.setFont(font)
         self.label_ZipCode.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_ZipCode.setObjectName("label_ZipCode")
-        self.gridLayout_2.addWidget(self.label_ZipCode, 2, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_ZipCode, 2, 4, 1, 2)
         self.Zipcode_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Zipcode_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Zipcode_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -557,7 +558,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Zipcode_Clients.setFont(font)
         self.Zipcode_Clients.setObjectName("Zipcode_Clients")
-        self.gridLayout_2.addWidget(self.Zipcode_Clients, 2, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Zipcode_Clients, 2, 6, 1, 1)
         self.label_City = QtWidgets.QLabel(parent=self.frame)
         self.label_City.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_City.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -567,7 +568,7 @@ class Ui_Clients_Window(object):
         self.label_City.setFont(font)
         self.label_City.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_City.setObjectName("label_City")
-        self.gridLayout_2.addWidget(self.label_City, 2, 5, 1, 2)
+        self.gridLayout_2.addWidget(self.label_City, 2, 7, 1, 2)
         self.City_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.City_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.City_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -575,7 +576,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.City_Clients.setFont(font)
         self.City_Clients.setObjectName("City_Clients")
-        self.gridLayout_2.addWidget(self.City_Clients, 2, 8, 1, 1)
+        self.gridLayout_2.addWidget(self.City_Clients, 2, 10, 1, 1)
         self.label_Province = QtWidgets.QLabel(parent=self.frame)
         self.label_Province.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Province.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -585,7 +586,7 @@ class Ui_Clients_Window(object):
         self.label_Province.setFont(font)
         self.label_Province.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Province.setObjectName("label_Province")
-        self.gridLayout_2.addWidget(self.label_Province, 3, 1, 1, 1)    
+        self.gridLayout_2.addWidget(self.label_Province, 3, 1, 1, 2)    
         self.Province_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Province_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Province_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -593,7 +594,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Province_Clients.setFont(font)
         self.Province_Clients.setObjectName("Province_Clients")
-        self.gridLayout_2.addWidget(self.Province_Clients, 3, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.Province_Clients, 3, 3, 1, 1)
         self.label_Country = QtWidgets.QLabel(parent=self.frame)
         self.label_Country.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         self.label_Country.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
@@ -603,7 +604,7 @@ class Ui_Clients_Window(object):
         self.label_Country.setFont(font)
         self.label_Country.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Country.setObjectName("label_Country")
-        self.gridLayout_2.addWidget(self.label_Country, 3, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Country, 3, 4, 1, 2)
         self.Country_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Country_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Country_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -611,7 +612,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Country_Clients.setFont(font)
         self.Country_Clients.setObjectName("Country_Clients")
-        self.gridLayout_2.addWidget(self.Country_Clients, 3, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Country_Clients, 3, 6, 1, 1)
         self.label_PhoneNumber = QtWidgets.QLabel(parent=self.frame)
         self.label_PhoneNumber.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_PhoneNumber.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -621,14 +622,14 @@ class Ui_Clients_Window(object):
         self.label_PhoneNumber.setFont(font)
         self.label_PhoneNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_PhoneNumber.setObjectName("label_PhoneNumber")
-        self.gridLayout_2.addWidget(self.label_PhoneNumber, 3, 5, 1, 2)
+        self.gridLayout_2.addWidget(self.label_PhoneNumber, 3, 7, 1, 2)
         self.Phones_Clients = QtWidgets.QTextEdit(parent=self.frame)
         self.Phones_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
         font = QtGui.QFont()
         font.setPointSize(int(10//self.scale))
         self.Phones_Clients.setFont(font)
         self.Phones_Clients.setObjectName("Phones_Clients")
-        self.gridLayout_2.addWidget(self.Phones_Clients, 3, 8, 3, 1)
+        self.gridLayout_2.addWidget(self.Phones_Clients, 3, 10, 3, 1)
         self.label_Group = QtWidgets.QLabel(parent=self.frame)
         self.label_Group.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Group.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -638,7 +639,7 @@ class Ui_Clients_Window(object):
         self.label_Group.setFont(font)
         self.label_Group.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Group.setObjectName("label_Group")
-        self.gridLayout_2.addWidget(self.label_Group, 4, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Group, 4, 1, 1, 2)
         self.Group_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Group_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Group_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -646,7 +647,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Group_Clients.setFont(font)
         self.Group_Clients.setObjectName("Group_Clients")
-        self.gridLayout_2.addWidget(self.Group_Clients, 4, 2, 1, 1)   
+        self.gridLayout_2.addWidget(self.Group_Clients, 4, 3, 1, 1)   
         self.label_IVA = QtWidgets.QLabel(parent=self.frame)
         self.label_IVA.setMinimumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
         self.label_IVA.setMaximumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
@@ -656,7 +657,7 @@ class Ui_Clients_Window(object):
         self.label_IVA.setFont(font)
         self.label_IVA.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_IVA.setObjectName("label_IVA")
-        self.gridLayout_2.addWidget(self.label_IVA, 4, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_IVA, 4, 4, 1, 2)
         self.Iva_Clients = QtWidgets.QComboBox(parent=self.frame)
         self.Iva_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Iva_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -664,7 +665,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Iva_Clients.setFont(font)
         self.Iva_Clients.setObjectName("Iva_Clients")
-        self.gridLayout_2.addWidget(self.Iva_Clients, 4, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Iva_Clients, 4, 6, 1, 1)
         self.label_Vto1 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto1.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         self.label_Vto1.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
@@ -674,7 +675,7 @@ class Ui_Clients_Window(object):
         self.label_Vto1.setFont(font)
         self.label_Vto1.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Vto1.setObjectName("label_Vto1")
-        self.gridLayout_2.addWidget(self.label_Vto1, 4, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Vto1, 4, 7, 1, 1)
         self.Vto1_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Vto1_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
         self.Vto1_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
@@ -682,7 +683,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Vto1_Clients.setFont(font)
         self.Vto1_Clients.setObjectName("Vto1_Clients")
-        self.gridLayout_2.addWidget(self.Vto1_Clients, 4, 6, 1, 1)
+        self.gridLayout_2.addWidget(self.Vto1_Clients, 4, 8, 1, 1)
         self.label_days1 = QtWidgets.QLabel(parent=self.frame)
         self.label_days1.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
         self.label_days1.setMaximumSize(QtCore.QSize(int(30//self.scale), int(30//self.scale)))
@@ -690,7 +691,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.label_days1.setFont(font)
         self.label_days1.setObjectName("label_days1")
-        self.gridLayout_2.addWidget(self.label_days1, 4, 7, 1, 1)
+        self.gridLayout_2.addWidget(self.label_days1, 4, 9, 1, 1)
         self.label_Bank = QtWidgets.QLabel(parent=self.frame)
         self.label_Bank.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Bank.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -701,6 +702,69 @@ class Ui_Clients_Window(object):
         self.label_Bank.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Bank.setObjectName("label_Bank")
         self.gridLayout_2.addWidget(self.label_Bank, 5, 1, 1, 1)
+        self.Button_NewBank = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NewBank.setMinimumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
+        self.Button_NewBank.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
+        self.Button_NewBank.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NewBank.setObjectName("Button_NewBank")
+        self.Button_NewBank.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        if self.name in ['Daniel Márquez']:
+            self.Button_NewBank.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 10px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            self.Button_NewBank.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.gridLayout_2.addWidget(self.Button_NewBank, 5, 2, 1, 1)
         self.Bank_Clients = QtWidgets.QComboBox(parent=self.frame)
         self.Bank_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Bank_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -708,7 +772,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Bank_Clients.setFont(font)
         self.Bank_Clients.setObjectName("Bank_Clients")
-        self.gridLayout_2.addWidget(self.Bank_Clients, 5, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.Bank_Clients, 5, 3, 1, 1)
         self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
         self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -718,7 +782,70 @@ class Ui_Clients_Window(object):
         self.label_PayWay.setFont(font)
         self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_PayWay.setObjectName("label_PayWay")
-        self.gridLayout_2.addWidget(self.label_PayWay, 5, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_PayWay, 5, 4, 1, 1)
+        self.Button_NewPayWay = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NewPayWay.setMinimumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
+        self.Button_NewPayWay.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
+        self.Button_NewPayWay.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NewPayWay.setObjectName("Button_NewPayWay")
+        self.Button_NewPayWay.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        if self.name in ['Daniel Márquez']:
+            self.Button_NewPayWay.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 10px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            self.Button_NewPayWay.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.gridLayout_2.addWidget(self.Button_NewPayWay, 5, 5, 1, 1)
         self.Payway_Clients = QtWidgets.QComboBox(parent=self.frame)
         self.Payway_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -726,7 +853,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Payway_Clients.setFont(font)
         self.Payway_Clients.setObjectName("Payway_Clients")
-        self.gridLayout_2.addWidget(self.Payway_Clients, 5, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Payway_Clients, 5, 6, 1, 1)
         self.label_Vto2 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto2.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         self.label_Vto2.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
@@ -736,7 +863,7 @@ class Ui_Clients_Window(object):
         self.label_Vto2.setFont(font)
         self.label_Vto2.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Vto2.setObjectName("label_Vto2")
-        self.gridLayout_2.addWidget(self.label_Vto2, 5, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Vto2, 5, 7, 1, 1)
         self.Vto2_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Vto2_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
         self.Vto2_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
@@ -744,7 +871,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Vto2_Clients.setFont(font)
         self.Vto2_Clients.setObjectName("Vto2_Clients")
-        self.gridLayout_2.addWidget(self.Vto2_Clients, 5, 6, 1, 1)
+        self.gridLayout_2.addWidget(self.Vto2_Clients, 5, 8, 1, 1)
         self.label_days2 = QtWidgets.QLabel(parent=self.frame)
         self.label_days2.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
         self.label_days2.setMaximumSize(QtCore.QSize(int(30//self.scale), int(25//self.scale)))
@@ -752,7 +879,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.label_days2.setFont(font)
         self.label_days2.setObjectName("label_days2")
-        self.gridLayout_2.addWidget(self.label_days2, 5, 7, 1, 1)
+        self.gridLayout_2.addWidget(self.label_days2, 5, 9, 1, 1)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
         self.label_Notes.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.label_Notes.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -766,7 +893,7 @@ class Ui_Clients_Window(object):
         self.Notes_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
         self.Notes_Clients.setMaximumSize(QtCore.QSize(16777215, int(100//self.scale)))
         self.Notes_Clients.setObjectName("Notes_Clients")
-        self.gridLayout_2.addWidget(self.Notes_Clients, 7, 1, 1, 9)
+        self.gridLayout_2.addWidget(self.Notes_Clients, 7, 1, 1, 11)
         self.tableClients = CustomTableWidget()
         self.tableClients.setObjectName("tableClients")
         self.tableClients.setColumnCount(18)
@@ -779,13 +906,13 @@ class Ui_Clients_Window(object):
             item.setFont(font)
             self.tableClients.setHorizontalHeaderItem(i, item)
         self.tableClients.setSortingEnabled(False)
-        self.gridLayout_2.addWidget(self.tableClients, 8, 1, 1, 9)
+        self.gridLayout_2.addWidget(self.tableClients, 8, 1, 1, 11)
         self.label = QtWidgets.QLabel(parent=self.frame)
         self.label.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.label.setMaximumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 6, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label, 6, 5, 1, 1)
         self.Button_AddClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddClient.setObjectName("Button_AddClient")
         if self.name in ['Daniel Márquez']:
@@ -844,7 +971,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_AddClient, 1, 9, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddClient, 1, 11, 1, 1)
         self.Button_ModifyClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyClient.setObjectName("Button_ModifyClient")
         if self.name in ['Daniel Márquez']:
@@ -903,7 +1030,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_ModifyClient, 3, 9, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifyClient, 3, 11, 1, 1)
         self.Button_DeleteClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DeleteClient.setObjectName("Button_DeleteClient")
         if self.name in ['Daniel Márquez']:
@@ -962,7 +1089,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_DeleteClient, 5, 9, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_DeleteClient, 5, 11, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Clients_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Clients_Window)
@@ -981,65 +1108,15 @@ class Ui_Clients_Window(object):
         self.retranslateUi(Clients_Window)
         QtCore.QMetaObject.connectSlotsByName(Clients_Window)
 
-        commands_iva = ("""
-                        SELECT * 
-                        FROM purch_fact.iva
-                        """)
-        commands_payway = ("""
-                        SELECT * 
-                        FROM purch_fact.pay_way
-                        """)
-        commands_banks = ("""
-                        SELECT * 
-                        FROM purch_fact.banks
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_iva)
-            results_iva=cur.fetchall()
-            cur.execute(commands_payway)
-            results_payway=cur.fetchall()
-            cur.execute(commands_banks)
-            results_banks=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        list_iva=[''] + [x[1] for x in results_iva]
-        self.Iva_Clients.addItems(list_iva)
-
-        list_payway=[x[1] for x in results_payway]
-        self.Payway_Clients.addItems(list_payway)
-
-        list_banks=[x[1] for x in results_banks]
-        self.Bank_Clients.addItems(list_banks)
-
         self.tableClients.itemClicked.connect(self.loadformclients)
         self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.Button_AddClient.clicked.connect(self.addclient)
         self.Button_ModifyClient.clicked.connect(self.modifyclient)
         self.Button_DeleteClient.clicked.connect(self.deleteclient)
+        self.Button_NewBank.clicked.connect(self.banks)
+        self.Button_NewPayWay.clicked.connect(self.payway)
+
+        self.loadcomboboxes()
         self.loadtableclients()
 
 
@@ -1108,6 +1185,8 @@ class Ui_Clients_Window(object):
         self.Button_AddClient.setText(_translate("Clients_Window", "Agregar"))
         self.Button_ModifyClient.setText(_translate("Clients_Window", "Modificar"))
         self.Button_DeleteClient.setText(_translate("Clients_Window", "Eliminar"))
+        self.Button_NewBank.setText(_translate("Clients_Window", "+"))
+        self.Button_NewPayWay.setText(_translate("Clients_Window", "+"))
 
 # Function to create clients in database
     def addclient(self):
@@ -1133,18 +1212,11 @@ class Ui_Clients_Window(object):
         group=self.Group_Clients.text()
 
         if name=="" or (code=="" or (cif=="" or country=="")):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Cliente")
-            dlg.setText("Rellena como mínimo los siguientes campos:\n"
+            MessageHelper.show_message("Rellena como mínimo los siguientes campos:\n"
                         "·Nombre\n"
                         "·Código\n"
                         "·CIF\n"
-                        "·País")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+                        "·País", "warning")
 
         else:
         #SQL Query for checking if document number exists in database
@@ -1153,48 +1225,21 @@ class Ui_Clients_Window(object):
                         FROM purch_fact.clients
                         WHERE "name" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checkclient,(name,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:name in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkclient,(name,))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:name in x, results))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if len(match)>0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Agregar Cliente")
-                dlg.setText("El nombre de cliente introducido ya está registrado\n"
-                            "Búscalo en la tabla")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-
-                del dlg,new_icon
+                MessageHelper.show_message("El nombre de cliente introducido ya está registrado\n"
+                            "Búscalo en la tabla", "warning")
 
             else:
                 commands_newclient = ("""
@@ -1206,63 +1251,36 @@ class Ui_Clients_Window(object):
                             """)
                 conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
-                    cur.execute(query_bank, (bank,))
-                    result_bank = cur.fetchone()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
+                            cur.execute(query_bank, (bank,))
+                            result_bank = cur.fetchone()
 
-                    query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
-                    cur.execute(query_ivatype, (iva,))
-                    result_iva = cur.fetchone()
+                            query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
+                            cur.execute(query_ivatype, (iva,))
+                            result_iva = cur.fetchone()
 
-                    query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
-                    cur.execute(query_paywaytype, (payway,))
-                    result_payway = cur.fetchone()
-                # get id from table
-                    id_bank = result_bank[0]
-                    id_iva = result_iva[0] if result_iva is not None else None
-                    id_payway = result_payway[0]
-                # execution of principal command
-                    data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,)
-                    cur.execute(commands_newclient, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                            query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                            cur.execute(query_paywaytype, (payway,))
+                            result_payway = cur.fetchone()
+                        # get id from table
+                            id_bank = result_bank[0]
+                            id_iva = result_iva[0] if result_iva is not None else None
+                            id_payway = result_payway[0]
+                        # execution of principal command
+                            data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,)
+                            cur.execute(commands_newclient, data)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Agregar Cliente")
-                    dlg.setText("Cliente agregado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
+                        conn.commit()
 
-                    del dlg,new_icon
+                    MessageHelper.show_message("Cliente agregado con éxito", "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 self.loadtableclients()
-
 
 # Function to modify data of clients in database
     def modifyclient(self):
@@ -1288,14 +1306,7 @@ class Ui_Clients_Window(object):
         group=self.Group_Clients.text()
 
         if id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Proveedor")
-            dlg.setText("Pulsa en un proveedor de la tabla para cargar los datos en el formulario")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Pulsa en un proveedor de la tabla para cargar los datos en el formulario", "warning")
 
         else:
             commands_modifyclient = ("""
@@ -1304,64 +1315,38 @@ class Ui_Clients_Window(object):
                             "country" = %s, "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s, "bank_id" = %s, "group_client" = %s
                             WHERE "id" = %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
+                        cur.execute(query_bank, (bank,))
+                        result_bank = cur.fetchone()
 
-                query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
-                cur.execute(query_bank, (bank,))
-                result_bank = cur.fetchone()
+                        query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
+                        cur.execute(query_ivatype, (iva,))
+                        result_iva = cur.fetchone()
 
-                query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
-                cur.execute(query_ivatype, (iva,))
-                result_iva = cur.fetchone()
+                        query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                        cur.execute(query_paywaytype, (payway,))
+                        result_payway = cur.fetchone()
+                    # get id from table
+                        id_bank = result_bank[0]
+                        id_iva = result_iva[0] if result_iva is not None else None
+                        id_payway = result_payway[0]
+                    # execution of commands one by one
+                        data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,id,)
+                        cur.execute(commands_modifyclient,data)
 
-                query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
-                cur.execute(query_paywaytype, (payway,))
-                result_payway = cur.fetchone()
-            # get id from table
-                id_bank = result_bank[0]
-                id_iva = result_iva[0] if result_iva is not None else None
-                id_payway = result_payway[0]
-            # execution of commands one by one
-                data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,id,)
-                cur.execute(commands_modifyclient,data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Modificar Cliente")
-                dlg.setText("Cliente modificado con exito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+                MessageHelper.show_message("Cliente modificado con exito", "info")
 
-                del dlg, new_icon
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.loadtableclients()
-
 
 # Function to delete data of clients in database
     def deleteclient(self):
@@ -1371,62 +1356,28 @@ class Ui_Clients_Window(object):
         id=self.label.text()
 
         if id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Eliminar Cliente")
-            dlg.setText("Pulsa en un cliente de la tabla para cargar los datos en el formulario")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Pulsa en un cliente de la tabla para cargar los datos en el formulario", "warning")
 
         else:
             commands_deleteclient = ("""
                             DELETE FROM purch_fact.clients
                             WHERE "id" = %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_deleteclient, (id,))
+                    conn.commit()
 
-                cur.execute(commands_deleteclient, (id,))
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Eliminar Cliente")
-                dlg.setText("Cliente eliminado con exito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+                MessageHelper.show_message("Cliente eliminado con exito", "info")
 
                 del dlg, new_icon
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             self.loadtableclients()
-
 
 # Function to load data of clients in form fields
     def loadformclients(self,item):
@@ -1460,7 +1411,6 @@ class Ui_Clients_Window(object):
         self.Bank_Clients.setCurrentText(data_client[16])
         self.Group_Clients.setText(data_client[17])
 
-
 # Function to load data of clients in table
     def loadtableclients(self):
         """
@@ -1485,34 +1435,16 @@ class Ui_Clients_Window(object):
                         LEFT JOIN purch_fact.banks ON (purch_fact.banks."id" = purch_fact.clients."bank_id")
                         ORDER BY purch_fact.clients.id
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_queryclients)
-            results_client=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryclients)
+                    results_client=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableClients.setRowCount(len(results_client))
         tablerow=0
@@ -1537,8 +1469,47 @@ class Ui_Clients_Window(object):
         self.tableClients.verticalHeader().hide()
         self.tableClients.setSortingEnabled(False)
 
+# Function to load data in comboboxes
+    def loadcomboboxes(self):
+        commands_iva = ("""
+                        SELECT * 
+                        FROM purch_fact.iva
+                        """)
 
-#Function when clicking on table header
+        commands_payway = ("""
+                        SELECT * 
+                        FROM purch_fact.pay_way
+                        """)
+
+        commands_banks = ("""
+                        SELECT * 
+                        FROM purch_fact.banks
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_iva)
+                    results_iva=cur.fetchall()
+                    cur.execute(commands_payway)
+                    results_payway=cur.fetchall()
+                    cur.execute(commands_banks)
+                    results_banks=cur.fetchall()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+        list_iva=[''] + [x[1] for x in results_iva]
+        self.Iva_Clients.addItems(list_iva)
+
+        list_payway=[x[1] for x in results_payway]
+        self.Payway_Clients.addItems(list_payway)
+
+        list_banks=[x[1] for x in results_banks]
+        self.Bank_Clients.addItems(list_banks)
+
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         """
         Handles the click event on the table header.
@@ -1548,6 +1519,41 @@ class Ui_Clients_Window(object):
         header_height = self.tableClients.horizontalHeader().height()
         popup_pos = self.tableClients.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableClients.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+# Function to open window for manage banks
+    def banks(self):
+        """
+        Opens the Banks Management window, allowing users to manage bank information.
+        """
+        from Banks_Window import Ui_Banks_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_banks = Create_DBconnection(user_database, password_database)
+        if not db_banks:
+            sys.exit()
+
+        self.banks_window=Ui_Banks_Window(db_banks)
+        self.banks_window.show()
+
+# Function to open window for manage payway
+    def payway(self):
+        """
+        Opens the Payway Management window, allowing users to manage payment methods.
+        """
+        from PayWay_Window import Ui_PayWay_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_payway = Create_DBconnection(user_database, password_database)
+        if not db_payway:
+            sys.exit()
+
+        self.payway_window=Ui_PayWay_Window(db_payway)
+        self.payway_window.show()
+
 
 
 if __name__ == "__main__":
