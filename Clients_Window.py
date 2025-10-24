@@ -1537,6 +1537,8 @@ class Ui_Clients_Window(object):
         self.banks_window=Ui_Banks_Window(db_banks)
         self.banks_window.show()
 
+        self.banks_window.closeEvent = self.on_close_event
+
 # Function to open window for manage payway
     def payway(self):
         """
@@ -1553,6 +1555,22 @@ class Ui_Clients_Window(object):
 
         self.payway_window=Ui_PayWay_Window(db_payway)
         self.payway_window.show()
+
+        self.payway_window.closeEvent = self.on_close_event
+
+# Function to execute query function when edit windows are closed
+    def on_close_event(self, event):
+        """
+        Handles the event when the window is closed. 
+
+        Calls the `query_drawings` method to update the drawing data before accepting the close event.
+
+        Args:
+            event (QtGui.QCloseEvent): The close event object that is processed.
+        """
+        self.loadcomboboxes()
+        event.accept()
+
 
 
 
