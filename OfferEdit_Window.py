@@ -96,8 +96,18 @@ class Ui_Edit_Offer_Window(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        # spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        # self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.label_NextNumOffer = QtWidgets.QLabel(parent=self.frame)
+        self.label_NextNumOffer.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_NextNumOffer.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NextNumOffer.setFont(font)
+        self.label_NextNumOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_NextNumOffer.setObjectName("label_NextNumOffer")
+        self.gridLayout_2.addWidget(self.label_NextNumOffer, 0, 0, 1, 1)
         self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
         self.label_NumOffer.setMinimumSize(QtCore.QSize(105, 25))
         self.label_NumOffer.setMaximumSize(QtCore.QSize(105, 25))
@@ -176,6 +186,14 @@ class Ui_Edit_Offer_Window(object):
         self.label_Probability.setFont(font)
         self.label_Probability.setObjectName("label_Probability")
         self.gridLayout_2.addWidget(self.label_Probability, 8, 0, 1, 1)
+        self.NextNumOffer_NewOffer = QtWidgets.QLabel(parent=self.frame)
+        self.NextNumOffer_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.NextNumOffer_NewOffer.setMaximumSize(QtCore.QSize(400, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NextNumOffer_NewOffer.setFont(font)
+        self.NextNumOffer_NewOffer.setObjectName("NextNumOffer_NewOffer")
+        self.gridLayout_2.addWidget(self.NextNumOffer_NewOffer, 0, 1, 1, 4)
         self.NumOffer_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.NumOffer_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
         self.NumOffer_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
@@ -692,6 +710,7 @@ class Ui_Edit_Offer_Window(object):
         self.PayTerm_EditOffer.addItems(['', '100% entrega', '100% pedido', '90%-10%', '50%-50%', 'Otros'])
 
         self.load_clients()
+        self.load_offers_number()
 
         if self.original_numoffer is not None:
             self.NumOffer_EditOffer.setText(self.original_numoffer)
@@ -704,6 +723,7 @@ class Ui_Edit_Offer_Window(object):
         """
         _translate = QtCore.QCoreApplication.translate
         Edit_Offer_Window.setWindowTitle(_translate("Edit_Offer_Window", "Editar Oferta"))
+        self.label_NextNumOffer.setText(_translate("Edit_Offer_Window", "Últimas Ofertas Reg.:"))
         self.label_NumOffer.setText(_translate("Edit_Offer_Window", "Nº Oferta:"))
         self.label_Client.setText(_translate("Edit_Offer_Window", "Cliente:"))
         self.label_FinalClient.setText(_translate("Edit_Offer_Window", "Cl. Final / Planta:"))
@@ -787,28 +807,21 @@ class Ui_Edit_Offer_Window(object):
 
             else:
             #SQL Query for checking if offer number exists in database
-                commands_checkoffer = ("""
-                            SELECT * 
-                            FROM offers
-                            WHERE "num_offer" = %s
-                            """)
-                conn = None
                 try:
                     with Database_Connection(config()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands one by one
-                            cur.execute(commands_checkoffer,(numoffer,))
-                            results=cur.fetchall()
-                            match=list(filter(lambda x:numoffer in x, results))
+                            cur.execute("SELECT 1 FROM offers WHERE num_offer = %s LIMIT 1", (numoffer,))
+                            exists = cur.fetchone() is not None
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
-                if numoffer=="" or (numoffer==" " or len(match)==0):
-                    MessageHelper.show_message("Introduce un número de oferta válido", "warning")
+                if numoffer != self.original_numoffer and exists:
+                    MessageHelper.show_message("Ese número de oferta ya existe", "warning")
 
-                elif numoffer=="" or (client=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems=='')))))))):
+                if numoffer=="" or (client=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems=='')))))))):
                     MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
                 else:
@@ -932,6 +945,62 @@ class Ui_Edit_Offer_Window(object):
             self.Calculation_EditOffer.setCurrentText(str(results[0][27]))
             self.Priority_EditOffer.setCurrentText(str(results[0][28]))
             self.actions = (str(results[0][29]) if str(results[0][29]) != 'None' else '')
+
+# Function to load last offers numbers from database
+    def load_offers_number(self):
+        query_next_o = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'O-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_oe = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'OE-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_or = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'OR-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        query_next_r = ("""
+                        SELECT num_offer
+                        FROM offers
+                        WHERE num_offer LIKE 'R-%'
+                        ORDER BY num_offer DESC
+                        LIMIT 1""")
+        
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_next_o)
+                    results_o = cur.fetchone()
+
+                    cur.execute(query_next_oe)
+                    results_oe = cur.fetchone()
+
+                    cur.execute(query_next_or)
+                    results_or = cur.fetchone()
+
+                    cur.execute(query_next_r)
+                    results_r = cur.fetchone()
+
+                next_o = results_o[0] if results_o else ''
+                next_oe = results_oe[0] if results_oe else ''
+                next_or = results_or[0] if results_or else ''
+                next_r = results_r[0] if results_r else 'R-'
+
+                self.NextNumOffer_NewOffer.setText(f"{next_o} // {next_oe} // {next_or} // {next_r}")
+
+        except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to load client list
     def load_clients(self):
