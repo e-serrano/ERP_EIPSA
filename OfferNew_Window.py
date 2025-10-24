@@ -658,9 +658,9 @@ class Ui_New_Offer_Window(object):
                 next_o = results_o[0] if results_o else ''
                 next_oe = results_oe[0] if results_oe else ''
                 next_or = results_or[0] if results_or else ''
-                next_r = results_r[0] if results_r else 'R-1'
+                next_r = results_r[0] if results_r else 'R-'
 
-                self.NextNumOffer_NewOffer.setText(f"{next_o} / {next_oe} / {next_or} / {next_r}")
+                self.NextNumOffer_NewOffer.setText(f"{next_o} // {next_oe} // {next_or} // {next_r}")
 
         except (Exception, psycopg2.DatabaseError) as error:
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
