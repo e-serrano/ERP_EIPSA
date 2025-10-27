@@ -764,6 +764,8 @@ class Ui_New_Offer_Window(object):
                     self.Important_NewOffer.setText('')
                     self.Mails_NewOffer.setText('')
 
+                    self.load_offers_number()
+
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")

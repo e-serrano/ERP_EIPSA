@@ -870,6 +870,8 @@ class Ui_Edit_Offer_Window(object):
                         self.DelivTerm_EditOffer.setText('')
                         self.DelivTime_EditOffer.setText('')
 
+                        self.load_offers_number()
+
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
