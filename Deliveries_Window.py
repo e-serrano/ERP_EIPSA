@@ -398,7 +398,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
         for i in range(1,22):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,34):
+        for i in range(26,self.model.columnCount()):
             self.tableDeliveries.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','','',
@@ -463,7 +463,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
         for i in range(1,22):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,34):
+        for i in range(26,self.model.columnCount()):
             self.tableDeliveries.hideColumn(i)
 
 
