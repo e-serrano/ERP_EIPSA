@@ -2234,6 +2234,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
                     self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
             elif self.variable == 'Otros':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_others[0]]))
                 self.tableEditTags.setItemDelegateForColumn(10, self.combo_itemtype)
 
