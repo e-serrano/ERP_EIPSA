@@ -2624,9 +2624,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
             elif header_text == 'Tipo Equipo':
                 cell_content = item.text()
-                MessageHelper.show_message(cell_content)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(cell_content, "info")
 
             elif header_text == 'Fecha Dim.':
                 if item.text() != '':
