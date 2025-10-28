@@ -113,12 +113,12 @@ class Ui_App_Invoicing(object):
         self.Header.addItem(spacerItem)
 
         if self.name == 'Miguel Sahuquillo':
-            self.Button_Sending = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Sending.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Sending.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Sending.setToolTip('Enviar Factura/Albarán')
-            self.Button_Sending.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Sending.setStyleSheet("QPushButton{\n"
+            self.Button_UpdateInvoices = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_UpdateInvoices.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_UpdateInvoices.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_UpdateInvoices.setToolTip('Actualizar Facturas')
+            self.Button_UpdateInvoices.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_UpdateInvoices.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -140,14 +140,14 @@ class Ui_App_Invoicing(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-            self.Button_Sending.setText("")
-            self.Button_Sending.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Sending.setObjectName("Button_Sending")
-            self.Header.addWidget(self.Button_Sending)
+            self.Button_UpdateInvoices.setText("")
+            self.Button_UpdateInvoices.setIconSize(QtCore.QSize(40, 40))
+            self.Button_UpdateInvoices.setObjectName("Button_UpdateInvoices")
+            self.Header.addWidget(self.Button_UpdateInvoices)
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Sending.setIcon(icon2)
-            self.Button_Sending.clicked.connect(self.send_documents)
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Update.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_UpdateInvoices.setIcon(icon2)
+            self.Button_UpdateInvoices.clicked.connect(self.update_invoices)
             self.Button_Tags = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Tags.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Tags.setMaximumSize(QtCore.QSize(50, 50))
@@ -416,22 +416,6 @@ class Ui_App_Invoicing(object):
         self.verticalLayout_3.addWidget(self.Button_Clients)
 
         if self.name in ['Miguel Sahuquillo']:
-            self.Button_Banks = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_Banks.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_Banks.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_Banks.setFont(font)
-            self.Button_Banks.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Banks.setText(("    Bancos"))
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Banks.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Banks.setIcon(icon7)
-            self.Button_Banks.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Banks.setObjectName("Button_Banks")
-            self.Button_Banks.clicked.connect(self.banks)
-            self.verticalLayout_3.addWidget(self.Button_Banks)
             self.Button_Countries = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_Countries.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_Countries.setMaximumSize(QtCore.QSize(200, 50))
@@ -448,100 +432,21 @@ class Ui_App_Invoicing(object):
             self.Button_Countries.setObjectName("Button_Countries")
             self.Button_Countries.clicked.connect(self.countries)
             self.verticalLayout_3.addWidget(self.Button_Countries)
-            self.Button_PayWay = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_PayWay.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_PayWay.setMaximumSize(QtCore.QSize(200, 50))
+            self.Button_Commercial = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_Commercial.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_Commercial.setMaximumSize(QtCore.QSize(200, 50))
             font = QtGui.QFont()
             font.setPointSize(12)
             font.setBold(True)
-            self.Button_PayWay.setFont(font)
-            self.Button_PayWay.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_PayWay.setText(("    Forma De Pago"))
-            icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "PayWay.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_PayWay.setIcon(icon9)
-            self.Button_PayWay.setIconSize(QtCore.QSize(40, 40))
-            self.Button_PayWay.setObjectName("Button_PayWay")
-            self.Button_PayWay.clicked.connect(self.payway)
-            self.verticalLayout_3.addWidget(self.Button_PayWay)
-            self.Button_NewOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_NewOffer.setFont(font)
-            self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Commercial.setFont(font)
+            self.Button_Commercial.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             icon3 = QtGui.QIcon()
-            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewOffer.setIcon(icon3)
-            self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewOffer.setCheckable(False)
-            self.Button_NewOffer.setAutoRepeat(False)
-            self.Button_NewOffer.setAutoExclusive(False)
-            self.Button_NewOffer.setObjectName("Button_NewOffer")
-            self.verticalLayout_3.addWidget(self.Button_NewOffer)
-            self.Button_EditOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_EditOffer.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_EditOffer.setFont(font)
-            self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon4 = QtGui.QIcon()
-            icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_EditOffer.setIcon(icon4)
-            self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
-            self.Button_EditOffer.setObjectName("Button_EditOffer")
-            self.verticalLayout_3.addWidget(self.Button_EditOffer)
-            self.Button_NewOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewOrder.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewOrder.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_NewOrder.setFont(font)
-            self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewOrder.setIcon(icon6)
-            self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewOrder.setObjectName("Button_NewOrder")
-            self.verticalLayout_3.addWidget(self.Button_NewOrder)
-            self.Button_NewTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewTag.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewTag.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_NewTag.setFont(font)
-            self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewTag.setIcon(icon9)
-            self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewTag.setObjectName("Button_NewTag")
-            self.verticalLayout_3.addWidget(self.Button_NewTag)
-            self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_EditTag.setFont(font)
-            self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon10 = QtGui.QIcon()
-            icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_EditTag.setIcon(icon10)
-            self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
-            self.Button_EditTag.setObjectName("Button_EditTag")
-            self.verticalLayout_3.addWidget(self.Button_EditTag)
-            self.Button_NewOffer.clicked.connect(self.new_offer)
-            self.Button_EditOffer.clicked.connect(self.edit_offer)
-            self.Button_NewOrder.clicked.connect(self.new_order)
-            self.Button_NewTag.clicked.connect(self.new_tag)
-            self.Button_EditTag.clicked.connect(self.edit_tag_commercial)
+            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Commercial.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Commercial.setIcon(icon3)
+            self.Button_Commercial.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Commercial.setObjectName("Button_Commercial")
+            self.verticalLayout_3.addWidget(self.Button_Commercial)
+            self.Button_Commercial.clicked.connect(self.commercial_menu)
 
         elif self.name in ['Javier Zofio']:
             self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -616,11 +521,25 @@ class Ui_App_Invoicing(object):
         self.MainLayout = QtWidgets.QVBoxLayout()
         self.MainLayout.setObjectName("MainLayout")
         self.table = QtWidgets.QTableWidget(parent=self.frame)
-        self.table.setMinimumSize(QtCore.QSize(int(650), int(280)))
+        self.table.setMinimumSize(QtCore.QSize(650, 280))
         self.table.setObjectName("table")
-        self.table.setColumnCount(0)
-        self.table.setRowCount(0)
+        if self.name in ['Miguel Sahuquillo']:
+            self.table.setColumnCount(12)
+            self.table.setRowCount(0)
+            for i in range(12):
+                item = QtWidgets.QTableWidgetItem()
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                font.setBold(True)
+                item.setFont(font)
+                self.table.setHorizontalHeaderItem(i, item)
+        else:
+            self.table.setColumnCount(0)
+            self.table.setRowCount(0)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.table.verticalHeader().setVisible(False)
+        self.table.setSortingEnabled(False)
+        self.table.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.table)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
@@ -653,8 +572,7 @@ class Ui_App_Invoicing(object):
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.load_notifications()
-
-        # self.update_invoices()
+        self.load_table()
 
 
 # Function to translate and updates the text of various UI elements
@@ -672,11 +590,35 @@ class Ui_App_Invoicing(object):
         self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
 
         if self.username in ['m.sahuquillo']:
-            self.Button_NewOffer.setText(_translate("App_Invoicing", "        Nueva Oferta"))
-            self.Button_EditOffer.setText(_translate("App_Invoicing", "    Editar Oferta"))
-            self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
-            self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
-            self.Button_EditTag.setText(_translate("App_Comercial", "    Editar TAG(s)"))
+            self.Button_Commercial.setText(_translate("App_Invoicing", "        Comercial"))
+            self.table.setSortingEnabled(True)
+            item = self.table.horizontalHeaderItem(0)
+            item.setText(_translate("App_Comercial", "Nº Oferta"))
+            item = self.table.horizontalHeaderItem(1)
+            item.setText(_translate("App_Comercial", "Estado"))
+            item = self.table.horizontalHeaderItem(2)
+            item.setText(_translate("App_Comercial", "Cliente"))
+            item = self.table.horizontalHeaderItem(3)
+            item.setText(_translate("App_Comercial", "Cl. Final / Planta"))
+            item = self.table.horizontalHeaderItem(4)
+            item.setText(_translate("App_Comercial", "Fecha Pres."))
+            item = self.table.horizontalHeaderItem(5)
+            item.setText(_translate("App_Comercial", "Material"))
+            item = self.table.horizontalHeaderItem(6)
+            item.setText(_translate("App_Comercial", "Importe"))
+            item = self.table.horizontalHeaderItem(7)
+            item.setText(_translate("App_Comercial", "Prob. Adj."))
+            item = self.table.horizontalHeaderItem(8)
+            item.setText(_translate("App_Comercial", "Notas"))
+            item = self.table.horizontalHeaderItem(9)
+            item.setText(_translate("App_Comercial", "Ptos. Importantes"))
+            item = self.table.horizontalHeaderItem(10)
+            item.setText(_translate("App_Comercial", "Seguimiento"))
+            item = self.table.horizontalHeaderItem(11)
+            item.setText(_translate("App_Comercial", "Acciones"))
+            __sortingEnabled = self.table.isSortingEnabled()
+            self.table.setSortingEnabled(False)
+            self.table.setSortingEnabled(__sortingEnabled)
 
 # Function to open window to send documents
     def send_documents(self):
@@ -738,40 +680,6 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_TransactionsInvoice_Window()
         self.ui.setupUi(self.query_transactions_window)
         self.query_transactions_window.showMaximized()
-
-# Function to open window for manage banks
-    def banks(self):
-        """
-        Opens the Banks Management window, allowing users to manage bank information.
-        """
-        from Banks_Window import Ui_Banks_Window
-        dbparam = config()
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_banks = Create_DBconnection(user_database, password_database)
-        if not db_banks:
-            sys.exit()
-
-        self.banks_window=Ui_Banks_Window(db_banks)
-        self.banks_window.show()
-
-# Function to open window for manage payway
-    def payway(self):
-        """
-        Opens the Payway Management window, allowing users to manage payment methods.
-        """
-        from PayWay_Window import Ui_PayWay_Window
-        dbparam = config()
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_payway = Create_DBconnection(user_database, password_database)
-        if not db_payway:
-            sys.exit()
-
-        self.payway_window=Ui_PayWay_Window(db_payway)
-        self.payway_window.show()
 
 # Function to open window for manage countries
     def countries(self):
@@ -1419,6 +1327,39 @@ class Ui_App_Invoicing(object):
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
+# Function to open commercial menu
+    def commercial_menu(self):
+        while True:
+            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
+                                                                                                'Editar Oferta',
+                                                                                                'Nuevo Pedido',
+                                                                                                'Editar Pedido',
+                                                                                                'Nuevo Tag(s)',
+                                                                                                'Editar Tag(s)'], 0, False)
+            if ok and action:
+                while True:
+                    if action == 'Nueva Oferta':
+                        self.new_offer()
+                        break
+                    elif action == 'Editar Oferta':
+                        self.edit_offer()
+                        break
+                    elif action == 'Nuevo Pedido':
+                        self.new_order()
+                        break
+                    elif action == 'Editar Pedido':
+                        self.edit_order()
+                        break
+                    elif action == 'Nuevo Tag(s)':
+                        self.new_tag()
+                        break
+                    elif action == 'Editar Tag(s)':
+                        self.edit_tag_commercial()
+                        break
+                break
+            else:
+                break
+
 # Function to open window for create offers
     def new_offer(self):
         """
@@ -1429,6 +1370,7 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_New_Offer_Window(self.username)
         self.ui.setupUi(self.projectoffer_window)
         self.projectoffer_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
 
 # Function to open window for edit offers
     def edit_offer(self):
@@ -1440,7 +1382,7 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_EditOffer_Menu(self.username)
         self.ui.setupUi(self.edit_offer_menu)
         self.edit_offer_menu.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
 
 # Function to open window for create orders
     def new_order(self):
@@ -1452,7 +1394,19 @@ class Ui_App_Invoicing(object):
         self.ui=Ui_New_OrderAddData_Window()
         self.ui.setupUi(self.new_orderAddData_window)
         self.new_orderAddData_window.show()
-        # self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
+
+# Function to open window for edit orders
+    def edit_order(self):
+        """
+        Opens a new window for editing an existing order. 
+        """
+        from OrderEdit_Menu import Ui_EditOrder_Menu
+        self.edit_order_window=QtWidgets.QMainWindow()
+        self.ui=Ui_EditOrder_Menu()
+        self.ui.setupUi(self.edit_order_window)
+        self.edit_order_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
 
 # Function to open window for create tags
     def new_tag(self):
@@ -1485,7 +1439,6 @@ class Ui_App_Invoicing(object):
         self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
         self.edit_tags_app.showMaximized()
 
-
 # Function to open window to edit orders
     def order_control(self):
         """
@@ -1503,38 +1456,85 @@ class Ui_App_Invoicing(object):
         self.order_control_window = Ui_Invoicing_Order_Control_Window(db_order_control, self.username)
         self.order_control_window.showMaximized()
 
+# Function to update invoice complete data
+    def update_invoices(self):
+        """
+        Updates invoice complete data
+        """
 
+        try:
+            self.update_invoices_information()
+            self.update_invoices_details()
+
+            MessageHelper.show_message("Facturas actualizadas correctamente", "info")
+        
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error al actualizar las facturas:\n"
+                        + str(error), "critical")
 
 # Function to update invoice data coming from Access File
-    def update_invoices(self):
+    def update_invoices_information(self):
+        """
+        Synchronizes invoice data between an Access database file and a PostgreSQL database.
+        """
+
+        ACCESS_FIELDS = (
+        "FactencabId", "cliente_id", "FactencabIvaCl", "FactencabFecha", "FactencabNumFact",
+        "FactencabNumAlb", "FactencabSuRef", "FactencabNuRef", "FactencabDestino", "FactencabTrnsprt",
+        "FactencabConcept1", "FactencabConcept2", "FactencabConcept3", "FactencabConcept4", "FactencabConcept5",
+        "FactencabTxtCncp1", "FactencabTxtCncp2", "FactencabTxtCncp3", "FactencabTxtCncp4", "FactencabTxtCncp5",
+        "FactencabPesoBrt", "FactencabPesoNet", "FactencabDimens", "FactencabTipoMerc", "FactencabDatoAdic3",
+        "FactencabDatoAdic4", "FactencabClAlb", "FactencabDirAlb", "FactencabCPAlb", "FactencabCiudAlb",
+        "FactencabPrvAlb", "FactencabPaisAlb", "FactencabFechaAlb", "FactencabObs", "FactencabOk",
+        "FactencabTotalFact", "FactencabTotalCant", "FactencabConcept1USD", "FactencabConcept2USD", "FactencabConcept3USD",
+        "FactencabConcept4USD", "FactencabConcept5USD", "FactencabValCot$", "FactencabAtteAlb", "FactencabDestAlb",
+        "FactencabPaisDest", "FactencabAplicacion", "FactencabAgIntrm", "FactencabAgIntrmOk", "FactencabAgIntrmEst",
+        "FactencabGrupo", "FactencabComent"
+        )
+
+        PG_FIELDS = (
+            "id", "id_client", "iva", "date_invoice", "num_invoice",
+            "num_delivnote", "their_ref", "our_ref", "destination", "transport",
+            "con1_euro", "con2_euro", "con3_euro", "con4_euro", "con5_euro",
+            "txtcon1", "txtcon2", "txtcon3", "txtcon4", "txtcon5",
+            "gross_weight", "net_weight", "dimensions", "merc_type", "data_adic1",
+            "data_adic2", "cl_delivnote", "address_delivnote", "zc_delivnote", "city_delivnote",
+            "province_delivnote", "country_delivnote", "date_delivnote", "obs_delivnote", "pay_date",
+            "tax_base_amount", "total_qty_elements", "con1_dollar", "con2_dollar", "con3_dollar",
+            "con4_dollar", "con5_dollar", "cot_euro_dollar", "atte_delivnote", "dest_delivnote",
+            "id_dest_country", "application", "aginterm", "aginterm_ok", "aginterm_state",
+            "client_group", "invoice_comments"
+        )
+
     # Connection to access file
         with Access_Connection(ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD) as conn_access:
             with conn_access.cursor() as cur_access:
-
             # Obtain data from last 50 registers of access file
-                cur_access.execute("""
-                    SELECT TOP 50 FactencabId, FactencabNumFact, FactencabFecha, FactencabNuRef
+                field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
+                cur_access.execute(f"""
+                    SELECT 200 {field_list}
                     FROM FACT_ENCAB
                     ORDER BY FactencabId DESC
-                    """)
+                """)
                 access_rows = cur_access.fetchall()
 
             # Convert to dict for easier comparison
-                access_dict = {row[0]: (row[1], row[2], row[3]) for row in access_rows}
+                access_dict = {row[0]: row[1:] for row in access_rows}
                 access_ids = list(access_dict.keys())
 
     # Connection to PostgreSQL
         with Database_Connection(config()) as conn_pg:
             with conn_pg.cursor() as cur_pg:
-
         # Read existing data from PostgreSQL
+                # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
                 cur_pg.execute("""
-                    SELECT factencabid, factencabnumfact, factencabfecha, nuref
-                    FROM fact_encab
-                    WHERE factencabid = ANY(%s)
+                    SELECT *
+                    FROM purch_fact.invoice_header
+                    WHERE id = ANY(%s)
                 """, (access_ids,))
                 pg_rows = cur_pg.fetchall()
-            pg_dict = {row[0]: (row[1], row[2], row[3]) for row in pg_rows}
+
+            pg_dict = {row[0]: row[1:] for row in pg_rows}
 
             access_set = set(access_dict.keys())
             pg_set = set(pg_dict.keys())
@@ -1556,36 +1556,176 @@ class Ui_App_Invoicing(object):
             with conn_pg.cursor() as cur_pg:
                 # Insertions
                 if to_insert:
-                    insert_data = [(id_, access_dict[id_][0], access_dict[id_][1], access_dict[id_][2]) for id_ in to_insert]
-                    execute_values(cur_pg, """
-                        INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha, nuref)
-                        VALUES %s
-                    """, insert_data)
+                    insert_data = [(id_,) + access_dict[id_] for id_ in to_insert]
+                    execute_values(cur_pg,
+                                    f"""INSERT INTO purch_fact.invoice_header ({', '.join(PG_FIELDS)})VALUES %s""",
+                                    insert_data)
 
                 # Updates with UPSERT to avoid logic separations
                 if to_update:
-                    print('a')
-                    upsert_data = [(id_, data[0], data[1], data[2]) for id_, data in to_update.items()]
-                    execute_values(cur_pg, """
-                        INSERT INTO fact_encab (factencabid, factencabnumfact, factencabfecha, nuref)
+                    update_data = [(id_,) + data for id_, data in to_update.items()]
+                    conflict_cols = "id"
+                    set_clause = ', '.join(f"{col}=EXCLUDED.{col}" for col in PG_FIELDS[1:])
+                    execute_values( cur_pg,
+                        f""" INSERT INTO purch_fact.invoice_header ({', '.join(PG_FIELDS)})
                         VALUES %s
-                        ON CONFLICT (factencabid)
-                        DO UPDATE SET
-                            factencabnumfact = EXCLUDED.factencabnumfact,
-                            factencabfecha = EXCLUDED.factencabfecha,
-                            nuref = EXCLUDED.nuref
-                    """, upsert_data)
+                        ON CONFLICT ({conflict_cols}) DO UPDATE
+                        SET {set_clause}""",
+                        update_data)
 
                 # Deletions
                 if to_delete:
-                    cur_pg.execute("""
-                        DELETE FROM fact_encab
-                        WHERE factencabid = ANY(%s)
-                    """, (list(to_delete),))
+                    cur_pg.execute("DELETE FROM purch_fact.invoice_header WHERE id = ANY(%s)",
+                    (list(to_delete),))
+
+            conn_pg.commit()
+
+# Function to update invoice details data coming from Access File
+    def update_invoices_details(self):
+        """
+        Synchronizes invoice data between an Access database file and a PostgreSQL database.
+        """
+
+        ACCESS_FIELDS = ("FactId", "FactDetId", "FactDetItem", "FactDetCant", "FactdetDescrip",
+        "FactdetPrecio", "FactdetPrecioUSD")
+
+        PG_FIELDS = ("id", "invoice_header_id", "item", "quantity", "description",
+            "price", "price_usd")
+
+    # Connection to access file
+        with Access_Connection(ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD) as conn_access:
+            with conn_access.cursor() as cur_access:
+            # Obtain data from last 50 registers of access file
+                field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
+                cur_access.execute(f"""
+                    SELECT 1000 {field_list}
+                    FROM FACT_DET
+                    ORDER BY FactId DESC
+                """)
+                access_rows = cur_access.fetchall()
+
+            # Convert to dict for easier comparison
+                access_dict = {row[0]: row[1:] for row in access_rows}
+                access_ids = list(access_dict.keys())
+
+    # Connection to PostgreSQL
+        with Database_Connection(config()) as conn_pg:
+            with conn_pg.cursor() as cur_pg:
+        # Read existing data from PostgreSQL
+                # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
+                cur_pg.execute("""
+                    SELECT *
+                    FROM purch_fact.invoice_detail
+                    WHERE id = ANY(%s)
+                """, (access_ids,))
+                pg_rows = cur_pg.fetchall()
+
+            pg_dict = {row[0]: row[1:] for row in pg_rows}
+
+            access_set = set(access_dict.keys())
+            pg_set = set(pg_dict.keys())
+
+            # Insert data in Access but not in PG
+            to_insert = access_set - pg_set
+
+            # Modify data in both but with different values
+            to_update = {
+                id_: access_dict[id_]
+                for id_ in (access_set & pg_set)
+                if access_dict[id_] != pg_dict[id_]
+            }
+
+            # Delete data in PG but not in Access
+            to_delete = pg_set - access_set
+
+        # Bulk database operations
+            with conn_pg.cursor() as cur_pg:
+                # Insertions
+                if to_insert:
+                    insert_data = [(id_,) + access_dict[id_] for id_ in to_insert]
+                    execute_values(cur_pg,
+                                    f"""INSERT INTO purch_fact.invoice_detail ({', '.join(PG_FIELDS)})VALUES %s""",
+                                    insert_data)
+
+                # Updates with UPSERT to avoid logic separations
+                if to_update:
+                    update_data = [(id_,) + data for id_, data in to_update.items()]
+                    conflict_cols = "id"
+                    set_clause = ', '.join(f"{col}=EXCLUDED.{col}" for col in PG_FIELDS[1:])
+                    execute_values( cur_pg,
+                        f""" INSERT INTO purch_fact.invoice_detail ({', '.join(PG_FIELDS)})
+                        VALUES %s
+                        ON CONFLICT ({conflict_cols}) DO UPDATE
+                        SET {set_clause}""",
+                        update_data)
+
+                # Deletions
+                if to_delete:
+                    cur_pg.execute("DELETE FROM purch_fact.invoice_detail WHERE id = ANY(%s)",
+                    (list(to_delete),))
 
             conn_pg.commit()
 
 
+
+
+# Function to load values on table
+    def load_table(self):
+        """
+        Loads and displays offer data in a table widget.
+        Handles errors with a message box and updates the table widget with the data.
+        """
+        self.table.setRowCount(0)
+
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
+
+        commands_appcomercial = ("""
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability",
+                    "notes","important","tracking","actions"
+                    FROM offers
+                    WHERE ("responsible" = %s AND "state" in ('Presentada', 'Registrada', 'En Estudio'))
+                    ORDER BY "num_offer"
+                    """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                # execution of commands
+                    cur.execute(commands_responsible)
+                    results_responsible=cur.fetchall()
+                    match=list(filter(lambda x:self.username in x, results_responsible))
+                    responsible=match[0][0]
+
+                    cur.execute(commands_appcomercial,(responsible,))
+                    results=cur.fetchall()
+                    number_columns = 12
+
+                self.table.setRowCount(len(results))
+                tablerow=0
+
+            # fill the Qt Table with the query results
+                for row in results:
+                    for column in range(number_columns):
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.table.setItem(tablerow, column, it)
+
+                    tablerow+=1
+
+                self.table.verticalHeader().hide()
+                self.table.setItemDelegate(AlignDelegate(self.table))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
+
+        self.table.setSortingEnabled(False)
 
 
 

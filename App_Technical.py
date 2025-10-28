@@ -715,101 +715,57 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ButtonFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.ButtonFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.ButtonFrame.setObjectName("ButtonFrame")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.ButtonFrame)
+        self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
+        self.verticalLayout_3.setSpacing(25)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_QueryOrder.setFont(font)
+        self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryOrder.setIcon(icon8)
+        self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryOrder.setObjectName("Button_QueryOrder")
+        self.Button_QueryOrder.setText("   Consultar Pedidos")
+        self.Button_QueryOrder.clicked.connect(self.query_order)
+        self.verticalLayout_3.addWidget(self.Button_QueryOrder)
+        self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_EditTag.setFont(font)
+        self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_EditTag.setIcon(icon10)
+        self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
+        self.Button_EditTag.setObjectName("Button_EditTag")
+        self.Button_EditTag.setText("   Editar TAGs")
+        self.verticalLayout_3.addWidget(self.Button_EditTag)
 
         if self.username in ['julian.martinez']:
-            self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.ButtonFrame)
-            self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
-            self.verticalLayout_3.setSpacing(25)
-            self.verticalLayout_3.setObjectName("verticalLayout_3")
-            self.Button_NewOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 50))
+            self.Button_Commercial = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_Commercial.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_Commercial.setMaximumSize(QtCore.QSize(200, 50))
             font = QtGui.QFont()
             font.setPointSize(12)
             font.setBold(True)
-            self.Button_NewOffer.setFont(font)
-            self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Commercial.setFont(font)
+            self.Button_Commercial.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             icon3 = QtGui.QIcon()
-            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewOffer.setIcon(icon3)
-            self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewOffer.setCheckable(False)
-            self.Button_NewOffer.setAutoRepeat(False)
-            self.Button_NewOffer.setAutoExclusive(False)
-            self.Button_NewOffer.setObjectName("Button_NewOffer")
-            self.verticalLayout_3.addWidget(self.Button_NewOffer)
-            self.Button_EditOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_EditOffer.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_EditOffer.setFont(font)
-            self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon4 = QtGui.QIcon()
-            icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_EditOffer.setIcon(icon4)
-            self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
-            self.Button_EditOffer.setObjectName("Button_EditOffer")
-            self.verticalLayout_3.addWidget(self.Button_EditOffer)
-            self.Button_NewOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewOrder.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewOrder.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_NewOrder.setFont(font)
-            self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewOrder.setIcon(icon6)
-            self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewOrder.setObjectName("Button_NewOrder")
-            self.verticalLayout_3.addWidget(self.Button_NewOrder)
-            self.Button_NewTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_NewTag.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_NewTag.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_NewTag.setFont(font)
-            self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NewTag.setIcon(icon9)
-            self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NewTag.setObjectName("Button_NewTag")
-            self.verticalLayout_3.addWidget(self.Button_NewTag)
-            self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_QueryOrder.setFont(font)
-            self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon8 = QtGui.QIcon()
-            icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_QueryOrder.setIcon(icon8)
-            self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
-            self.Button_QueryOrder.setObjectName("Button_QueryOrder")
-            self.Button_QueryOrder.setText("   Consultar Pedidos")
-            self.Button_QueryOrder.clicked.connect(self.query_order)
-            self.verticalLayout_3.addWidget(self.Button_QueryOrder)
-            self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_EditTag.setFont(font)
-            self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon10 = QtGui.QIcon()
-            icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_EditTag.setIcon(icon10)
-            self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
-            self.Button_EditTag.setObjectName("Button_EditTag")
-            self.verticalLayout_3.addWidget(self.Button_EditTag)
+            icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Commercial.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Commercial.setIcon(icon3)
+            self.Button_Commercial.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Commercial.setObjectName("Button_Commercial")
+            self.verticalLayout_3.addWidget(self.Button_Commercial)
             self.Button_FactoryTimes = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_FactoryTimes.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_FactoryTimes.setMaximumSize(QtCore.QSize(200, 50))
@@ -826,40 +782,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.verticalLayout_3.addWidget(self.Button_FactoryTimes)
 
         else:
-            self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.ButtonFrame)
-            self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
-            self.verticalLayout_3.setSpacing(25)
-            self.verticalLayout_3.setObjectName("verticalLayout_3")
-            self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_QueryOrder.setFont(font)
-            self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon8 = QtGui.QIcon()
-            icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_QueryOrder.setIcon(icon8)
-            self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
-            self.Button_QueryOrder.setObjectName("Button_QueryOrder")
-            self.Button_QueryOrder.setText("   Consultar Pedidos")
-            self.Button_QueryOrder.clicked.connect(self.query_order)
-            self.verticalLayout_3.addWidget(self.Button_QueryOrder)
-            self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            self.Button_EditTag.setFont(font)
-            self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            icon10 = QtGui.QIcon()
-            icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_EditTag.setIcon(icon10)
-            self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
-            self.Button_EditTag.setObjectName("Button_EditTag")
-            self.verticalLayout_3.addWidget(self.Button_EditTag)
             self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_QueryTag.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_QueryTag.setMaximumSize(QtCore.QSize(200, 50))
@@ -1027,11 +949,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
         if self.username in ['julian.martinez']:
-            self.Button_NewOffer.clicked.connect(self.new_offer)
-            self.Button_EditOffer.clicked.connect(self.edit_offer)
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
-            self.Button_NewOrder.clicked.connect(self.new_order)
-            self.Button_NewTag.clicked.connect(self.new_tag)
+            self.Button_Commercial.clicked.connect(self.commercial_menu)
 
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
@@ -1055,12 +974,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.HeaderName.setText(_translate("App_Technical", self.name))
 
         if self.username in ['julian.martinez']:
-            self.Button_NewTag.setText(_translate("App_Comercial", "    Nuevo(s) TAG(s)"))
-            self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
+            self.Button_Commercial.setText(_translate("App_Technical", "    Comercial"))
             self.Button_FactoryTimes.setText(_translate("App_Technical", "    Tiempos Fab."))
-            self.Button_NewOffer.setText(_translate("App_Technical", "        Nueva Oferta"))
-            self.Button_EditOffer.setText(_translate("App_Technical", "    Editar Oferta"))
-            self.Button_NewOrder.setText(_translate("App_Comercial", "    Nuevo Pedido"))
 
         else:
             self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
@@ -2988,6 +2903,43 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             else:
                 break
 
+# Function to open commercial menu
+    def commercial_menu(self):
+        while True:
+            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
+                                                                                                'Editar Oferta',
+                                                                                                'Reclamar Oferta',
+                                                                                                'Nuevo Pedido',
+                                                                                                'Editar Pedido',
+                                                                                                'Nuevo Tag(s)',
+                                                                                                'Editar Tag(s)'], 0, False)
+            if ok and action:
+                while True:
+                    if action == 'Nueva Oferta':
+                        self.new_offer()
+                        break
+                    elif action == 'Editar Oferta':
+                        self.edit_offer()
+                        break
+                    elif action == 'Reclamar Oferta':
+                        self.reclamation_offer()
+                        break
+                    elif action == 'Nuevo Pedido':
+                        self.new_order()
+                        break
+                    elif action == 'Editar Pedido':
+                        self.edit_order()
+                        break
+                    elif action == 'Nuevo Tag(s)':
+                        self.new_tag()
+                        break
+                    elif action == 'Editar Tag(s)':
+                        self.edit_tag_commercial()
+                        break
+                break
+            else:
+                break
+
 # Function to open window for create offers
     def new_offer(self):
         """
@@ -2998,8 +2950,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_New_Offer_Window(self.username)
         self.ui.setupUi(self.projectoffer_window)
         self.projectoffer_window.show()
-        if self.username in ['julian.martinez']:
-            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
 
 # Function to open window for edit offers
     def edit_offer(self):
@@ -3011,8 +2962,18 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_EditOffer_Menu(self.username)
         self.ui.setupUi(self.edit_offer_menu)
         self.edit_offer_menu.show()
-        if self.username in ['julian.martinez']:
-            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
+
+# Function to open reclamation window
+    def reclamation_offer(self):
+        """
+        Opens the reclamation window to handle offers that need reclamation.
+        """
+        from OfferReclamation_Window import Ui_ReclamationOffer_Window
+        self.reclamationoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ReclamationOffer_Window(self.name, self.username)
+        self.ui.setupUi(self.reclamationoffer_window)
+        self.reclamationoffer_window.show()
 
 # Function to open window for create orders
     def new_order(self):
@@ -3024,8 +2985,19 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_New_OrderAddData_Window()
         self.ui.setupUi(self.new_orderAddData_window)
         self.new_orderAddData_window.show()
-        if self.username in ['julian.martinez']:
-            self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
+
+# Function to open window for edit orders
+    def edit_order(self):
+        """
+        Opens a new window for editing an existing order. 
+        """
+        from OrderEdit_Menu import Ui_EditOrder_Menu
+        self.edit_order_window=QtWidgets.QMainWindow()
+        self.ui=Ui_EditOrder_Menu()
+        self.ui.setupUi(self.edit_order_window)
+        self.edit_order_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.load_table)
 
 # Function to open window for create tags
     def new_tag(self):
@@ -3037,6 +3009,26 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_CreateTag_Menu()
         self.ui.setupUi(self.new_tag_window)
         self.new_tag_window.show()
+
+# Function to open window to edit tags
+    def edit_tag_commercial(self):
+        """
+        Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
+
+        Args:
+            EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
+        """
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = Create_DBconnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
 
 # Function to load values on table
     def load_table(self):
@@ -3171,7 +3163,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())
