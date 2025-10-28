@@ -19,6 +19,7 @@ import random
 from Verif_Order_Window import Ui_Verif_Order_Window
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
+from config_keys import DATA_PATH, ORDERS_PATH
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -2262,7 +2263,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                     else:
-                        self.fname_image = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
+                        self.fname_image = askopenfilename(initialdir=DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
                                     title="Seleccionar imagen")
 
                         if self.fname_image:
@@ -2285,7 +2286,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                        self.fname_doc = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
+                        self.fname_doc = askopenfilename(initialdir=DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
                                     title="Seleccionar PDF")
 
                         if self.fname_doc:
@@ -2588,15 +2589,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             header_text = header_item.text()
 
             if header_text == 'TAG':
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("TAG")
-                dlg.setText(item.text())
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(item.text(), "info")
 
             elif header_text in ['Fotos', 'Fotos2', 'Foto', 'PDF Plano']:
                 if item.text() != '':
@@ -2631,12 +2624,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
             elif header_text == 'Tipo Equipo':
                 cell_content = item.text()
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Verificación")
-                dlg.setText(cell_content)
+                MessageHelper.show_message(cell_content)
                 dlg.exec()
                 del dlg, new_icon
 
@@ -2654,16 +2642,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Plano Dimensional")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
-                                    "Observaciones: " + results[0][1])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Critical, "critical")
@@ -2683,16 +2663,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Plano OF")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
-                                    "Observaciones: " + results[0][1])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2712,16 +2684,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Plano OF Sensor")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
-                                    "Observaciones: " + results[0][1])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2741,18 +2705,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Prueba Hidrostática 1")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
                                     "Manómetro: " + results[0][1] + "\n"
                                     "Presión: " + results[0][2] + "\n"
-                                    "Observaciones: " + results[0][3])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                                    "Observaciones: " + results[0][3], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2772,18 +2728,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Prueba Hidrostática 2")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
                                     "Manómetro: " + results[0][1] + "\n"
                                     "Presión: " + results[0][2] + "\n"
-                                    "Observaciones: " + results[0][3])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                                    "Observaciones: " + results[0][3], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2803,19 +2751,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Líquidos Penetrantes")
-                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                        MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
                                     "9PR5: " + results[0][1] + "\n"
                                     "9D1B: " + results[0][2] + "\n"
                                     "996PB: " + results[0][3] + "\n"
-                                    "Observaciones: " + results[0][4])
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                                    "Observaciones: " + results[0][4], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2833,17 +2773,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos AL")
-                        dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                        MessageHelper.show_message("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
                                     "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
-                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2861,17 +2793,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(query)
                                 results=cur.fetchall()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos AL")
-                        dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                        MessageHelper.show_message("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
                                     "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
-                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2896,17 +2820,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
                                 results = cur.fetchall()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos Dim.")
-                                dlg.setText("Pedido: " + self.num_order_value + "\n"
+                                MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
                                             "Plano: " + dim_drawing_number + "\n"
                                             "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2931,17 +2848,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
                                 results = cur.fetchall()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos OF")
-                                dlg.setText("Pedido: " + self.num_order_value + "\n"
+                                MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
                                             "Plano: " + of_drawing_number + "\n"
                                             "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2996,10 +2906,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     
                     if self.num_order_value[:2] == 'PA':
                         num_order = self.num_order_value
-                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
                         for folder in os.listdir(path):
                             if num_order.replace("/", "-") in folder:
-                                folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                                folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen" / folder
                                 for root, dirs, files in os.walk(folder_path):
                                     for filename in files:
                                         if fnmatch.fnmatch(filename, '*-PPI*'):
@@ -3013,10 +2923,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                     elif self.num_order_value[:2] == 'P-':
                         num_order = self.num_order_value[:8]
-                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
                         for folder in os.listdir(path):
                             if num_order.replace("/", "-") in folder:
-                                folder_path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                                folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos" / folder
                                 for root, dirs, files in os.walk(folder_path):
                                     for filename in files:
                                         if fnmatch.fnmatch(filename, '*-PPI.pdf'):
@@ -3047,17 +2957,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
                                 results = cur.fetchall()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos M")
-                                dlg.setText("Pedido: " + num_order + "\n"
+                                MessageHelper.show_message("Pedido: " + num_order + "\n"
                                             "Plano: " + m_drawing + "\n"
                                             "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3082,17 +2985,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_select_of_drawing, (num_order, of_drawing,))
                                 results = cur.fetchall()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos OF")
-                                dlg.setText("Pedido: " + num_order + "\n"
+                                MessageHelper.show_message("Pedido: " + num_order + "\n"
                                             "Plano: " + of_drawing + "\n"
                                             "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3117,17 +3013,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
                                 results = cur.fetchall()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos Dim.")
-                                dlg.setText("Pedido: " + num_order + "\n"
+                                MessageHelper.show_message("Pedido: " + num_order + "\n"
                                             "Plano: " + dim_drawing + "\n"
                                             "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
