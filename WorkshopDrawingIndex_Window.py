@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
+from config_keys import ORDERS_PATH
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from config import config
@@ -4592,11 +4592,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
-            # ERP-EIPSA-PEDIDOS
-            base_folder = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos"
-
             num_order = self.num_order[:8]
-            path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
+            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
             # if self.num_order[:2] == "PA":
             #     num_order = self.num_order
@@ -4609,7 +4606,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             for folder in os.listdir(path):
                 if num_order.replace("/", "-") in folder:
-                    folder_path = os.path.join(path, folder, "3-Fabricacion", f"Planos {drawing_type}")
+                    folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos" / folder / "3-Fabricacion" / f"Planos {drawing_type}"
                     for root, dirs, files in os.walk(folder_path):
                         for filename in files:
                             if fnmatch.fnmatch(filename, f"{drawing_number}*"):

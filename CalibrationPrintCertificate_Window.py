@@ -19,6 +19,7 @@ import math
 from PDF_Viewer import PDF_Viewer
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
+from config_keys import ORDERS_PATH
 
 
 class Ui_CalibrationPrintCertificate_Window(object):
@@ -457,10 +458,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
-                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
                         for folder in os.listdir(path):
                             if numorder.replace("/", "-") in folder:
-                                output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/" + "Certificado Calibración " + sensor_type + ".pdf"
+                                output_path2 = path / f"{folder}" / f"Certificado Calibración {sensor_type}.pdf"
 
                                 if output_path2:
                                     try:
@@ -523,10 +524,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
-                        path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
                         for folder in sorted(os.listdir(path)):
                             if numorder[:8].replace("/", "-") in folder:
-                                output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/" + numorder.replace("/", "-") + " Certificado Calibración " + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+                                output_path2 = path / f"{folder}" / f"{numorder.replace('/', '-') } Certificado Calibración {sensor_type}-{cert_date.replace('/', '-')}.pdf"
 
                                 if output_path2:
                                     try:
