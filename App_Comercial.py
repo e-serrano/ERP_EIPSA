@@ -846,15 +846,8 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(12)
+        self.tableOffer.setColumnCount(0)
         self.tableOffer.setRowCount(0)
-        for i in range(12):
-            item = QtWidgets.QTableWidgetItem()
-            font = QtGui.QFont()
-            font.setPointSize(10)
-            font.setBold(True)
-            item.setFont(font)
-            self.tableOffer.setHorizontalHeaderItem(i, item)
         self.tableOffer.verticalHeader().setVisible(False)
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
@@ -1015,30 +1008,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_EditTag.setText(_translate("App_Comercial", "    Editar TAG(s)"))
         self.Button_QueryTag.setText(_translate("App_Comercial", "    Consultar TAG(s)"))
         self.tableOffer.setSortingEnabled(True)
-        item = self.tableOffer.horizontalHeaderItem(0)
-        item.setText(_translate("App_Comercial", "Nº Oferta"))
-        item = self.tableOffer.horizontalHeaderItem(1)
-        item.setText(_translate("App_Comercial", "Estado"))
-        item = self.tableOffer.horizontalHeaderItem(2)
-        item.setText(_translate("App_Comercial", "Cliente"))
-        item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_Comercial", "Cl. Final / Planta"))
-        item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_Comercial", "Fecha Pres."))
-        item = self.tableOffer.horizontalHeaderItem(5)
-        item.setText(_translate("App_Comercial", "Material"))
-        item = self.tableOffer.horizontalHeaderItem(6)
-        item.setText(_translate("App_Comercial", "Importe"))
-        item = self.tableOffer.horizontalHeaderItem(7)
-        item.setText(_translate("App_Comercial", "Prob. Adj."))
-        item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_Comercial", "Notas"))
-        item = self.tableOffer.horizontalHeaderItem(9)
-        item.setText(_translate("App_Comercial", "Ptos. Importantes"))
-        item = self.tableOffer.horizontalHeaderItem(10)
-        item.setText(_translate("App_Comercial", "Seguimiento"))
-        item = self.tableOffer.horizontalHeaderItem(11)
-        item.setText(_translate("App_Comercial", "Acciones"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
@@ -1385,6 +1354,14 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     WHERE ("responsible" = %s AND "state" in ('Presentada', 'Registrada', 'En Estudio'))
                     ORDER BY "num_offer"
                     """)
+        
+        commands_appcomercial_lb = ("""
+                    SELECT "num_offer", "responsible", "state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability",
+                    "notes","important","tracking","actions"
+                    FROM offers
+                    WHERE ("responsible" in (%s, 'c.crespo') AND "state" in ('Presentada', 'Registrada', 'En Estudio'))
+                    ORDER BY "num_offer"
+                    """)
 
         try:
             with Database_Connection(config()) as conn:
@@ -1395,10 +1372,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     match=list(filter(lambda x:self.username in x, results_responsible))
                     responsible=match[0][0]
 
-                    cur.execute(commands_appcomercial,(responsible,))
-                    results=cur.fetchall()
-                    number_columns = 12
+                    if self.username == 'l.bravo':
+                        cur.execute(commands_appcomercial_lb,(responsible,))
+                        results=cur.fetchall()
+                        number_columns = 13
+                        headers = ["Nº Oferta","Responsable", "Estado","Cliente","Cl. Final / Planta","Fecha Pres.","Material","Importe","Prob. Adj.","Notas","Ptos. Importantes","Seguimiento","Acciones"]
+                    else:
+                        cur.execute(commands_appcomercial,(responsible,))
+                        results=cur.fetchall()
+                        number_columns = 12
+                        headers = ["Nº Oferta","Estado","Cliente","Cl. Final / Planta","Fecha Pres.","Material","Importe","Prob. Adj.","Notas","Ptos. Importantes","Seguimiento","Acciones"]
 
+                self.tableOffer.setColumnCount(number_columns)
                 self.tableOffer.setRowCount(len(results))
                 tablerow=0
 
@@ -1414,6 +1399,8 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                     tablerow+=1
 
+                self.tableOffer.setHorizontalHeaderLabels(headers)
+                self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
                 self.tableOffer.verticalHeader().hide()
                 self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
