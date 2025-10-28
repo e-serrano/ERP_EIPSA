@@ -476,7 +476,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order NOT LIKE '%PA%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("num_order NOT LIKE '%PA%' AND total_charged IS NULL")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -504,13 +504,13 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(37,39):
             self.tableOrders.hideColumn(i)
-        for i in range(42,self.model.columnCount()):
+        for i in range(42,self.model.columnCount() - 1):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval', '', '', 'Referencia Aval',
-                'Banco Aval', 'Importe Aval']
+                'Banco Aval', 'Importe Aval', '', '', 'Total Cobrado']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
@@ -576,13 +576,13 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
             self.tableOrders.hideColumn(i)
         for i in range(37,39):
             self.tableOrders.hideColumn(i)
-        for i in range(42,self.model.columnCount()):
+        for i in range(42,self.model.columnCount() - 1):
             self.tableOrders.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','','','Importe','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval', '', '', 'Referencia Aval',
-                'Banco Aval', 'Importe Aval']
+                'Banco Aval', 'Importe Aval', '', '', 'Total Cobrado']
 
         self.tableOrders.setItemDelegate(AlignDelegate(self.tableOrders))
         self.color_delegate = ColorDelegate(self)
