@@ -15,7 +15,7 @@ import re
 from config_keys import ORDERS_PATH
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from config import config
+from config import config, get_path
 import psycopg2
 import locale
 import os
@@ -35,7 +35,6 @@ import math
 import numpy as np
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -2023,7 +2022,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         WorkshopDrawingIndex_Window.resize(790, 595)
         WorkshopDrawingIndex_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         WorkshopDrawingIndex_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             WorkshopDrawingIndex_Window.setStyleSheet(
@@ -2141,7 +2140,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_AddLines.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_Lines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add_Lines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_AddLines.setIcon(icon1)
         self.Button_AddLines.setIconSize(QtCore.QSize(40, 40))
         self.Button_AddLines.setObjectName("Button_AddLines")
@@ -2176,7 +2175,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_Description.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Description.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Description.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Description.setIcon(icon4)
         self.Button_Description.setIconSize(QtCore.QSize(40, 40))
         self.Button_Description.setObjectName("Button_Description")
@@ -2211,7 +2210,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_Printer.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Printer.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Printer.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Printer.setIcon(icon5)
         self.Button_Printer.setIconSize(QtCore.QSize(40, 40))
         self.Button_Printer.setObjectName("Button_Printer")
@@ -2246,7 +2245,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_PaletteM.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PaletteM.setIcon(icon2)
         self.Button_PaletteM.setIconSize(QtCore.QSize(40, 40))
         self.Button_PaletteM.setObjectName("Button_PaletteM")
@@ -2281,7 +2280,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_PaletteT.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PaletteT.setIcon(icon3)
         self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
         self.Button_PaletteT.setObjectName("Button_PaletteT")
@@ -2317,7 +2316,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         )
         self.Button_PDFDrawings.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PDFDrawings.setIcon(icon3)
         self.Button_PDFDrawings.setIconSize(QtCore.QSize(40, 40))
         self.Button_PDFDrawings.setObjectName("Button_PDFDrawings")
@@ -3082,7 +3081,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -3111,7 +3110,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -3197,7 +3196,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("Buscar")
         clickedButton = dlg.exec()
@@ -3212,7 +3211,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
@@ -3633,7 +3632,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 else:
                     dlg3 = QtWidgets.QInputDialog()
                     new_icon3 = QtGui.QIcon()
-                    new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg3.setWindowIcon(new_icon3)
                     dlg3.setWindowTitle('Indice de planos')
                     dlg3.setLabelText('Introduce cuantos planos quieres introducir:')
@@ -4715,20 +4714,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
 
                         if self.numorder[:2] == 'PA':
-                            path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
                             for folder in os.listdir(path):
                                 if self.numorder.replace("/", "-") in folder:
-                                    output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
+                                    output_path2 = path / folder / "3-Fabricacion" / "Planos M"
                         else:
-                            path = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
                             for folder in sorted(os.listdir(path)):
                                 if 'S00' in self.numorder:
                                     if self.numorder[:8].replace("/", "-") in folder:
-                                        output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        output_path2 = path / folder / "3-Fabricacion" / "Planos M"
                                         break
                                 else:
                                     if self.numorder.replace("/", "-") in folder:
-                                        output_path2 = "//ERP-EIPSA-PEDIDOS/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        output_path2 = path / folder / "3-Fabricacion" / "Planos M"
                                         break
 
                         if not os.path.exists(output_path2):

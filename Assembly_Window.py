@@ -2,22 +2,17 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
-import configparser
 from datetime import *
-import os
 import re
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QMimeData, QDate
 from PyQt6.QtGui import QKeySequence
 import sys
-from config import config
+from config import config, get_path
 import psycopg2
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from utils.Database_Manager import Database_Connection
-from utils.Show_Message import MessageHelper
-
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -839,7 +834,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         Assembly_Window.resize(400, 561)
         Assembly_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Assembly_Window.setWindowIcon(icon)
         Assembly_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -901,7 +896,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpExcel)
@@ -1741,7 +1736,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1769,7 +1764,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1798,7 +1793,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1825,7 +1820,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -1938,7 +1933,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1953,7 +1948,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy_P.setFilter([stringAction], filterColumn)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model_P.setIconColumnHeader(filterColumn, icono)
 
@@ -1964,7 +1959,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1979,7 +1974,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy_PA.setFilter([stringAction], filterColumn)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model_PA.setIconColumnHeader(filterColumn, icono)
 
@@ -2501,7 +2496,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2529,7 +2524,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2604,7 +2599,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -2619,7 +2614,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy_AL.setFilter([stringAction], filterColumn)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model_AL.setIconColumnHeader(filterColumn, icono)
 
@@ -2661,7 +2656,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
             dlg = QtWidgets.QInputDialog()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle('Descripción Albarán')
             dlg.setLabelText('Inserte número albarán:')
@@ -2689,7 +2684,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("Descripción Albarán")
                             dlg.setText("Descripción añadida")
@@ -2700,7 +2695,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2714,7 +2709,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         break
                     dlg_error = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg_error.setWindowIcon(new_icon)
                     dlg_error.setWindowTitle("Descripción Albarán")
                     dlg_error.setText("El número de albarán no puede estar vacío")

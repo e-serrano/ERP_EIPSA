@@ -24,8 +24,6 @@ from PDF_Styles import pending_invoices, ag_int_liquid
 import math
 from config_keys import ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
-
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1198,7 +1196,7 @@ class Ui_App_Invoicing(object):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = os.path.abspath(str(get_path("Resources", "pdfviewer", "temp", "temp.pdf")))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
@@ -1512,7 +1510,7 @@ class Ui_App_Invoicing(object):
             # Obtain data from last 50 registers of access file
                 field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
                 cur_access.execute(f"""
-                    SELECT 200 {field_list}
+                    SELECT TOP 200 {field_list}
                     FROM FACT_ENCAB
                     ORDER BY FactencabId DESC
                 """)
@@ -1598,7 +1596,7 @@ class Ui_App_Invoicing(object):
             # Obtain data from last 50 registers of access file
                 field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
                 cur_access.execute(f"""
-                    SELECT 1000 {field_list}
+                    SELECT TOP 1000 {field_list}
                     FROM FACT_DET
                     ORDER BY FactId DESC
                 """)

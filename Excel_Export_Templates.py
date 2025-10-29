@@ -16,9 +16,8 @@ import os
 from math import exp
 import re
 import numpy as np
-
-
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
 
 # Templates for orders
@@ -104,15 +103,7 @@ class offer_flow:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -743,7 +734,7 @@ class offer_flow:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -886,15 +877,7 @@ class offer_short_flow_spanish:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -1441,7 +1424,7 @@ class offer_short_flow_spanish:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1584,15 +1567,7 @@ class offer_short_flow_english:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -2223,7 +2198,7 @@ class offer_short_flow_english:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -2366,15 +2341,7 @@ class offer_temp:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -3057,7 +3024,7 @@ class offer_temp:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3189,15 +3156,7 @@ class offer_short_temp_spanish:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -3799,7 +3758,7 @@ class offer_short_temp_spanish:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3932,15 +3891,7 @@ class offer_short_temp_english:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -4623,7 +4574,7 @@ class offer_short_temp_english:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -4756,15 +4707,7 @@ class offer_level:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -5288,7 +5231,7 @@ class offer_level:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -5421,15 +5364,7 @@ class offer_short_level_spanish:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -5871,7 +5806,7 @@ class offer_short_level_spanish:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -6004,15 +5939,7 @@ class offer_short_level_english:
             data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 columns = []
                 for elt in cur.description:
@@ -6536,7 +6463,7 @@ class offer_short_level_english:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -6699,15 +6626,7 @@ class offer_flow_temp:
                 columns_temp.append(elt[0])
 
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 value_type_dict_flow = {
                     "A. Chamber": 1,
@@ -7679,7 +7598,7 @@ class offer_flow_temp:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -7859,15 +7778,7 @@ class offer_flow_temp_level:
                 columns_level.append(elt[0])
 
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0 or len(data_tags_level) == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("No hay TAGS importados en la oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 value_type_dict_flow = {
                     "A. Chamber": 1,
@@ -9018,7 +8929,7 @@ class offer_flow_temp_level:
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -9115,69 +9026,57 @@ class order_ovr:
             FROM tags_data.tags_flow
             WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_temp = ('''
             SELECT tags_data.tags_temp."num_order"
             FROM tags_data.tags_temp
             WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_level = ('''
             SELECT tags_data.tags_level."num_order"
             FROM tags_data.tags_level
             WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_others = ('''
             SELECT tags_data.tags_others."num_order"
             FROM tags_data.tags_others
             WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_order_data,(self.num_order,))
-            results_orders=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_order_data,(self.num_order,))
+                    results_orders=cur.fetchall()
 
-            for result in results_orders:
-                dict_orders[result[0]] = result[1]
+                    for result in results_orders:
+                        dict_orders[result[0]] = result[1]
 
-            cur.execute(query_flow,(self.num_order,))
-            results_flow=cur.fetchall()
-            cur.execute(query_temp,(self.num_order,))
-            results_temp=cur.fetchall()
-            cur.execute(query_level,(self.num_order,))
-            results_level=cur.fetchall()
-            cur.execute(query_others,(self.num_order,))
-            results_others=cur.fetchall()
+                    cur.execute(query_flow,(self.num_order,))
+                    results_flow=cur.fetchall()
+                    cur.execute(query_temp,(self.num_order,))
+                    results_temp=cur.fetchall()
+                    cur.execute(query_level,(self.num_order,))
+                    results_level=cur.fetchall()
+                    cur.execute(query_others,(self.num_order,))
+                    results_others=cur.fetchall()
 
-            if len(results_flow) != 0:
-                self.variable = 'Caudal'
-            elif len(results_temp) != 0:
-                self.variable = 'Temperatura'
-            elif len(results_level) != 0:
-                self.variable = 'Nivel'
-            elif len(results_others) != 0:
-                self.variable = 'Otros'
-            else:
-                self.variable = ''
+                    if len(results_flow) != 0:
+                        self.variable = 'Caudal'
+                    elif len(results_temp) != 0:
+                        self.variable = 'Temperatura'
+                    elif len(results_level) != 0:
+                        self.variable = 'Nivel'
+                    elif len(results_others) != 0:
+                        self.variable = 'Otros'
+                    else:
+                        self.variable = ''
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             if self.variable == 'Caudal':
                 self.table_name = "tags_data.tags_flow"
@@ -9195,35 +9094,15 @@ class order_ovr:
         column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'PO DELIVERY DATE ', 'DRAWING APPROVAL DATE', 'INSPECTION NUMBER', 'INSPECTION DATE', 'DATE RN', 'NEW DELIVERY DATE']
 
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-
-            if self.variable != '':
-                cur.execute(commands_tags)
-                results=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    if self.variable != '':
+                        cur.execute(commands_tags)
+                        results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if self.variable != '' and self.table_name != "tags_data.tags_others":
             data_tags = pd.DataFrame(data=results, columns=column_headers)
@@ -9234,7 +9113,7 @@ class order_ovr:
             data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
             data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
 
-            self.wb_ovr = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
+            self.wb_ovr = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OVR.xlsx")))
 
             sheet_name = "ANNEX I"
             ws = self.wb_ovr[sheet_name]
@@ -9255,15 +9134,7 @@ class order_ovr:
             self.save_excel_ovr()
 
         else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Generar OVR")
-            dlg_error.setText("No se puede generar el OVR para este pedido")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
+            MessageHelper.show_message("No se puede generar el OVR para este pedido", "warning")
 
     def save_excel_ovr(self):
         """Saves the populated Excel workbook to a specified location.
@@ -9319,39 +9190,23 @@ class doc_situation:
                     AND document_type."doc_type" IN ('Cálculo y plano', 'Cálculos', 'Planos', 'Soldadura', 'Pintura')
                     ORDER BY documentation."num_order"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryalldoc,(self.num_ref,))
-            results_orders=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryalldoc,(self.num_ref,))
+                    results_orders=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         column_headers = ['Nº Pedido', 'Nº PO', 'Cliente', 'Fecha Pedido', 'Material', 'Nº Doc. Cliente', 'Nº Doc. EIPSA', 'Título',
                         'Tipo Doc.', 'Estado', 'Nº Rev.', 'Última Fecha', 'Fecha Rev. 0', 'Días', 'Plazo', 'Fecha Rev.','Seguimiento']
 
         self.data_docs = pd.DataFrame(data=results_orders, columns=column_headers)
 
-        self.wb_doc = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA SITUACIÓN DOCS.xlsx")
+        self.wb_doc = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA SITUACIÓN DOCS.xlsx")))
 
         sheet_name = "Doc"
         ws = self.wb_doc[sheet_name]
@@ -9437,71 +9292,55 @@ class vendor_progress_report:
             FROM tags_data.tags_flow
             WHERE UPPER (tags_data.tags_flow."num_po") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_temp = ('''
             SELECT tags_data.tags_temp."num_po"
             FROM tags_data.tags_temp
             WHERE UPPER (tags_data.tags_temp."num_po") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_level = ('''
             SELECT tags_data.tags_level."num_po"
             FROM tags_data.tags_level
             WHERE UPPER (tags_data.tags_level."num_po") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_others = ('''
             SELECT tags_data.tags_others."num_po"
             FROM tags_data.tags_others
             WHERE UPPER (tags_data.tags_others."num_po") LIKE UPPER('%%'||%s||'%%')
             ''')
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_flow,(num_ref,))
-            results_flow=cur.fetchall()
-            cur.execute(query_temp,(num_ref,))
-            results_temp=cur.fetchall()
-            cur.execute(query_level,(num_ref,))
-            results_level=cur.fetchall()
-            cur.execute(query_others,(num_ref,))
-            results_others=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_flow,(num_ref,))
+                    results_flow=cur.fetchall()
+                    cur.execute(query_temp,(num_ref,))
+                    results_temp=cur.fetchall()
+                    cur.execute(query_level,(num_ref,))
+                    results_level=cur.fetchall()
+                    cur.execute(query_others,(num_ref,))
+                    results_others=cur.fetchall()
 
-            if len(results_flow) != 0 and len(results_temp) != 0:
-                self.variable = 'Caudal+Temp'
-            elif len(results_flow) != 0 and len(results_level) != 0:
-                self.variable = 'Caudal+Nivel'
-            elif len(results_flow) != 0:
-                self.variable = 'Caudal'
-            elif len(results_temp) != 0:
-                self.variable = 'Temperatura'
-            elif len(results_level) != 0:
-                self.variable = 'Nivel'
-            elif len(results_others) != 0:
-                self.variable = 'Otros'
-            else:
-                self.variable = ''
+                    if len(results_flow) != 0 and len(results_temp) != 0:
+                        self.variable = 'Caudal+Temp'
+                    elif len(results_flow) != 0 and len(results_level) != 0:
+                        self.variable = 'Caudal+Nivel'
+                    elif len(results_flow) != 0:
+                        self.variable = 'Caudal'
+                    elif len(results_temp) != 0:
+                        self.variable = 'Temperatura'
+                    elif len(results_level) != 0:
+                        self.variable = 'Nivel'
+                    elif len(results_others) != 0:
+                        self.variable = 'Otros'
+                    else:
+                        self.variable = ''
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if self.variable == 'Caudal+Temp':
             self.table_query = "tags_data.tags_flow"
@@ -9542,32 +9381,16 @@ class vendor_progress_report:
                     WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%') and tags_data."tag_state" in ('PURCHASED', 'FOR INVOICING')
                     ORDER BY tags_data."tag"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_query_data,(self.num_ref,))
-            results_progress=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_query_data,(self.num_ref,))
+                    results_progress=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         column_headers = ['PO Number', 'Suppl.', 'Pos', 'Sub', 'TAG', '', 'Ident Description',
                         'D1', 'SCH1', 'Incoterm', 'Delivery Place', 'Item Ship. Qty', 'Quantity Unit', 'IRC QTY', 'IRC date',
@@ -9629,69 +9452,57 @@ class spares_two_years:
             FROM tags_data.tags_flow
             WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_temp = ('''
             SELECT tags_data.tags_temp."num_order"
             FROM tags_data.tags_temp
             WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_level = ('''
             SELECT tags_data.tags_level."num_order"
             FROM tags_data.tags_level
             WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
+
         query_others = ('''
             SELECT tags_data.tags_others."num_order"
             FROM tags_data.tags_others
             WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
             ''')
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_order_data,(self.num_order,))
-            results_orders=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_order_data,(self.num_order,))
+                    results_orders=cur.fetchall()
 
-            for result in results_orders:
-                dict_orders[result[0]] = result[1]
+                    for result in results_orders:
+                        dict_orders[result[0]] = result[1]
 
-            cur.execute(query_flow,(self.num_order,))
-            results_flow=cur.fetchall()
-            cur.execute(query_temp,(self.num_order,))
-            results_temp=cur.fetchall()
-            cur.execute(query_level,(self.num_order,))
-            results_level=cur.fetchall()
-            cur.execute(query_others,(self.num_order,))
-            results_others=cur.fetchall()
+                    cur.execute(query_flow,(self.num_order,))
+                    results_flow=cur.fetchall()
+                    cur.execute(query_temp,(self.num_order,))
+                    results_temp=cur.fetchall()
+                    cur.execute(query_level,(self.num_order,))
+                    results_level=cur.fetchall()
+                    cur.execute(query_others,(self.num_order,))
+                    results_others=cur.fetchall()
 
-            if len(results_flow) != 0:
-                self.variable = 'Caudal'
-            elif len(results_temp) != 0:
-                self.variable = 'Temperatura'
-            elif len(results_level) != 0:
-                self.variable = 'Nivel'
-            elif len(results_others) != 0:
-                self.variable = 'Otros'
-            else:
-                self.variable = ''
+                    if len(results_flow) != 0:
+                        self.variable = 'Caudal'
+                    elif len(results_temp) != 0:
+                        self.variable = 'Temperatura'
+                    elif len(results_level) != 0:
+                        self.variable = 'Nivel'
+                    elif len(results_others) != 0:
+                        self.variable = 'Otros'
+                    else:
+                        self.variable = ''
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             if self.variable == 'Caudal':
                 self.table_name = "tags_data.tags_flow"
@@ -9740,41 +9551,19 @@ class spares_two_years:
             WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') AND tags.item_type in ('Reflex','Transparent')
             ORDER BY tags.num_order
             """
-            
 
         if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-
-                if self.variable != '':
-                    cur.execute(commands_tags)
-                    results=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_tags)
+                        results=cur.fetchall()
 
                     column_headers = ['SPARE ID', 'MODEL NUMBER', 'UNIT', 'TAG', 'DESCRIPTION', 'GROUP', 'SERIAL NUMBER', 'VENDOR DRAWING', 'DRAWING']
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             data_tags = pd.DataFrame(data=results, columns=column_headers)
 
@@ -9804,7 +9593,7 @@ class spares_two_years:
             data_tags['MODEL NUMBER'] = data_tags.apply(lambda row: 'GAS_SP-' + str(row['MODEL NUMBER'])[:8] + '-' + row['GROUP'], axis=1)
             data_tags['SERIAL NUMBER'] = data_tags.apply(lambda row: 'SN-' + row['MODEL NUMBER'], axis=1)
 
-            self.wb_spares = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA REPUESTOS.xlsx")
+            self.wb_spares = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA REPUESTOS.xlsx")))
 
             sheet_name = "APPENDIX 1"
             ws = self.wb_spares[sheet_name]
@@ -9842,15 +9631,7 @@ class spares_two_years:
             self.save_excel_spares()
 
         else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Generar OVR")
-            dlg_error.setText("No existen tags de este pedido en el ERP")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
+            MessageHelper.show_message("No existen tags de este pedido en el ERP", "warning")
 
     def save_excel_spares(self):
         """Saves the populated Excel workbook to a specified location.
@@ -9915,46 +9696,24 @@ class nuclear_annexes:
                 WHERE "num_order" = %s
                 """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_calib_data, (numorder,))
-            results = cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_calib_data, (numorder,))
+                    results = cur.fetchall()
 
-            df = pd.DataFrame(results, columns=["tag", "sensor", "master",
-                                    "master_1", "element_1", "error_1", "tolerance_1",
-                                    "master_2", "element_2", "error_2", "tolerance_2",
-                                    "master_3", "element_3", "error_3", "tolerance_3",
-                                    "master_4", "element_4", "error_4", "tolerance_4",
-                                    "notes"])
+                    df = pd.DataFrame(results, columns=["tag", "sensor", "master",
+                                            "master_1", "element_1", "error_1", "tolerance_1",
+                                            "master_2", "element_2", "error_2", "tolerance_2",
+                                            "master_3", "element_3", "error_3", "tolerance_3",
+                                            "master_4", "element_4", "error_4", "tolerance_4",
+                                            "notes"])
 
-            df.sort_values(by=['tag'])
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    df.sort_values(by=['tag'])
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         for i in range(1, 5):
             df[f'master_value{i}'] = df.apply(lambda row: self.calculate_master(row[f'master_{i}'], row['master']), axis=1)
@@ -9965,11 +9724,11 @@ class nuclear_annexes:
         df['sensor'] = df['sensor'].map(dict_sensor_types)
 
         if self.annex == 'Anexo A':
-            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO A Termopar con union a masa.xlsx")
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO A Termopar con union a masa.xlsx")))
         elif self.annex == 'Anexo B':
-            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO B Termopar aislado de masa.xlsx")
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO B Termopar aislado de masa.xlsx")))
         elif self.annex == 'Anexo C':
-            self.wb = load_workbook(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO C RTD.xlsx")
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO C RTD.xlsx")))
 
         ws_initial = self.wb["Hoja1"]
 
@@ -10056,42 +9815,21 @@ class nuclear_annexes:
                                     FROM verification.inta_pt100_values
                                     ORDER BY variables
                                     """
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_intavalues)
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_intavalues)
+                            results = cur.fetchall()
 
-                    a_inta = results[0][0]
-                    b_inta = results[1][0]
-                    c_inta = results[2][0]
-                    r_zero = results[3][0]
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                            a_inta = results[0][0]
+                            b_inta = results[1][0]
+                            c_inta = results[2][0]
+                            r_zero = results[3][0]
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if temp < 0:
                     final_value = round(r_zero * (1 + a_inta * temp + b_inta * temp**2 + c_inta* (temp - 100) * temp**3), 3)
@@ -10105,42 +9843,21 @@ class nuclear_annexes:
                                     FROM verification.inta_tc_values
                                     ORDER BY variables
                                     """
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_intavalues)
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_intavalues)
+                            results = cur.fetchall()
 
-                    a_inta = results[0][0]
-                    b_inta = results[1][0]
-                    c_inta = results[2][0]
+                            a_inta = results[0][0]
+                            b_inta = results[1][0]
+                            c_inta = results[2][0]
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 final_value = round((a_inta + b_inta * temp* + c_inta * temp**2)/1000, 3)
 
@@ -10167,42 +9884,20 @@ class nuclear_annexes:
                                     FROM verification.standard_pt100_values
                                     ORDER BY variables
                                     """)
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_stdvalues)
-                    results = cur.fetchall()
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_stdvalues)
+                            results = cur.fetchall()
 
-                    a_std = results[0][0]
-                    b_std = results[1][0]
-                    c_std = results[2][0]
-                    r_zero = results[3][0]
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                            a_std = results[0][0]
+                            b_std = results[1][0]
+                            c_std = results[2][0]
+                            r_zero = results[3][0]
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if temp < 0:
                     final_value = round(r_zero * (1 + a_std * temp + b_std * temp**2 + c_std* (temp - 100) * temp**3), 3)
@@ -10243,37 +9938,16 @@ class nuclear_annexes:
                                     FROM {table}
                                     ORDER BY id
                                     """
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_stdvalues)
-                    results = cur.fetchall()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                try:
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_stdvalues)
+                            results = cur.fetchall()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 final_value = 0
 
@@ -10311,9 +9985,7 @@ class material_order:
             num_ot (str): The order task number.
         """
         # Loading Excel Template
-        self.wb = load_workbook(
-            r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
-        )
+        self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima.xlsx")))
         sheet_name = "Hoja1"  # Selecting template sheet
         ws = self.wb[sheet_name]
         start_row = 12  # Obtaining last row used
@@ -10356,19 +10028,14 @@ class material_order:
 class future_projects:
     """
     A class to manage future projects report.
-    
-    Attributes:
-        num_order (str): The order number.
     """
     def __init__(self, df):
         """
         Initializes an future_projects instance with dataframe with data.
         
         Args:
-            df (str): The order number.
+            df (str): The dataframe with the complete information
         """
-        self.df = df
-
         self.wb = load_workbook(str(get_path("Plantillas Exportación", "TEMPLATE OPPORTUNITIES.xlsx")))
 
         sheet_name = "PROJECTS"
@@ -10411,7 +10078,7 @@ class order_reports:
         Args:
             df (str): The order number.
         """
-        self.df1 = df1
+        self.df1 = df1.iloc[:, :-3]
         self.df2 = df2
         self.df3 = df3
 
@@ -10431,10 +10098,10 @@ class order_reports:
         )
 
         last_row = 11
-        for index, row in df1.iterrows():  # Data in desired row
+        for index, row in self.df1.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
-                if col_num in [7, 8, 15, 16, 17, 19, 22, 23, 24, 26, 27, 28]:
+                if col_num in [7, 8, 15, 16, 17, 19, 22, 24, 25, 27, 28, 30]:
                     if value is not None:
                         if isinstance(value, datetime):
                             cell.value = value
@@ -10446,7 +10113,7 @@ class order_reports:
                     else:
                         cell.value = value
                     cell.style = date_style
-                elif col_num in [34]:
+                elif col_num in [36]:
                     cell.value = value
                     cell.style = currency_style
                 else:
@@ -10457,8 +10124,15 @@ class order_reports:
 
             last_row = last_row + 1
 
+        ws.cell(row=last_row, column=35).value = "TOTAL:"
+        ws.cell(row=last_row, column=35).alignment = Alignment(horizontal='right', vertical='center')
+        ws.cell(row=last_row, column=35).font = Font(bold=True, size=12)
+        ws.cell(row=last_row, column=36).value = f"=SUM({get_column_letter(36)}{11}:{get_column_letter(36)}{last_row - 1})"
+        ws.cell(row=last_row, column=36).style = currency_style
+        ws.cell(row=last_row, column=36).font = Font(bold=True, size=14)
+
         last_row = last_row + 2
-        for col_num, header in enumerate(df2.columns, start=1):
+        for col_num, header in enumerate(self.df2.columns, start=1):
             cell = ws.cell(row=last_row, column=col_num)
             cell.value = header
             cell.border = thin_border
@@ -10466,7 +10140,7 @@ class order_reports:
             cell._style = ws["A10"]._style
         last_row += 1
 
-        for index, row in df2.iterrows():  # Data in desired row
+        for index, row in self.df2.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 if col_num in [3, 6]:
@@ -10479,7 +10153,7 @@ class order_reports:
             last_row = last_row + 1
 
         last_row = last_row + 2
-        for col_num, header in enumerate(df3.columns, start=1):
+        for col_num, header in enumerate(self.df3.columns, start=1):
             cell = ws.cell(row=last_row, column=col_num)
             cell.value = header
             cell.border = thin_border
@@ -10487,7 +10161,7 @@ class order_reports:
             cell._style = ws["A10"]._style
         last_row += 1
 
-        for index, row in df3.iterrows():  # Data in desired row
+        for index, row in self.df3.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 cell.value = value
