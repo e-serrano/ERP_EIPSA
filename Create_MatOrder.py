@@ -1009,7 +1009,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 modelcover = ('L=' + str(length))
                 designcover = '80x30' if model_num[2:4] != 'HH' else '90x40'
                 processcover = (str(bores) + ' taladros')
-                materialcover = 'A-105' if model.data(model.index(target_row, 10)) == 'Carbon Steel' else model.data(model.index(target_row, 10))
+                materialcover = 'A-105' if model.data(model.index(target_row, 27)) == 'Carbon Steel' else model.data(model.index(target_row, 27))
                 qtycover = model.data(model.index(target_row, 74))
                 cover_list.append([code_cover,codefab_cover,tradcodcover,modelcover,designcover,processcover,materialcover,qtycover])
                 all_list_parts.append(cover_list)
