@@ -2,7 +2,7 @@
 from configparser import ConfigParser
 from pathlib import Path
 import sys
-from config_keys import HOST_DATABASE, NAME_DATABASE, INI_FILE_PATH
+from config_keys import HOST_DATABASE, NAME_DATABASE, INI_FILE_PATH, APP_PATH
 
 # Base directory for the project (common folder for all PCs)
 if getattr(sys, 'frozen', False):
@@ -16,12 +16,12 @@ else:
 # Helper function to build paths
 def get_path(*subpaths):
     """
-    Returns an absolute path by joining BASEDIR with subfolders/files.
+    Returns an absolute path by joining APP_PATH with subfolders/files.
 
     Example:
         get_path("Resources", "Iconos", "icon.ico")
     """
-    return (BASEDIR.joinpath(*subpaths)).resolve()
+    return APP_PATH.joinpath(*subpaths)
 
 
 # Database configuration reader
