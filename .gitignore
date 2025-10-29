@@ -3,6 +3,8 @@ build/
 dist/
 *.spec
 *.pyc
+.env/
+.vscode/
 
 icon.ico
 
