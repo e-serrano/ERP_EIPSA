@@ -489,7 +489,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.LogoIcon.setMinimumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setMaximumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.png"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
