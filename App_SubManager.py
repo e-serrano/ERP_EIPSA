@@ -24,8 +24,9 @@ from matplotlib.ticker import FuncFormatter
 from io import BytesIO
 import numpy as np
 from tkinter.filedialog import asksaveasfilename
-from Excel_Export_Templates import future_projects
-
+from Excel_Export_Templates import future_projects, order_reports
+from config_keys import DATA_PATH
+import os
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -598,7 +599,7 @@ class Ui_App_SubManager(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_SubManager.setWindowIcon(icon)
-        App_SubManager.setStyleSheet("background-color: rgb(255, 255, 255);")
+        # App_SubManager.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_SubManager)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -618,7 +619,7 @@ class Ui_App_SubManager(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.png"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -1512,20 +1513,16 @@ class Ui_App_SubManager(object):
         while True:
             report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos', 'Proyectos'], 0, False)
             if ok and report:
-                report_type = report
-                if report_type != '':
-                    while True:
-                        if report_type == 'Ofertas':
-                            self.report_offers()
-                            break
-                        elif report_type == 'Pedidos':
-                            self.report_orders()
-                            break
-                        elif report_type == 'Proyectos':
-                            self.report_projects()
-                            break
-                    break
-                MessageHelper.show_message("Selecciona un anexo", "warning")
+                while True:
+                    if report == 'Ofertas':
+                        self.report_offers()
+                        break
+                    elif report == 'Pedidos':
+                        self.report_orders()
+                        break
+                    elif report == 'Proyectos':
+                        self.report_projects()
+                        break
                 break
             else:
                 break
@@ -1537,7 +1534,7 @@ class Ui_App_SubManager(object):
         if start_date and end_date:
             query_graph_commercial_1 = ("""
                             SELECT offers.num_offer, offers.state, offers.responsible,
-                            COALESCE(offers.offer_amount, 0::money) AS offer_amount, COALESCE(orders.order_amount, 0::money) AS order_amount
+                            COALESCE(offers.offer_amount, 0::money) AS offer_amount, COALESCE(orders.order_amount, 0::money) AS order_amount, orders.num_order
                             FROM offers
                             LEFT JOIN orders ON offers.num_offer = orders.num_offer
                             WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
@@ -1616,7 +1613,7 @@ class Ui_App_SubManager(object):
 
                     cur.execute(query_graph_commercial_1)
                     results_graph_commercial_1 = cur.fetchall()
-                    df_graph_commercial_1 = pd.DataFrame(results_graph_commercial_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido'])
+                    df_graph_commercial_1 = pd.DataFrame(results_graph_commercial_1, columns=['Nº Oferta', 'Estado', 'Responsable', 'Importe Oferta', 'Importe Pedido', 'Nº Pedido'])
 
                     df_graph_commercial_1['Importe Oferta'] = df_graph_commercial_1['Importe Oferta']\
                                                 .str.replace('€', '', regex=False) \
@@ -1658,6 +1655,8 @@ class Ui_App_SubManager(object):
                     results_graph_calculation_2 = cur.fetchall()
                     df_graph_calculation_2 = pd.DataFrame(results_graph_calculation_2, columns=['Nº Oferta', 'Estado', 'Responsable', 'Tabla'])
 
+                    df_graph_orders_1 = df_graph_commercial_1.dropna(subset=['Nº Pedido'])
+
                     cur.execute(query_last_weekly_summary, (start_date, end_date, start_date, end_date))
                     results_weekly = cur.fetchall()
                     df_weekly = pd.DataFrame(results_weekly,
@@ -1685,13 +1684,13 @@ class Ui_App_SubManager(object):
                                                 .str.replace(',', '.', regex=False) \
                                                 .astype(float)
 
-            pdf = self.generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_weekly, df_active)
+            pdf = self.generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active)
 
             output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
             if output_path:
                 pdf.output(output_path)
 
-    def generate_report_offers(self, start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_weekly, df_active):
+    def generate_report_offers(self, start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active):
         pdf = CustomPDF_A3('P')
 
         pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
@@ -1776,17 +1775,19 @@ class Ui_App_SubManager(object):
 
         df_graph_commercial_1 = df_graph_commercial_1[df_graph_commercial_1['Estado'] != 'Budgetary']
         img_graph_1, img_graph_2 = self.graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2)
+        img_graph_3, img_graph_4 = self.graphs_calculation_report(df_graph_calculation_1, df_graph_calculation_2)
+        img_graph_5, img_graph_6 = self.graphs_orders_report(df_graph_orders_1)
 
         y_position = 3
-        pdf.image(img_graph_1, x=2.5, y=y_position, w=9.8, h=4.5)
-        pdf.image(img_graph_2, x=16.95, y=y_position, w=9.8, h=4.5)
+        pdf.image(img_graph_1, x=0.5, y=y_position, w=8.5, h=4.5)
+        pdf.image(img_graph_3, x=10.6, y=y_position, w=8.5, h=4.5)
+        pdf.image(img_graph_5, x=20.7, y=y_position, w=8.5, h=4.5)
         pdf.ln(5)
 
-        img_graph_3, img_graph_4 = self.graphs_calculation_report(df_graph_calculation_1, df_graph_calculation_2)
-
         y_position = pdf.get_y()
-        pdf.image(img_graph_3, x=2.5, y=y_position, w=9.8, h=4.5)
-        pdf.image(img_graph_4, x=16.95, y=y_position, w=9.8, h=4.5)
+        pdf.image(img_graph_2, x=0.5, y=y_position, w=8.5, h=4.5)
+        pdf.image(img_graph_4, x=10.6, y=y_position, w=8.5, h=4.5)
+        pdf.image(img_graph_6, x=20.7, y=y_position, w=8.5, h=4.5)
         pdf.ln(5)
 
         pdf.set_fill_color(255, 255, 64)
@@ -1968,6 +1969,10 @@ class Ui_App_SubManager(object):
 
         df_study = df_active[df_active['Estado'] == 'En Estudio'].sort_values(by=['Responsable', 'Nº Oferta'])
 
+        df_study['Fecha Vto.'] = pd.to_datetime(df_study['Fecha Vto.'], format='%d/%m/%Y', errors='coerce')
+        df_study['days_diff'] = (pd.Timestamp.today() - df_study['Fecha Vto.']).dt.days
+        df_study['Fecha Vto.'] = df_study['Fecha Vto.'].dt.strftime('%d/%m/%Y')
+
         pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(3, 0.5, 'EN ESTUDIO:')
         pdf.cell(3, 0.5, str(df_study.shape[0]), align='L')
@@ -1990,6 +1995,7 @@ class Ui_App_SubManager(object):
         pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
         pdf.ln()
 
+        pdf.set_fill_color(255, 105, 105)
         pdf.set_font('DejaVuSansCondensed', size=6)
         for _, row in df_study.iterrows():
             # getting the required height of the row
@@ -2019,7 +2025,7 @@ class Ui_App_SubManager(object):
 
             pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
             pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-            pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C', fill=True if row['days_diff'] > 0 else False)
             pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
             pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
@@ -2044,14 +2050,26 @@ class Ui_App_SubManager(object):
         pdf.cell(3, 0.3, self.euro_format(df_study['Importe Euros'].sum()), align='C')
         pdf.ln()
 
-        df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
-        df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Fecha Pres.'])
-        df_presented['Fecha Pres.'] = df_presented['Fecha Pres.'].dt.strftime('%d/%m/%Y')
+        # pdf.add_page()
 
+        df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
+        df_active['days_diff'] = (pd.Timestamp.today() - df_active['Fecha Pres.']).dt.days
+
+        df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Fecha Pres.'])
+
+        df_less_30 = df_presented[df_presented['days_diff'] <= 30].copy()
+        df_more_30 = df_presented[df_presented['days_diff'] > 30].copy()
+
+        df_less_30['Fecha Pres.'] = df_less_30['Fecha Pres.'].dt.strftime('%d/%m/%Y')
+        df_more_30['Fecha Pres.'] = df_more_30['Fecha Pres.'].dt.strftime('%d/%m/%Y')
+
+        pdf.set_fill_color(3, 174, 236)
         pdf.set_font('Helvetica', 'B', size=7)
         pdf.cell(3, 0.5, 'PRESENTADAS:')
         pdf.cell(3, 0.5, str(df_presented.shape[0]), align='L')
         pdf.ln(0.5)
+
+        df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], errors='coerce', dayfirst=True)
 
         pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
@@ -2071,7 +2089,7 @@ class Ui_App_SubManager(object):
         pdf.ln()
 
         pdf.set_font('DejaVuSansCondensed', size=6)
-        for _, row in df_presented.iterrows():
+        for _, row in df_less_30.iterrows():
             # getting the required height of the row
             line_h = pdf.font_size * 1.5
             h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
@@ -2118,10 +2136,84 @@ class Ui_App_SubManager(object):
 
             pdf.ln(row_height)
 
+        pdf.set_fill_color(3, 174, 236)
         pdf.set_font('DejaVuSansCondensed-Bold', size=7)
         pdf.cell(20.75, 0.3, '')
         pdf.cell(5, 0.3, 'TOTAL:', align='R')
-        pdf.cell(3, 0.3, self.euro_format(df_presented['Importe Euros'].sum()), align='C')
+        pdf.cell(3, 0.3, self.euro_format(df_less_30['Importe Euros'].sum()), align='C')
+        pdf.ln()
+
+        pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
+        pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
+        pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
+        pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+        pdf.ln()
+
+        pdf.set_fill_color(255, 105, 105)
+        pdf.set_font('DejaVuSansCondensed', size=6)
+        for _, row in df_more_30.iterrows():
+            # getting the required height of the row
+            line_h = pdf.font_size * 1.5
+            h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+            h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
+            h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+
+            row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+
+            # Setting values for table
+            pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
+            pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+            pdf.set_xy(x + 3, y)
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+            pdf.set_xy(x + 3.5, y)
+
+            pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C', fill=True)
+            pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
+            pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
+            pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+            pdf.set_xy(x + 2.75, y)
+
+            pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
+            pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+            pdf.set_xy(x + 2.5, y)
+
+            pdf.ln(row_height)
+
+        pdf.set_font('DejaVuSansCondensed-Bold', size=7)
+        pdf.cell(20.75, 0.3, '')
+        pdf.cell(5, 0.3, 'TOTAL:', align='R')
+        pdf.cell(3, 0.3, self.euro_format(df_more_30['Importe Euros'].sum()), align='C')
+        pdf.ln()
 
         return pdf
 
@@ -2208,7 +2300,7 @@ class Ui_App_SubManager(object):
         ax.legend()
 
         img_graph_1 = BytesIO()
-        plt.savefig(img_graph_1, format='PNG')
+        plt.savefig(img_graph_1, format='PNG', bbox_inches='tight')
         plt.close()
         img_graph_1.seek(0)
 
@@ -2252,8 +2344,8 @@ class Ui_App_SubManager(object):
 
     def graphs_calculation_report(self, df_graph_calculation_1, df_graph_calculation_2):
         final_state_mapping = {
-            "Ofertada": ["Adjudicada", "Perdida", "Presentada"],
-            "No PO": ["Perdida", "Presentada"],
+            "Ofertada": ["Adjudicada", "Perdida", "Presentada", "No Ofertada", "Declinada"],
+            "No PO": ["Perdida", "Presentada", "No Ofertada", "Declinada"],
             "PO": ["Adjudicada"]
         }
 
@@ -2275,7 +2367,7 @@ class Ui_App_SubManager(object):
 
         for j, final_state in enumerate(final_states):
             original_list = final_state_mapping[final_state]
-            # Filtrar solo las columnas que están en el pivot
+            # Filter columns in pivot only
             existing_columns = [col for col in original_list if col in pivot_table_calculation_1.columns]
             if existing_columns:
                 final_values[:, j] = pivot_table_calculation_1[existing_columns].sum(axis=1)
@@ -2300,7 +2392,7 @@ class Ui_App_SubManager(object):
         ax.legend()
 
         img_graph_3 = BytesIO()
-        plt.savefig(img_graph_3, format='PNG')
+        plt.savefig(img_graph_3, format='PNG', bbox_inches='tight')
         plt.close()
         img_graph_3.seek(0)
 
@@ -2316,7 +2408,7 @@ class Ui_App_SubManager(object):
 
         for j, final_state in enumerate(final_states):
             original_list = final_state_mapping[final_state]
-            # Filtrar solo las columnas que están en el pivot
+            # Filter columns in pivot only
             existing_columns = [col for col in original_list if col in pivot_table_calculation_2.columns]
             if existing_columns:
                 final_values[:, j] = pivot_table_calculation_2[existing_columns].sum(axis=1)
@@ -2343,11 +2435,51 @@ class Ui_App_SubManager(object):
 
         return [img_graph_3, img_graph_4]
 
+    def graphs_orders_report(self, df_graph_orders_1):
+        df_p = df_graph_orders_1[df_graph_orders_1['Nº Pedido'].str.startswith('P-')]
+        df_pa = df_graph_orders_1[df_graph_orders_1['Nº Pedido'].str.startswith('PA-')]
+
+        sum_amount = pd.Series({
+            'P': df_p['Importe Pedido'].sum(),
+            'PA': df_pa['Importe Pedido'].sum()
+        })
+
+        count = pd.Series({
+            'P': df_p.shape[0],
+            'PA': df_pa.shape[0]
+        })
+
+        fig, ax = plt.subplots(figsize=(8,5))
+        sum_amount.plot(kind='bar', color=['green', 'yellow'])
+        ax.yaxis.set_major_formatter(FuncFormatter(self.euro_format_axis))
+        ax.set_xticklabels(sum_amount.index, rotation=0)
+        ax.set_title('Suma de Importe por Tipo de Pedido')
+        ax.set_ylabel('Suma Importe')
+        ax.set_xlabel('Tipo Pedido')
+
+        img_graph_5 = BytesIO()
+        plt.savefig(img_graph_5, format='PNG', bbox_inches='tight')
+        plt.close()
+        img_graph_5.seek(0)
+
+        fig, ax = plt.subplots(figsize=(8,5))
+        count.plot(kind='bar', color=['green', 'yellow'])
+        ax.set_xticklabels(count.index, rotation=0)
+        ax.set_title('Recuento por Tipo de Pedido')
+        ax.set_ylabel('Recuento')
+        ax.set_xlabel('Tipo Pedido')
+
+        img_graph_6 = BytesIO()
+        plt.savefig(img_graph_6, format='PNG', bbox_inches='tight')
+        plt.close()
+        img_graph_6.seek(0)
+
+        return [img_graph_5, img_graph_6]
 
     def report_orders(self):
         query_orders = (r"""
-                    SELECT p.num_order, o.client, o.material, p.items_number, p.order_date, p.expected_date,
-                    p.material_available, p.recep_date_workshop, p.porc_workshop, p.expected_date_workshop, p.expected_date_assembly,
+                    SELECT p.num_order, o.responsible, o.client, o.final_client, o.material, p.items_number, p.order_date, p.expected_date,
+                    p.material_available, p.recep_date_workshop, p.porc_workshop, p.expected_date_workshop, p.porc_assembly, p.expected_date_assembly, p.percent_sent_workshop,
                     COALESCE(
                         CAST(
                             NULLIF(
@@ -2357,35 +2489,57 @@ class Ui_App_SubManager(object):
                         ),
                         0
                     ) AS deliv_time_num,
-                    p.last_date_deliveries, p.regularisation, p.notes, p.order_amount, p.closed,
-                    pt.variable
+                    p.porc_deliveries, p.last_date_deliveries, p.regularisation, p.notes, p.notes_technical, p.order_amount, p.closed,
+                    pt.variable, p.total_charged
                     FROM orders as p
                     LEFT JOIN offers as o ON p.num_offer = o.num_offer
                     LEFT JOIN product_type as pt ON o.material = pt.material
-                    WHERE p.closed IS NULL AND (p.num_order NOT LIKE '%R%' AND p.num_order NOT LIKE 'PA%')""")
+                    WHERE p.total_charged <> 'OK' OR p.total_charged IS NULL""")
+
+        query_order_amount = ("""
+                SELECT num_order, SUM(amount) AS total_amount_tags FROM (
+                SELECT num_order, amount FROM tags_data.tags_flow
+
+                UNION ALL
+
+                SELECT num_order, amount FROM tags_data.tags_temp
+
+                UNION ALL
+
+                SELECT num_order, amount FROM tags_data.tags_level
+
+                UNION ALL
+
+                SELECT num_order, amount FROM tags_data.tags_others
+                ) AS combined
+                GROUP BY num_order
+                """)
 
         query_docs = ("""
                     SELECT 
                     num_order,
+                    COUNT(num_doc_eipsa) AS total_docs,
                     SUM(CASE WHEN state IS NULL OR state = '' THEN 1 ELSE 0 END) AS count_no_sent,
                     SUM(CASE WHEN state = 'Enviado' THEN 1 ELSE 0 END) AS count_sent,
                     SUM(CASE WHEN state LIKE 'Com%' THEN 1 ELSE 0 END) AS count_comment,
-                    MIN(CASE 
-                            WHEN state = 'Enviado' AND doc_type_id IN (1, 16) 
-                            THEN TO_DATE(date_first_rev, 'DD/MM/YYYY') 
-                        END) AS min_date_sent_drawings,
-                    MAX(CASE 
-                            WHEN state = 'Aprobado' AND doc_type_id IN (1, 16) 
-                            THEN TO_DATE(state_date, 'DD/MM/YYYY') 
-                        END) AS max_date_approved_drawings,
-                    MIN(CASE 
-                            WHEN state = 'Enviado' AND doc_type_id IN (6) 
-                            THEN TO_DATE(date_first_rev, 'DD/MM/YYYY') 
-                        END) AS min_date_sent_dossier,
-                    MAX(CASE 
-                            WHEN state = 'Aprobado' AND doc_type_id IN (6) 
-                            THEN TO_DATE(state_date, 'DD/MM/YYYY') 
-                        END) AS max_date_approved_dossier
+                    SUM(CASE WHEN state LIKE 'Eli%' THEN 1 ELSE 0 END) AS count_deleted,
+                    SUM(CASE WHEN state LIKE 'Ap%' THEN 1 ELSE 0 END) AS count_approved,
+                    COALESCE(
+                        TO_CHAR(MIN(CASE WHEN doc_type_id IN (1, 16) THEN TO_DATE(date_first_rev, 'DD/MM/YYYY') END), 'DD/MM/YYYY'),
+                        ''
+                    ) AS min_date_sent_drawings,
+                    COALESCE(
+                        TO_CHAR(MAX(CASE WHEN state = 'Aprobado' AND doc_type_id IN (1, 16) THEN TO_DATE(state_date, 'DD/MM/YYYY') END), 'DD/MM/YYYY'),
+                        ''
+                    ) AS max_date_approved_drawings,
+                    COALESCE(
+                        TO_CHAR(MIN(CASE WHEN doc_type_id = 6 THEN TO_DATE(date_first_rev, 'DD/MM/YYYY') END), 'DD/MM/YYYY'),
+                        ''
+                    ) AS min_date_sent_dossier,
+                    COALESCE(
+                        TO_CHAR(MAX(CASE WHEN state = 'Aprobado' AND doc_type_id = 6 THEN TO_DATE(state_date, 'DD/MM/YYYY') END), 'DD/MM/YYYY'),
+                        ''
+                    ) AS max_date_approved_dossier
                 FROM documentation
                 GROUP BY num_order
                 """)
@@ -2393,161 +2547,172 @@ class Ui_App_SubManager(object):
         query_tags_fab = ("""
                 SELECT num_order, MAX(date_final_fab) AS max_date_fab FROM (
                 SELECT num_order, final_verif_dim_date AS date_final_fab FROM tags_data.tags_flow
-                UNION ALL
-                SELECT num_order, final_verif_of_eq_date AS date_final_fab FROM tags_data.tags_flow
 
                 UNION ALL
 
                 SELECT num_order, final_verif_dim_date AS date_final_fab FROM tags_data.tags_temp
-                UNION ALL
-                SELECT num_order, final_verif_of_eq_date AS date_final_fab FROM tags_data.tags_temp
-                UNION ALL
-                SELECT num_order, final_verif_of_sensor_date AS date_final_fab FROM tags_data.tags_temp
 
                 UNION ALL
 
                 SELECT num_order, final_verif_dim_date AS date_final_fab FROM tags_data.tags_level
-                UNION ALL
-                SELECT num_order, final_verif_of_eq_date AS date_final_fab FROM tags_data.tags_level
 
                 UNION ALL
 
                 SELECT num_order, final_verif_dim_date AS date_final_fab FROM tags_data.tags_others
-                UNION ALL
-                SELECT num_order, final_verif_of_eq_date AS date_final_fab FROM tags_data.tags_others
                 ) AS combined
                 GROUP BY num_order
+                HAVING COUNT(*) = COUNT(date_final_fab)
                 """)
 
-        query_tags_insp = ("""
-                SELECT num_order, SUM(items_inspected) AS items_inspected_count FROM (
-                SELECT num_order, SUM(CASE WHEN inspection IS NOT NULL THEN 1 ELSE 0 END) AS items_inspected FROM tags_data.tags_flow
-                GROUP BY num_order
+        query_tags_count = ("""
+                SELECT num_order, COUNT(num_order) AS items_order, COUNT(final_verif_dim_date) AS items_verified FROM (
+                SELECT num_order, final_verif_dim_date FROM tags_data.tags_flow WHERE item_type IS NOT NULL
 
                 UNION ALL
 
-                SELECT num_order, SUM(CASE WHEN inspection IS NOT NULL THEN 1 ELSE 0 END) AS items_inspected FROM tags_data.tags_temp
-                GROUP BY num_order
+                SELECT num_order, final_verif_dim_date FROM tags_data.tags_temp WHERE item_type IS NOT NULL
 
                 UNION ALL
 
-                SELECT num_order, SUM(CASE WHEN inspection IS NOT NULL THEN 1 ELSE 0 END) AS items_inspected FROM tags_data.tags_level
-                GROUP BY num_order
+                SELECT num_order, final_verif_dim_date FROM tags_data.tags_level WHERE item_type IS NOT NULL
 
                 UNION ALL
 
-                SELECT num_order, SUM(CASE WHEN inspection IS NOT NULL THEN 1 ELSE 0 END) AS items_inspected FROM tags_data.tags_others
-                GROUP BY num_order
+                SELECT num_order, final_verif_dim_date FROM tags_data.tags_others WHERE description IS NOT NULL
                 ) AS combined
                 GROUP BY num_order
                 """)
 
         query_tags_fact = ("""
-                SELECT num_order, SUM(total_fact) AS total_fact FROM (
-                SELECT num_order, SUM(amount_fact) AS total_fact
-                FROM tags_data.tags_flow
-                GROUP BY num_order
+                SELECT num_order, SUM(percent_amount_fact) AS percent_fact, SUM(amount_fact) AS total_fact FROM (
+                SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_flow
 
                 UNION ALL
 
-                SELECT num_order, SUM(amount_fact) AS total_fact
-                FROM tags_data.tags_temp
-                GROUP BY num_order
+                SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_temp
 
                 UNION ALL
 
-                SELECT num_order, SUM(amount_fact) AS total_fact
-                FROM tags_data.tags_level
-                GROUP BY num_order
+                SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_level
 
                 UNION ALL
 
-                SELECT num_order, SUM(amount_fact) AS total_fact
-                FROM tags_data.tags_others
-                GROUP BY num_order
+                SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_others
                 ) AS combined
                 GROUP BY num_order
                 """)
 
         query_tags_charged = ("""
-                SELECT num_order, SUM(total_charged) AS total_charged FROM (
-                SELECT t.num_order, SUM(t.amount_fact) AS total_charged
-                FROM tags_data.tags_flow as t
-                JOIN purch_fact.invoice_header AS i ON t.invoice_number = i.num_invoice
-                WHERE i.pay_date IS NOT NULL
-                GROUP BY num_order
+                SELECT combined.num_order, SUM(combined.percent_amount_fact) AS percent_charged, SUM(combined.amount_fact) AS total_charged
+                FROM (
+                    SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                    FROM tags_data.tags_flow AS t
+                    LEFT JOIN purch_fact.invoice_header AS i
+                    ON t.invoice_number = i.num_invoice
+                    WHERE t.invoice_number IS NOT NULL and i.pay_date IS NOT NULL
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT t.num_order, SUM(t.amount_fact) AS total_charged
-                FROM tags_data.tags_temp as t
-                JOIN purch_fact.invoice_header AS i ON t.invoice_number = i.num_invoice
-                WHERE i.pay_date IS NOT NULL
-                GROUP BY num_order
+                    SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                    FROM tags_data.tags_temp AS t
+                    LEFT JOIN purch_fact.invoice_header AS i
+                    ON t.invoice_number = i.num_invoice
+                    WHERE t.invoice_number IS NOT NULL and i.pay_date IS NOT NULL
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT t.num_order, SUM(t.amount_fact) AS total_charged
-                FROM tags_data.tags_level as t
-                JOIN purch_fact.invoice_header AS i ON t.invoice_number = i.num_invoice
-                WHERE i.pay_date IS NOT NULL
-                GROUP BY num_order
+                    SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                    FROM tags_data.tags_level AS t
+                    LEFT JOIN purch_fact.invoice_header AS i
+                    ON t.invoice_number = i.num_invoice
+                    WHERE t.invoice_number IS NOT NULL and i.pay_date IS NOT NULL
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT t.num_order, SUM(t.amount_fact) AS total_charged
-                FROM tags_data.tags_others as t
-                JOIN purch_fact.invoice_header AS i ON t.invoice_number = i.num_invoice
-                WHERE i.pay_date IS NOT NULL
-                GROUP BY num_order
+                    SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                    FROM tags_data.tags_others AS t
+                    LEFT JOIN purch_fact.invoice_header AS i
+                    ON t.invoice_number = i.num_invoice
+                    WHERE t.invoice_number IS NOT NULL and i.pay_date IS NOT NULL
                 ) AS combined
-                GROUP BY num_order
+                GROUP BY combined.num_order
+                """)
+
+        query_ppi = ("""
+                SELECT orders.num_order, TO_CHAR(ppi.verif_ppi_date, 'DD/MM/YYYY') as verif_ppi_date
+                FROM orders
+                LEFT JOIN verification.ppi_verification AS ppi ON orders.num_order = ppi.num_order
                 """)
 
         final_query_1 = (f"""
-                        SELECT query1."num_order", query1."client", query1."material", query1."items_number",
-                        TO_CHAR(query1."order_date", 'DD/MM/YYYY') AS order_date, TO_CHAR(query1."expected_date", 'DD/MM/YYYY') AS expected_date,
-                        query2."count_no_sent", query2."count_sent", query2."count_comment",
-                        TO_CHAR(query2."min_date_sent_drawings", 'DD/MM/YYYY') AS min_date_sent_drawings, TO_CHAR(query2."max_date_approved_drawings", 'DD/MM/YYYY') AS max_date_approved_drawings,
-                        query1."recep_date_workshop",
-                        TO_CHAR(query2."max_date_approved_drawings" + (query1."deliv_time_num" * 7) * INTERVAL '1 day', 'DD/MM/YYYY') AS new_contractual_date,
-                        query1."material_available", 
-                        query1."porc_workshop", query1."expected_date_workshop", query1."expected_date_assembly",
-                        TO_CHAR(query3."max_date_fab", 'DD/MM/YYYY') AS max_date_fab,
-                        query4."items_inspected_count",
-                        TO_CHAR(query2."min_date_sent_dossier", 'DD/MM/YYYY') AS min_date_sent_dossier,
-                        TO_CHAR(query2."max_date_approved_dossier", 'DD/MM/YYYY') AS max_date_approved_dossier,
-                        query1."last_date_deliveries",
-                        ROUND((query5."total_fact" / query1."order_amount") * 100)::int AS fact_percent,
-                        ROUND((query6."total_charged" / query1."order_amount") * 100)::int AS charged_percent,
-                        query1."regularisation", query1."notes", query1."order_amount"
-                        FROM ({query_orders}) AS query1
-                        LEFT JOIN ({query_docs}) AS query2 ON query1."num_order" = query2."num_order"
-                        LEFT JOIN ({query_tags_fab}) AS query3 ON query1."num_order" = query3."num_order"
-                        LEFT JOIN ({query_tags_insp}) AS query4 ON query1."num_order" = query4."num_order"
-                        LEFT JOIN ({query_tags_fact}) AS query5 ON query1."num_order" = query5."num_order"
-                        LEFT JOIN ({query_tags_charged}) AS query6 ON query1."num_order" = query6."num_order"
-                        ORDER BY query1."num_order" ASC
-                        """)
+            SELECT *
+            FROM (
+                SELECT query1."num_order", query1."responsible", query1."client", query1."final_client", query1."material", query1."items_number",
+                    TO_CHAR(query1."order_date", 'DD/MM/YYYY') AS order_date,
+                    TO_CHAR(query1."expected_date", 'DD/MM/YYYY') AS expected_date,
+                    query3."total_docs", query3."count_no_sent", query3."count_sent", query3."count_comment", query3."count_deleted", query3."count_approved",
+                    query3."min_date_sent_drawings",
+                    query3."max_date_approved_drawings",
+                    query1."recep_date_workshop", query1."percent_sent_workshop",
+                    CASE 
+                        WHEN query3."max_date_approved_drawings" IS NULL OR query3."max_date_approved_drawings" = '' THEN
+                            TO_CHAR(query1."expected_date", 'DD/MM/YYYY')
+                        ELSE 
+                            TO_CHAR((
+                                WITH fechas_validas AS (
+                                    SELECT d::date
+                                    FROM generate_series(
+                                        TO_DATE(query3."max_date_approved_drawings", 'DD/MM/YYYY'),
+                                        TO_DATE(query3."max_date_approved_drawings", 'DD/MM/YYYY') + INTERVAL '1 year',
+                                        INTERVAL '1 day'
+                                    ) AS d
+                                    WHERE EXTRACT(MONTH FROM d) <> 8  -- excluir agosto
+                                    ORDER BY d
+                                )
+                                SELECT d
+                                FROM fechas_validas
+                                OFFSET GREATEST(COALESCE(query1."deliv_time_num", 0) * 7 - 1, 0)
+                                LIMIT 1
+                            ), 'DD/MM/YYYY')
+                    END AS new_contractual_date,
+                    query1."material_available", 
+                    query1."porc_workshop", query1."expected_date_workshop", query1."porc_assembly", query1."expected_date_assembly",
+                    TO_CHAR(query4."max_date_fab", 'DD/MM/YYYY') AS max_date_fab,
+                    query5."items_verified",
+                    query3."min_date_sent_dossier",
+                    query3."max_date_approved_dossier",
+                    query1."porc_deliveries", query1."last_date_deliveries",
+                    (query6.percent_fact::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS fact_percent,
+                    (query7.percent_charged::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS charged_percent,
+                    query1."regularisation", query1."notes", query1."notes_technical",
+                    query6."total_fact", query2."total_amount_tags", query1."order_amount", query1."variable", query8."verif_ppi_date", query1."total_charged"
+                FROM ({query_orders}) AS query1
+                LEFT JOIN ({query_order_amount}) AS query2 ON query1."num_order" = query2."num_order"
+                LEFT JOIN ({query_docs}) AS query3 ON query1."num_order" = query3."num_order"
+                LEFT JOIN ({query_tags_fab}) AS query4 ON query1."num_order" = query4."num_order"
+                LEFT JOIN ({query_tags_count}) AS query5 ON query1."num_order" = query5."num_order"
+                LEFT JOIN ({query_tags_fact}) AS query6 ON query1."num_order" = query6."num_order"
+                LEFT JOIN ({query_tags_charged}) AS query7 ON query1."num_order" = query7."num_order"
+                LEFT JOIN ({query_ppi}) AS query8 ON query1."num_order" = query8."num_order"
+            ) AS final
+            WHERE final.charged_percent IS NULL OR final.charged_percent < 100
+            ORDER BY final."num_order" ASC
+        """)
 
-        final_query_2 = (f"""
-                        SELECT query1."variable", COUNT(query1."num_order"),
-                        SUM(query1."order_amount") AS total_order_amount,
-                        ROUND((SUM(query2."total_fact") / SUM(query1."order_amount")) * 100)::int AS fact_percent,
-                        ROUND((SUM(query3."total_charged") / SUM(query1."order_amount")) * 100)::int AS charged_percent,
-                        (SUM(query1."order_amount") - SUM(query2."total_fact"))::numeric AS pending
-                        FROM ({query_orders}) AS query1
-                        LEFT JOIN ({query_tags_fact}) AS query2 ON query1."num_order" = query2."num_order"
-                        LEFT JOIN ({query_tags_charged}) AS query3 ON query1."num_order" = query3."num_order"
-                        GROUP BY query1."variable"
-                        ORDER BY query1."variable" ASC
-                        """)
-
-        columns_1 = ['PEDIDO', 'CLIENTE', 'MATERIAL', 'Nº EQUIPOS', 'FECHA PO', 'FECHA CONT.',
-                        'DOCS NO ENV.', 'DOCS ENV.', 'DOCS COM.', 'FECHA ENV PLANOS', 'FECHA AP PLANOS',
-                        'FECHA EN FAB.', 'NUEVA FECHA CONT.', 'MAT. DISP.', '% FAB', 'PREV. FAB', 'PREV. MONT.',
-                        'FECHA FINAL FAB.', 'EQS INSPEC.', 'FECHA ENV DOSSIER', 'FECHA AP DOSSIER', 'FECHA ENVÍO',
-                        '% FACT.', '% COBRADO', 'ORDENES CAMBIO', 'NOTAS', 'IMPORTE']
+        columns_1 = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
+                    'FECHA PO', 'FECHA CONT.',
+                    'DOCS TOTALES', 'DOCS NO ENV.', 'DOCS ENV.', 'DOCS COM.', 'DOCS ELIM.', 'DOCS AP.', 
+                    'FECHA ENV PLANOS', 'FECHA AP PLANOS',
+                    'FECHA ENV FAB.', '% ENV FAB',
+                    'NUEVA FECHA CONT.',
+                    'MAT. DISP.', '% FAB', 'PREV. FAB', '% MONT','PREV. MONT.',
+                    'FECHA FINAL FAB.',
+                    'EQS INSPEC.',
+                    'FECHA ENV DOSSIER', 'FECHA AP DOSSIER',
+                    '% ENV.', 'FECHA ENVÍO',
+                    '% FACT.',
+                    '% COBRADO',
+                    'ORDENES CAMBIO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE', 'IMPORTE PO TAGS', 'IMPORTE PO', 'VARIABLE', 'PPI', 'TOTAL COBRADO']
 
         columns_2 = ['VARIABLE', 'Nº PEDIDOS', 'IMPORTE TOTAL', '% FACT.', '% COBRADO', 'PTE FACTURAR']
 
@@ -2556,227 +2721,86 @@ class Ui_App_SubManager(object):
                 cur.execute(final_query_1)
                 results_1 = cur.fetchall()
 
-                cur.execute(final_query_2)
-                results_2 = cur.fetchall()
+            df_orders = pd.DataFrame(results_1, columns=columns_1)
+            df_orders = df_orders.fillna('')
+            df_orders.replace('None', '')
 
-            df_1 = pd.DataFrame(results_1, columns=columns_1)
-            df_1 = df_1.fillna('')
-            df_1.replace('None', '')
-
-            df_1['IMPORTE_float'] = (
-                df_1['IMPORTE']
+            df_orders['IMPORTE'] = (
+                df_orders['IMPORTE']
                 .str.replace('€', '', regex=False)
                 .str.replace('.', '', regex=False)
                 .str.replace(',', '.', regex=False)
-                .astype(float)                       
             )
 
-            df_2 = pd.DataFrame(results_2, columns=columns_2)
-            df_2 = df_2.fillna('')
+            df_orders['IMPORTE PO TAGS'] = (
+                df_orders['IMPORTE PO TAGS']
+                .str.replace('€', '', regex=False)
+                .str.replace('.', '', regex=False)
+                .str.replace(',', '.', regex=False)
+            )
 
-            df_3 = pd.read_excel(r'\\nas01\DATOS\Comunes\Ana\CP\informe_estructurado.xlsx')
+            df_orders['IMPORTE PO'] = (
+                df_orders['IMPORTE PO']
+                .str.replace('€', '', regex=False)
+                .str.replace('.', '', regex=False)
+                .str.replace(',', '.', regex=False)
+            )
 
-            pdf = self.generate_report_orders(df_1, df_2, df_3)
+            df_orders['IMPORTE'] = df_orders.apply(
+                lambda row: float(row['IMPORTE'].strip()) if row['IMPORTE'].strip() != '' else
+                (float(row['IMPORTE PO TAGS']) if row['IMPORTE PO TAGS'].strip() != '' else
+                (float(row['IMPORTE PO']) if row['IMPORTE PO'].strip() != '' else '')),
+                axis=1)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
-            if output_path:
-                pdf.output(output_path)
+            df_orders['% ENV.'] = df_orders.apply(lambda row: 100 if 'R' in row['PEDIDO'] else row['% ENV.'],axis=1)
 
-    def generate_report_orders(self, df1, df2, df3):
-        pdf = CustomPDF_A3('L')
+            df_orders['FECHA ENVÍO'] = df_orders.apply(lambda row: row['FECHA CONT.'] if 'R' in row['PEDIDO'] else row['FECHA ENVÍO'],axis=1)
 
-        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
+            df_orders['FECHA FINAL FAB.'] = df_orders.apply(lambda row: row['PPI'] if row['FECHA FINAL FAB.'] == '' else row['FECHA FINAL FAB.'],axis=1)
+            df_orders['EQS INSPEC.'] = df_orders.apply(lambda row: row['Nº EQUIPOS'] if row['EQS INSPEC.']== '' else row['EQS INSPEC.'],axis=1)
 
-        pdf.set_auto_page_break(auto=True)
-        pdf.set_margins(0.5, 0.5)
+            df_orders['% FACT.'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[0] if (row['% FACT.'] == '' and row['TOTAL COBRADO'] != '') else row['% FACT.'],axis=1)
+            df_orders['% COBRADO'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[1] if (row['% COBRADO']== '' and row['TOTAL COBRADO'] != '') else row['% COBRADO'],axis=1)
 
-        pdf.set_fill_color(3, 174, 236)
+            df_orders_P = df_orders[df_orders['PEDIDO'].str.startswith('P-') & ~df_orders['PEDIDO'].str.endswith('R')]
 
-        pdf.add_page()
+            cols_PA =['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
+                    'FECHA PO', 'FECHA CONT.', '% MONT','PREV. MONT.', 'FECHA FINAL FAB.', 'EQS INSPEC.',
+                    '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
 
-        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 0.5, 0.8, 3.5, 1)
-        pdf.ln(1.5)
+            cols_R =['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL',
+                    'FECHA PO', 'FECHA CONT.', '% FACT.', '% COBRADO',
+                    'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
 
-        pdf.set_font('DejaVuSansCondensed-Bold', size=6)
+            df_orders_PA = df_orders[df_orders['PEDIDO'].str.startswith('PA')][cols_PA]
+            df_orders_R = df_orders[df_orders['PEDIDO'].str.endswith('R')][cols_R]
 
-        line_h = pdf.font_size * 1.5
+            df_orders_summary = df_orders.copy()
 
-        columns = {
-        'PEDIDO': {'width': 1.5, 'label': 'PEDIDO', 'fixed_height': 0.3},
-        'CLIENTE': {'width': 3, 'label': 'CLIENTE', 'fixed_height': 0.3},
-        'MATERIAL': {'width': 3, 'label': 'MATERIAL', 'fixed_height': 0.3},
-        'Nº EQS': {'width': 1, 'label': 'Nº EQS', 'fixed_height': 0.3},
-        'FECHA PO': {'width': 1.25, 'label': 'FECHA PO'},
-        'FECHA CONT.': {'width': 1.25, 'label': 'FECHA CONT.'},
-        'DOCS NO ENV.': {'width': 1, 'label': 'DOCS NO ENV.'},
-        'DOCS ENV.': {'width': 1, 'label': 'DOCS ENV.'},
-        'DOCS COM.': {'width': 1, 'label': 'DOCS COM.'},
-        'FECHA ENV PLANOS': {'width': 1.25, 'label': 'FECHA ENV PLANOS'},
-        'FECHA AP PLANOS': {'width': 1.25, 'label': 'FECHA AP PLANOS'},
-        'FECHA EN FAB.': {'width': 1.25, 'label': 'FECHA EN FAB.'},
-        'NUEVA FECHA CONT.': {'width': 1.25, 'label': 'NUEVA FECHA CONT.'},
-        'MAT. DISP.': {'width': 2.75, 'label': 'MAT. DISP.', 'fixed_height': 0.3},
-        '% FAB.': {'width': 1, 'label': '% FAB.', 'fixed_height': 0.3},
-        'PREV. FAB': {'width': 1.75, 'label': 'PREV. FAB'},
-        'PREV. MONT.': {'width': 1.75, 'label': 'PREV. MONT.'},
-        'FECHA FINAL FAB.': {'width': 1.25, 'label': 'FECHA FINAL FAB.'},
-        'EQS INSP.': {'width': 1, 'label': 'EQS INSP.'},
-        'FECHA ENV DOSSIER': {'width': 1.25, 'label': 'FECHA ENV DOSSIER'},
-        'FECHA AP DOSSIER': {'width': 1.25, 'label': 'FECHA AP DOSSIER'},
-        'FECHA ENVÍO': {'width': 1.25, 'label': 'FECHA ENVÍO'},
-        '% FACT.': {'width': 1, 'label': '% FACT.', 'fixed_height': 0.3},
-        '% COB.': {'width': 1, 'label': '% COB.', 'fixed_height': 0.3},
-        'ORDENES CAMBIO': {'width': 1.25, 'label': 'ORDENES CAMBIO'},
-        'NOTAS': {'width': 3.25, 'label': 'NOTAS', 'fixed_height': 0.3},
-        'IMPORTE': {'width': 2.2, 'label': 'IMPORTE', 'fixed_height': 0.3},
-        }
+            df_orders_summary['% FACT.'] = pd.to_numeric(df_orders_summary['% FACT.'], errors='coerce').fillna(0)
+            df_orders_summary['% COBRADO'] = pd.to_numeric(df_orders_summary['% COBRADO'], errors='coerce').fillna(0)
 
-        heights = {}
-        for key, col in columns.items():
-            if 'fixed_height' in col:
-                heights[key] = col['fixed_height']
-            else:
-                heights[key] = pdf.get_multicell_height(col['width'], line_h, col['label'])
+            df_orders_summary['IMPORTE FACTURADO'] = df_orders_summary['IMPORTE'] * (df_orders_summary['% FACT.'] / 100)
+            df_orders_summary['IMPORTE COBRADO'] = df_orders_summary['IMPORTE'] * (df_orders_summary['% COBRADO'] / 100)
 
-        row_height = max(
-            heights.values()
-        )
+            summary = df_orders_summary.groupby('VARIABLE').agg(
+                **{
+                    'Nº PEDIDOS': ('PEDIDO', 'count'),
+                    'IMPORTE TOTAL': ('IMPORTE', 'sum'),
+                    'IMPORTE FACTURADO': ('IMPORTE FACTURADO', 'sum'),
+                    'IMPORTE COBRADO': ('IMPORTE COBRADO', 'sum'),
+                }
+            ).reset_index()
 
-        for key, col in columns.items():
-            width = col['width']
-            label = col['label']
-            x, y = pdf.get_x(), pdf.get_y()
+            summary['% FACT.'] = (summary['IMPORTE FACTURADO'] / summary['IMPORTE TOTAL'] * 100).round(2)
+            summary['% COBRADO'] = (summary['IMPORTE COBRADO'] / summary['IMPORTE TOTAL'] * 100).round(2)
+            summary['PTE FACTURAR'] = (summary['IMPORTE TOTAL'] - summary['IMPORTE FACTURADO']).round(2)
 
-            if 'fixed_height' in col:
-                pdf.cell(width, row_height, label, border=1, align='C', fill=True)
-            else:
-                pdf.fixed_height_multicell(width, row_height, label, border=1, fill=True)
+            df_orders_summary = summary[columns_2]
 
-            pdf.set_xy(x + width, y)
+            df_wallet = pd.read_excel(DATA_PATH / r'Ana\CP\informe_estructurado.xlsx')
 
-        pdf.ln(row_height)
-
-        pdf.set_font('DejaVuSansCondensed', size=6)
-        for _, row in df1.iterrows():
-            # getting the required height of the row
-            h_client = pdf.get_multicell_height(2.75, line_h, '' if row['CLIENTE'] is None else str(row['CLIENTE']))
-            h_material = pdf.get_multicell_height(2.75, line_h, '' if row['MATERIAL'] is None else str(row['MATERIAL']))
-            h_material_available = pdf.get_multicell_height(2.5, line_h, '' if row['MAT. DISP.'] is None else str(row['MAT. DISP.']))
-            h_pf = pdf.get_multicell_height(1.75, line_h, '' if row['PREV. FAB'] is None else str(row['PREV. FAB']))
-            h_pm = pdf.get_multicell_height(1.75, line_h, '' if row['PREV. MONT.'] is None else str(row['PREV. MONT.']))
-            h_notes = pdf.get_multicell_height(3, line_h, '' if row['NOTAS'] is None else str(row['NOTAS']))
-
-            row_height = max(h_client, h_material, h_material_available, h_pf, h_pm, h_notes, line_h)
-
-            # Setting values for table
-            pdf.cell(1.5, row_height, '' if row['PEDIDO'] is None else str(row['PEDIDO']), border=1, align='C')
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(3, row_height, '' if row['CLIENTE'] is None else str(row['CLIENTE']), border=1)
-            pdf.set_xy(x + 3, y)
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(3, row_height, '' if row['MATERIAL'] is None else str(row['MATERIAL']), border=1)
-            pdf.set_xy(x + 3, y)
-
-            pdf.cell(1, row_height, '' if row['Nº EQUIPOS'] is None else str(int(row['Nº EQUIPOS'])), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA PO'] is None else str(row['FECHA PO']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA CONT.'] is None else str(row['FECHA CONT.']), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['DOCS NO ENV.'] == '' else str(int(row['DOCS NO ENV.'])), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['DOCS ENV.'] == '' else str(int(row['DOCS ENV.'])), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['DOCS COM.'] == '' else str(int(row['DOCS COM.'])), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA ENV PLANOS'] is None else  str(row['FECHA ENV PLANOS']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA AP PLANOS'] is None else str(row['FECHA AP PLANOS']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA EN FAB.'] is None else str(row['FECHA EN FAB.']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['NUEVA FECHA CONT.'] is None else str(row['NUEVA FECHA CONT.']), border=1, align='C')
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(2.75, row_height, '' if row['MAT. DISP.'] is None else str(row['MAT. DISP.']), border=1)
-            pdf.set_xy(x + 2.75, y)
-
-            pdf.cell(1, row_height, '' if row['% FAB'] == '' else str(int(row['% FAB'])), border=1, align='C')
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(1.75, row_height, '' if row['PREV. FAB'] is None else str(row['PREV. FAB']), border=1)
-            pdf.set_xy(x + 1.75, y)
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(1.75, row_height, '' if row['PREV. MONT.'] is None else str(row['PREV. MONT.']), border=1)
-            pdf.set_xy(x + 1.75, y)
-
-            pdf.cell(1.25, row_height, '' if row['FECHA FINAL FAB.'] is None else str(row['FECHA FINAL FAB.']), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['EQS INSPEC.'] == '' else str(int(row['EQS INSPEC.'])), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA ENV DOSSIER'] is None else str(row['FECHA ENV DOSSIER']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA AP DOSSIER'] is None else str(row['FECHA AP DOSSIER']), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['FECHA ENVÍO'] is None else str(row['FECHA ENVÍO']), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['% FACT.'] == '' else str(int(row['% FACT.'])), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['% COBRADO'] == '' else str(int(row['% COBRADO'])), border=1, align='C')
-            pdf.cell(1.25, row_height, '' if row['ORDENES CAMBIO'] is None else str(row['ORDENES CAMBIO']), border=1, align='C')
-
-            x = pdf.get_x()
-            y = pdf.get_y()
-            pdf.fixed_height_multicell(3.25, row_height, '' if row['NOTAS'] is None else str(row['NOTAS']), border=1)
-            pdf.set_xy(x + 3.25, y)
-
-            pdf.cell(2.2, row_height, '' if row['IMPORTE'] is None else str(row['IMPORTE']), border=1, align='C')
-
-            pdf.ln(row_height)
-
-        pdf.ln()
-        pdf.set_font('DejaVuSansCondensed-Bold', size=6)
-        pdf.cell(35.5, 0.3, '')
-        pdf.cell(3.25, 0.3, 'TOTAL:', align='R')
-        pdf.cell(2.2, 0.3, self.euro_format(df1['IMPORTE_float'].sum()), align='C')
-        pdf.ln()
-
-        pdf.set_font('DejaVuSansCondensed-Bold', size=6)
-        pdf.cell(3, row_height, '')
-        pdf.cell(2, row_height, 'Nº PEDIDOS', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'IMPORTE TOTAL', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, '% FACT.', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, '% COBRADO', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'PTE FACTURAR', border=1, align='C', fill=True)
-        pdf.ln()
-
-        pdf.set_font('DejaVuSansCondensed', size=6)
-        for _, row in df2.iterrows():
-            pdf.cell(3, 0.3, '' if row['VARIABLE'] is None else str(row['VARIABLE']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Nº PEDIDOS'] is None else str(row['Nº PEDIDOS']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['IMPORTE TOTAL'] is None else str(row['IMPORTE TOTAL']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['% FACT.'] == '' else str(int(row['% FACT.'])), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['% COBRADO'] == '' else str(int(row['% COBRADO'])), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['PTE FACTURAR'] == '' else self.euro_format(float(row['PTE FACTURAR'])), border=1, align='C')
-            pdf.ln()
-
-        pdf.ln()
-
-        pdf.set_font('DejaVuSansCondensed-Bold', size=6)
-        pdf.cell(3, row_height, '')
-        pdf.cell(2, row_height, 'IMPORTE', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'CAUDAL', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'TEMPERATURA', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'NIVEL', border=1, align='C', fill=True)
-        pdf.cell(2, row_height, 'OTROS', border=1, align='C', fill=True)
-        pdf.ln()
-
-        pdf.set_font('DejaVuSansCondensed', size=6)
-        for _, row in df3.iterrows():
-            pdf.cell(3, 0.3, '' if row['Concepto'] == '' else row['Concepto'], border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Importe'] == '' else self.euro_format(row['Importe']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Caudal'] == '' else self.euro_format(row['Caudal']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Temperatura'] == '' else self.euro_format(row['Temperatura']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Niveles'] == '' else self.euro_format(row['Niveles']), border=1, align='C')
-            pdf.cell(2, 0.3, '' if row['Otros'] == '' else self.euro_format(row['Otros']), border=1, align='C')
-            pdf.ln()
-
-        return pdf
-
+            order_reports(df_orders_P, df_orders_PA, df_orders_R, df_orders_summary, df_wallet)
 
     def report_projects(self):
         query_projects = (f"""

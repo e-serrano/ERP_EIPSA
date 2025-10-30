@@ -62,7 +62,7 @@ class Ui_Login_Window(object):
         self.logo = QtWidgets.QLabel(parent=self.frame)
         self.logo.setMaximumSize(QtCore.QSize(275, 100))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo.ico"))))
+        self.logo.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.png"))))
         self.logo.setScaledContents(True)
         self.logo.setObjectName("logo")
         self.gridLayout_3.addWidget(self.logo, 1, 1, 7, 1)
