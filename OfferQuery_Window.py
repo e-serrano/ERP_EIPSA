@@ -769,14 +769,6 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
                         ORDER BY offers."num_offer")
-                        UNION ALL
-                        (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
-                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
-                        FROM received_offers
-                        INNER JOIN product_type ON (received_offers."material"=product_type."material")
-                        INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
-                        ORDER BY received_offers."id_offer")
                         """)
 
         conn = None
@@ -807,12 +799,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             # self.tableQueryOffer.verticalHeader().hide()
             self.tableQueryOffer.setSortingEnabled(False)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
-            # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
+            for column in [4, 7, 12, 19, 20]:
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -865,15 +855,6 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
                         WHERE (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
                         ORDER BY offers."num_offer")
-                        UNION ALL
-                        (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
-                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
-                        FROM received_offers
-                        INNER JOIN product_type ON (received_offers."material"=product_type."material")
-                        INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
-                        WHERE EXTRACT(YEAR FROM received_offers."register_date") = %s OR %s IS NULL
-                        ORDER BY received_offers."id_offer")
                         """)
             commands_queryoffer_dates1 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
@@ -886,17 +867,6 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         AND
                         (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
                         ORDER BY offers."num_offer")
-                        UNION ALL
-                        (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
-                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
-                        FROM received_offers
-                        INNER JOIN product_type ON (received_offers."material"=product_type."material")
-                        INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
-                        WHERE EXTRACT(MONTH FROM received_offers."register_date") = %s
-                        AND
-                        EXTRACT(YEAR FROM received_offers."register_date") = %s OR %s IS NULL
-                        ORDER BY received_offers."id_offer")
                         """)
             commands_queryoffer_dates2 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
@@ -909,17 +879,6 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         AND
                         (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
                         ORDER BY offers."num_offer")
-                        UNION ALL
-                        (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
-                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
-                        FROM received_offers
-                        INNER JOIN product_type ON (received_offers."material"=product_type."material")
-                        INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
-                        WHERE EXTRACT(MONTH FROM received_offers."register_date") BETWEEN %s AND %s
-                        AND
-                        EXTRACT(YEAR FROM received_offers."register_date") = %s OR %s IS NULL
-                        ORDER BY received_offers."id_offer")
                         """)
             conn = None
             try:
@@ -930,13 +889,13 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                 cur = conn.cursor()
             # execution of commands
                 if month1 == '' and month2 == '':
-                    data=(year,year,year,year,)
+                    data=(year,year,)
                     cur.execute(commands_queryoffer,data)
                 elif month1 != '' and month2 == '':
-                    data=(month1,year,year,month1,year,year,)
+                    data=(month1,year,year,)
                     cur.execute(commands_queryoffer_dates1, data)
                 elif month1 != '' and month2 != '':
-                    data=(month1,month2,year,year,month1,month2,year,year,)
+                    data=(month1,month2,year,year,)
                     cur.execute(commands_queryoffer_dates2, data)
                 results=cur.fetchall()
                 self.tableQueryOffer.setRowCount(len(results))
@@ -957,12 +916,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
                 # self.tableQueryOffer.verticalHeader().hide()
                 self.tableQueryOffer.setSortingEnabled(False)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
-                # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
+                for column in [4, 7, 12, 19, 20]:
+                    self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1035,7 +992,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         Args:
             item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
         """
-        if item.column() in [10,17,18]:
+        if item.column() in [7, 12, 19, 20]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
