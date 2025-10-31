@@ -48,14 +48,7 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderAccept_Window.setWindowIcon(icon)
         OrderAccept_Window.setAutoFillBackground(False)
-        OrderAccept_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        OrderAccept_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"

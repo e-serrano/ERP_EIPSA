@@ -477,14 +477,7 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         HistoryNotificationsAll_Window.setWindowIcon(icon)
-        HistoryNotificationsAll_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        HistoryNotificationsAll_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -562,6 +555,7 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         self.tableNotifications.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableNotifications.setSortingEnabled(False)
         self.tableNotifications.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableNotifications.setStyleSheet("gridline-color: #CCCCCC")
         HistoryNotificationsAll_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(HistoryNotificationsAll_Window)

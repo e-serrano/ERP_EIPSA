@@ -46,7 +46,6 @@ class Ui_App_Master(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Master.setWindowIcon(icon)
-        App_Master.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Master)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -79,7 +78,6 @@ class Ui_App_Master(object):
         self.Button_Users.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -114,7 +112,6 @@ class Ui_App_Master(object):
         self.Button_DBChanges.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -161,7 +158,6 @@ class Ui_App_Master(object):
         self.Button_Profile.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -367,7 +363,7 @@ class Ui_App_Master(object):
         Opens the commercial application window.
         """
         from App_Comercial import Ui_App_Comercial
-        self.commercial_window = Ui_App_Comercial('Ana Calvo', 'a.calvo')
+        self.commercial_window = Ui_App_Comercial('Ana Calvo', 'c.crespo')
         self.commercial_window.showMaximized()
 
     def technical_app(self):

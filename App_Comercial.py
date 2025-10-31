@@ -141,7 +141,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Comercial.setWindowIcon(icon)
-        App_Comercial.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Comercial)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -175,7 +174,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_ExpOffer.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -211,7 +209,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_Doc.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -247,7 +244,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_Graphs.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -283,7 +279,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_ClientsResume.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -318,7 +313,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_QueryTask.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -354,7 +348,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_RecOffer.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -390,7 +383,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_FutureProjects.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -429,7 +421,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.Button_ClockIn.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -466,7 +457,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.Button_Users.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -502,7 +492,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.Button_Upload.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -537,7 +526,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.Button_Reports.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -576,7 +564,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         font.setPointSize(12)
         font.setBold(True)
         self.HeaderUserName.setFont(font)
-        self.HeaderUserName.setStyleSheet("color:rgb(255, 255, 255)")
+        self.HeaderUserName.setStyleSheet("color:rgba(255, 255, 255, 0)")
         self.HeaderUserName.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.HeaderUserName.setObjectName("HeaderUserName")
         self.Header.addWidget(self.HeaderUserName)
@@ -599,7 +587,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_Notification.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -632,7 +619,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_Profile.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -851,6 +837,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.tableOffer.verticalHeader().setVisible(False)
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableOffer.setStyleSheet("gridline-color: #CCCCCC")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem6)
@@ -869,19 +856,11 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
         self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-        self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
+        self.Calendar.setStyleSheet(
 "QCalendarWidget QToolButton {\n"
 "    color: white;\n"
 "    font-size:20px;\n"
 "    icon-size:30px 30px;\n"
-"    background-color:rgb(3, 174, 236);\n"
 "}\n"
 "\n"
 "QCalendarWidget QToolButton::hover {\n"
@@ -895,14 +874,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 "}\n"
 "\n"
 "QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border: 2px solid;\n"
 "    border-color: rgb(3,174, 236);\n"
 "}\n"
 "\n"
 "QCalendarWidget QAbstractItemView:enabled{\n"
 "    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
@@ -1401,6 +1378,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                 self.tableOffer.setHorizontalHeaderLabels(headers)
                 self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+                self.tableOffer.setStyleSheet("gridline-color: #CCCCCC")
                 self.tableOffer.verticalHeader().hide()
                 self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 

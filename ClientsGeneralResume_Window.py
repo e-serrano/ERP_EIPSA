@@ -56,14 +56,7 @@ class Ui_ClientsGeneralResume_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientsGeneralResume_Window.setWindowIcon(icon)
-        ClientsGeneralResume_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        ClientsGeneralResume_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -165,6 +158,7 @@ class Ui_ClientsGeneralResume_Window(object):
         self.tableClientsResume.verticalHeader().setVisible(False)
         self.tableClientsResume.setSortingEnabled(False)
         self.tableClientsResume.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font: 800 10pt;}")
+        self.tableClientsResume.setStyleSheet("gridline-color: #CCCCCC")
 
         commands_loadtableresume = (f"""
                                     SELECT

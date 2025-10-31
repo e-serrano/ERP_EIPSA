@@ -59,12 +59,12 @@ class ColorDelegate(QtWidgets.QItemDelegate):
             index (QtCore.QModelIndex): The model index of the item.
         """
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-        background_color = QtGui.QColor(255, 255, 255)
+        background_color = QtGui.QColor(255, 255, 255, 0)
 
         if index.column() == 35:
             if isinstance(value, (date, datetime)):
                 if value <= QtCore.QDate.currentDate():
-                    background_color = QtGui.QColor(255, 0, 0) #Red
+                    background_color = QtGui.QColor(255, 0, 0, 0) #Red
 
         painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
@@ -352,14 +352,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Invoicing_Order_Control_Window.setWindowIcon(icon)
-        Invoicing_Order_Control_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        Invoicing_Order_Control_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -386,14 +379,6 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"QMenu {\n"
-"background-color: white;\n"
-"color: black;\n"
-"}\n"
-"QMenu::item {\n"
-"background-color: white;\n"
-"color: black;\n"
 "}\n"
 "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Invoicing_Order_Control_Window)
@@ -452,6 +437,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         Invoicing_Order_Control_Window.setStatusBar(self.statusbar)
         self.tableOrders.setSortingEnabled(True)
         self.tableOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableOrders.setStyleSheet("gridline-color: #CCCCCC")
 
         self.retranslateUi(Invoicing_Order_Control_Window)
         QtCore.QMetaObject.connectSlotsByName(Invoicing_Order_Control_Window)
@@ -528,6 +514,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)
         self.tableOrders.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableOrders.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_3.addWidget(self.tableOrders, 3, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
@@ -600,6 +587,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.tableOrders.horizontalHeader().resizeSection(16, 60)
         self.tableOrders.horizontalHeader().resizeSection(20, 700)
         self.tableOrders.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableOrders.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_3.addWidget(self.tableOrders, 2, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
@@ -697,9 +685,7 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableOrders.mapToGlobal(self.tableOrders.horizontalHeader().pos())        

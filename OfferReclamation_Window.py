@@ -456,14 +456,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReclamationOffer_Window.setWindowIcon(icon)
-        ReclamationOffer_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        ReclamationOffer_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -543,6 +536,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableReclamation.setSortingEnabled(False)
         self.tableReclamation.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableReclamation.setStyleSheet("gridline-color: #CCCCCC")
         ReclamationOffer_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(ReclamationOffer_Window)

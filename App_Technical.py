@@ -12,7 +12,6 @@ from config import config, get_path
 from datetime import *
 import psycopg2
 import sys
-import configparser
 from utils.Database_Manager import Create_DBconnection, Database_Connection
 from utils.Show_Message import MessageHelper
 from tkinter.filedialog import askopenfilename, askdirectory
@@ -53,7 +52,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 elif fecha_str_qdate.addDays(7) < QtCore.QDate.currentDate():
                     color = QtGui.QColor(255, 255, 168)  # Yellow
                 else:
-                    color = QtGui.QColor(255, 255, 255)  # White for rest
+                    color = QtGui.QColor(255, 255, 255, 0)  # White for rest
 
                 option.backgroundBrush = color
 
@@ -496,7 +495,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Technical.setWindowIcon(icon)
-        App_Technical.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Technical)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -529,7 +527,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_PortalDoc.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -577,7 +574,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 "    border: 1px solid;\n"
 "    color: rgb(3, 174, 236);\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -618,7 +614,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_Notification.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -651,7 +646,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_Profile.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -780,7 +774,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_FactoryTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_FactoryTimes.setObjectName("Button_FactoryTimes")
             self.verticalLayout_3.addWidget(self.Button_FactoryTimes)
-
         else:
             self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_QueryTag.setMinimumSize(QtCore.QSize(200, 50))
@@ -873,6 +866,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.verticalHeader().setVisible(False)
         self.tableDocs.setSortingEnabled(False)
         self.tableDocs.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableDocs.setStyleSheet("""gridline-color: #CCCCCC;""")
         self.MainLayout.addWidget(self.tableDocs)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
@@ -894,11 +888,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         App_Technical.setStatusBar(self.statusbar)
         self.tableDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        delay_date=QtCore.QDate.currentDate().addDays(-10)
-
+    # Setting functions to set table
         if self.username in ['julian.martinez']:
             self.update_principal_screen()
-        
         else:
             commands_documentation = ("""
                         SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
@@ -948,10 +940,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_PortalDoc.clicked.connect(self.portal_doc)
         self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
+    # Setting functions to buttons
         if self.username in ['julian.martinez']:
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
             self.Button_Commercial.clicked.connect(self.commercial_menu)
-
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
             self.Button_NewDoc.clicked.connect(self.create_documents)
@@ -999,40 +991,18 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 WHERE "ot_num" LIKE '90%'
                                 ORDER BY "ot_num" DESC
                                 """
-
-            conn = None
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(query_OTothers)
-                results1=cur.fetchall()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_OTothers)
+                        results1=cur.fetchall()
 
-                cur.execute(query_OT900)
-                results2=cur.fetchall()
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        cur.execute(query_OT900)
+                        results2=cur.fetchall()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.Button_ImportTimes = QtWidgets.QPushButton(parent=self.frame)
             self.Button_ImportTimes.setMinimumSize(QtCore.QSize(50, 50))
@@ -1041,7 +1011,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ImportTimes.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1077,7 +1046,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_CheckTimes.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1113,7 +1081,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1149,7 +1116,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DBEdit.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1184,7 +1150,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_PDFEdit.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1219,7 +1184,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1282,7 +1246,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Purchases.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1319,7 +1282,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Purchases.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1355,7 +1317,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Deliveries.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1391,7 +1352,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1427,7 +1387,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TestMenu.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1463,7 +1422,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Test.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1501,7 +1459,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 "QPushButton{\n"
                 "    border: 1px solid transparent;\n"
                 "    border-color: rgb(3, 174, 236);\n"
-                "    background-color: rgb(255, 255, 255);\n"
                 "    border-radius: 10px;\n"
                 "}\n"
                 "\n"
@@ -1543,7 +1500,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Factory.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1579,7 +1535,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1616,7 +1571,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ClockIn.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1652,7 +1606,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1689,7 +1642,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Verification.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1725,7 +1677,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Order_Control.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1767,7 +1718,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TechOffice.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1804,7 +1754,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -2163,7 +2112,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             Exception: If there is an error during the database operation.
         """
         self.tableDocs.setRowCount(0)
-        delay_date=QtCore.QDate.currentDate().addDays(-10)
+
         commands_documentation = ("""
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
                     FROM documentation
@@ -2172,53 +2121,33 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     )
                     ORDER BY "num_doc_eipsa"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_documentation)
-            results=cur.fetchall()
-            self.tableDocs.setRowCount(len(results))
-            tablerow=0
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_documentation)
+                    results=cur.fetchall()
+                    self.tableDocs.setRowCount(len(results))
+                    tablerow=0
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(7):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableDocs.setItem(tablerow, column, it)
+                # fill the Qt Table with the query results
+                    for row in results:
+                        for column in range(7):
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableDocs.setItem(tablerow, column, it)
 
-                tablerow+=1
+                        tablerow+=1
 
-            self.tableDocs.verticalHeader().hide()
-            self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
-            self.tableDocs.setSortingEnabled(False)
+                    self.tableDocs.verticalHeader().hide()
+                    self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+                    self.tableDocs.setSortingEnabled(False)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

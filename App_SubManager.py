@@ -169,8 +169,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -585,6 +584,10 @@ class Ui_App_SubManager(object):
         self.username=username
         self.pdf_viewer = PDF_Viewer()
 
+        palette = QtGui.QGuiApplication.palette()
+        window_color = palette.color(palette.ColorRole.Window)
+        is_dark = window_color.lightness() < 128
+        self.grid_color = "#808080" if is_dark else "#000000"
 
     def setupUi(self, App_SubManager):
         """
@@ -599,7 +602,6 @@ class Ui_App_SubManager(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_SubManager.setWindowIcon(icon)
-        # App_SubManager.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_SubManager)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -633,7 +635,6 @@ class Ui_App_SubManager(object):
         self.Button_Graphs.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -669,7 +670,6 @@ class Ui_App_SubManager(object):
         self.Button_ClientsResume.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -704,7 +704,6 @@ class Ui_App_SubManager(object):
         self.Button_Reports.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -752,7 +751,6 @@ class Ui_App_SubManager(object):
         self.Button_Profile.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -924,6 +922,7 @@ class Ui_App_SubManager(object):
         self.tableOffer.verticalHeader().setVisible(False)
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableOffer.setStyleSheet(f"""QTableWidget {{gridline-color: {self.grid_color};}}""")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem6)
@@ -940,19 +939,11 @@ class Ui_App_SubManager(object):
         self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
         self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-        self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
+        self.Calendar.setStyleSheet(
 "QCalendarWidget QToolButton {\n"
 "    color: white;\n"
 "    font-size:20px;\n"
 "    icon-size:30px 30px;\n"
-"    background-color:rgb(3, 174, 236);\n"
 "}\n"
 "\n"
 "QCalendarWidget QToolButton::hover {\n"
@@ -960,20 +951,18 @@ class Ui_App_SubManager(object):
 "}\n"
 "\n"
 "QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
+"    background-color: rgb(3, 174, 236);\n"
 "    border: 3px solid;\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
 "QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border: 2px solid;\n"
 "    border-color: rgb(3,174, 236);\n"
 "}\n"
 "\n"
 "QCalendarWidget QAbstractItemView:enabled{\n"
 "    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
@@ -1025,7 +1014,6 @@ class Ui_App_SubManager(object):
 
         # self.setup_task_dates()
 
-
         commands_appcomercial = ("""
                     SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material",
                             "offer_amount","probability","notes","important","tracking"
@@ -1036,53 +1024,33 @@ class Ui_App_SubManager(object):
                     ))
                     ORDER BY "num_offer"
                     """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_appcomercial)
-            results=cur.fetchall()
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_appcomercial)
+                    results=cur.fetchall()
+                    self.tableOffer.setRowCount(len(results))
+                    tablerow=0
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(12):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
+                # fill the Qt Table with the query results
+                    for row in results:
+                        for column in range(12):
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableOffer.setItem(tablerow, column, it)
 
-                tablerow+=1
+                        tablerow+=1
 
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
-            self.tableOffer.setSortingEnabled(False)
+                    self.tableOffer.verticalHeader().hide()
+                    self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
+                    self.tableOffer.setSortingEnabled(False)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 # Function to translate and updates the text of various UI elements

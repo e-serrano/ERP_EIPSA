@@ -48,13 +48,6 @@ class Ui_ExportOffer_Window(object):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Window.setWindowIcon(icon)
         ExportOffer_Window.setAutoFillBackground(False)
-        ExportOffer_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         ExportOffer_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=ExportOffer_Window)
         self.centralwidget.setEnabled(True)

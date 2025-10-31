@@ -10071,16 +10071,18 @@ class order_reports:
     Attributes:
         num_order (str): The order number.
     """
-    def __init__(self, df1, df2, df3):
+    def __init__(self, df1, df2, df3, df4, df5):
         """
         Initializes an order_reports instance with dataframe with data.
         
         Args:
             df (str): The order number.
         """
-        self.df1 = df1.iloc[:, :-3]
-        self.df2 = df2
-        self.df3 = df3
+        self.df_orders_P = df1.iloc[:, :-5]
+        self.df_orders_PA = df2
+        self.df_orders_R = df3
+        self.df_summary_orders = df4
+        self.df_wallet = df5
 
         self.wb = load_workbook(str(get_path("Plantillas Exportación", "TEMPLATE ORDERS REPORT.xlsx")))
 
@@ -10098,7 +10100,9 @@ class order_reports:
         )
 
         last_row = 11
-        for index, row in self.df1.iterrows():  # Data in desired row
+
+    # Filling cells with data from orders P- dataframe
+        for index, row in self.df_orders_P.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 if col_num in [7, 8, 15, 16, 17, 19, 22, 24, 25, 27, 28, 30]:
@@ -10129,10 +10133,11 @@ class order_reports:
         ws.cell(row=last_row, column=35).font = Font(bold=True, size=12)
         ws.cell(row=last_row, column=36).value = f"=SUM({get_column_letter(36)}{11}:{get_column_letter(36)}{last_row - 1})"
         ws.cell(row=last_row, column=36).style = currency_style
-        ws.cell(row=last_row, column=36).font = Font(bold=True, size=14)
+        ws.cell(row=last_row, column=36).font = Font(bold=True, size=12)
 
+    # Filling cells with data from orders PA- dataframe
         last_row = last_row + 2
-        for col_num, header in enumerate(self.df2.columns, start=1):
+        for col_num, header in enumerate(self.df_orders_PA.columns, start=1): # Headers
             cell = ws.cell(row=last_row, column=col_num)
             cell.value = header
             cell.border = thin_border
@@ -10140,7 +10145,67 @@ class order_reports:
             cell._style = ws["A10"]._style
         last_row += 1
 
-        for index, row in self.df2.iterrows():  # Data in desired row
+        first_row = last_row
+        for index, row in self.df_orders_PA.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                if col_num in [19]:
+                    cell.value = value
+                    cell.style = currency_style
+                else:
+                    cell.value = value
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = last_row + 1
+
+        ws.cell(row=last_row, column=18).value = "TOTAL:"
+        ws.cell(row=last_row, column=18).alignment = Alignment(horizontal='right', vertical='center')
+        ws.cell(row=last_row, column=18).font = Font(bold=True, size=12)
+        ws.cell(row=last_row, column=19).value = f"=SUM({get_column_letter(19)}{first_row}:{get_column_letter(19)}{last_row - 1})"
+        ws.cell(row=last_row, column=19).style = currency_style
+        ws.cell(row=last_row, column=19).font = Font(bold=True, size=12)
+
+    # Filling cells with data from orders R- dataframe
+        last_row = last_row + 2
+        for col_num, header in enumerate(self.df_orders_R.columns, start=1): # Headers
+            cell = ws.cell(row=last_row, column=col_num)
+            cell.value = header
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell._style = ws["A10"]._style
+        last_row += 1
+
+        first_row = last_row
+        for index, row in self.df_orders_R.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                if col_num in [12]:
+                    cell.value = value
+                    cell.style = currency_style
+                else:
+                    cell.value = value
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = last_row + 1
+
+        ws.cell(row=last_row, column=11).value = "TOTAL:"
+        ws.cell(row=last_row, column=11).alignment = Alignment(horizontal='right', vertical='center')
+        ws.cell(row=last_row, column=11).font = Font(bold=True, size=12)
+        ws.cell(row=last_row, column=12).value = f"=SUM({get_column_letter(12)}{first_row}:{get_column_letter(12)}{last_row - 1})"
+        ws.cell(row=last_row, column=12).style = currency_style
+        ws.cell(row=last_row, column=12).font = Font(bold=True, size=12)
+
+    # Filling cells with data from summary orders dataframe
+        last_row = last_row + 2
+        for col_num, header in enumerate(self.df_summary_orders.columns, start=1): # Headers
+            cell = ws.cell(row=last_row, column=col_num)
+            cell.value = header
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell._style = ws["A10"]._style
+        last_row += 1
+
+        for index, row in self.df_summary_orders.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 if col_num in [3, 6]:
@@ -10152,8 +10217,9 @@ class order_reports:
                 cell.alignment = Alignment(horizontal='center', vertical='center')
             last_row = last_row + 1
 
+    # Filling cells with data from wallet dataframe
         last_row = last_row + 2
-        for col_num, header in enumerate(self.df3.columns, start=1):
+        for col_num, header in enumerate(self.df_wallet.columns, start=1): # Headers
             cell = ws.cell(row=last_row, column=col_num)
             cell.value = header
             cell.border = thin_border
@@ -10161,7 +10227,7 @@ class order_reports:
             cell._style = ws["A10"]._style
         last_row += 1
 
-        for index, row in self.df3.iterrows():  # Data in desired row
+        for index, row in self.df_wallet.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 cell.value = value

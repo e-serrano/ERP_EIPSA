@@ -35,13 +35,6 @@ class Ui_Login_Window(object):
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
-        Login_Window.setStyleSheet("QWidget {\n"
-        "background-color: rgb(255, 255, 255);\n"
-        "}\n"
-        "\n"
-        ".QFrame {\n"
-        "    border: 2px solid black;\n"
-        "}")
         Login_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=Login_Window)
         self.centralwidget.setEnabled(True)

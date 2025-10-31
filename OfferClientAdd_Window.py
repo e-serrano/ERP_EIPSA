@@ -33,13 +33,6 @@ class Ui_OfferClientAdd_Window(object):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OfferClientAdd_Window.setWindowIcon(icon)
         OfferClientAdd_Window.setAutoFillBackground(False)
-        OfferClientAdd_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         OfferClientAdd_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=OfferClientAdd_Window)
         self.centralwidget.setEnabled(True)

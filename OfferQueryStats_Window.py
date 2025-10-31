@@ -115,8 +115,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -517,14 +516,7 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOfferStats_Window.setWindowIcon(icon)
-        QueryOfferStats_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        QueryOfferStats_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -601,6 +593,7 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.setHorizontalHeaderItem(i, item)
         self.tableQueryOffer.setSortingEnabled(True)
         self.tableQueryOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableQueryOffer.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_2.addWidget(self.tableQueryOffer, 3, 0, 1, 11)
         self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
         self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))

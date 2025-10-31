@@ -43,17 +43,17 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             value = index.data()
 
             if value == "Adjudicada":  
-                color = QtGui.QColor(0, 255, 0)  # Green if "Adjudicada"
+                color = QtGui.QColor(100, 179, 99)  # Green if "Adjudicada"
             elif value == "Perdida":
-                color = QtGui.QColor(255, 124, 128)  # Red if "Perdida"
-            elif value == "Estimación":
-                color = QtGui.QColor(142, 162, 219)  # Blue if "Estimación"
+                color = QtGui.QColor(220, 90, 90)  # Red if "Perdida"
+            elif value == "Budgetary":
+                color = QtGui.QColor(92, 147, 225)  # Blue if "Estimación"
             elif value == "Presentada":
-                color = QtGui.QColor(255, 255, 0)  # Yellow if "Presentada"
-            elif value == "Declinada":
-                color = QtGui.QColor(244, 176, 132)  # Orange if "Declinada"
+                color = QtGui.QColor(240, 208, 88)  # Yellow if "Presentada"
+            elif value in ["Declinada", "No Ofertada"]:
+                color = QtGui.QColor(239, 155, 84)  # Orange if "Declinada"
             else:
-                color = QtGui.QColor(255, 255, 255)  # White for rest
+                color = QtGui.QColor(255, 255, 255, 0)  # White for rest
 
             option.backgroundBrush = color
 
@@ -511,14 +511,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOffer_Window.setWindowIcon(icon)
-        QueryOffer_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        QueryOffer_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -630,6 +623,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.setHorizontalHeaderItem(i, item)
         self.tableQueryOffer.setSortingEnabled(True)
         self.tableQueryOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableQueryOffer.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_2.addWidget(self.tableQueryOffer, 3, 0, 1, 11)
         self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
         self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
@@ -803,6 +797,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             for column in [4, 7, 12, 19, 20]:
                 self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOffer.setColumnWidth(column, 300)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -920,6 +915,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
                 for column in [4, 7, 12, 19, 20]:
                     self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                    self.tableQueryOffer.setColumnWidth(column, 300)
 
             # close communication with the PostgreSQL database server
                 cur.close()

@@ -97,8 +97,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -497,14 +496,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOrder_Window.setWindowIcon(icon)
-        QueryOrder_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        QueryOrder_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -616,6 +608,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             self.tableQueryOrder.setHorizontalHeaderItem(i, item)
         self.tableQueryOrder.setSortingEnabled(True)
         self.tableQueryOrder.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableQueryOrder.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_2.addWidget(self.tableQueryOrder, 3, 0, 1, 11)
         self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
         self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
@@ -801,13 +794,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
 
             # self.tableQueryOrder.verticalHeader().hide()
             self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
-            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOrder.horizontalHeader().setDefaultSectionSize(150)
-            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(26,QtWidgets.QHeaderView.ResizeMode.Stretch)
-            # self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.setColumnWidth(20, 300)
 
             if self.rol_app == 'Técnico':
                 self.tableQueryOrder.hideColumn(14)
@@ -937,12 +926,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
 
                 # self.tableQueryOrder.verticalHeader().hide()
                 self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.horizontalHeader().setDefaultSectionSize(150)
-                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(26,QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOrder.setColumnWidth(20, 300)
 
                 if self.rol_app == 'Técnico':
                     self.tableQueryOrder.hideColumn(14)

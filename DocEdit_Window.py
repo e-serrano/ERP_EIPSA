@@ -132,7 +132,7 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
         elif text == "Aprobado":
             background_color = QtGui.QColor(0, 176, 80)  # Green
         else:
-            background_color = QtGui.QColor(255, 255, 255)  # White
+            background_color = QtGui.QColor(255, 255, 255, 0)  # Transparent
 
         painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
@@ -708,12 +708,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditDocs_Window.setWindowIcon(icon)
-        EditDocs_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=EditDocs_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -953,6 +948,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEditDocs.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEditDocs.setStyleSheet("gridline-color: #CCCCCC")
         self.tableEditDocs.setObjectName("tableEditDocs")
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         self.tableEditDocs.setSortingEnabled(False)
@@ -1022,6 +1018,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEditDocs.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEditDocs.setStyleSheet("gridline-color: #CCCCCC")
         self.tableEditDocs.setObjectName("tableEditDocs")
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         self.tableEditDocs.setSortingEnabled(False)
@@ -1095,7 +1092,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -1148,9 +1144,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableEditDocs.mapToGlobal(self.tableEditDocs.horizontalHeader().pos())        

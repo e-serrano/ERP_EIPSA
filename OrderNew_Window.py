@@ -47,14 +47,7 @@ class Ui_New_Order_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources","Iconos","icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Order.setWindowIcon(icon)
-        New_Order.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        New_Order.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -218,16 +211,16 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.euromoney.setFont(font)
-        self.euromoney.setMinimumSize(QtCore.QSize(25, 20))
-        self.euromoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.euromoney.setMinimumSize(QtCore.QSize(35, 20))
+        self.euromoney.setMaximumSize(QtCore.QSize(35, 20))
         self.euromoney.setObjectName("euromoney")
         self.gridlayoutprincipal.addWidget(self.euromoney, 2, 4, 1, 1)
         self.dollarmoney = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.dollarmoney.setFont(font)
-        self.dollarmoney.setMinimumSize(QtCore.QSize(25, 20))
-        self.dollarmoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.dollarmoney.setMinimumSize(QtCore.QSize(35, 20))
+        self.dollarmoney.setMaximumSize(QtCore.QSize(35, 20))
         self.dollarmoney.setObjectName("dollarmoney")
         self.gridlayoutprincipal.addWidget(self.dollarmoney, 2, 5, 1, 1)
         self.label_num_items = QtWidgets.QLabel(parent=self.frame)

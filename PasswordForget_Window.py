@@ -42,13 +42,6 @@ class Ui_ForgetPass_Window(object):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ForgetPass_Window.setWindowIcon(icon)
         ForgetPass_Window.setAutoFillBackground(False)
-        ForgetPass_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         ForgetPass_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=ForgetPass_Window)
         self.centralwidget.setEnabled(True)

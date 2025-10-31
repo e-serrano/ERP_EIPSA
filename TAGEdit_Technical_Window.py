@@ -781,12 +781,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTagsTechnical_Window.setWindowIcon(icon)
-        EditTagsTechnical_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=EditTagsTechnical_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -1628,6 +1623,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableEditTags.setStyleSheet("gridline-color: #CCCCCC")
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
@@ -1936,6 +1932,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableEditTags2.setStyleSheet("gridline-color: #CCCCCC")
                 self.tableEditTags2.setObjectName("tableEditTags2")
                 self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
                 self.tableEditTags2.setSortingEnabled(False)
@@ -2109,7 +2106,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.menuValues.addSeparator()
 
             scroll_menu = QtWidgets.QScrollArea()
-            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
             scroll_menu.setWidgetResizable(True)
             scroll_widget = QtWidgets.QWidget(scroll_menu)
             scroll_menu.setWidget(scroll_widget)
@@ -2162,9 +2158,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.menuValues.addAction(accept_button)
             self.menuValues.addAction(cancel_button)
 
-            self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
+            self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                             "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
             headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
@@ -2203,7 +2197,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.menuValues.addSeparator()
 
             scroll_menu = QtWidgets.QScrollArea()
-            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
             scroll_menu.setWidgetResizable(True)
             scroll_widget = QtWidgets.QWidget(scroll_menu)
             scroll_menu.setWidget(scroll_widget)
@@ -2256,9 +2249,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.menuValues.addAction(accept_button)
             self.menuValues.addAction(cancel_button)
 
-            self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
+            self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                             "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
             headerPos = table.mapToGlobal(table.horizontalHeader().pos())        

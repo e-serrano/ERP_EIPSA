@@ -49,7 +49,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             elif value == "Eliminado":
                 color = QtGui.QColor(255, 0, 0)  # Red
             else:
-                color = QtGui.QColor(255, 255, 255)  # White for rest
+                color = QtGui.QColor(255, 255, 255, 0)  # Transparent for rest
 
             option.backgroundBrush = color
 
@@ -110,8 +110,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -462,14 +461,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryDoc_Window.setWindowIcon(icon)
-        QueryDoc_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        QueryDoc_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -541,6 +533,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.tableQueryDoc.setSortingEnabled(False)
         self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableQueryDoc.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableQueryDoc.setStyleSheet("gridline-color: #CCCCCC")
         self.gridLayout_2.addWidget(self.tableQueryDoc, 2, 0, 1, 11)
         self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
         self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
