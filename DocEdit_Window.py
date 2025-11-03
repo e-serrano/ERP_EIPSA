@@ -128,9 +128,9 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
         text = index.data(Qt.ItemDataRole.DisplayRole)
 
         if text in ["Eliminado", "Rechazado"]:
-            background_color = QtGui.QColor(255, 0, 0)  # Red
+            background_color = QtGui.QColor(220, 90, 90)  # Red
         elif text == "Aprobado":
-            background_color = QtGui.QColor(0, 176, 80)  # Green
+            background_color = QtGui.QColor(100, 179, 99)  # Green
         else:
             background_color = QtGui.QColor(255, 255, 255, 0)  # Transparent
 

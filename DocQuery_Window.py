@@ -45,9 +45,9 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             value = index.data()
 
             if value == "Aprobado":  
-                color = QtGui.QColor(146, 208, 80)  # Green
+                color = QtGui.QColor(100, 179, 99)  # Green
             elif value == "Eliminado":
-                color = QtGui.QColor(255, 0, 0)  # Red
+                color = QtGui.QColor(220, 90, 90)  # Red
             else:
                 color = QtGui.QColor(255, 255, 255, 0)  # Transparent for rest
 

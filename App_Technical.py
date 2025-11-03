@@ -48,9 +48,9 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 delay_date=QtCore.QDate.currentDate().addDays(-10)
 
                 if fecha_str_qdate.addDays(15) < QtCore.QDate.currentDate():  
-                    color = QtGui.QColor(255, 0, 0)  # Red
+                    color = QtGui.QColor(220, 90, 90)  # Red
                 elif fecha_str_qdate.addDays(7) < QtCore.QDate.currentDate():
-                    color = QtGui.QColor(255, 255, 168)  # Yellow
+                    color = QtGui.QColor(240, 208, 88)  # Yellow
                 else:
                     color = QtGui.QColor(255, 255, 255, 0)  # White for rest
 
