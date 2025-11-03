@@ -3108,7 +3108,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
             summary = summary[columns_2]
 
-            df_3 = pd.read_excel(r'\\nas01\DATOS\Comunes\Ana\CP\informe_estructurado.xlsx')
+            df_3 = pd.read_excel(r'\\ERP-EIPSA-DATOS\DATOS\Comunes\Ana\CP\informe_estructurado.xlsx')
 
             order_reports(df_1, summary, df_3)
 
