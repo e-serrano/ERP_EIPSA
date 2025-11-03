@@ -1115,7 +1115,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             if code_illuminator != '':
                 tradcodilluminator = model.data(model.index(target_row, 129))
-                modelilluminator = model_num[:6].replace('S','I') if model_num[2:4] != 'HH' else model_num[:7].replace('HH','I')
+                modelilluminator = ''
                 designilluminator = ''
                 processilluminator = ''
                 materialilluminator = 'HIERRO'
@@ -1233,6 +1233,27 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
+    def expand_illuminators_from_list(illuminator_list):
+        """
+        Expand combinations like '1 x 1-I 218-T + 2 x 1-I 228-T'
+        mantaining fields and original structuremanteniendo el resto de campos y la estructura original.
+        """
+        rows = []
+        for item in illuminator_list:
+            # [code, codefab, tradcod, model, design, process, material, qty]
+            code_ill, codefab_ill, tradcod, model, design, process, material, qty = item
+
+            parts = [p.strip() for p in str(tradcod).split("+")]
+            for p in parts:
+                match = re.match(r"(\d+)\s*x\s*(1-I\s*\d+-T)", p)
+                if match:
+                    quantity = int(match.group(1)) * qty
+                    illuminator = "ILUMINADOR " + match.group(2).replace(" ", "")
+                    rows.append([
+                        code_ill, codefab_ill, illuminator, model, design, process, material, quantity
+                    ])
+        return rows
+
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
     (body_list, "df_body"),
@@ -1247,7 +1268,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
     (nippletube_list, "df_nippletube"),
     (dv_list, "df_list"),
     (antifrost_list, "df_antifrost"),
-    (illuminator_list, "df_illuminator")]
+    (expand_illuminators_from_list(illuminator_list), "df_illuminator")]
 
     data_frames_with_data = []
 
