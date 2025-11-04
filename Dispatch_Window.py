@@ -346,14 +346,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Dispatch_Window.setWindowIcon(icon)
-        Dispatch_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        Dispatch_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -499,7 +492,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
         # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
@@ -598,7 +591,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         # self.tableDispatch.horizontalHeader().setSectionResizeMode(52, QtWidgets.QHeaderView.ResizeMode.Interactive)
         # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
         # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
@@ -801,9 +794,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         # self.menuValues.addAction(accept_button)
         # self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
