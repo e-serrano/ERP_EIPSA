@@ -2026,27 +2026,17 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         WorkshopDrawingIndex_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             WorkshopDrawingIndex_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
             WorkshopDrawingIndex_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
             "QMenu {\n"
                 "background-color: #333;\n"
-                "color: black;\n"
             "}\n"
             "QMenu::item {\n"
                 "background-color: transparent;\n"
-                "color: black;\n"
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=WorkshopDrawingIndex_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -2118,7 +2108,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2153,7 +2142,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2188,7 +2176,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2223,7 +2210,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2258,7 +2244,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2294,7 +2279,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -2676,19 +2660,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
                 self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableDimDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
                 if self.username == 'm.gil':
-                    self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                    self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
                     self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-                else:
-                    self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
                 self.tableDimDwg.setObjectName("tableDimDwg")
                 self.tableDimDwg.setSortingEnabled(False)
                 self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
-                # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
                 self.splitter.addWidget(self.tableDimDwg)
-                # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
             # Change all column names
                 headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
@@ -2738,19 +2717,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
                 self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableOfDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
                 if self.username == 'm.gil':
-                    self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                    self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
                     self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-                else:
-                    self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
                 self.tableOfDwg.setObjectName("tableOfDwg")
                 self.tableOfDwg.setSortingEnabled(False)
                 self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
-                # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
                 self.splitter.addWidget(self.tableOfDwg)
-                # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
             # Change all column names
                 headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
@@ -2800,19 +2774,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
                 self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
                 if self.username == 'm.gil':
-                    self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                    self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
                     self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-                else:
-                    self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
                 self.tableMDwg.setObjectName("tableMDwg")
                 self.tableMDwg.setSortingEnabled(False)
                 self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelM, self.proxyM))
-                # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
                 self.splitter.addWidget(self.tableMDwg)
-                # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
             # Change all column names
                 headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Estado Emisión", "Observaciones",
@@ -2885,19 +2854,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableALDwg.setItemDelegate(AlignDelegate_M(self.tableALDwg))
         self.tableALDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableALDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableALDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         if self.username == 'm.gil':
-            self.tableALDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
             self.tableALDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableALDwg.setObjectName("tableALDwg")
         self.tableALDwg.setSortingEnabled(False)
         self.tableALDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableALDwg, self.modelAL, self.proxyM))
-        # self.tableALDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        # self.tableALDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.splitter.addWidget(self.tableALDwg)
-        # self.gridLayout_2.addWidget(self.tableALDwg, 5, 0, 1, 7)
 
     # Change all column names
         headers = ["ID", "Nº Pedido", "Nº Plano AL", "Observaciones", "Fecha Emisión", "Estado Emisión",
@@ -2973,10 +2937,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        if self.username == 'm.gil':
-            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
-        else:
-            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -3029,16 +2989,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        if self.username == 'm.gil':
-            self.menuValues.setStyleSheet("QMenu { color: white; }"
-                                            "QMenu { background-color: #121212; }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        else:
-            self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = table.mapToGlobal(table.horizontalHeader().pos())
 
@@ -4594,18 +4547,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             num_order = self.num_order[:8]
             path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
-            # if self.num_order[:2] == "PA":
-            #     num_order = self.num_order
-            #     path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos Almacen")
-            # elif self.num_order[:2] == "P-":
-            #     num_order = self.num_order[:8]
-            #     path = os.path.join(base_folder, f"Año {order_year}", f"{order_year} Pedidos")
-            # else:
-            #     return
+            if self.num_order[:2] == "PA":
+                num_order = self.num_order
+                path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
+            elif self.num_order[:2] == "P-":
+                num_order = self.num_order[:8]
+                path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+            else:
+                return
 
             for folder in os.listdir(path):
                 if num_order.replace("/", "-") in folder:
-                    folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos" / folder / "3-Fabricacion" / f"Planos {drawing_type}"
+                    folder_path = path / folder / "3-Fabricacion" / f"Planos {drawing_type}"
                     for root, dirs, files in os.walk(folder_path):
                         for filename in files:
                             if fnmatch.fnmatch(filename, f"{drawing_number}*"):

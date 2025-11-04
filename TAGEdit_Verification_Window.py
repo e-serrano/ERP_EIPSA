@@ -917,7 +917,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             # self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.username == 'm.gil':
                 self.tableEditTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
                 self.tableEditTags.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
             else:
                 self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")

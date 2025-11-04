@@ -423,21 +423,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Thread_Masters_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Workshop_Thread_Masters_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            Workshop_Thread_Masters_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Thread_Masters_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -498,13 +484,6 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
-
-        if self.username == 'm.gil':
-            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolExpData.setStyleSheet("border: 1px solid white;")
-            self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolSeeAll.setStyleSheet("border: 1px solid white;")
-            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -669,15 +648,9 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         columns_number=self.model.columnCount()
 
         self.tableThreadMasters.setItemDelegate(AlignDelegate(self.tableThreadMasters))
-        # self.color_delegate = ColorDelegate(self)
-        # self.tableThreadMasters.setItemDelegateForColumn(5, self.color_delegate)
 
-        if self.username == 'm.gil':
-            self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableThreadMasters.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableThreadMasters.setObjectName("tableThreadMasters")
         self.gridLayout_2.addWidget(self.tableThreadMasters, 2, 0, 1, 1)
@@ -742,12 +715,8 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
 
         self.tableThreadMasters.setItemDelegate(AlignDelegate(self.tableThreadMasters))
 
-        if self.username == 'm.gil':
-            self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableThreadMasters.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableThreadMasters.setObjectName("tableThreadMasters")
         self.gridLayout_2.addWidget(self.tableThreadMasters, 2, 0, 1, 1)
@@ -827,7 +796,6 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -880,9 +848,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableThreadMasters.mapToGlobal(self.tableThreadMasters.horizontalHeader().pos())        

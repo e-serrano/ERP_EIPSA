@@ -1369,7 +1369,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
         if self.username == 'd.marquez':
             self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
             self.tableSupplies.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
         else:
             self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")

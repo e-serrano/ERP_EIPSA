@@ -71,7 +71,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Workshop.setWindowIcon(icon)
-        App_Workshop.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Workshop)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -105,7 +104,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -142,7 +140,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -180,7 +177,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -218,7 +214,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             "QPushButton{\n"
             "    border: 1px solid transparent;\n"
             "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
             "    border-radius: 10px;\n"
             "}\n"
             "\n"
@@ -252,52 +247,27 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Revisions.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Revisions.setToolTip('Máquinas')
         self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
+        self.Button_Revisions.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
         self.Button_Revisions.setText("")
         icon10 = QtGui.QIcon()
         icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -306,7 +276,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Revisions.setObjectName("Button_Revisions")
         self.Header.addWidget(self.Button_Revisions)
 
-
         spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem6)
         self.Button_Calibrations = QtWidgets.QPushButton(parent=self.frame)
@@ -314,52 +283,27 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Calibrations.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Calibrations.setToolTip('Calibraciones')
         self.Button_Calibrations.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Calibrations.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Calibrations.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
+        self.Button_Calibrations.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
         self.Button_Calibrations.setText("")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Calibration.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -388,7 +332,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Notification.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"
@@ -421,7 +364,6 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Profile.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "\n"

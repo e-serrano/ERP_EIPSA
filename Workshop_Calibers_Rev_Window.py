@@ -480,15 +480,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Calibers_Rev_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Workshop_Calibers_Rev_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
+        Workshop_Calibers_Rev_Window.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -516,42 +508,6 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        else:
-            Workshop_Calibers_Rev_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Calibers_Rev_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -603,12 +559,6 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
-
-        if self.username == 'm.gil':
-            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolImages.setStyleSheet("border: 1px solid white;")
-            self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -888,12 +838,8 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         self.color_delegate = ColorDelegate(self)
         self.tableRevisions.setItemDelegateForColumn(19, self.color_delegate)
 
-        if self.username == 'm.gil':
-            self.tableRevisions.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableRevisions.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableRevisions.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableRevisions.setObjectName("tableCalibers")
         self.gridLayout_2.addWidget(self.tableRevisions, 5, 0, 1, 5)
@@ -974,7 +920,6 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -1027,9 +972,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableRevisions.mapToGlobal(self.tableRevisions.horizontalHeader().pos())        

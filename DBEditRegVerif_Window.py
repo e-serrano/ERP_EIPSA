@@ -195,51 +195,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         DBEditRegVerif_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            DBEditRegVerif_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(38, 38, 38); color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 8px .8em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
-    "}")
-        else:
-            DBEditRegVerif_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
+        DBEditRegVerif_Window.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -536,7 +492,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
                             'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
                             'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
                             'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
-                            'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Patrones Roscas', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller',
+                            'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Patrones Roscas', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller', 'Stock Taller',
                             'Equipos Soldadura', 'Planos DIM Taller', 'Planos OF Taller']
 
             self.dict_tables = dict(zip(tables_db_names, tables_names))
@@ -545,7 +501,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
                                 'gas_flowmeters_workshop','gas_flowmeters_workshop_revisions','handtools_workshop','handtools_workshop_revisions', 'humidity_temp_closet','exp_verification', 'm_drawing_verification', 'machines_workshop',
                                 'machines_workshop_revisions', 'manometers_thermoelements_workshop', 'manometers_thermoelements_workshop_revisions', 'nc_report', 'of_drawing_verification',
                                 'ppi_verification', 'staff_certificates', 'suppliers_verification', 'test_hardness', 'test_hydro',
-                                'test_liquid', 'test_others', 'warehouse_added_pieces', 'workshop_dim_drawings', 'workshop_of_drawings']
+                                'test_liquid', 'test_others', 'warehouse_added_pieces', 'warehouse_pieces', 'warehouse_stock', 'workshop_dim_drawings', 'workshop_of_drawings']
 
             for table in tables_to_delete:
                 del self.dict_tables[table]
@@ -705,12 +661,8 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             self.tableWidget.verticalHeader().hide()
             self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
             self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.username == 'm.gil':
-                self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-                self.tableWidget.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-            else:
-                self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
             self.tableWidget.setObjectName("tableWidget")
             self.gridLayout_2.addWidget(self.tableWidget, 8, 0, 1, 6)
             self.model.dataChanged.connect(self.saveChanges)

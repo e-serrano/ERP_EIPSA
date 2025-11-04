@@ -350,21 +350,7 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Handtools_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Workshop_Handtools_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            Workshop_Handtools_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Handtools_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -405,11 +391,6 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         self.toolAdd.setIcon(icon)
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
-
-        if self.username == 'm.gil':
-            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
-            self.toolAdd.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -574,12 +555,8 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         self.tableHandtools.setItemDelegate(AlignDelegate(self.tableHandtools))
         self.adjust_table()
 
-        if self.username == 'm.gil':
-            self.tableHandtools.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableHandtools.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableHandtools.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableHandtools.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableHandtools.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableHandtools.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableHandtools.setObjectName("tableHandtools")
         self.gridLayout_2.addWidget(self.tableHandtools, 2, 0, 1, 1)
@@ -658,7 +635,6 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -711,9 +687,7 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableHandtools.mapToGlobal(self.tableHandtools.horizontalHeader().pos())        

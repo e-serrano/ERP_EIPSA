@@ -321,7 +321,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(horizontalPosition, verticalPosition, original_text)
 
             else:
-                bg_color = QtGui.QColor(255, 255, 255)  # White
+                bg_color = QtGui.QColor(255, 255, 255, 0)  # White
                 painter.fillRect(option.rect, bg_color)
 
                 text_color = QtGui.QColor(0, 0, 0) # Black

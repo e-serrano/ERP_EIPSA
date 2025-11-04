@@ -82,7 +82,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
             else:
-                text_color = QtGui.QColor(255, 255, 255)
+                text_color = QtGui.QColor(255, 255, 255, 0)
 
             painter.setPen(QtGui.QPen(text_color))
             painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 18).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
@@ -96,7 +96,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
             else:
-                text_color = QtGui.QColor(255, 255, 255)
+                text_color = QtGui.QColor(255, 255, 255, 0)
 
             painter.setPen(QtGui.QPen(text_color))
             painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 22).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
@@ -110,7 +110,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
             else:
-                text_color = QtGui.QColor(255, 255, 255)
+                text_color = QtGui.QColor(255, 255, 255, 0)
 
             painter.setPen(QtGui.QPen(text_color))
             painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 26).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
@@ -124,7 +124,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
             else:
-                text_color = QtGui.QColor(255, 255, 255)
+                text_color = QtGui.QColor(255, 255, 255, 0)
 
             painter.setPen(QtGui.QPen(text_color))
             painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 30).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
@@ -472,21 +472,11 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CalibrationThermoElements_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            CalibrationThermoElements_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            CalibrationThermoElements_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
+        CalibrationThermoElements_Window.setStyleSheet(
+        ".QFrame {border: 2px solid;\n"
+        "}\n"
+        "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=CalibrationThermoElements_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -502,8 +492,28 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolSaveChanges = QtWidgets.QToolButton(self.frame)
         self.toolSaveChanges.setObjectName("SaveChanges_Button")
         self.toolSaveChanges.setToolTip("Guardar")
-        if self.username == 'm.gil':
-            self.toolSaveChanges.setStyleSheet("border: 1px solid white;")
+        self.toolSaveChanges.setStyleSheet("border: 1px solid;\n"
+        "QToolButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QToolButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QToolButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
         self.toolSaveChanges.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolSaveChanges)
         icon = QtGui.QIcon()
@@ -514,8 +524,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
         self.toolDeleteFilter.setToolTip("Borrar filtros")
-        if self.username == 'm.gil':
-            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
+        self.toolDeleteFilter.setStyleSheet("border: 1px solid;")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
@@ -526,8 +535,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolShow = QtWidgets.QToolButton(self.frame)
         self.toolShow.setObjectName("Show_Button")
         self.toolShow.setToolTip("Mostrar columnas")
-        if self.username == 'm.gil':
-            self.toolShow.setStyleSheet("border: 1px solid white;")
+        self.toolShow.setStyleSheet("border: 1px solid;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
@@ -538,8 +546,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
-        if self.username == 'm.gil':
-            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
+        self.toolExpExcel.setStyleSheet("border: 1px solid;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
@@ -984,12 +991,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        if self.username == 'm.gil':
-            self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableEditCalibration.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.tableEditCalibration.setObjectName("tableEditCalibration")
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
         self.tableEditCalibration.setSortingEnabled(False)
@@ -1055,12 +1058,9 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        if self.username == 'm.gil':
-            self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableEditCalibration.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+        self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.tableEditCalibration.setObjectName("tableEditCalibration")
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
         self.tableEditCalibration.setSortingEnabled(False)
@@ -1138,10 +1138,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        if self.username == 'm.gil':
-            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
-        else:
-            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -1194,16 +1190,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        if self.username == 'm.gil':
-            self.menuValues.setStyleSheet("QMenu { color: white; }"
-                                            "QMenu { background-color: #121212; }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        else:
-            self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableEditCalibration.mapToGlobal(self.tableEditCalibration.horizontalHeader().pos())        
 
@@ -1584,16 +1572,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
-        if self.username == 'm.gil':
-            self.context_menu.setStyleSheet("QMenu { color: white; }"
-                                            "QMenu { background-color: #121212; }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        else:
-            self.context_menu.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        self.context_menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
 # Function to show context menu when right-click for hiding columns
     def showColumnContextMenu(self, pos):

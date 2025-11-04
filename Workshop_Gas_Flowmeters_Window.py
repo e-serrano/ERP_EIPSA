@@ -410,21 +410,7 @@ class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Gas_Flowmeters_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Workshop_Gas_Flowmeters_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            Workshop_Gas_Flowmeters_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Gas_Flowmeters_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -475,12 +461,6 @@ class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
         self.toolSeeAll.setIcon(icon)
         self.toolSeeAll.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolSeeAll)
-
-        if self.username == 'm.gil':
-            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolExpData.setStyleSheet("border: 1px solid white;")
-            self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolSeeAll.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -646,12 +626,8 @@ class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.setItemDelegate(AlignDelegate(self.tableEquipment))
 
-        if self.username == 'm.gil':
-            self.tableEquipment.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableEquipment.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEquipment.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableEquipment.setObjectName("tableEquipment")
         self.gridLayout_2.addWidget(self.tableEquipment, 2, 0, 1, 1)
@@ -716,12 +692,8 @@ class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
 
         self.tableEquipment.setItemDelegate(AlignDelegate(self.tableEquipment))
 
-        if self.username == 'm.gil':
-            self.tableEquipment.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableEquipment.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEquipment.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableEquipment.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableEquipment.setObjectName("tableEquipment")
         self.gridLayout_2.addWidget(self.tableEquipment, 2, 0, 1, 1)

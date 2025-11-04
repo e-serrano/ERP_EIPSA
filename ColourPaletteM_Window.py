@@ -604,9 +604,19 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
                 painter.drawText(horizontalPosition, verticalPosition, '658')
 
-            else:
+            elif 'A 105' in value_check:
                 start_color = QtGui.QColor(255, 255, 255)  # White
                 end_color = QtGui.QColor(255, 255, 255)  # White
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            else:
+                start_color = QtGui.QColor(255, 255, 255, 0)  # Transparent
+                end_color = QtGui.QColor(255, 255, 255, 0)  # Transparent
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)

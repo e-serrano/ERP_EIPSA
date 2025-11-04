@@ -101,12 +101,12 @@ class ColorDelegate(QtWidgets.QItemDelegate):
             index (QtCore.QModelIndex): The model index of the item.
         """
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-        background_color = QtGui.QColor(255, 255, 255)
+        background_color = QtGui.QColor(255, 255, 255, 0)
 
         if index.column() == 16:
             if isinstance(value, int):
                 if value <= 50 and value >= 1:
-                    background_color = QtGui.QColor(255, 255, 0) #Yellow
+                    background_color = QtGui.QColor(240, 208, 88) #Yellow
                 elif value == 99:
                     background_color = QtGui.QColor(24, 146, 97) #Dark Green
                 elif value < 99  and value > 50:
@@ -114,8 +114,7 @@ class ColorDelegate(QtWidgets.QItemDelegate):
                 elif value == 100:
                     background_color = QtGui.QColor(0, 102, 204) #Blue
                 else:
-                    background_color = QtGui.QColor(255, 255, 255) #White
-
+                    background_color = QtGui.QColor(255, 255, 255, 0) #White
 
         elif index.column() == 4:
             if isinstance(value, (date, datetime)):
@@ -141,6 +140,7 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
             if order in self.colors_dict:
                 background_color = self.colors_dict[order][1]
+                print(background_color.name())
             else:
                 background_color = QtGui.QColor(255, 255, 255, 0)
 
@@ -836,14 +836,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Assembly_Window.setWindowIcon(icon)
-        Assembly_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        Assembly_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
