@@ -4784,10 +4784,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     reader.pages[3].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[3])
 
-                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+                                                writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
 
                                         grouped_bars = self.create_df_bars_flanged_tw(df_selected)
                                         total_count = grouped_bars['count'].explode().sum() 
@@ -4805,10 +4805,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 reader.pages[0].merge_page(page2=page_overlay)
                                                 writer.add_page(reader.pages[0])
 
-                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                                writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
 
                                     elif item in ['Buttweld TW', 'Socket TW']:
                                         df_selected = df_selected[df_selected['type'] in ['Buttweld TW', 'Socket TW']].copy()
@@ -4829,10 +4829,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 reader.pages[0].merge_page(page2=page_overlay)
                                                 writer.add_page(reader.pages[0])
 
-                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                                writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
 
                             # Loop to add the drawing number and insert into the database
                                 for key, value in dict_drawings.items():
@@ -4914,10 +4914,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
                                     elif item == 'M.RUN':
                                         df_selected_mrun = df_selected[df_selected['type'] == 'M.RUN'].copy()
@@ -4925,7 +4925,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         df_selected_transformed = self.transform_df_mrun(df_selected_mrun)
 
                                         grouped_orifice_flanges = self.create_df_orifice_flanges_mrun(df_selected_transformed)
-                                        total_count = grouped_orifice_flanges['count'].explode().sum() 
+                                        total_count = grouped_orifice_flanges['count'].explode().sum()
 
                                         for _, row in grouped_orifice_flanges.iterrows():
                                             counter_drawings += 1
@@ -4945,13 +4945,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
                                         grouped_line_flanges = self.create_df_line_flanges_mrun(df_selected_transformed)
-                                        total_count = grouped_line_flanges['count'].explode().sum() 
+                                        total_count = grouped_line_flanges['count'].explode().sum()
 
                                         for _, row in grouped_line_flanges.iterrows():
                                             counter_drawings += 1
@@ -4971,13 +4971,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
 
                                         grouped_tubes = self.create_df_tubes_mrun(df_selected_transformed)
-                                        total_count = grouped_tubes['count'].explode().sum() 
+                                        total_count = grouped_tubes['count'].explode().sum()
 
                                         for _, row in grouped_tubes.iterrows():
                                             counter_drawings += 1
@@ -4997,13 +4997,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
 
                                         grouped_welding = self.create_df_welding_mrun(df_selected_transformed)
-                                        total_count = grouped_welding['count'].explode().sum() 
+                                        total_count = grouped_welding['count'].explode().sum()
 
                                         for _, row in grouped_welding.iterrows():
                                             counter_drawings += 1
@@ -5039,10 +5039,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         reader.pages[5].merge_page(page2=page_overlay)
                                                         writer.add_page(reader.pages[5])
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
                                             else:
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
 
                                     else:
                                         pass
@@ -5209,8 +5209,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
-                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row['count'])) + " " + description, sum(row['count'])]
+                                                    writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row['count'])) + " " + description, sum(row['count'])]
 
                                     elif 'CN-32219-A1' in item:
                                         df_selected = df_selected[df_selected['description'].str.contains('CN-32219-A1')].copy()
@@ -5278,8 +5278,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 base_page.merge_page(page2=page_overlay)
                                                 writer.add_page(base_page)
 
-                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
+                                                writer.write(str(output_path2 / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path2 / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
 
                             # Loop to add the drawing number and insert into the database
                                 for key, value in dict_drawings.items():
@@ -5314,8 +5314,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             self.query_drawings()
 
-                        except Exception as error:
-                            MessageHelper.show_message("Ha ocurrido un error\nLos planos no se han podido generar", "critical")
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido un error:\n"
+                                        "Los planos no se han podido generar", "critical")
 
 
 
@@ -5339,7 +5340,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             lambda row: (35 if float(row['root_diam'].replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
             axis=1)
 
-        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
+        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
             dataframe['base_diam'] = dataframe.apply(
             lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(row['root_diam'].replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
             axis=1)
@@ -5444,6 +5445,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         return grouped_flanges
 
     def transform_df_mrun(self, dataframe):
+        dataframe['pipe_int_diam'] = pd.to_numeric(dataframe['pipe_int_diam'], errors='coerce')
+
         dataframe['final_pipe_int_diam'] = dataframe.apply(
             lambda row: math.floor(row['pipe_int_diam']) if row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
             and row['size'] in ['3/4"', '1-1/2"', '2"/1-1/2"']
@@ -5465,14 +5468,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         dataframe['taps'] = dataframe.apply(lambda row: 'CORNER' if 'CORNER' in str(row['notes_equipment']).upper() else 'FLANGE',axis=1)
 
-        dataframe['reduction'] = dataframe.apply(lambda row: 'REDUCTION' if '/' in row['size'] else '',axis=1)
+        dataframe['reduction'] = dataframe.apply(lambda row: 'REDUCTION' if '"/' in row['size'] else '',axis=1)
 
-        dataframe['size_orifice_flange'] = dataframe['size'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
+        dataframe['size_orifice_flange'] = dataframe['size'].apply(lambda x: str(x).split('"/')[1] if '"/' in str(x) else x)
         dataframe['rating_orifice_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
         dataframe['type_orifice_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
         dataframe['sch_orifice_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[1] if '/' in str(x) else x)
 
-        dataframe['size_line_flange'] = dataframe['size'].apply(lambda x: str(x).split('/')[0])
+        dataframe['size_line_flange'] = dataframe['size'].apply(lambda x: str(x).split('"/', 1)[0] + '"' if '"/' in str(x) else x)
         dataframe['rating_line_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[0])
         dataframe['type_line_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[0])
         dataframe['sch_line_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[0])
@@ -5494,21 +5497,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_flanges_rf)
+                    results_flanges_rf=cur.fetchall()
                     cur.execute(query_flanges_rtj)
+                    results_flanges_rtj=cur.fetchall()
                     cur.execute(query_flanges_ff)
+                    results_flanges_ff=cur.fetchall()
 
-            results_flanges_rf=cur.fetchall()
             flanges_rf = {}
             for item in results_flanges_rf:
                 flanges_rf[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0) + float(item[2].replace(',', '.') if item[2] != 'N/A' else 0)
 
-
-            results_flanges_rtj=cur.fetchall()
             flanges_rtj = {}
             for item in results_flanges_rtj:
                 flanges_rtj[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0) + float(item[2].replace(',', '.') if item[2] != 'N/A' else 0)
 
-            results_flanges_ff=cur.fetchall()
             flanges_ff = {}
             for item in results_flanges_ff:
                 flanges_ff[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0)
@@ -5621,13 +5623,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     cur.execute(query_ext_diam)
                     results_ext_diam=cur.fetchall()
 
-            mrun_lengths = {}
-            for item in results_mrun:
-                mrun_lengths[item[1]] = [item[2], item[3]]
-
-            pipe_ext_diam = {}
-            for item in results_ext_diam:
-                pipe_ext_diam[item[0]] = item[1]
+                    mrun_lengths = {item[1] : [item[2], item[3]] for item in results_mrun}
+                    pipe_ext_diam = {item[0] : item[1] for item in results_ext_diam}
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"

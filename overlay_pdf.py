@@ -869,8 +869,8 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
         pdf.cell(14, 5, str(pipe_int_diam), align='C')
 
     else:
-        outter_size = connection.split(' ')[0].rsplit('/',1)[0].strip()
-        inner_size = connection.split(' ')[0].rsplit('/',1)[1].strip()
+        outter_size = connection.split(' ')[0].rsplit('"/',1)[0].strip() + '"'
+        inner_size = connection.split(' ')[0].rsplit('"/',1)[1].strip()
         outter_sch = schedule.split(' / ')[0].strip() if '/' in schedule else schedule
         inner_sch = schedule.split(' / ')[1].strip() if '/' in schedule else schedule
         rating = connection.split('#')[0].split(' ')[1].strip()
@@ -911,7 +911,6 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
 
                         cur.execute(query_inner_flange_size_rf, ('B16.5-' + inner_size + '-' + rating,))
                         results_inner_flange=cur.fetchall()
-
 
         except (Exception, psycopg2.DatabaseError) as error:
             app = QtWidgets.QApplication.instance()
