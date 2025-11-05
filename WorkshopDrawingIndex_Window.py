@@ -4544,17 +4544,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
-            num_order = self.num_order[:8]
+            num_order = self.num_order
             path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
             if self.num_order[:2] == "PA":
-                num_order = self.num_order
                 path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
-            elif self.num_order[:2] == "P-":
-                num_order = self.num_order[:8]
+            elif not 'S00' in self.num_order:
                 path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
             else:
-                return
+                num_order = self.num_order[:8]
+                path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
             for folder in os.listdir(path):
                 if num_order.replace("/", "-") in folder:
