@@ -699,7 +699,7 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping, gasket, typ
 
     item_data = list(item_data)
 
-    if type == 'M. RUN':
+    if type == 'M.RUN':
         pipe_int_diam = item_data[0][0]
         flange_height = item_data[0][1]
         cnt = item_data[0][2]
@@ -716,7 +716,7 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping, gasket, typ
     pdf.line(28, 238, 32, 234)
     pdf.line(27, 231, 58, 231)
 
-    if type == 'M. RUN':
+    if type == 'M.RUN':
         if type_flange == 'WN':
             pdf.set_line_width(0.5)
             pdf.set_draw_color(49, 49, 229)
