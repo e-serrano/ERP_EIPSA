@@ -70,6 +70,7 @@ if __name__ == "__main__":
     Exits the application when the login window is closed or if the configuration file is missing.
     """
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle("Fusion")
 
     if INI_FILE_PATH.exists():
         ini_file = INI_FILE_PATH
