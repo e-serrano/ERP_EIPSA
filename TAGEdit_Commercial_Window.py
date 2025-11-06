@@ -2198,7 +2198,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.dict_valuesuniques[column] = list_valuesUnique
 
             # Setting cells with comboboxes
-            list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
+            list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED', 'FOR INVOICING']
             if self.variable == 'Caudal':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
