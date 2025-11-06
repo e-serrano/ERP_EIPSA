@@ -10,7 +10,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import pandas as pd
 import psycopg2
-from tkinter.filedialog import askopenfilename
 from config import config
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -166,8 +165,7 @@ class Ui_ClockIn_Menu(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error during the database operation.
         """
-        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
-                        title="Seleccionar archivo Excel")
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
         if fname:
             try:

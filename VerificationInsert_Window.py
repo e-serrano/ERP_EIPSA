@@ -14,7 +14,6 @@ import re
 from datetime import *
 import locale
 import fnmatch
-from tkinter.filedialog import askopenfilename, askopenfilenames
 import random
 from Verif_Order_Window import Ui_Verif_Order_Window
 from utils.Database_Manager import Database_Connection
@@ -2263,8 +2262,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                     else:
-                        self.fname_image = askopenfilename(initialdir=DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
-                                    title="Seleccionar imagen")
+                        self.fname_image, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", "Archivos JPG (*.jpg)")
 
                         if self.fname_image:
                             for index in selected_indexes:
@@ -2286,8 +2284,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                        self.fname_doc = askopenfilename(initialdir=DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
-                                    title="Seleccionar PDF")
+                        self.fname_doc, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar PDF", DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", "Archivos PDF (*.pdf)")
 
                         if self.fname_doc:
                             for index in selected_indexes:
@@ -2315,8 +2312,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         pic_type, ok = QtWidgets.QInputDialog.getItem(self, "Insertar Fotos", "Selecciona un tipo:", ['Foto Única', 'MultiFoto', 'Aleatorio'], 0, False)
                         if ok and pic_type:
                             if pic_type == 'Foto Única':
-                                self.fname_image = askopenfilename(filetypes=[("Archivos JPG", "*.jpg")],
-                                                    title="Seleccionar imagen")
+                                self.fname_image, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", "", "Archivos JPG (*.jpg)")
 
                                 if self.fname_image:
                                     if len(selected_indexes) == 0:
@@ -2353,8 +2349,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 break
 
                             elif pic_type == 'MultiFoto':
-                                self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
-                                                    title="Seleccionar imagen")
+                                self.fname_images, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Seleccionar imagenes", "", "Archivos JPG (*.jpg)")
 
                                 if self.fname_images:
                                     if len(selected_indexes) == 0:
@@ -2392,8 +2387,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 break
 
                             elif pic_type == 'Aleatorio':
-                                self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
-                                                    title="Seleccionar imagen")
+                                self.fname_images, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Seleccionar imagenes", "", "Archivos JPG (*.jpg)")
 
                                 if self.fname_images:
                                     if len(selected_indexes) == 0:

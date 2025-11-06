@@ -15,7 +15,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
 from ExportDocs_Menu import Ui_ExportDocs_Menu
-from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pandas as pd
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
@@ -1760,8 +1759,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     elif item_type == 'Pedidos':
                         table_name = "orders"
 
-                    fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+                    fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
                     if fname:
                     #Importing excel file into dataframe
@@ -1997,8 +1995,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
             pdf = self.generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar PDF", "", "Archivos PDF (*.pdf)")
             if output_path:
+                if not output_path.lower().endswith(".pdf"):
+                    output_path += ".pdf"
                 pdf.output(output_path)
 
     def generate_report_offers(self, start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active):

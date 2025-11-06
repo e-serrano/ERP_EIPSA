@@ -18,7 +18,6 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 import shutil
@@ -1412,8 +1411,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells

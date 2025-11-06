@@ -14,8 +14,6 @@ import pandas as pd
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
-import tkinter as tk
-from tkinter import filedialog
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -909,13 +907,10 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
                             column_data.append('')
                 df[header] = column_data
 
-            root = tk.Tk()
-            root.withdraw()
-
-            file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
-
+            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if file_path:
-                # df.to_excel(file_path, index=False)
+                if not file_path.lower().endswith(".xlsx"):
+                    file_path += ".xlsx"
                 writer = pd.ExcelWriter(file_path, engine='openpyxl')
                 df.to_excel(writer, index=False, sheet_name='Sheet1')
 

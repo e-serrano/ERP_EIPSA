@@ -12,11 +12,9 @@ from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
 import re
 from config import config
-import configparser
 from utils.Database_Manager import Create_DBconnection
 import psycopg2
 import os
-from tkinter.filedialog import asksaveasfilename, askopenfilename
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 
@@ -5406,8 +5404,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
 
         else:
-            fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                                title="Seleccionar archivo Excel")
+            fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
             if fname:
                 params = config()
                 conn = psycopg2.connect(**params)
@@ -5656,7 +5653,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
 # Function to import invoices from excel
     def import_invoice(self):
-        import_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        import_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
         if import_file:
             df_invoice = pd.read_excel(import_file, na_values=['N/A'], keep_default_na=False)

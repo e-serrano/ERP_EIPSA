@@ -15,7 +15,6 @@ import psycopg2
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 from PDF_Styles import welding_homologation
-from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -362,8 +361,10 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
 
                 wb = Workbook()
                 ws = wb.active

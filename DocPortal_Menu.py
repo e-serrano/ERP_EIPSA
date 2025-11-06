@@ -12,7 +12,6 @@ import psycopg2
 from config import config
 import re
 import pandas as pd
-from tkinter.filedialog import askopenfilename
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -449,8 +448,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
             if ok and selection:
                 type_eq = selection
                 if selection != '':
-                    excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+                    excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
                     if excel_file:
                         params = config()
                         conn = psycopg2.connect(**params)

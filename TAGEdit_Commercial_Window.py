@@ -12,7 +12,6 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
 from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
@@ -20,7 +19,6 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename, askopenfilename
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
@@ -2970,14 +2968,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to import data from excel
     def importexcel(self):
         if self.username not in ['d.marquez','g.lopez']:
-            input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+            input_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
             if input_file:
                 params = config()
@@ -3305,11 +3305,13 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 df_generated[df_generated.columns[0]] = df_generated[df_generated.columns[0]].astype(int)
                 df_generated = df_generated.sort_values(by=df_generated.columns[0], ascending=True)
 
-                output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar Excel Comparativo")
+                output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel Comparación", "", "Archivos de Excel (*.xlsx)")
                 if output_path:
+                    if not output_path.lower().endswith(".xlsx"):
+                        output_path += ".xlsx"
                     df_generated.to_excel(output_path, index=False, header=True)
 
-                comparison_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")], title="Seleccionar Excel Importación")
+                comparison_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel Importación", "", "Archivos de Excel (*.xlsx)")
 
                 if not comparison_file:
                     print("No se seleccionó ningún archivo.")

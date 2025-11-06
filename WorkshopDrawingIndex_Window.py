@@ -22,7 +22,6 @@ import os
 import sys
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW,
                         flange_dwg_orifice, flange_dwg_line,
                         tube_dwg_meterrun, welding_dwg_meterrun,
@@ -3214,12 +3213,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(
-                defaultextension=".xlsx",
-                filetypes=[("Archivos de Excel", "*.xlsx")],
-                title="Guardar archivo de Excel",
-            )
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
@@ -4560,7 +4557,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     folder_path = path / folder / "3-Fabricacion" / f"Planos {drawing_type}"
                     for root, dirs, files in os.walk(folder_path):
                         for filename in files:
-                            if fnmatch.fnmatch(filename, f"{drawing_number}*"):
+                            parts = filename.split('-')
+                            normalized_parts = [p.lstrip('0') for p in parts]
+                            normalized_drawing = str(drawing_number.split('/')[0].lstrip('0')) + '.pdf'
+
+                            if normalized_drawing in normalized_parts:
                                 file_path = os.path.normpath(os.path.join(root, filename))
                                 os.startfile(file_path)
                                 return
@@ -5365,7 +5366,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             lambda row: (35 if float(row['root_diam'].replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
             axis=1)
 
-        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
+        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
             dataframe['base_diam'] = dataframe.apply(
             lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(row['root_diam'].replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
             axis=1)

@@ -9,7 +9,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
-import tkinter as tk
 from datetime import *
 import os
 
@@ -2941,8 +2940,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the first delivery details for a client order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw() 
         date=self.DelivDate1_ClientOrder.text()
         note=self.DelivNote1_ClientOrder.text()
         order_id=self.label_IDOrder.text()
@@ -3127,8 +3124,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the second delivery details for a client order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw()
+
         date=self.DelivDate2_ClientOrder.text()
         note=self.DelivNote2_ClientOrder.text()
         order_id=self.label_IDOrder.text()
@@ -3312,8 +3308,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the third delivery details for a client order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw()
+
         date=self.DelivDate3_ClientOrder.text()
         note=self.DelivNote3_ClientOrder.text()
         order_id=self.label_IDOrder.text()

@@ -18,7 +18,6 @@ import psycopg2
 from PDF_Styles import pending_orders
 from datetime import *
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -482,9 +481,10 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         Generates the excel a report of pending deliveries to clients
         """
         df = df.sort_values(by = ['Referencia', 'Cliente'])
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
-
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             wb = Workbook()
             ws = wb.active
 
@@ -587,12 +587,10 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         """
         Generates the excel a report of pending receptions from suppliers
         """
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
-
-        # df["Val. Un."] = df["Val. Un."].apply(self.euros_to_float)
-        # df["Subtotal"] = df["Subtotal"].apply(self.euros_to_float)
-
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             wb = Workbook()
             ws = wb.active
 

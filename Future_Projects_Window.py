@@ -19,7 +19,6 @@ import os
 from config import config, get_path
 import pandas as pd
 import psycopg2
-from tkinter.filedialog import askopenfilename
 from utils.Show_Message import MessageHelper
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1287,8 +1286,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         """
         Import data by importing an excel file
         """
-        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
         if fname:
         #Importing excel file into dataframe

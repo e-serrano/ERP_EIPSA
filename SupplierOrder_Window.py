@@ -12,7 +12,6 @@ from config import config
 import psycopg2
 import locale
 from PDF_Styles import supplier_order
-import tkinter as tk
 import datetime
 import os
 from PDF_Viewer import PDF_Viewer
@@ -2982,8 +2981,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the first delivery details for a supplier order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw()
+
         date=self.DelivDate1_SupplierOrder.text()
         note=self.DelivNote1_SupplierOrder.text()
         order_id=self.label_IDOrd.text()
@@ -3157,8 +3155,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the second delivery details for a supplier order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw()
+
         date=self.DelivDate2_SupplierOrder.text()
         note=self.DelivNote2_SupplierOrder.text()
         order_id=self.label_IDOrd.text()
@@ -3333,8 +3330,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         """
         Adds the third delivery details for a supplier order.
         """
-        # self.root = tk.Tk()
-        # self.root.withdraw()
+
         date=self.DelivDate3_SupplierOrder.text()
         note=self.DelivNote3_SupplierOrder.text()
         order_id=self.label_IDOrd.text()

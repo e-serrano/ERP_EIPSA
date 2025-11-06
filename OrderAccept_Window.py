@@ -11,7 +11,6 @@ import psycopg2
 from config import config  
 import os
 from docxtpl import DocxTemplate
-from tkinter.filedialog import asksaveasfilename
 from datetime import *
 
 
@@ -635,13 +634,11 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
         Args:
         - document: The generated Word document object to be saved.
         """
-        output_path_accept = asksaveasfilename(
-                defaultextension=".docx",
-                filetypes=[("Archivos de Word", "*.docx")],
-                title="Guardar Acuse Pedido",
-            )
-        if output_path_accept:
-            document.save(output_path_accept)
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Acuse", "", "Archivos de Word (*.docx)")
+        if output_path:
+            if not output_path.lower().endswith(".docx"):
+                output_path += ".docx"
+            document.save(output_path)
 
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):

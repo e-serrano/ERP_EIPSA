@@ -12,11 +12,9 @@ import psycopg2
 from datetime import *
 import os
 import pandas as pd
-from PDF_Styles import fab_order
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
-from tkinter.filedialog import asksaveasfilename
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
@@ -510,9 +508,10 @@ class Ui_OTFabOrder_Window(object):
 
         df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO'])
 
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
-
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             wb = Workbook()
             ws = wb.active
 

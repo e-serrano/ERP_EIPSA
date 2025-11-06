@@ -11,13 +11,10 @@ from config import config
 import psycopg2
 import locale
 import os
-import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
-import re
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -846,9 +843,10 @@ class Ui_ClientOrderResume_Window(object):
         """
         Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
         """
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
-
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             wb = Workbook()
             ws = wb.active
 

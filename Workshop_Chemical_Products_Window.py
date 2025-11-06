@@ -13,7 +13,6 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import os
-import configparser
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from config import config, get_path
@@ -21,10 +20,8 @@ import psycopg2
 import locale
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import *
 
 
 
@@ -1303,8 +1300,10 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
 
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             dataframe.to_excel(output_path, index=False, header=True)
 
 # Function to add images to machines
@@ -1323,8 +1322,9 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION", filetypes=[("Archivos JPG", "*.jpg")],
-                                    title="Seleccionar imagen")
+                initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION"
+
+                images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 
                 if images_path:
                     commands_insert = ("""
@@ -1362,8 +1362,9 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                document_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/", filetypes=[("Archivos PDF", "*.pdf")],
-                                    title="Seleccionar Documento")
+                initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/"
+
+                document_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos PDF (*.pdf)")
 
                 if document_path:
                     commands_insert = ("""

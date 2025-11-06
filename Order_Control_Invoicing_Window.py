@@ -2,7 +2,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
-import configparser
 from datetime import *
 from config import get_path, config
 import re
@@ -11,7 +10,6 @@ from PyQt6.QtCore import Qt, QMimeData, QDate
 from PyQt6.QtGui import QKeySequence
 import sys
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1025,8 +1023,10 @@ class Ui_Invoicing_Order_Control_Window(QtWidgets.QMainWindow):
         df.columns = df.iloc[0]
         df = df[1:]
 
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             df.to_excel(output_path, index=False, header=True)
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df.to_excel(writer, sheet_name='P-', index=False)

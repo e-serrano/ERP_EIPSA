@@ -19,7 +19,6 @@ import os
 from config import config
 import pandas as pd
 import psycopg2
-from tkinter.filedialog import askopenfilename
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -1511,8 +1510,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         """
         Updates document information by importing an excel file with the data
         """
-        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if fname:
 
             params = config()

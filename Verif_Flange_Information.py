@@ -7,23 +7,15 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6 import QtSql
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QDate, QUrl
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
 from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
 import locale
 import os
 from datetime import *
-import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import *
 from PIL import Image, ExifTags
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"

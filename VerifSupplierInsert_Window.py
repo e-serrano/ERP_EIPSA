@@ -11,7 +11,6 @@ from config import config
 import psycopg2
 import os
 from datetime import *
-from tkinter.filedialog import askopenfilename, askopenfilenames, asksaveasfilename
 import PyPDF2
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1405,8 +1404,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
-                            title="Seleccionar archivo pdf")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", "Archivos PDF (*.pdf)"),
         if self.fname:
             self.delivnote.setText(self.fname)
 
@@ -1621,13 +1619,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
     def merge_pdfs(self):
         try:
-            files_to_merge = askopenfilenames(title='Selecciona archivos PDF',
-                                                filetypes=[('Archivos PDF', '*.pdf')])
+            files_to_merge, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Seleccionar PDFs", "", "Archivos PDF (*.pdf)")
             if files_to_merge:
-                pdf_merged = asksaveasfilename(defaultextension=".pdf",
-                                                            filetypes=[('Archivos PDF', '*.pdf')],
-                                                            title="Guardar archivo combinado como")
+                pdf_merged, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar PDF Combinado", "", "Archivos PDF (*.pdf)")
                 if pdf_merged:
+                    if not pdf_merged.lower().endswith(".pdf"):
+                        pdf_merged += ".pdf"
                     writer = PyPDF2.PdfWriter()
                     for file in files_to_merge:
                         with open(file, 'rb') as f:

@@ -15,13 +15,10 @@ from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
 import re
-import configparser
 import locale
 from datetime import *
 import os
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
-from openpyxl import load_workbook
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1706,8 +1703,10 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells

@@ -11,7 +11,6 @@ from PyQt6.QtCore import Qt
 import psycopg2
 import sys
 from config import config, get_path
-import configparser
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from datetime import *
@@ -23,7 +22,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from io import BytesIO
 import numpy as np
-from tkinter.filedialog import asksaveasfilename
 from Excel_Export_Templates import future_projects, order_reports
 from config_keys import DATA_PATH
 import os
@@ -1654,8 +1652,10 @@ class Ui_App_SubManager(object):
 
             pdf = self.generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar PDF", "", "Archivos PDF (*.pdf)")
             if output_path:
+                if not output_path.lower().endswith(".pdf"):
+                    output_path += ".pdf"
                 pdf.output(output_path)
 
     def generate_report_offers(self, start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active):

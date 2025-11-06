@@ -5,14 +5,11 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.utils import get_column_letter
 from copy import deepcopy
-from tkinter.filedialog import asksaveasfilename
-from tkinter import Tk
 from datetime import *
 from config import config, get_path
 import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from PyQt6 import QtGui, QtWidgets
-import os
 from math import exp
 import re
 import numpy as np
@@ -725,9 +722,6 @@ class offer_flow:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
-
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -766,12 +760,10 @@ class offer_flow:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -779,12 +771,10 @@ class offer_flow:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
@@ -1415,9 +1405,6 @@ class offer_short_flow_spanish:
                 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
-
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -1456,12 +1443,10 @@ class offer_short_flow_spanish:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos PDF (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -1469,12 +1454,10 @@ class offer_short_flow_spanish:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
@@ -2189,9 +2172,6 @@ class offer_short_flow_english:
                 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
-
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -2230,12 +2210,10 @@ class offer_short_flow_english:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -2243,12 +2221,10 @@ class offer_short_flow_english:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
@@ -3015,8 +2991,7 @@ class offer_temp:
                 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -3056,12 +3031,10 @@ class offer_temp:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -3069,12 +3042,10 @@ class offer_temp:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_short_temp_spanish:
@@ -3749,8 +3720,7 @@ class offer_short_temp_spanish:
                 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -3790,12 +3760,10 @@ class offer_short_temp_spanish:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -3803,12 +3771,10 @@ class offer_short_temp_spanish:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_short_temp_english:
@@ -4565,8 +4531,7 @@ class offer_short_temp_english:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -4606,12 +4571,10 @@ class offer_short_temp_english:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -4619,12 +4582,10 @@ class offer_short_temp_english:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_level:
@@ -5222,8 +5183,7 @@ class offer_level:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -5263,12 +5223,10 @@ class offer_level:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -5276,12 +5234,10 @@ class offer_level:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_short_level_spanish:
@@ -5797,8 +5753,7 @@ class offer_short_level_spanish:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -5838,12 +5793,10 @@ class offer_short_level_spanish:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -5851,12 +5804,10 @@ class offer_short_level_spanish:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_short_level_english:
@@ -6454,8 +6405,7 @@ class offer_short_level_english:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -6504,12 +6454,10 @@ class offer_short_level_english:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -6517,12 +6465,10 @@ class offer_short_level_english:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
 class offer_flow_temp:
@@ -7589,8 +7535,7 @@ class offer_flow_temp:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -7630,12 +7575,10 @@ class offer_flow_temp:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -7643,12 +7586,10 @@ class offer_flow_temp:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
@@ -8920,8 +8861,7 @@ class offer_flow_temp_level:
 
                 self.save_excel_technical()
 
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
+                
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -8961,12 +8901,10 @@ class offer_flow_temp_level:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta comercial",
-        )
-        if output_path_commercial:
+        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+        if output_path_commercial :
+            if not output_path_commercial .lower().endswith(".xlsx"):
+                output_path_commercial += ".xlsx"
             self.wb_commercial.save(output_path_commercial)
             return output_path_commercial
 
@@ -8974,12 +8912,10 @@ class offer_flow_temp_level:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path_technical = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Oferta técnica",
-        )
+        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
         if output_path_technical:
+            if not output_path_technical.lower().endswith(".xlsx"):
+                output_path_technical+= ".xlsx"
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
@@ -9140,12 +9076,10 @@ class order_ovr:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar OVR",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar OVR", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb_ovr.save(output_path)
             return output_path
 
@@ -9235,12 +9169,10 @@ class doc_situation:
         Opens a dialog window for the user to select the file path and name.
         """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Situación Documentos",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar OVR", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb_doc.save(output_path)
             wb = load_workbook(output_path)
 
@@ -9404,9 +9336,10 @@ class vendor_progress_report:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        file_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
-
-        if file_path:
+        file_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Situación Pedidos", "", "Archivos de Excel (*.xlsx)")
+        if file_path :
+            if not file_path .lower().endswith(".xlsx"):
+                file_path += ".xlsx"
             writer = pd.ExcelWriter(file_path, engine='openpyxl')
             self.data_vpr.to_excel(writer, index=False, sheet_name='Sheet1')
 
@@ -9637,12 +9570,10 @@ class spares_two_years:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Spares",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Spares", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb_spares.save(output_path)
             return output_path
 
@@ -9782,12 +9713,10 @@ class nuclear_annexes:
         Opens a dialog window for the user to select the file path and name.
         """
         #Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Situación Documentos",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Anexos", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb.save(output_path)
 
             del self.wb['Hoja1']
@@ -10009,20 +9938,16 @@ class material_order:
         ws["H1"] = int(int(num_ot)+1)
         ws["H9"] = date.today().strftime("%d/%m/%Y")
 
-        root = Tk()
-        root.withdraw()  # Hiding main window Tkinter
 
     def save_excel(self):
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
         #Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar archivo de Excel",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Orden de Compra", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb.save(output_path)
 
 class future_projects:
@@ -10055,12 +9980,10 @@ class future_projects:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Informe",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Informe Proyectos", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb.save(output_path)
             return output_path
 
@@ -10243,12 +10166,10 @@ class order_reports:
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar Informe",
-        )
-        if output_path:
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Informe Pedidos", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             self.wb.save(output_path)
             return output_path
 

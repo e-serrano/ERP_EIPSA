@@ -10,7 +10,6 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
 from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
@@ -18,11 +17,8 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import *
-
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -1361,8 +1357,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                pdf_path = askopenfilename(initialdir=initialdir, filetypes=[("Archivos PDF", "*.pdf")],
-                            title="Seleccionar archivo pdf")
+                pdf_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo PDF", initialdir, "Archivos PDF (*.pdf)")
 
                 if pdf_path:
                     commands_insert_1 = ("""
@@ -1473,8 +1468,10 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
 
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             dataframe.to_excel(output_path, index=False, header=True)
 
 # Function to export data to pdf

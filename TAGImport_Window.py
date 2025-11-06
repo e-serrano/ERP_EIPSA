@@ -8,10 +8,8 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import pandas as pd
-from tkinter.filedialog import askopenfilename
 import psycopg2
 from config import config
-import math
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -187,8 +185,7 @@ class Ui_ImportTAG_Window(object):
         """
         Opens a file dialog for the user to select an Excel file.
         """
-        self.fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if self.fname:
             self.label_name_file.setText("Archivo: " + self.fname)
 

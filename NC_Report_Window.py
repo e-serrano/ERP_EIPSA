@@ -20,10 +20,8 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import *
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1173,8 +1171,10 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:
+                if not output_path.lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
@@ -1629,7 +1629,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                images_path = askdirectory(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/Informes No conformidad")
+                images_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con imágenes", "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/Informes No conformidad")
 
                 if images_path:
                     commands_insert = ("""

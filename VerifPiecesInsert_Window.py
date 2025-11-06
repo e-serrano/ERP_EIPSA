@@ -11,7 +11,6 @@ from config import config, get_path
 import psycopg2
 import os
 from datetime import *
-from tkinter.filedialog import askopenfilename
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
@@ -1269,8 +1268,8 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
-                            title="Seleccionar archivo pdf")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar archivo pdf","//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos PDF (*.pdf)"),
+
         if self.fname:
             self.document.setText(self.fname)
 
@@ -1279,8 +1278,8 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a image from a predefined directory.
         """
-        self.fname = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
-                            title="Seleccionar imagen")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar imagen","//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos JPG (*.jpg)"),
+
         if self.fname:
             self.image.setText(self.fname)
 

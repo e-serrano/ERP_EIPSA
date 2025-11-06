@@ -12,7 +12,6 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
 from utils.Database_Manager import Create_DBconnection
 from config import config
 import psycopg2
@@ -20,10 +19,8 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
-from tkinter.filedialog import *
 from PIL import Image, ExifTags
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -1058,8 +1055,10 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
-            if output_path:
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+        if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
@@ -1278,8 +1277,9 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected hand tool's record in the database.
         Updates the image field for the specified hand tool by selecting an image file from the filesystem.
         """
-        images_path = askopenfilename(initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano", filetypes=[("Archivos JPG", "*.jpg")],
-                            title="Seleccionar imagen")
+        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano"
+
+        images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 
         if images_path:
             commands_insert = ("""

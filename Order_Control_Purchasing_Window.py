@@ -9,7 +9,6 @@ from PyQt6.QtCore import Qt, QMimeData, QDate
 from PyQt6.QtGui import QKeySequence
 import sys
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
 from PDF_Styles import CustomPDF_A3
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
@@ -1040,8 +1039,10 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
         df.columns = df.iloc[0]
         df = df[1:]
 
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             df.to_excel(output_path, index=False, header=True)
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df.to_excel(writer, sheet_name='P-', index=False)
@@ -1224,8 +1225,10 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
 
             pdf = self.generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
+            output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Informe", "", "Archivos PDF (*.pdf)")
             if output_path:
+                if not output_path.lower().endswith(".pdf"):
+                    output_path += ".pdf"
                 pdf.output(output_path)
 
     def generate_report_offers(self, start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active):

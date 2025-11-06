@@ -1,14 +1,13 @@
 import os
 import math
 import sys
-from PyQt6.QtWidgets import QMainWindow, QMessageBox, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QMessageBox, QLineEdit, QFileDialog
 from PyQt6.QtCore import QPointF, QEvent, Qt, QUrl, pyqtSlot
 from PyQt6.QtPdf import QPdfDocument
 from PyQt6.QtPdfWidgets import QPdfView
 from PyQt6.QtGui import QIcon, QPixmap
 from PDFViewer_ZoomSelector import ZoomSelector
 from PDFViewer_ui import Ui_MainWindow
-from tkinter.filedialog import asksaveasfilename
 import shutil
 import win32api
 import psutil
@@ -235,9 +234,10 @@ class PDF_Viewer(QMainWindow):
         Saves the current PDF to a specified location.
         """
         temp_file_path = self.temp_file_path.toLocalFile().replace('/', '\\')
-        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
-
+        output_path, _ = QFileDialog.getSaveFileName(None, "Guardar PDF", "", "Archivos PDF (*.pdf)")
         if output_path:
+            if not output_path.lower().endswith(".pdf"):
+                output_path += ".pdf"
             shutil.copyfile(temp_file_path, output_path)
 
             dlg = QMessageBox()

@@ -14,7 +14,6 @@ import psycopg2
 import sys
 from utils.Database_Manager import Create_DBconnection, Database_Connection
 from utils.Show_Message import MessageHelper
-from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os
 from pypdf import PdfReader, PdfWriter
@@ -1968,10 +1967,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a file dialog for selecting an Excel file and imports its contents into the database.
         """
         # File dialog to select Excel file
-        # Tk().withdraw()  # Ocultar la ventana principal de tkinter
-        excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                        title="Seleccionar archivo Excel")
-
+        excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if excel_file:
             try:
     # read the connection parameters
@@ -2420,11 +2416,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                                     df_combined = df_combined.dropna()
 
-                                    excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")], title="Seleccionar archivo Excel")
+                                    excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
                                     df_data = pd.read_excel(excel_file)
 
                                     if df_data.shape[0] > 0:
-                                        original_path = askdirectory(title="Seleccionar carpeta con PDFs")
+                                        original_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con PDFs")
                                         for row in range(df_data.shape[0]):
                                             file_path = original_path + "/" + str(df_data.iloc[row,0]) + ".pdf"
                                             if not os.path.exists(file_path):
@@ -2480,7 +2476,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                         else:
                             break
                 else:
-                    pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
+                    pdf_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "", "Archivos PDF (*.pdf)")
 
                     if pdf_file:
                         excel_file = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"

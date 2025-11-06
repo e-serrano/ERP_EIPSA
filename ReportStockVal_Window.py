@@ -14,7 +14,6 @@ import os
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 from PyQt6.QtCore import QUrl
-from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -346,7 +345,6 @@ class Ui_StockVal_Window(object):
         Generates the pdf of the stock valoration.
         """
         from PDF_Styles import stock_valoration
-        from tkinter.filedialog import asksaveasfilename
 
         pdf = stock_valoration()
         pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
@@ -418,12 +416,14 @@ class Ui_StockVal_Window(object):
         """
         Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
         """
-        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         self.df["Val. Un."] = self.df["Val. Un."].apply(self.euros_to_float)
         self.df["Subtotal"] = self.df["Subtotal"].apply(self.euros_to_float)
 
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
             wb = Workbook()
             ws = wb.active
 
