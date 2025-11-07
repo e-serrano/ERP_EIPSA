@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import QMenu
 from config import config, get_path
 import psycopg2
 from utils.Database_Manager import Create_DBconnection
+from utils.Business_Report import report_offers, report_orders
 import sys
 
 
@@ -275,6 +276,41 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Revisions.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Revisions.setObjectName("Button_Revisions")
         self.Header.addWidget(self.Button_Revisions)
+        spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem13)
+        self.Button_Reports = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Reports.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Reports.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Reports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Reports.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Reports.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Reports.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Reports.setIcon(icon5)
+        self.Button_Reports.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Reports.setObjectName("Button_Reports")
+        self.Button_Reports.setToolTip("Informes")
+        self.Header.addWidget(self.Button_Reports)
 
         spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem6)
@@ -548,6 +584,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Verification.clicked.connect(self.verification)
         self.Button_Revisions.clicked.connect(self.revisions)
         self.Button_Calibrations.clicked.connect(self.calibration)
+        self.Button_Reports.clicked.connect(self.generate_report)
 
         self.load_notifications()
 
@@ -922,6 +959,25 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             self.calibration_window.raise_()
             self.calibration_window.activateWindow()
             self.calibration_window.setWindowState(self.edit_tags_app.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
+
+# Function to generate reports
+    def generate_report(self):
+        """
+        Generates a report based on chosen selection
+        """
+        while True:
+            report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos'], 0, False)
+            if ok and report:
+                while True:
+                    if report == 'Ofertas':
+                        report_offers()
+                        break
+                    elif report == 'Pedidos':
+                        report_orders()
+                        break
+                break
+            else:
+                break
 
 
 # if __name__ == "__main__":
