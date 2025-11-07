@@ -1461,6 +1461,7 @@ class Ui_App_Invoicing(object):
         """
 
         try:
+            self.update_invoice_clients()
             self.update_invoices_information()
             self.update_invoices_details()
 
@@ -1664,8 +1665,93 @@ class Ui_App_Invoicing(object):
 
             conn_pg.commit()
 
+# Function to update invoice clients data coming from Access File
+    def update_invoice_clients(self):
+        """
+        Synchronizes invoice data between an Access database file and a PostgreSQL database.
+        """
 
+        ACCESS_FIELDS = ("CL_Id", "CL_COD", "CL_NOMBRE", "CL_CIF", "CL_DIRECC", "CL_TELEFONO", "CL_FAX", "CL_CIUDAD", "CL_PROV",
+                    "CL_PAIS", "CL_CP", "CL_FRMPG_ID", "CL_VTPRG1", "CL_VTPRG2", "CL_IVA_ID", "CL_OBS",
+                    "CL_BCO_ID", "CL_AgenteInterm", "CL_AgtIntermPorc", "CL_GRUPO")
 
+        PG_FIELDS = ("id", "code", "name", "cif", "address", "phone_number", "fax", "city", "province", 
+                    "country", "zip_code", "pay_way_id", "vto_prog1", "vto_prog2", "iva_id", "notes",
+                    "bank_id", "inter_agent", "inter_agent_porc", "group_client")
+
+    # Connection to access file
+        with Access_Connection(ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD) as conn_access:
+            with conn_access.cursor() as cur_access:
+            # Obtain data from last 50 registers of access file
+                field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
+                cur_access.execute(f"""
+                    SELECT TOP 50 {field_list}
+                    FROM CLIENTES(CL)
+                    ORDER BY FactId DESC
+                """)
+                access_rows = cur_access.fetchall()
+
+            # Convert to dict for easier comparison
+                access_dict = {row[0]: row[1:] for row in access_rows}
+                access_ids = list(access_dict.keys())
+
+    # Connection to PostgreSQL
+        with Database_Connection(config()) as conn_pg:
+            with conn_pg.cursor() as cur_pg:
+        # Read existing data from PostgreSQL
+                # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
+                cur_pg.execute("""
+                    SELECT *
+                    FROM purch_fact.clients
+                    WHERE id = ANY(%s)
+                """, (access_ids,))
+                pg_rows = cur_pg.fetchall()
+
+            pg_dict = {row[0]: row[1:] for row in pg_rows}
+
+            access_set = set(access_dict.keys())
+            pg_set = set(pg_dict.keys())
+
+            # Insert data in Access but not in PG
+            to_insert = access_set - pg_set
+
+            # Modify data in both but with different values
+            to_update = {
+                id_: access_dict[id_]
+                for id_ in (access_set & pg_set)
+                if access_dict[id_] != pg_dict[id_]
+            }
+
+            # Delete data in PG but not in Access
+            to_delete = pg_set - access_set
+
+        # Bulk database operations
+            with conn_pg.cursor() as cur_pg:
+                # Insertions
+                if to_insert:
+                    insert_data = [(id_,) + access_dict[id_] for id_ in to_insert]
+                    execute_values(cur_pg,
+                                    f"""INSERT INTO purch_fact.clients ({', '.join(PG_FIELDS)})VALUES %s""",
+                                    insert_data)
+
+                # Updates with UPSERT to avoid logic separations
+                if to_update:
+                    update_data = [(id_,) + data for id_, data in to_update.items()]
+                    conflict_cols = "id"
+                    set_clause = ', '.join(f"{col}=EXCLUDED.{col}" for col in PG_FIELDS[1:])
+                    execute_values( cur_pg,
+                        f""" INSERT INTO purch_fact.clients ({', '.join(PG_FIELDS)})
+                        VALUES %s
+                        ON CONFLICT ({conflict_cols}) DO UPDATE
+                        SET {set_clause}""",
+                        update_data)
+
+                # Deletions
+                if to_delete:
+                    cur_pg.execute("DELETE FROM purch_fact.clients WHERE id = ANY(%s)",
+                    (list(to_delete),))
+
+            conn_pg.commit()
 
 # Function to load values on table
     def load_table(self):
