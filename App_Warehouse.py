@@ -2079,12 +2079,8 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         Provides options to edit the password.
         """
         menu = QtWidgets.QMenu(self.centralwidget)
-        if self.username == 'm.gil':
-            menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
-            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-        else:
-            menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
-            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        menu.setStyleSheet("QMenu { border: 1px solid; width: 125px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
         menu.addAction(option1)

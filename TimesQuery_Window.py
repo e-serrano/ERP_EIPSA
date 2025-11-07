@@ -535,15 +535,7 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TimesQuery_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            TimesQuery_Window.setStyleSheet("QWidget {\n"
-"background-color: #121212; color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}\n"
-"\n"
+        TimesQuery_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -571,42 +563,6 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        else:
-            TimesQuery_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 2px .2em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
-    "}")
         self.centralwidget = QtWidgets.QWidget(parent=TimesQuery_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -679,11 +635,8 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         self.tableTimes.verticalHeader().setVisible(True)
         self.tableTimes.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableTimes.setSortingEnabled(False)
-        if self.username == 'm.gil':
-            self.tableTimes.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableTimes.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableTimes.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableTimes.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableTimes.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
         TimesQuery_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(TimesQuery_Window)

@@ -1211,7 +1211,7 @@ class AlignDelegate_records(QtWidgets.QStyledItemDelegate):
             if float(value) < 0:  
                 color = QtGui.QColor(255, 124, 128)  # Red if lower than 0
             else:
-                color = QtGui.QColor(24, 24, 24)
+                color = QtGui.QColor(24, 24, 24, 0)
 
             option.backgroundBrush = color
 
@@ -1263,16 +1263,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientOrder_Window.setWindowIcon(icon)
-        if self.username == 'd.marquez':
-            ClientOrder_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
+        ClientOrder_Window.setStyleSheet("QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
     "  border-radius: 3px;\n"
@@ -1301,16 +1292,18 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     "}\n"
     "\n"
     "QComboBox:editable {\n"
-    "border: 1px solid white;\n"
+    "border: 1px solid;\n"
     "border-radius: 3px;\n"
     "}\n"
     "QComboBox QAbstractItemView{\n"
+    "border: 1px solid;\n"
     "min-width: 1200px;\n"
+    "background-color: palette(base);"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item {\n"
     "min-height: 35px;\n"
-    "border: .5px solid white;\n"
+    "border: .5px solid;\n"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
@@ -1321,51 +1314,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     "QComboBox QAbstractItemView::item:selected {\n"
     "background-color: blue;\n"
     "color: white;\n"
-    "}"
-    )
-        else:
-            ClientOrder_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 13px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 2px .2em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QComboBox QAbstractItemView{\n"
-    "min-width: 1200px;\n"
-    "}\n"
-    "\n"
-    "QComboBox QAbstractItemView::item {\n"
-    "min-height: 35px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
     "}"
     )
         self.centralwidget = QtWidgets.QWidget(parent=ClientOrder_Window)
@@ -1826,20 +1774,14 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.label_IDOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDOrder.setObjectName("label_IDOrder")
         self.label_IDOrder.setText("")
-        if self.username == 'd.marquez':
-            self.label_IDOrder.setStyleSheet("color: #121212")
-        else:
-            self.label_IDOrder.setStyleSheet("color: white")
+        self.label_IDOrder.setStyleSheet("color: rgba(0, 0, 0, 0);")
         self.gridLayout_2.addWidget(self.label_IDOrder, 3, 1, 1, 1)
         self.label_IDRecord = QtWidgets.QLabel(parent=self.frame)
         self.label_IDRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDRecord.setObjectName("label_ID")
         self.label_IDRecord.setText("")
-        if self.username == 'd.marquez':
-            self.label_IDRecord.setStyleSheet("color: #121212")
-        else:
-            self.label_IDRecord.setStyleSheet("color: white")
+        self.label_IDRecord.setStyleSheet("color: rgba(0, 0, 0, 0);")
         self.gridLayout_2.addWidget(self.label_IDRecord, 3, 2, 1, 1)
         self.PositionP = QtWidgets.QLineEdit(parent=self.frame)
         self.PositionP.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
@@ -2801,11 +2743,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
         self.tableClientOrderP.verticalHeader().hide()
         self.tableClientOrderP.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableClientOrderP.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableClientOrderP.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableClientOrderP.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableClientOrderP.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableClientOrderP.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
 
         for i in range(0,6):
             self.tableClientOrderP.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
@@ -2837,11 +2776,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
         self.tableClientOrderPA.verticalHeader().hide()
         self.tableClientOrderPA.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableClientOrderPA.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableClientOrderPA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableClientOrderPA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableClientOrderPA.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableClientOrderPA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
 
         for i in range(0,6):
             self.tableClientOrderPA.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
@@ -2920,12 +2856,9 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
         self.tableRecord.verticalHeader().hide()
         self.tableRecord.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableRecord.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableRecord.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableRecord.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        
+        self.tableRecord.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableRecord.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+
         for i in range(0,11):
             self.tableRecord.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecord.setColumnWidth(i, 100)

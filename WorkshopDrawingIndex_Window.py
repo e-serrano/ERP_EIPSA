@@ -2023,18 +2023,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         WorkshopDrawingIndex_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            WorkshopDrawingIndex_Window.setStyleSheet(
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            WorkshopDrawingIndex_Window.setStyleSheet(
-            "QMenu {\n"
-                "background-color: #333;\n"
-            "}\n"
-            "QMenu::item {\n"
-                "background-color: transparent;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
+        WorkshopDrawingIndex_Window.setStyleSheet(
+        "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=WorkshopDrawingIndex_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -2661,8 +2651,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableDimDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-                if self.username == 'm.gil':
-                    self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                # self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
                 self.tableDimDwg.setObjectName("tableDimDwg")
                 self.tableDimDwg.setSortingEnabled(False)
                 self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
@@ -2718,8 +2707,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableOfDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-                if self.username == 'm.gil':
-                    self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                # self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
                 self.tableOfDwg.setObjectName("tableOfDwg")
                 self.tableOfDwg.setSortingEnabled(False)
                 self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
@@ -2775,8 +2763,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-                if self.username == 'm.gil':
-                    self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+                # self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
                 self.tableMDwg.setObjectName("tableMDwg")
                 self.tableMDwg.setSortingEnabled(False)
                 self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelM, self.proxyM))
@@ -2855,8 +2842,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableALDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableALDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
         self.tableALDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-        if self.username == 'm.gil':
-            self.tableALDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        # self.tableALDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
         self.tableALDwg.setObjectName("tableALDwg")
         self.tableALDwg.setSortingEnabled(False)
         self.tableALDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableALDwg, self.modelAL, self.proxyM))

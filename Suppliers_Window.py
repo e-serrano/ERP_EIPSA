@@ -440,15 +440,7 @@ class Ui_Suppliers_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Suppliers_Window.setWindowIcon(icon)
-        if self.username == 'd.marquez':
-            Suppliers_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
+        Suppliers_Window.setStyleSheet(
     "QComboBox {\n"
     "border: 1px solid white;\n"
     "border-radius: 3px;\n"
@@ -480,42 +472,6 @@ class Ui_Suppliers_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        else:
-            Suppliers_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 12px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .2em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=Suppliers_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -1416,11 +1372,8 @@ class Ui_Suppliers_Window(object):
 
         self.tableSuppliers.verticalHeader().hide()
         self.tableSuppliers.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableSuppliers.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableSuppliers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableSuppliers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableSuppliers.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableSuppliers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
         self.tableSuppliers.hideColumn(0)
 
 #Function when clicking on table header

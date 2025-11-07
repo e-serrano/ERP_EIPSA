@@ -776,7 +776,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             Exception: If any errors occur during file processing or database operations.
         """
         if self.username == 'm.gil':
-            folder_path = "E:/Fluke/1586A/42280006/data/scan" # //ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
+            folder_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\MARIO GIL\VERIFICACION\CARPETAS IMPORTACIONES CALIBRACION\Fluke\1586A\42280006\data\scan"
 
             if folder_path and os.path.exists(folder_path) and os.path.isdir(folder_path):
                 for subfolder in os.listdir(folder_path):

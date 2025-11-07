@@ -1385,19 +1385,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Order_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Verif_Order_Window.setStyleSheet(
-                ".QFrame {\n" "    border: 2px solid white;\n" "}\n"
-                "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        else:
-            Verif_Order_Window.setStyleSheet(
-                ".QFrame {\n" "    border: 2px solid black;\n" "}\n"
-                "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Verif_Order_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("color: white; background-color: rgb(12, 12, 12);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -1628,20 +1616,15 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.table_drawings.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.table_calibrations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
 
-        if self.username == 'm.gil':
-            self.table_tags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.table_tags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-            self.table_tags.verticalHeader().setStyleSheet("QHeaderView::section {background-color: #121212; border: 0.5px solid white; font-size: 10pt;}")
-            self.table_drawings.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.table_drawings.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-            self.table_drawings.verticalHeader().setStyleSheet("QHeaderView::section {background-color: #121212; border: 0.5px solid white; font-size: 10pt;}")
-            self.table_calibrations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.table_calibrations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-            self.table_calibrations.verticalHeader().setStyleSheet("QHeaderView::section {background-color: #121212; border: 0.5px solid white; font-size: 10pt;}")
-        else:
-            self.table_tags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-            self.table_drawings.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-            self.table_calibrations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.table_tags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.table_tags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        self.table_tags.verticalHeader().setStyleSheet("QHeaderView::section {border: 0.5px solid; font-size: 10pt;}")
+        self.table_drawings.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.table_drawings.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        self.table_drawings.verticalHeader().setStyleSheet("QHeaderView::section {border: 0.5px solid; font-size: 10pt;}")
+        self.table_calibrations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.table_calibrations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        self.table_calibrations.verticalHeader().setStyleSheet("QHeaderView::section {border: 0.5px solid; font-size: 10pt;}")
         Verif_Order_Window.setStatusBar(self.statusbar)
 
         self.retranslateUi(Verif_Order_Window)

@@ -1123,15 +1123,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         VerificationInsert_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            VerificationInsert_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
+        VerificationInsert_Window.setStyleSheet(
     "QComboBox {\n"
     "border: 1px solid white;\n"
     "border-radius: 3px;\n"
@@ -1164,42 +1156,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
     "    border-color: rgb(255, 255, 255);\n"
     "}\n"
     "\n")
-        else:
-            VerificationInsert_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 2px .8em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
-    "}")
         self.centralwidget = QtWidgets.QWidget(parent=VerificationInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -1421,23 +1377,20 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar(parent=VerificationInsert_Window)
         self.statusbar.setObjectName("statusbar")
         VerificationInsert_Window.setStatusBar(self.statusbar)
+
         self.tableTags.verticalHeader().setVisible(True)
         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableTags.setSortingEnabled(False)
-        if self.username == 'm.gil':
-            self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-            self.tableTags.verticalHeader().setStyleSheet("QHeaderView::section {background-color: #121212; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        self.tableTags.verticalHeader().setStyleSheet("QHeaderView::section {border: 1px solid; font-weight: bold; font-size: 10pt;}")
+
         self.tableOthers.verticalHeader().setVisible(True)
         self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableOthers.setSortingEnabled(False)
-        if self.username == 'm.gil':
-            self.tableOthers.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableOthers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableOthers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableOthers.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableOthers.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+
         VerificationInsert_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(VerificationInsert_Window)

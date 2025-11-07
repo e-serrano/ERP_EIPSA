@@ -608,15 +608,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         VerifSupplierInsert_Window.setWindowIcon(icon)
-        if self.username in ['m.gil','j.tena']:
-            VerifSupplierInsert_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
+        VerifSupplierInsert_Window.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -644,42 +636,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        else:
-            VerifSupplierInsert_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=VerifSupplierInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -702,9 +658,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
-
-        if self.username in ['m.gil', 'j.tena']:
-            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.tableRecords = CustomTableWidget()
@@ -736,10 +689,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         font.setPointSize(14)
         font.setBold(True)
         self.label_id.setFont(font)
-        if self.username in ['m.gil','j.tena']:
-            self.label_id.setStyleSheet("color: #121212")
-        else:
-            self.label_id.setStyleSheet("color: white")
+        self.label_id.setStyleSheet("color: rgba (0, 0, 0, 0)")
         self.label_id.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_id.setObjectName("label_id")
         self.gridLayout_2.addWidget(self.label_id, 2, 1, 1, 1)
@@ -972,11 +922,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.tableRecords.verticalHeader().setVisible(True)
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableRecords.setSortingEnabled(False)
-        if self.username in ['m.gil','j.tena']:
-            self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
         VerifSupplierInsert_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(VerifSupplierInsert_Window)

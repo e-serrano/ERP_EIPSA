@@ -40,52 +40,7 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TimerWindow.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            TimerWindow.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 8px .8em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
-    "}"
-    )
-        else:
-            TimerWindow.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
+        TimerWindow.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -165,8 +120,6 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
             font = QtGui.QFont("arial", 150)
         font.setBold(True)
         self.label.setFont(font)
-        if self.username == 'm.gil':
-            self.label.setStyleSheet("color: white")
         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.gridLayout_2.addWidget(self.label, 3, 0, 1, 4)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)

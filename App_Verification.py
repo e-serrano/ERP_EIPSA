@@ -59,10 +59,6 @@ class Ui_App_Verification(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Verification.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            App_Verification.setStyleSheet("background-color: rgb(38, 38, 38);")
-        else:
-            App_Verification.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Verification)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -92,34 +88,9 @@ class Ui_App_Verification(object):
         self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_DBEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
+        self.Button_DBEdit.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -151,34 +122,9 @@ class Ui_App_Verification(object):
         self.Button_Timer.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Timer.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Timer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Timer.setStyleSheet("QPushButton{\n"
+        self.Button_Timer.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Timer.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -211,34 +157,9 @@ class Ui_App_Verification(object):
         self.Button_Revisions.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Revisions.setToolTip('Revisiones')
         self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
+        self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -271,34 +192,9 @@ class Ui_App_Verification(object):
         self.Button_Tests.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Tests.setToolTip('Pruebas')
         self.Button_Tests.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Tests.setStyleSheet("QPushButton{\n"
+        self.Button_Tests.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Tests.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -331,34 +227,9 @@ class Ui_App_Verification(object):
         self.Button_Warehouse_Pieces.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Warehouse_Pieces.setToolTip('Piezas Almacén')
         self.Button_Warehouse_Pieces.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
+        self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -384,7 +255,6 @@ class Ui_App_Verification(object):
         self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
         self.Header.addWidget(self.Button_Warehouse_Pieces)
-
         spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem4)
         self.Button_Flanges = QtWidgets.QPushButton(parent=self.frame)
@@ -392,34 +262,9 @@ class Ui_App_Verification(object):
         self.Button_Flanges.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Flanges.setToolTip('Bridas')
         self.Button_Flanges.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Flanges.setStyleSheet("QPushButton{\n"
+        self.Button_Flanges.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Flanges.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -463,34 +308,9 @@ class Ui_App_Verification(object):
         self.Button_Notification.setMaximumSize(QtCore.QSize(int(50), int(50)))
         self.Button_Notification.setToolTip('Notificaciones')
         self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Notification.setStyleSheet("QPushButton{\n"
+        self.Button_Notification.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Notification.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -518,34 +338,9 @@ class Ui_App_Verification(object):
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Profile.setMaximumSize(QtCore.QSize(50, 50))
-        if self.username == 'm.gil':
-            self.Button_Profile.setStyleSheet("QPushButton{\n"
+        self.Button_Profile.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Profile.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -580,35 +375,7 @@ class Ui_App_Verification(object):
         self.ButtonFrame.setMinimumSize(QtCore.QSize(220, 0))
         self.ButtonFrame.setMaximumSize(QtCore.QSize(220, 16777215))
         self.ButtonFrame.setAutoFillBackground(False)
-        if self.username == 'm.gil':
-            self.ButtonFrame.setStyleSheet("QFrame{\n"
-    "    background-color: rgb(3, 174, 236);\n"
-    "}\n"
-    "\n"
-    "QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.ButtonFrame.setStyleSheet("QFrame{\n"
+        self.ButtonFrame.setStyleSheet("QFrame{\n"
     "    background-color: rgb(3, 174, 236);\n"
     "}\n"
     "\n"
@@ -756,8 +523,6 @@ class Ui_App_Verification(object):
         font.setBold(True)
         self.clock_indicator.setFont(font)
         self.clock_indicator.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        if self.username == 'm.gil':
-            self.clock_indicator.setStyleSheet("color: white")
         self.clock = QtCore.QTimer()
         self.clock.timeout.connect(self.showTime)
         self.clock.start(1000)
@@ -768,8 +533,6 @@ class Ui_App_Verification(object):
         font.setBold(True)
         self.weekday_indicator.setFont(font)
         self.weekday_indicator.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        if self.username == 'm.gil':
-            self.weekday_indicator.setStyleSheet("color: white")
         weekday = datetime.datetime.now().strftime("%A").encode('latin-1').decode('utf-8')
         actual_date = datetime.date.today().strftime("%d/%m/%Y")
         self.weekday_indicator.setText(f"{weekday}, {actual_date}")
@@ -932,12 +695,8 @@ class Ui_App_Verification(object):
         Provides options to edit the password.
         """
         menu = QMenu(self.centralwidget)
-        if self.username == 'm.gil':
-            menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
-            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-        else:
-            menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
-            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        menu.setStyleSheet("QMenu { border: 1px solid ; width: 125px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
         menu.addAction(option1)

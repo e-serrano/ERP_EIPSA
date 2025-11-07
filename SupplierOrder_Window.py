@@ -939,16 +939,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         SupplierOrder_Window.setWindowIcon(icon)
-        if self.username == 'd.marquez':
-            SupplierOrder_Window.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255)\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
+        SupplierOrder_Window.setStyleSheet("QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
     "  border-radius: 3px;\n"
@@ -977,72 +968,30 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     "}\n"
     "\n"
     "QComboBox:editable {\n"
-    "border: 1px solid white;\n"
+    "border: 1px solid;\n"
     "border-radius: 3px;\n"
     "}\n"
     "QComboBox QAbstractItemView{\n"
+    "border: 1px solid;\n"
     "min-width: 1200px;\n"
+    "background-color: palette(base);"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item {\n"
     "min-height: 35px;\n"
-    "border: .5px solid white;\n"
+    "border: .5px solid;\n"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
     "color: white;\n"
-    "}\n"
+        "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:selected {\n"
     "background-color: blue;\n"
     "color: white;\n"
     "}"
     )
-        else:
-            SupplierOrder_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView{\n"
-    "min-width: 1200px;\n"
-    "}\n"
-    "\n"
-    "QComboBox QAbstractItemView::item {\n"
-    "min-height: 35px;\n"
-    "}\n"
-    "\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 13px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .2em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.centralwidget = QtWidgets.QWidget(parent=SupplierOrder_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -1384,20 +1333,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.label_IDOrd.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         self.label_IDOrd.setObjectName("label_IDOrd")
         self.label_IDOrd.setText("")
-        if self.username == 'd.marquez':
-            self.label_IDOrd.setStyleSheet("color: #121212")
-        else:
-            self.label_IDOrd.setStyleSheet("color: white")
+        self.label_IDOrd.setStyleSheet("color: rgba(0, 0, 0, 0)")
         self.gridLayout_2.addWidget(self.label_IDOrd, 6, 1, 1, 1)
         self.label_IDRecord = QtWidgets.QLabel(parent=self.frame)
         self.label_IDRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         self.label_IDRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setText("")
-        if self.username == 'd.marquez':
-            self.label_IDRecord.setStyleSheet("color: #121212")
-        else:
-            self.label_IDRecord.setStyleSheet("color: white")
+        self.label_IDRecord.setStyleSheet("color: rgba(0, 0, 0, 0)")
         self.gridLayout_2.addWidget(self.label_IDRecord, 6, 2, 1, 1)
         self.label_Position = QtWidgets.QLabel(parent=self.frame)
         self.label_Position.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
@@ -1650,14 +1593,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.label_Details, 9, 1, 1, 1)
         self.frame_2 = QtWidgets.QFrame(parent=self.frame)
         self.frame_2.setMaximumSize(QtCore.QSize(int(500//1.5), 16777215))
-        if self.username == 'd.marquez':
-            self.frame_2.setStyleSheet(".QFrame {\n"
-"    border: 1px solid white;\n"
-"}")
-        else:
-            self.frame_2.setStyleSheet(".QFrame {\n"
-"    border: 1px solid black;\n"
-"}")
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -1701,7 +1636,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.Button_Print, 9, 17, 1, 1)
         self.tableRecords = CustomTableWidgetRecord()
         self.tableRecords.setMinimumSize(QtCore.QSize(16777215, int(200//1.5)))
-        # self.tableRecords.setMaximumSize(QtCore.QSize(16777215, int(200//1.5)))
         self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setColumnCount(13)
         self.tableRecords.setRowCount(0)
@@ -1714,31 +1648,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.tableRecords.setHorizontalHeaderItem(i, item)
         self.tableRecords.hideColumn(12)
         self.gridLayout_2.addWidget(self.tableRecords, 10, 1, 1, 17)
-        # self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        # self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(80//1.5)))
-        # self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(int(2800//1.5), int(1500//1.5)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//1.5))
-        # self.Coms_SupplierOrder.setFont(font)
-        # self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
-        # self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 11, 1, 3, 17)
-        # self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
-        # self.label_FinalCom.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
-        # self.label_FinalCom.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//1.5))
-        # self.label_FinalCom.setFont(font)
-        # self.label_FinalCom.setObjectName("label_FinalCom")
-        # self.gridLayout_2.addWidget(self.label_FinalCom, 14, 1, 1, 1)
-        # self.FinalComs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        # self.FinalComs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(60//1.5)))
-        # self.FinalComs_SupplierOrder.setMaximumSize(QtCore.QSize(int(1220//1.5), int(60//1.5)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//1.5))
-        # self.FinalComs_SupplierOrder.setFont(font)
-        # self.FinalComs_SupplierOrder.setObjectName("FinalComs_SupplierOrder")
-        # self.gridLayout_2.addWidget(self.FinalComs_SupplierOrder, 14, 2, 2, 15)
-        
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.tableSupplierOrders = CustomTableWidgetOrder()
         self.tableSupplierOrders.setObjectName("tableSupplierOrders")
@@ -1751,9 +1660,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             font.setBold(True)
             item.setFont(font)
             self.tableSupplierOrders.setHorizontalHeaderItem(i, item)
-
-        # self.verticalLayout_2.addWidget(self.scrollArea)
-        # self.verticalLayout_2.addWidget(self.tableSupplierOrders)
 
         self.splitter.addWidget(self.scrollArea)
         self.splitter.addWidget(self.tableSupplierOrders)
@@ -1778,10 +1684,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         SupplierOrder_Window.setStatusBar(self.statusbar)
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableSupplierOrders.setSortingEnabled(False)
-        self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
 
         self.retranslateUi(SupplierOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(SupplierOrder_Window)
@@ -2870,11 +2776,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
         self.tableSupplierOrders.verticalHeader().hide()
         self.tableSupplierOrders.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableSupplierOrders.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableSupplierOrders.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
         self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
         # self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(10, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2963,11 +2866,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
         self.tableRecords.verticalHeader().hide()
         self.tableRecords.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableRecords.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableRecords.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -4277,7 +4177,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     if quotation_date != '':
                         commands_newquotation = ("""
                                             INSERT INTO purch_fact.quotation_header (supplier_id, quot_date)
-                                            VALUES (%s,%s,%s)
+                                            VALUES (%s,%s)
                                             """)
                         
                         conn = None
@@ -4308,7 +4208,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                             for i in range(self.tableRecords.rowCount()):
                                 commands_newrecord = ("""
                                 INSERT INTO purch_fact.quotation_details (
-                                quot_header_id,supply_id,quantity,currency_id,currency_value,value
+                                quot_header_id, supply_id, quantity, currency_id, currency_value, value
                                 )
                                 VALUES (%s,%s,%s,%s,%s,%s)
                                 """)
@@ -4321,7 +4221,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                                 euro_value=currency_value.replace(",",".")
                                 euro_value=euro_value[:euro_value.find(" €")]
 
-                                data = (idquotation, supply_id,quantity,currency_id,euro_value, euro_value)
+                                data = (idquotation, supply_id, quantity, currency_id, euro_value, euro_value)
 
                                 cur.execute(commands_newrecord, data)
 

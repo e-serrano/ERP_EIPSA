@@ -501,53 +501,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Humidity_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
-            Humidity_Window.setStyleSheet("QWidget {\n"
-    "color: white;\n"
-    "background-color: #121212;\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 10px;\n"
-    "  color: #fff;\n"
-    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 2px .2em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
-    "}"
-    )
-        else:
-            Humidity_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
+        Humidity_Window.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -702,7 +656,11 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+        palette = QtWidgets.QApplication.palette()
+        text_color = palette.color(QtGui.QPalette.ColorRole.WindowText).name()
+        
         self.canvas1=FigureCanvas(Figure())
+        self.canvas1.setStyleSheet("background: transparent;")
         ax=self.canvas1.figure.subplots()
         self.canvas1.figure.patch.set_alpha(0)
         ax.set_xlabel("Tiempo")
@@ -729,19 +687,18 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         ax.legend([line1, line2], ["Temperatura", "Humedad"], loc="best", facecolor="none")
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
 
-        if self.username == 'm.gil':
-            ax.set_xlabel("Fecha", color="white")
-            ax.tick_params(axis="x", colors="white")
-            ax.spines["top"].set_color("white")
-            ax.spines["bottom"].set_color("white")
-            ax.spines["left"].set_color("white")
-            ax.spines["right"].set_color("white")
-            ax2.spines["top"].set_color("white")
-            ax2.spines["bottom"].set_color("white")
-            ax2.spines["left"].set_color("white")
-            ax2.spines["right"].set_color("white")
-            ax.set_title("Evolución Temperatura/Humedad", color="white")
-            ax.legend([line1, line2], ["Temperatura", "Humedad"], loc="best", facecolor="none", edgecolor="white", labelcolor="white")
+        ax.set_xlabel("Fecha", color=text_color)
+        ax.tick_params(axis="x", colors=text_color)
+        ax.spines["top"].set_color(text_color)
+        ax.spines["bottom"].set_color(text_color)
+        ax.spines["left"].set_color(text_color)
+        ax.spines["right"].set_color(text_color)
+        ax2.spines["top"].set_color(text_color)
+        ax2.spines["bottom"].set_color(text_color)
+        ax2.spines["left"].set_color(text_color)
+        ax2.spines["right"].set_color(text_color)
+        ax.set_title("Evolución Temperatura/Humedad", color=text_color)
+        ax.legend([line1, line2], ["Temperatura", "Humedad"], loc="best", facecolor="none", edgecolor=text_color, labelcolor=text_color)
 
         self.canvas1.setObjectName("Graph1")
         self.gridLayout_Frame.addWidget(self.canvas1, 2, 0, 1, 2)
@@ -827,9 +784,8 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
 
             self.tableRegisters.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
-            if self.username == 'm.gil':
-                self.tableRegisters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableRegisters.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+            self.tableRegisters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableRegisters.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -896,7 +852,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         column_names = ["id", "temperature", "humidity", "DEW", "WBT", "MIX", "date_value", "time_value"]
         fname = r'\\ERP-EIPSA-DATOS\DATOS\Comunes\MARIO GIL\VERIFICACION\HIGROMETRO\importacion.txt'
 
-        df = pd.read_csv(fname, skiprows=6, sep='\s+', names=column_names)
+        df = pd.read_csv(fname, skiprows=6, sep=r'\s+', names=column_names)
 
         df = df[pd.to_numeric(df["id"], errors="coerce").notna()].reset_index(drop=True)
         df = df.drop(columns=["id", "DEW", "WBT", "MIX"])

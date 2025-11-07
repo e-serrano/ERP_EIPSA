@@ -4580,10 +4580,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        if self.username == 'm.gil':
-            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
-        else:
-            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -4636,16 +4632,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        if self.username == 'm.gil':
-            self.menuValues.setStyleSheet("QMenu { color: white; }"
-                                            "QMenu { background-color: #121212; }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        else:
-            self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                            "QMenu { background-color: rgb(255, 255, 255); }"
-                                            "QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = table.mapToGlobal(table.horizontalHeader().pos())
 

@@ -454,22 +454,6 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Purchasing.setWindowIcon(icon)
-        if self.username == 'd.marquez':
-            App_Purchasing.setStyleSheet("QWidget {\n"
-    "background-color: #121212; color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}")
-        else:
-            App_Purchasing.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}")
         self.centralwidget = QtWidgets.QWidget(parent=App_Purchasing)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -500,52 +484,27 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Notification.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Notification.setToolTip('Notificaciones')
         self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Notification.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Notification.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
+        self.Button_Notification.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
         self.Button_Notification.setText("")
         self.Button_Notification.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Notification.setObjectName("Button_Notification")
@@ -556,34 +515,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Welding.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Welding.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Welding.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Welding.setStyleSheet("QPushButton{\n"
+        self.Button_Welding.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Welding.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -612,39 +546,13 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_Welding)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem11)
-
         self.Button_LiquidVisual = QtWidgets.QPushButton(parent=self.frame)
         self.Button_LiquidVisual.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_LiquidVisual.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_LiquidVisual.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
+        self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -677,34 +585,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Warehouse.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Warehouse.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Warehouse.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Warehouse.setStyleSheet("QPushButton{\n"
+        self.Button_Warehouse.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Warehouse.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -731,41 +614,15 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Warehouse.setObjectName("Button_Warehouse")
         self.Button_Warehouse.setToolTip("Almacén")
         self.Header.addWidget(self.Button_Warehouse)
-
         spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem6)
         self.Button_ActiveOffer = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ActiveOffer.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_ActiveOffer.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_ActiveOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
+        self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -792,41 +649,15 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
         self.Button_ActiveOffer.setToolTip("Ofertas Activas")
         self.Header.addWidget(self.Button_ActiveOffer)
-
         spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem6)
         self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Revisions.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Revisions.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
+        self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Revisions.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -859,34 +690,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Times.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Times.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Times.setStyleSheet("QPushButton{\n"
+        self.Button_Times.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Times.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -913,41 +719,15 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Times.setObjectName("Button_Times")
         self.Button_Times.setToolTip("Tiempos Fabricaión")
         self.Header.addWidget(self.Button_Times)
-
         spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem8)
         self.Button_OfferSummary = QtWidgets.QPushButton(parent=self.frame)
         self.Button_OfferSummary.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_OfferSummary.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_OfferSummary.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
+        self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -974,7 +754,6 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_OfferSummary.setObjectName("Button_OfferSummary")
         self.Button_OfferSummary.setToolTip("Resumen Ofertas")
         self.Header.addWidget(self.Button_OfferSummary)
-
         spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem8)
         self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
@@ -982,34 +761,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Order_Control.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Order_Control.setToolTip('Control Pedidos')
         self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+        self.Button_Order_Control.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1053,34 +807,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Profile.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Profile.setToolTip('Configuración')
         self.Button_Profile.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'd.marquez':
-            self.Button_Profile.setStyleSheet("QPushButton{\n"
+        self.Button_Profile.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Profile.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
     "    border-radius: 10px;\n"
     "}\n"
     "\n"
@@ -1115,35 +844,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.ButtonFrame.setMinimumSize(QtCore.QSize(int(220//1.5), 0))
         self.ButtonFrame.setMaximumSize(QtCore.QSize(int(220//1.5), 16777215))
         self.ButtonFrame.setAutoFillBackground(False)
-        if self.username == 'd.marquez':
-            self.ButtonFrame.setStyleSheet("QFrame{\n"
-    "    background-color: rgb(3, 174, 236);\n"
-    "}\n"
-    "\n"
-    "QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.ButtonFrame.setStyleSheet("QFrame{\n"
+        self.ButtonFrame.setStyleSheet("QFrame{\n"
     "    background-color: rgb(3, 174, 236);\n"
     "}\n"
     "\n"
@@ -1268,22 +969,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.tableOffer = CustomTableWidget()
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        # self.tableOffer.setColumnCount(11)
         self.tableOffer.setRowCount(0)
-        # for i in range(11):
-        #     item = QtWidgets.QTableWidgetItem()
-        #     font = QtGui.QFont()
-        #     font.setPointSize(10)
-        #     font.setBold(True)
-        #     item.setFont(font)
-        #     self.tableOffer.setHorizontalHeaderItem(i, item)
-        # self.tableOffer.verticalHeader().setVisible(False)
-        # self.tableOffer.setSortingEnabled(False)
-        # if self.username == 'd.marquez':
-        #     self.tableOffer.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-        #     self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        # else:
-        #     self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
