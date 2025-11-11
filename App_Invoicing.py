@@ -1468,6 +1468,7 @@ class Ui_App_Invoicing(object):
             MessageHelper.show_message("Facturas actualizadas correctamente", "info")
         
         except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             MessageHelper.show_message("Ha ocurrido el siguiente error al actualizar las facturas:\n"
                         + str(error), "critical")
 
@@ -1686,8 +1687,8 @@ class Ui_App_Invoicing(object):
                 field_list = ', '.join(f'"{f}"' for f in ACCESS_FIELDS)
                 cur_access.execute(f"""
                     SELECT TOP 50 {field_list}
-                    FROM CLIENTES(CL)
-                    ORDER BY FactId DESC
+                    FROM [CLIENTES(CL)]
+                    ORDER BY CL_Id DESC
                 """)
                 access_rows = cur_access.fetchall()
 
