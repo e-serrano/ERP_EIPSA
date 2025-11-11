@@ -1351,7 +1351,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", "Archivos PDF (*.pdf)"),
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", "Archivos PDF (*.pdf)")
         if self.fname:
             self.delivnote.setText(self.fname)
 
