@@ -630,7 +630,7 @@ class Ui_New_Offer_Window(object):
                         SELECT num_offer
                         FROM offers
                         WHERE num_offer LIKE 'R-%'
-                        ORDER BY num_offer DESC
+                        ORDER BY CAST(SUBSTRING(num_offer FROM '[0-9]+$') AS INTEGER) DESC
                         LIMIT 1""")
         
         try:
