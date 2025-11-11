@@ -386,7 +386,8 @@ def report_orders():
                 (query6.percent_fact::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS fact_percent,
                 (query7.percent_charged::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS charged_percent,
                 query1."regularisation", query1."notes", query1."notes_technical",
-                query6."total_fact", query2."total_amount_tags", query1."order_amount", query1."variable", query8."verif_ppi_date", query1."total_charged"
+                query6."total_fact", query2."total_amount_tags", query1."order_amount",
+                query1."variable", query8."verif_ppi_date", query1."total_charged"
             FROM ({query_orders}) AS query1
             LEFT JOIN ({query_order_amount}) AS query2 ON query1."num_order" = query2."num_order"
             LEFT JOIN ({query_docs}) AS query3 ON query1."num_order" = query3."num_order"
@@ -413,7 +414,9 @@ def report_orders():
                 '% ENV.', 'FECHA ENVÍO',
                 '% FACT.',
                 '% COBRADO',
-                'ORDENES CAMBIO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE', 'IMPORTE PO TAGS', 'IMPORTE PO', 'VARIABLE', 'PPI', 'TOTAL COBRADO']
+                'ORDENES CAMBIO', 'NOTAS', 'NOTAS TÉCNICAS',
+                'IMPORTE', 'IMPORTE PO TAGS', 'IMPORTE PO',
+                'VARIABLE', 'PPI', 'TOTAL COBRADO']
 
     columns_2 = ['VARIABLE', 'Nº PEDIDOS', 'IMPORTE TOTAL', '% FACT.', '% COBRADO', 'PTE FACTURAR']
 
@@ -448,8 +451,8 @@ def report_orders():
         )
 
         df_orders['IMPORTE'] = df_orders.apply(
-            lambda row: float(row['IMPORTE'].strip()) if row['IMPORTE'].strip() != '' else
-            (float(row['IMPORTE PO TAGS']) if row['IMPORTE PO TAGS'].strip() != '' else
+            lambda row: float(row['IMPORTE'].strip()) if row['IMPORTE'].strip() != '' and row['IMPORTE'].strip() not in ['', '0', '0.0'] else
+            (float(row['IMPORTE PO TAGS']) if row['IMPORTE PO TAGS'].strip() != ''  and row['IMPORTE PO TAGS'].strip() not in ['', '0', '0.0'] else
             (float(row['IMPORTE PO']) if row['IMPORTE PO'].strip() != '' else '')),
             axis=1)
 
