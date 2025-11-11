@@ -76,7 +76,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             tolerance_index = index.sibling(index.row(), 20)  # Index for column to check text
             error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
             tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
-            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18, 0))
 
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
@@ -90,7 +90,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             tolerance_index = index.sibling(index.row(), 24)  # Index for column to check text
             error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
             tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
-            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18, 0))
 
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
@@ -104,7 +104,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             tolerance_index = index.sibling(index.row(), 28)  # Index for column to check text
             error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
             tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
-            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18, 0))
 
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
@@ -118,7 +118,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             tolerance_index = index.sibling(index.row(), 32)  # Index for column to check text
             error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
             tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
-            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18, 0))
 
             if abs(error_value) > tolerance_value:
                 text_color = QtGui.QColor(255, 0, 0)
