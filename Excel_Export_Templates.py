@@ -9994,7 +9994,7 @@ class order_reports:
     Attributes:
         num_order (str): The order number.
     """
-    def __init__(self, df1, df2, df3, df4, df5):
+    def __init__(self, df1, df2, df3, df4, df5, df6):
         """
         Initializes an order_reports instance with dataframe with data.
         
@@ -10003,9 +10003,10 @@ class order_reports:
         """
         self.df_orders_P = df1.iloc[:, :-5]
         self.df_orders_PA = df2
-        self.df_orders_R = df3
-        self.df_summary_orders = df4
-        self.df_wallet = df5
+        self.df_orders_sent = df3
+        self.df_orders_R = df4
+        self.df_summary_orders = df5
+        self.df_wallet = df6
 
         self.wb = load_workbook(str(get_path("Plantillas Exportación", "TEMPLATE ORDERS REPORT.xlsx")))
 
@@ -10087,6 +10088,36 @@ class order_reports:
         ws.cell(row=last_row, column=19).value = f"=SUM({get_column_letter(19)}{first_row}:{get_column_letter(19)}{last_row - 1})"
         ws.cell(row=last_row, column=19).style = currency_style
         ws.cell(row=last_row, column=19).font = Font(bold=True, size=12)
+
+    # Filling cells with data from orders sent dataframe
+        last_row = last_row + 2
+        for col_num, header in enumerate(self.df_orders_sent.columns, start=1): # Headers
+            cell = ws.cell(row=last_row, column=col_num)
+            cell.value = header
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell._style = ws["A10"]._style
+        last_row += 1
+
+        first_row = last_row
+        for index, row in self.df_orders_sent.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row, column=col_num)
+                if col_num in [15]:
+                    cell.value = value
+                    cell.style = currency_style
+                else:
+                    cell.value = value
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = last_row + 1
+
+        ws.cell(row=last_row, column=14).value = "TOTAL:"
+        ws.cell(row=last_row, column=14).alignment = Alignment(horizontal='right', vertical='center')
+        ws.cell(row=last_row, column=14).font = Font(bold=True, size=12)
+        ws.cell(row=last_row, column=15).value = f"=SUM({get_column_letter(15)}{first_row}:{get_column_letter(15)}{last_row - 1})"
+        ws.cell(row=last_row, column=15).style = currency_style
+        ws.cell(row=last_row, column=15).font = Font(bold=True, size=12)
 
     # Filling cells with data from orders R- dataframe
         last_row = last_row + 2

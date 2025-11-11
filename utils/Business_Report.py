@@ -71,7 +71,7 @@ def report_offers():
                             WHERE register_date >= %s AND register_date <= %s) as final_table
 
                             ORDER BY array_position(
-                            ARRAY['No Ofertada', 'Declinada', 'Perdida', 'Recibida', 'Registrada', 'En Estudio', 'Presentada', 'Adjudicada'], state), num_offer
+                            ARRAY['No Ofertada', 'Declinada', 'Perdida', 'Recibida', 'Budgetary', 'Registrada', 'En Estudio', 'Presentada', 'Adjudicada'], state), num_offer
                             """)
 
         query_active_summary = ("""
@@ -80,7 +80,7 @@ def report_offers():
                             TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
                             probability, '' as priority, material, items_number, offer_amount, actions
                             FROM offers
-                            WHERE state IN ('Registrada', 'En Estudio', 'Presentada')
+                            WHERE state IN ('Registrada', 'En Estudio', 'Presentada', 'Budgetary')
 
                             UNION ALL
 
@@ -466,17 +466,22 @@ def report_orders():
         df_orders['% FACT.'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[0] if (row['% FACT.'] == '' and row['TOTAL COBRADO'] != '') else row['% FACT.'],axis=1)
         df_orders['% COBRADO'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[1] if (row['% COBRADO']== '' and row['TOTAL COBRADO'] != '') else row['% COBRADO'],axis=1)
 
-        df_orders_P = df_orders[df_orders['PEDIDO'].str.startswith('P-') & ~df_orders['PEDIDO'].str.endswith('R')]
+        df_orders_P = df_orders[(df_orders['PEDIDO'].str.startswith('P-')) & (~df_orders['PEDIDO'].str.startswith('PA')) & (~df_orders['PEDIDO'].str.endswith('R')) & (df_orders['% ENV.'] != 100)]
 
-        cols_PA =['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
+        cols_PA = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
                 'FECHA PO', 'FECHA CONT.', '% MONT','PREV. MONT.', 'FECHA FINAL FAB.', 'EQS INSPEC.',
                 '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
 
-        cols_R =['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL',
+        cols_sent = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
+                'FECHA PO', 'FECHA CONT.',
+                '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
+
+        cols_R = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL',
                 'FECHA PO', 'FECHA CONT.', '% FACT.', '% COBRADO',
                 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
 
-        df_orders_PA = df_orders[df_orders['PEDIDO'].str.startswith('PA')][cols_PA]
+        df_orders_PA = df_orders[df_orders['PEDIDO'].str.startswith('PA') & (df_orders['% ENV.'] != 100)][cols_PA]
+        df_orders_sent = df_orders[(df_orders['% ENV.'] == 100) & (~df_orders['PEDIDO'].str.endswith('R'))][cols_sent]
         df_orders_R = df_orders[df_orders['PEDIDO'].str.endswith('R')][cols_R]
 
         df_orders_summary = df_orders.copy()
@@ -504,7 +509,7 @@ def report_orders():
 
         df_wallet = pd.read_excel(DATA_PATH / r'Ana\CP\informe_estructurado.xlsx')
 
-        order_reports(df_orders_P, df_orders_PA, df_orders_R, df_orders_summary, df_wallet)
+        order_reports(df_orders_P, df_orders_PA, df_orders_sent, df_orders_R, df_orders_summary, df_wallet)
 
 def report_projects():
     query_projects = (f"""
@@ -789,7 +794,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
             pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
             pdf.set_xy(x + 2.75, y)
 
-            pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
+            pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
             pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
             x = pdf.get_x()
@@ -872,7 +877,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
         pdf.set_xy(x + 2.75, y)
 
-        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
+        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
         pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
@@ -890,10 +895,10 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
 
     # pdf.add_page()
 
-    df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
-    df_active['days_diff'] = (pd.Timestamp.today() - df_active['Fecha Pres.']).dt.days
-
     df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Fecha Pres.'])
+    
+    df_presented['Fecha Pres.'] = pd.to_datetime(df_presented['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
+    df_presented['days_diff'] = (pd.Timestamp.today() - df_presented['Fecha Pres.']).dt.days
 
     df_less_30 = df_presented[df_presented['days_diff'] <= 30].copy()
     df_more_30 = df_presented[df_presented['days_diff'] > 30].copy()
@@ -907,7 +912,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.cell(3, 0.5, str(df_presented.shape[0]), align='L')
     pdf.ln(0.5)
 
-    df_active['Fecha Pres.'] = pd.to_datetime(df_active['Fecha Pres.'], errors='coerce', dayfirst=True)
+    df_presented['Fecha Pres.'] = pd.to_datetime(df_presented['Fecha Pres.'], errors='coerce', dayfirst=True)
 
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
@@ -964,7 +969,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
         pdf.set_xy(x + 2.75, y)
 
-        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
+        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
         pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
@@ -1037,7 +1042,87 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
         pdf.set_xy(x + 2.75, y)
 
-        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
+        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
+        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+        pdf.set_xy(x + 2.5, y)
+
+        pdf.ln(row_height)
+
+    pdf.set_fill_color(3, 174, 236)
+    pdf.set_font('DejaVuSansCondensed-Bold', size=7)
+    pdf.cell(20.75, 0.3, '')
+    pdf.cell(5, 0.3, 'TOTAL:', align='R')
+    pdf.cell(3, 0.3, euro_format(df_more_30['Importe Euros'].sum()), align='C')
+    pdf.ln()
+
+    df_budgetary = df_active[(df_active['Estado'] == 'Budgetary') & (pd.to_datetime(df_active['Fecha Rec.'], dayfirst=True, errors='coerce').dt.year == datetime.now().year)].sort_values(by=['Responsable', 'Nº Oferta'])
+
+    pdf.set_font('Helvetica', 'B', size=7)
+    pdf.cell(3, 0.5, 'BUDGETARIES (' + str(datetime.now().year) + ':')
+    pdf.cell(3, 0.5, str(df_budgetary.shape[0]), align='L')
+    pdf.ln(0.5)
+
+    pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
+    pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
+    pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
+    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
+    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+    pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+    pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
+    pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+    pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
+    pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
+    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
+    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+    pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
+    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+    pdf.ln()
+
+    pdf.set_fill_color(255, 105, 105)
+    pdf.set_font('DejaVuSansCondensed', size=6)
+    for _, row in df_budgetary.iterrows():
+        # getting the required height of the row
+        line_h = pdf.font_size * 1.5
+        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+        h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
+        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+
+        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+
+        # Setting values for table
+        pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+        pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
+        pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+        pdf.set_xy(x + 3, y)
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+        pdf.set_xy(x + 3.5, y)
+
+        pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
+        pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+        pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
+        pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
+        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+        pdf.set_xy(x + 2.75, y)
+
+        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
         pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
@@ -1050,8 +1135,11 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.set_font('DejaVuSansCondensed-Bold', size=7)
     pdf.cell(20.75, 0.3, '')
     pdf.cell(5, 0.3, 'TOTAL:', align='R')
-    pdf.cell(3, 0.3, euro_format(df_more_30['Importe Euros'].sum()), align='C')
+    pdf.cell(3, 0.3, euro_format(df_budgetary['Importe Euros'].sum()), align='C')
     pdf.ln()
+
+    pdf.set_fill_color(3, 174, 236)
+
 
     return pdf
 
