@@ -53,7 +53,7 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
         """
         super().paintCell(painter, rect, date)
 
-        if date.toPyDate() in self.task_dates:
+        if date.toPython() in self.task_dates:
             commands_dates = ("""
                         SELECT notes,
                             CASE
@@ -72,7 +72,7 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(date.toPyDate(),self.worker_id,)
+                data=(date.toPython(),self.worker_id,)
                 cur.execute(commands_dates, data)
                 results=cur.fetchall()
 

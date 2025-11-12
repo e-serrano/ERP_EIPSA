@@ -125,9 +125,9 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         elif index.column() == 4:
             if value <= QtCore.QDate.currentDate():
                 background_color = QtGui.QColor(255, 0, 0) #Red
-            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 15:
+            elif (value.toPython() - QtCore.QDate.currentDate().toPython()).days <= 15:
                 background_color = QtGui.QColor(237, 125, 49) #Orange
-            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 30:
+            elif (value.toPython() - QtCore.QDate.currentDate().toPython()).days <= 30:
                 background_color = QtGui.QColor(255, 125, 255) #Pink
 
         elif index.column() == 14:
