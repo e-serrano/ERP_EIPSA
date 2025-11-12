@@ -1,8 +1,8 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6 import QtSql
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtSql
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection
 from config import config
 import configparser

@@ -1,9 +1,9 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-from PyQt6.QtPdfWidgets import QPdfView
-from PyQt6.QtWidgets import QComboBox
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtPdfWidgets import QPdfView
+from PySide6.QtWidgets import QComboBox
+from PySide6.QtCore import pyqtSignal, pyqtSlot
 
 
 class ZoomSelector(QComboBox):

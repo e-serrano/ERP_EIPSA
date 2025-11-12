@@ -1,4 +1,4 @@
-from PyQt6 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 from config import get_path
 
 class MessageHelper:

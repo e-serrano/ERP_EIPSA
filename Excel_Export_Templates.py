@@ -9,7 +9,7 @@ from datetime import *
 from config import config, get_path
 import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
-from PyQt6 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 from math import exp
 import re
 import numpy as np

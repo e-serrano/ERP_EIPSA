@@ -4,7 +4,7 @@ import io
 import pandas as pd
 from config import config, get_path
 import psycopg2
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import openpyxl
 from datetime import date
 from utils.Database_Manager import Database_Connection

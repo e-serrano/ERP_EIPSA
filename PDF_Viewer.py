@@ -1,11 +1,11 @@
 import os
 import math
 import sys
-from PyQt6.QtWidgets import QMainWindow, QMessageBox, QLineEdit, QFileDialog
-from PyQt6.QtCore import QPointF, QEvent, Qt, QUrl, pyqtSlot
-from PyQt6.QtPdf import QPdfDocument
-from PyQt6.QtPdfWidgets import QPdfView
-from PyQt6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QLineEdit, QFileDialog
+from PySide6.QtCore import QPointF, QEvent, Qt, QUrl, pyqtSlot
+from PySide6.QtPdf import QPdfDocument
+from PySide6.QtPdfWidgets import QPdfView
+from PySide6.QtGui import QIcon, QPixmap
 from PDFViewer_ZoomSelector import ZoomSelector
 from PDFViewer_ui import Ui_MainWindow
 import shutil

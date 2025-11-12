@@ -3,8 +3,8 @@ import psycopg2
 from Excel_Export_Templates import material_order
 import pandas as pd
 from datetime import *
-import PyQt6.QtCore
-from PyQt6 import QtCore, QtGui, QtWidgets
+import PySide6.QtCore
+from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import openpyxl
 import re
@@ -349,7 +349,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
 
             columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            values_tags =  ", ".join(['NULL' if value == '' or value == PyQt6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PyQt6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
 
             columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
@@ -735,7 +735,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
 
             columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            values_tags =  ", ".join(['NULL' if value == '' or value == PyQt6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PyQt6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
 
             columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
@@ -1167,7 +1167,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
 
             columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            values_tags =  ", ".join(['NULL' if value == '' or value == PyQt6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PyQt6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
 
             columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 

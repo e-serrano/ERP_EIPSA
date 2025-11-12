@@ -1,13 +1,13 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6 import QtSql
-from PyQt6.QtCore import Qt
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtSql
+from PySide6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
 from datetime import *
 from config import get_path, config
 import re
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QMimeData, QDate
-from PyQt6.QtGui import QKeySequence
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt, QMimeData, QDate
+from PySide6.QtGui import QKeySequence
 import sys
 import pandas as pd
 

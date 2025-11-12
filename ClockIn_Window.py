@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-from PyQt6.QtCore import Qt
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt
+from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 from config import config
 import psycopg2

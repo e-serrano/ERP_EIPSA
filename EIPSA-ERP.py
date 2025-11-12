@@ -1,8 +1,7 @@
 import sys
-from PyQt6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from Login_Window import Ui_Login_Window
 import os
-from PyQt6 import QtCore
 import psutil
 from utils.Show_Message import MessageHelper
 from config import get_path

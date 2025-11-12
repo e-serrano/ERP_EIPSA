@@ -1,5 +1,5 @@
 import sys
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import os
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"

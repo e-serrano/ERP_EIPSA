@@ -1,6 +1,6 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6 import QtSql
-from PyQt6.QtCore import Qt
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtSql
+from PySide6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
 import configparser
 from datetime import *

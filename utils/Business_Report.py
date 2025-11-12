@@ -1,4 +1,4 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from PDF_Styles import CustomPDF_A3
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -8,10 +8,10 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PyQt6.QtCore import (QCoreApplication, QMetaObject, QRect, QSize, Qt)
-from PyQt6.QtGui import (QAction, QIcon)
-from PyQt6.QtPdfWidgets import QPdfView
-from PyQt6.QtWidgets import (QMenu, QMenuBar, QSizePolicy, QSplitter, QStatusBar,
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, QSize, Qt)
+from PySide6.QtGui import (QAction, QIcon)
+from PySide6.QtPdfWidgets import QPdfView
+from PySide6.QtWidgets import (QMenu, QMenuBar, QSizePolicy, QSplitter, QStatusBar,
 	QToolBar, QVBoxLayout, QWidget)
 import os
 

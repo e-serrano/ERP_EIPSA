@@ -1,6 +1,6 @@
 from config import config
 import os
-from PyQt6 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 import psycopg2
 from datetime import *
 
