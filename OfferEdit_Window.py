@@ -800,12 +800,13 @@ class Ui_Edit_Offer_Window(object):
 
             else:
             #SQL Query for checking if offer number exists in database
+                exists = None
                 try:
                     with Database_Connection(config()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands one by one
                             cur.execute("SELECT 1 FROM offers WHERE num_offer = %s LIMIT 1", (numoffer,))
-                            exists = cur.fetchone() is not None
+                            exists = cur.fetchone()
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -814,7 +815,8 @@ class Ui_Edit_Offer_Window(object):
                 if numoffer != self.original_numoffer and exists:
                     MessageHelper.show_message("Ese número de oferta ya existe", "warning")
 
-                if numoffer=="" or (client=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems=='')))))))):
+                blank_fields = [numoffer, client, numref, state, nacext, material, amount, limit_date, mails, numitems]
+                if any(c == "" for c in blank_fields):
                     MessageHelper.show_message("Los campos no pueden estar vacíos", "warning")
 
                 else:
