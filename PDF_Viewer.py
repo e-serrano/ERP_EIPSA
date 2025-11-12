@@ -2,7 +2,7 @@ import os
 import math
 import sys
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QLineEdit, QFileDialog
-from PySide6.QtCore import QPointF, QEvent, Qt, QUrl, pyqtSlot
+from PySide6.QtCore import QPointF, QEvent, Qt, QUrl, Slot
 from PySide6.QtPdf import QPdfDocument
 from PySide6.QtPdfWidgets import QPdfView
 from PySide6.QtGui import QIcon, QPixmap
@@ -65,7 +65,7 @@ class PDF_Viewer(QMainWindow):
         self.installEventFilter(self)
 
 
-    @pyqtSlot(QUrl)
+    @Slot(QUrl)
     def open(self, doc_location):
         """
         Opens and loads a PDF document from the given local file URL.
@@ -111,7 +111,7 @@ class PDF_Viewer(QMainWindow):
         self.set_main_window_focus()
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionQuit_triggered(self):
         """
         Closes the application.
@@ -119,7 +119,7 @@ class PDF_Viewer(QMainWindow):
         self.close()
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionZoom_In_triggered(self):
         """
         Zooms in on the PDF view.
@@ -128,7 +128,7 @@ class PDF_Viewer(QMainWindow):
         self.ui.pdfView.setZoomFactor(factor)
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionZoom_Out_triggered(self):
         """
         Zooms out on the PDF view.
@@ -137,7 +137,7 @@ class PDF_Viewer(QMainWindow):
         self.ui.pdfView.setZoomFactor(factor)
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionPrevious_Page_triggered(self):
         """
         Navigates to the previous page in the PDF.
@@ -157,7 +157,7 @@ class PDF_Viewer(QMainWindow):
         self.m_pageSelector.setText(str(current_page + 1))
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionNext_Page_triggered(self):
         """
         Navigates to the next page in the PDF.
@@ -178,7 +178,7 @@ class PDF_Viewer(QMainWindow):
         self.m_pageSelector.setText(str(current_page + 1))
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionContinuous_triggered(self):
         """
         Toggles between continuous and single-page view modes.
@@ -188,7 +188,7 @@ class PDF_Viewer(QMainWindow):
         self.ui.pdfView.setPageMode(mode)
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionBack_triggered(self):
         """
         Navigates to the previous page or view.
@@ -208,7 +208,7 @@ class PDF_Viewer(QMainWindow):
         self.m_pageSelector.setText(str(current_page + 1))
 
 
-    @pyqtSlot()
+    @Slot()
     def on_actionForward_triggered(self):
         """
         Navigates to the next page or view.
@@ -228,7 +228,7 @@ class PDF_Viewer(QMainWindow):
 
         self.m_pageSelector.setText(str(current_page + 1))
 
-    @pyqtSlot()
+    @Slot()
     def on_actionSave_triggered(self):
         """
         Saves the current PDF to a specified location.
@@ -252,7 +252,7 @@ class PDF_Viewer(QMainWindow):
 
             # os.remove(temp_file_path)
 
-    @pyqtSlot()
+    @Slot()
     def on_actionPrint_triggered(self):
         """
         Prints the current PDF.

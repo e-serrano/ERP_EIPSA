@@ -3,7 +3,7 @@
 
 from PySide6.QtPdfWidgets import QPdfView
 from PySide6.QtWidgets import QComboBox
-from PySide6.QtCore import Signal, pyqtSlot
+from PySide6.QtCore import Signal, Slot
 
 
 class ZoomSelector(QComboBox):
@@ -38,7 +38,7 @@ class ZoomSelector(QComboBox):
         self.currentTextChanged.connect(self.on_current_text_changed)
         self.lineEdit().editingFinished.connect(self._editing_finished)
 
-    @pyqtSlot(float)
+    @Slot(float)
     def set_zoom_factor(self, zoomFactor):
         """
         Sets the zoom factor and updates the combo box selection to the corresponding percentage.
@@ -46,14 +46,14 @@ class ZoomSelector(QComboBox):
         percent = int(zoomFactor * 100)
         self.setCurrentText(f"{percent}%")
 
-    @pyqtSlot()
+    @Slot()
     def reset(self):
         """
         Resets the combo box to the default zoom level (100%).
         """
         self.setCurrentIndex(1)  # 100%
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_current_text_changed(self, text):
         """
         Emits zoom mode and factor signals based on the current text selection.
@@ -69,7 +69,7 @@ class ZoomSelector(QComboBox):
             self.zoom_mode_changed.emit(QPdfView.ZoomMode.Custom)
             self.zoom_factor_changed.emit(factor)
 
-    @pyqtSlot()
+    @Slot()
     def _editing_finished(self):
         """
         Handles the event when editing in the combo box line edit is finished.
