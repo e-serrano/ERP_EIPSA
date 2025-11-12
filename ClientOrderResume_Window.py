@@ -96,8 +96,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        menu.setStyleSheet("""
+            QMenu::item:selected {background-color: #33bdef;}
+            QMenu::item:pressed { background-color: rgb(1, 140, 190); }
+            QCheckBox::indicator:unchecked {border: 1px solid #666;}
+            QCheckBox::indicator:checked {border: 1px solid #0078d7;background-color: #0078d7;}
+        """)
 
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
@@ -487,13 +491,22 @@ class Ui_ClientOrderResume_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientOrderResume.setWindowIcon(icon)
-        ClientOrderResume.setStyleSheet("QPushButton {\n"
+        if self.username == 'd.marquez':
+            ClientOrderResume.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
     "  border-radius: 3px;\n"
     "  color: #fff;\n"
     "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 13px;\n"
+    "  font-size: 12px;\n"
     "  font-weight: 800;\n"
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
@@ -516,30 +529,76 @@ class Ui_ClientOrderResume_Window(object):
     "}\n"
     "\n"
     "QComboBox:editable {\n"
-    "border: 1px solid;\n"
+    "border: 1px solid white;\n"
     "border-radius: 3px;\n"
     "}\n"
     "QComboBox QAbstractItemView{\n"
-    "border: 1px solid;\n"
     "min-width: 1200px;\n"
-    "background-color: palette(base);"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item {\n"
     "min-height: 35px;\n"
-    "border: .5px solid;\n"
+    "border: .5px solid white;\n"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
-    "color: white;\n"
-        "}\n"
-    "\n"
-    "QComboBox QAbstractItemView::item:selected {\n"
-    "background-color: blue;\n"
-    "color: white;\n"
     "}"
     )
+        else:
+            ClientOrderResume.setStyleSheet("QPushButton {\n"
+        "background-color: #33bdef;\n"
+        "  border: 1px solid transparent;\n"
+        "  border-radius: 3px;\n"
+        "  color: #fff;\n"
+        "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+        "  font-size: 13px;\n"
+        "  font-weight: 800;\n"
+        "  line-height: 1.15385;\n"
+        "  margin: 0;\n"
+        "  outline: none;\n"
+        "  padding: 2px .2em;\n"
+        "  text-align: center;\n"
+        "  text-decoration: none;\n"
+        "  vertical-align: baseline;\n"
+        "  white-space: nowrap;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover {\n"
+        "    background-color: #019ad2;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed {\n"
+        "    background-color: rgb(1, 140, 190);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}\n"
+        "\n"
+        "QComboBox:editable {\n"
+        "border: 1px solid;\n"
+        "border-radius: 3px;\n"
+        "}\n"
+        "QComboBox QAbstractItemView{\n"
+        "border: 1px solid;\n"
+        "min-width: 1200px;\n"
+        "background-color: palette(base);"
+        "}\n"
+        "\n"
+        "QComboBox QAbstractItemView::item {\n"
+        "min-height: 35px;\n"
+        "border: .5px solid;\n"
+        "}\n"
+        "\n"
+        "QComboBox QAbstractItemView::item:hover {\n"
+        "background-color: blue;\n"
+        "color: white;\n"
+            "}\n"
+        "\n"
+        "QComboBox QAbstractItemView::item:selected {\n"
+        "background-color: blue;\n"
+        "color: white;\n"
+        "}"
+        )
         self.centralwidget = QtWidgets.QWidget(parent=ClientOrderResume)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

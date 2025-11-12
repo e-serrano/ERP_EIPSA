@@ -100,8 +100,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        menu.setStyleSheet("""
+            QMenu::item:selected {background-color: #33bdef;}
+            QMenu::item:pressed { background-color: rgb(1, 140, 190); }
+            QCheckBox::indicator:unchecked {border: 1px solid #666;}
+            QCheckBox::indicator:checked {border: 1px solid #0078d7;background-color: #0078d7;}
+        """)
 
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
@@ -454,6 +458,14 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Purchasing.setWindowIcon(icon)
+        if self.username == 'd.marquez':
+            App_Purchasing.setStyleSheet("QWidget {\n"
+    "background-color: #242424; color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}")
         self.centralwidget = QtWidgets.QWidget(parent=App_Purchasing)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)

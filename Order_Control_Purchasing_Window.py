@@ -58,12 +58,12 @@ class ColorDelegate(QtWidgets.QItemDelegate):
             index (QtCore.QModelIndex): The model index of the item.
         """
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-        background_color = QtGui.QColor(255, 255, 255, 0)
+        background_color = QtGui.QColor(255, 255, 255)
 
         if index.column() == 35:
             if isinstance(value, (date, datetime)):
                 if value <= QtCore.QDate.currentDate():
-                    background_color = QtGui.QColor(255, 0, 0, 0) #Red
+                    background_color = QtGui.QColor(255, 0, 0) #Red
 
         painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
@@ -351,35 +351,100 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Order_Control_Window.setWindowIcon(icon)
-        Purchasing_Order_Control_Window.setStyleSheet(
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"QMenu::item:selected {background-color: rgb(3, 174, 236);}")
+        if self.username == 'd.marquez':
+            Purchasing_Order_Control_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Purchasing_Order_Control_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "QMenu {\n"
+    "background-color: white;\n"
+    "color: black;\n"
+    "}\n"
+    "QMenu::item {\n"
+    "background-color: white;\n"
+    "color: black;\n"
+    "}\n"
+    "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Purchasing_Order_Control_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -693,7 +758,9 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu { background-color: rgb(255, 255, 255); }"
+                                        "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableOrders.mapToGlobal(self.tableOrders.horizontalHeader().pos())        
@@ -1075,6 +1142,6 @@ if __name__ == "__main__":
     if not db_manufacture:
         sys.exit()
 
-    Purchasing_Order_Control_Window = Ui_Purchasing_Order_Control_Window(db_manufacture,'j.sanz')
+    Purchasing_Order_Control_Window = Ui_Purchasing_Order_Control_Window(db_manufacture,'d.marquez')
     Purchasing_Order_Control_Window.show()
     sys.exit(app.exec())

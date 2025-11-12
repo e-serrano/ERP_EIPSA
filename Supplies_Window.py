@@ -939,11 +939,64 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Supplies_Window.setWindowIcon(icon)
-        Supplies_Window.setStyleSheet(
+        if self.username == 'd.marquez':
+            Supplies_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
     "QComboBox {\n"
     "border: 1px solid white;\n"
     "border-radius: 3px;\n"
     "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Supplies_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
     "QComboBox QAbstractItemView{\n"
     "min-width: 1200px;\n"
     "}\n"
@@ -1056,8 +1109,11 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
         self.tableQuotations.setSortingEnabled(False)
         self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-        self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        if self.username == 'd.marquez':
+            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
         self.retranslateUi(Supplies_Window)
         QtCore.QMetaObject.connectSlotsByName(Supplies_Window)
@@ -1311,9 +1367,12 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
         self.model.setAllColumnHeaders(headers)
 
-        self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-        self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-        self.tableSupplies.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: rgba(0, 0, 0, 0); border: 0.5px solid;}")
+        if self.username == 'd.marquez':
+            self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+            self.tableSupplies.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
         self.tableSupplies.setItemDelegate(NumericDelegate(self.tableSupplies))
         self.tableSupplies.setItemDelegateForColumn(7, AlignDelegate(self.tableSupplies))
@@ -1513,7 +1572,24 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableSupplies)
 
+        # valuesUnique_view = []
+        # # background_colors = set()
+        # for row in range(self.tableSupplies.model().rowCount()):
+        #     index = self.tableSupplies.model().index(row, self.logicalIndex)
+        #     value = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+        #     background_color = index.data(QtCore.Qt.ItemDataRole.BackgroundRole)
+        #     if value not in valuesUnique_view:
+        #         if isinstance(value, QtCore.QDate):
+        #             value=value.toString("dd/MM/yyyy")
+        #         valuesUnique_view.append(value)
+        #     if background_color and isinstance(background_color, QtGui.QColor):
+        #         background_colors.add(background_color)
+
+        # valuesUnique_view = {self.tableSupplies.model().index(row, self.logicalIndex).data(QtCore.Qt.ItemDataRole.DisplayRole) for row in range(self.tableSupplies.model().rowCount())}
+        # valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+
         valuesUnique_view = self.get_unique_values_from_db(self.tableSupplies.model(), self.logicalIndex)
+        
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableSupplies)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
         self.menuValues.addAction(actionSortAscending)
@@ -1532,7 +1608,91 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+        # color_submenu = QtWidgets.QMenu("Filtrar por Color de Fondo", self)
+        # color_signal_mapper = QtCore.QSignalMapper(self)
+
+        # for color in background_colors:
+        #     color_action = QtGui.QAction(color, self.tableSupplies)
+        #     # pixmap = QtGui.QPixmap(20, 20)
+        #     # pixmap.fill(color)
+        #     # color_action.setIcon(QtGui.QIcon(pixmap))
+        #     # color_signal_mapper.setMapping(color_action, color)
+        #     color_action.triggered.connect(lambda checked, col=color: self.proxy.setBackgroundColorFilter(col))
+        #     color_submenu.addAction(color_action)
+
+        # clear_color_filter_action = QtGui.QAction("Quitar Filtro de Color", self)
+        # clear_color_filter_action.triggered.connect(lambda: self.proxy.setBackgroundColorFilter(None))
+        # color_submenu.addAction(clear_color_filter_action)
+
+        # self.menuValues.addMenu(color_submenu)
+        # self.menuValues.addSeparator()
+
+        # scroll_menu = QtWidgets.QScrollArea()
+        # if self.username == 'd.marquez':
+        #     scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        # else:
+        #     scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        # scroll_menu.setWidgetResizable(True)
+        # scroll_widget = QtWidgets.QWidget(scroll_menu)
+        # scroll_menu.setWidget(scroll_widget)
+        # scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        # checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+        # if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+        #     checkbox_all_widget.setChecked(False)
+        # else:
+        #     checkbox_all_widget.setChecked(True)
+        
+        # checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
+
+        # scroll_layout.addWidget(checkbox_all_widget)
+        # self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
+
+        # if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
+        #     list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
+        # else:
+        #     list_uniquevalues = sorted(list(set(valuesUnique_view)))
+
+        # for actionName in list_uniquevalues:
+        #     checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+
+        #     if self.logicalIndex not in self.checkbox_filters:
+        #         checkbox_widget.setChecked(True)
+        #     elif actionName not in self.checkbox_filters[self.logicalIndex]:
+        #         checkbox_widget.setChecked(False)
+        #     else:
+        #         checkbox_widget.setChecked(True)
+
+        #     checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+
+        #     scroll_layout.addWidget(checkbox_widget)
+        #     self.action_checkbox_map[actionName] = checkbox_widget
+
+        # action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        # action_scroll_menu.setDefaultWidget(scroll_menu)
+        # self.menuValues.addAction(action_scroll_menu)
+
+        # self.menuValues.addSeparator()
+
+        # accept_button = QtGui.QAction("ACEPTAR", self.tableSupplies)
+        # accept_button.triggered.connect(self.menu_acceptbutton_triggered)
+
+        # cancel_button = QtGui.QAction("CANCELAR", self.tableSupplies)
+        # cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        # self.menuValues.addAction(accept_button)
+        # self.menuValues.addAction(cancel_button)
+
+        if self.username == 'd.marquez':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
                                             "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableSupplies.mapToGlobal(self.tableSupplies.horizontalHeader().pos())        

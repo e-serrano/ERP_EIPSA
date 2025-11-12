@@ -73,8 +73,12 @@ class CustomTableWidgetQuotation(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        menu.setStyleSheet("""
+            QMenu::item:selected {background-color: #33bdef;}
+            QMenu::item:pressed { background-color: rgb(1, 140, 190); }
+            QCheckBox::indicator:unchecked {border: 1px solid #666;}
+            QCheckBox::indicator:checked {border: 1px solid #0078d7;background-color: #0078d7;}
+        """)
 
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
@@ -462,8 +466,12 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        menu.setStyleSheet("""
+            QMenu::item:selected {background-color: #33bdef;}
+            QMenu::item:pressed { background-color: rgb(1, 140, 190); }
+            QCheckBox::indicator:unchecked {border: 1px solid #666;}
+            QCheckBox::indicator:checked {border: 1px solid #0078d7;background-color: #0078d7;}
+        """)
 
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
@@ -858,7 +866,16 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Quotation_Window.setWindowIcon(icon)
-        Quotation_Window.setStyleSheet("QPushButton {\n"
+        if self.username == 'd.marquez':
+            Quotation_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
     "  border-radius: 3px;\n"
@@ -886,31 +903,74 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
     "    border-color: rgb(255, 255, 255);\n"
     "}\n"
     "\n"
+    "QLineEdit, QTextEdit {border: 1px solid white;}"
     "QComboBox:editable {\n"
-    "border: 1px solid;\n"
+    "border: 1px solid white;\n"
     "border-radius: 3px;\n"
     "}\n"
     "QComboBox QAbstractItemView{\n"
-    "border: 1px solid;\n"
     "min-width: 1200px;\n"
-    "background-color: palette(base);"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item {\n"
     "min-height: 35px;\n"
-    "border: .5px solid;\n"
+    "border: .5px solid white;\n"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
     "color: white;\n"
-        "}\n"
+    "}\n"
     "\n"
     "QComboBox QAbstractItemView::item:selected {\n"
     "background-color: blue;\n"
     "color: white;\n"
     "}"
     )
+        else:
+            Quotation_Window.setStyleSheet("QWidget {\n"
+"background-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+".QFrame {\n"
+"    border: 2px solid white;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+"QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 12px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .2em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(parent=Quotation_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -978,7 +1038,10 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.label_IDCot.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDCot.setObjectName("label_IDCot")
         self.label_IDCot.setText("")
-        self.label_IDCot.setStyleSheet("color: rgba(0, 0, 0, 0)")
+        if self.username == 'd.marquez':
+            self.label_IDCot.setStyleSheet("color: #121212")
+        else:
+            self.label_IDCot.setStyleSheet("color: white")
         self.gridLayout_2.addWidget(self.label_IDCot, 8, 2, 1, 1)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
         self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
@@ -1071,7 +1134,10 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setText("")
-        self.label_IDRecord.setStyleSheet("color: rgba(0, 0, 0, 0)")
+        if self.username == 'd.marquez':
+            self.label_IDRecord.setStyleSheet("color: #121212")
+        else:
+            self.label_IDRecord.setStyleSheet("color: white")
         self.gridLayout_2.addWidget(self.label_IDRecord, 8, 3, 1, 1)
         self.label_Details = QtWidgets.QLabel(parent=self.frame)
         self.label_Details.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
@@ -1155,10 +1221,10 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         Quotation_Window.setStatusBar(self.statusbar)
         self.tableQuotations.setSortingEnabled(False)
-        self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
+        self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
+        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.retranslateUi(Quotation_Window)
@@ -1892,8 +1958,11 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
 
         self.tableQuotations.verticalHeader().hide()
         self.tableQuotations.setSortingEnabled(False)
-        self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-        self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        if self.username == 'd.marquez':
+            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         for i in range(6):
             self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableQuotations.setColumnWidth(i, 100)
@@ -1972,8 +2041,11 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
 
         self.tableRecords.verticalHeader().hide()
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-        self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
+        if self.username == 'd.marquez':
+            self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         for i in range(9):
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.setColumnWidth(i, 100)
