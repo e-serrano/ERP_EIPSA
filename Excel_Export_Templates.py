@@ -722,6 +722,8 @@ class offer_flow:
 
                 self.save_excel_technical()
 
+                del self.wb_commercial, self.wb_technical
+
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -764,7 +766,11 @@ class offer_flow:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -775,7 +781,11 @@ class offer_flow:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
     def adjust_images(self, sheet):
         """
@@ -1405,6 +1415,8 @@ class offer_short_flow_spanish:
                 
                 self.save_excel_technical()
 
+                del self.wb_commercial, self.wb_technical
+
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -1447,7 +1459,11 @@ class offer_short_flow_spanish:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -1458,7 +1474,11 @@ class offer_short_flow_spanish:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
     def adjust_images(self, sheet):
         """
@@ -2172,6 +2192,8 @@ class offer_short_flow_english:
                 
                 self.save_excel_technical()
 
+                del self.wb_commercial, self.wb_technical
+
                 # close communication with the PostgreSQL database server
                 # commit the changes
                 conn.commit()
@@ -2214,7 +2236,11 @@ class offer_short_flow_english:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -2225,7 +2251,11 @@ class offer_short_flow_english:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
     def adjust_images(self, sheet):
         """
@@ -2991,7 +3021,7 @@ class offer_temp:
                 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -3035,7 +3065,11 @@ class offer_temp:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -3046,7 +3080,11 @@ class offer_temp:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_short_temp_spanish:
     """
@@ -3720,7 +3758,7 @@ class offer_short_temp_spanish:
                 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -3764,7 +3802,11 @@ class offer_short_temp_spanish:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -3775,7 +3817,11 @@ class offer_short_temp_spanish:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_short_temp_english:
     """
@@ -4531,7 +4577,7 @@ class offer_short_temp_english:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -4575,7 +4621,11 @@ class offer_short_temp_english:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -4586,7 +4636,11 @@ class offer_short_temp_english:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_level:
     """
@@ -5183,7 +5237,7 @@ class offer_level:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -5227,7 +5281,11 @@ class offer_level:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -5238,7 +5296,11 @@ class offer_level:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_short_level_spanish:
     """
@@ -5753,7 +5815,7 @@ class offer_short_level_spanish:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -5797,7 +5859,11 @@ class offer_short_level_spanish:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -5808,7 +5874,11 @@ class offer_short_level_spanish:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_short_level_english:
     """
@@ -6405,7 +6475,7 @@ class offer_short_level_english:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -6458,7 +6528,11 @@ class offer_short_level_english:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -6469,7 +6543,11 @@ class offer_short_level_english:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
 class offer_flow_temp:
     """
@@ -7535,7 +7613,7 @@ class offer_flow_temp:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -7579,7 +7657,11 @@ class offer_flow_temp:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -7590,7 +7672,11 @@ class offer_flow_temp:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
     def adjust_images(self, sheet):
         """
@@ -8861,7 +8947,7 @@ class offer_flow_temp_level:
 
                 self.save_excel_technical()
 
-                
+                del self.wb_commercial, self.wb_technical
 
                 # close communication with the PostgreSQL database server
                 # commit the changes
@@ -8905,7 +8991,11 @@ class offer_flow_temp_level:
         if output_path_commercial :
             if not output_path_commercial .lower().endswith(".xlsx"):
                 output_path_commercial += ".xlsx"
-            self.wb_commercial.save(output_path_commercial)
+            wb = self.wb_commercial
+            wb.save(output_path_commercial)
+            wb.close()
+            del wb
+            self.wb_commercial = None 
             return output_path_commercial
 
     def save_excel_technical(self):
@@ -8916,7 +9006,11 @@ class offer_flow_temp_level:
         if output_path_technical:
             if not output_path_technical.lower().endswith(".xlsx"):
                 output_path_technical+= ".xlsx"
-            self.wb_technical.save(output_path_technical)
+            wb = self.wb_technical
+            wb.save(output_path_technical)
+            wb.close()
+            del wb
+            self.wb_technical= None 
 
     def adjust_images(self, sheet):
         """
