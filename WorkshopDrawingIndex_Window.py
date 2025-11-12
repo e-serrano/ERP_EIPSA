@@ -1163,7 +1163,7 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
         """
@@ -1382,7 +1382,7 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
         """
@@ -1601,7 +1601,7 @@ class EditableTableModelM(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
         """
@@ -1820,7 +1820,7 @@ class EditableTableModelAL(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
         """

@@ -3,7 +3,7 @@
 
 from PySide6.QtPdfWidgets import QPdfView
 from PySide6.QtWidgets import QComboBox
-from PySide6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtCore import Signal, pyqtSlot
 
 
 class ZoomSelector(QComboBox):
@@ -11,8 +11,8 @@ class ZoomSelector(QComboBox):
     A combo box for selecting and setting zoom levels, with options for predefined and custom zoom percentages.
     Emits signals for zoom mode and zoom factor changes.
     """
-    zoom_mode_changed = pyqtSignal(QPdfView.ZoomMode)
-    zoom_factor_changed = pyqtSignal(float)
+    zoom_mode_changed = Signal(QPdfView.ZoomMode)
+    zoom_factor_changed = Signal(float)
 
     def __init__(self, parent):
         """

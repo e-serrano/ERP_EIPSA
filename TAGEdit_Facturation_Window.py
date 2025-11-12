@@ -689,7 +689,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, parent=None, column_range=None):
         """
@@ -950,7 +950,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
     Signals:
         updateFailed (str): Signal emitted when an update to the model fails.
     """
-    updateFailed = QtCore.pyqtSignal(str)
+    updateFailed = QtCore.Signal(str)
 
     def __init__(self, parent=None, column_range=None):
         """
