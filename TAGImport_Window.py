@@ -13,6 +13,8 @@ from config import config
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -195,462 +197,522 @@ class Ui_ImportTAG_Window(object):
         Imports excel file and insert tags data.
         """
         if self.label_name_file.text()=='':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona un archivo para importar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona un archivo para importar", "warning")
 
         else:
+            excel_file = self.label_name_file.text().split("Archivo: ")[1]
+    
+            # Verify if excel file is closed
             try:
-                with open(self.fname, "r+") as f:
-                    excel_file=self.label_name_file.text().split("Archivo: ")[1]
-
-                    params = config()
-                    conn = psycopg2.connect(**params)
-                    cursor = conn.cursor()
-
-                #Importing excel file into dataframe
-                    df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7, dtype={'plate_thk': str})
-                    df_table = df_table.astype(str)
-                    df_table.replace('nan', 'N/A', inplace=True)
-
-                    if self.radioFlow.isChecked()==True:
-                        table_name='tags_data.tags_flow'
-                        seq_id='tags_flow_id_tag_flow_seq'
-                        df_final = df_table.iloc[:,1:34]
-                        filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "line_size",
-                                        "rating", "facing", "schedule", "flange_material", "flange_type",
-                                        "tube_material", "tapping_num_size", "element_material", "plate_type", "plate_thk",
-                                        "plate_std", "gasket_material", "bolts_nuts_material", "nace"]
-                        empty_counts = []
-                        for column in filled_column_names:
-                            if df_table[column].eq('').sum() > 0:
-                                empty_counts.append(column)
-
-                        if len(empty_counts) > 0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Las siguientes columnas no pueden tener celdas vacías:\n" + 
-                                        ', '.join(empty_counts) + "\n\n" + "El Excel no se importará")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
-
-                        else:
-                            try:
-                            # Loading Excel Template
-                                self.wb = load_workbook(self.fname)    
-
-                            # Editing sheet Import
-                                sheet_name = "Import"
-
-                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
-                                cursor.execute(sql_query_id)
-                                id_tag = int(cursor.fetchone()[0]) + 1
-
-                                for index, row in df_final.iterrows():
-                                # Create a list of pairs for each column with value
-                                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
-                                    self.ws = self.wb[sheet_name]
-                                    cell_value = self.ws[f'A{index+9}'].value
-
-                                # Creating string for columns names and values
-                                    columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount', 'plate_thk']
-                                                        else ('NULL' if values == '' and column in ['num_order','contractual_date']
-                                                        else f"'{values}'") for column, values in columns_values])
-
-                                # Creating insertion query and executing it
-                                    if cell_value is None or str(cell_value).strip() == '':
-                                        self.ws[f'A{index+9}'] = id_tag
-
-                                        id_tag += 1
-
-                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                        cursor.execute(sql_insertion)
-
-                                #Setting data validation as original excel
-                                    relation_column_validation={'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
-                                                                'M':'E', 'N':'F', 'O':'N', 'P':'Q', 'Q':'G',
-                                                                'R':'H', 'S':'I', 'T':'J', 'U':'K', 'V':'L',
-                                                                'W':'M', 'Z':'O'}
-                                    for key, value in relation_column_validation.items():
-                                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
-                                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
-                                        self.ws.add_data_validation(dv)
-                                        dv.add(f'{key}9:{key}2000')
-
-                                self.wb.save(self.fname)
-                            # Closing cursor and database connection
-                                conn.commit()
-                                cursor.close()
-
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Datos importados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg, new_icon
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                print(error)
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
-                    elif self.radioTemp.isChecked()==True:
-                        table_name='tags_data.tags_temp'
-                        seq_id='tags_temp_id_tag_temp_seq'
-                        df_final = df_table.iloc[:,1:39]
-                        filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "tw_type",
-                                        "size", "rating", "facing", "material_tw", "root_diam",
-                                        "tip_diam", "sensor_element", "sheath_stem_material", "sheath_stem_diam", "insulation",
-                                        "temp_inf", "temp_sup", "nipple_ext_material", "nipple_ext_length", "head_case_material",
-                                        "elec_conn_case_diam", "tt_cerblock", "material_flange_lj", "gasket_material", "puntal",
-                                        "tube_t", "nace"]
-                        empty_counts = []
-                        for column in filled_column_names:
-                            if df_table[column].eq('').sum() > 0:
-                                empty_counts.append(column)
-
-                        if len(empty_counts) > 0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Las siguientes columnas no pueden tener celdas vacías:\n" + 
-                                        ', '.join(empty_counts) + "\n\n" + "El Excel no se importará")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
-
-                        else:
-                            try:
-                            # Loading Excel Template
-                                self.wb = load_workbook(self.fname)    
-
-                            # Editing sheet Import
-                                sheet_name = "Import"
-
-                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
-                                cursor.execute(sql_query_id)
-                                id_tag = int(cursor.fetchone()[0]) + 1
-
-                                for index, row in df_final.iterrows():
-                                # Create a list of pairs for each column with value
-                                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
-                                    self.ws = self.wb[sheet_name]
-                                    cell_value = self.ws[f'A{index+9}'].value
-
-                                # Creating string for columns names and values
-                                    columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([
-                                                f"'{int(float(values))}'" if column in ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
-                                                else (f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
-                                                else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
-                                                else f"'{values}'"))) for column, values in columns_values
-                                                ])
-
-                                # Creating insertion query and executing it
-                                    if cell_value is None or str(cell_value).strip() == '':
-                                        self.ws[f'A{index+9}'] = id_tag
-
-                                        id_tag += 1
-
-                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                        cursor.execute(sql_insertion)
-
-                                #Setting data validation as original excel
-                                    relation_column_validation={'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
-                                                                'M':'E', 'O':'F', 'R':'I', 'S':'J', 'T':'L',
-                                                                'U':'M', 'V':'N', 'W':'O', 'X':'P', 'Y':'Q',
-                                                                'Z':'R', 'AA':'S', 'AB':'T', 'AC':'U', 'AD':'V',
-                                                                'AE':'W', 'AF':'X', 'AG':'Z', 'AH':'AA', 'AI':'K'}
-                                    for key, value in relation_column_validation.items():
-                                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
-                                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
-                                        self.ws.add_data_validation(dv)
-                                        dv.add(f'{key}9:{key}2000')
-
-                                self.wb.save(self.fname)
-                            # Closing cursor and database connection
-                                conn.commit()
-                                cursor.close()
-
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Datos importados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg, new_icon
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                print(error)
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
-                    elif self.radioLevel.isChecked()==True:
-                        table_name='tags_data.tags_level'
-                        seq_id='tags_level_id_tag_level_seq'
-                        df_final = df_table.iloc[:,1:40]
-                        filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "model_num",
-                                                "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", "proc_conn_facing",
-                                                "conn_type", "valve_type", "dv_conn", "dv_size", "dv_rating",
-                                                "dv_facing", "gasket_mica", "stud_nuts_material", "illuminator", "float_material",
-                                                "case_cover_material", "scale_type", "flags", "ip_code", "flange_type",
-                                                "nipple_hex", "nipple_tub", "antifrost", "nace"]
-                        empty_counts = []
-                        for column in filled_column_names:
-                            if df_table[column].eq('').sum() > 0:
-                                empty_counts.append(column)
-
-                        if len(empty_counts) > 0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Las siguientes columnas no pueden tener celdas vacías:\n" + 
-                                        ', '.join(empty_counts) + "\n\n" + "El Excel no se importará")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
-
-                        else:
-                            try:
-                            # Loading Excel Template
-                                self.wb = load_workbook(self.fname)  
-
-                            # Editing sheet Import
-                                sheet_name = "Import"
-
-                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
-                                cursor.execute(sql_query_id)
-                                id_tag = int(cursor.fetchone()[0]) + 1
-
-                                for index, row in df_final.iterrows():
-                                # Create a list of pairs for each column with value
-                                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
-                                    self.ws = self.wb[sheet_name]
-                                    cell_value = self.ws[f'A{index+9}'].value
-
-                                # Creating string for columns names and values
-                                    columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([
-                                                f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
-                                                else (f"'{values.replace('.', ',')}'" if column in ['amount']
-                                                else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
-                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
-                                                else f"'{values}'"))) for column, values in columns_values
-                                                ])
-
-                                # Creating insertion query and executing it
-                                    if cell_value is None or str(cell_value).strip() == '':
-                                        self.ws[f'A{index+9}'] = id_tag
-
-                                        id_tag += 1
-
-                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                        cursor.execute(sql_insertion)
-
-                                #Setting data validation as original excel
-                                    relation_column_validation={'C':'AD', 'I':'A', 'J':'B', 'K':'C', 'L':'E',
-                                                                'M':'F', 'N':'G', 'O':'H', 'P':'I', 'S':'J', 'T':'K',
-                                                                'U':'L', 'V':'M', 'W':'N', 'X':'O', 'Y':'P',
-                                                                'Z':'Q', 'AA':'R', 'AB':'S', 'AC':'T', 'AD':'U',
-                                                                'AE':'V', 'AF':'W', 'AG':'X', 'AH':'X', 'AI':'Y', 'AJ':'D'}
-                                    for key, value in relation_column_validation.items():
-                                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
-                                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
-                                        self.ws.add_data_validation(dv)
-                                        dv.add(f'{key}9:{key}2000')
-
-                                self.wb.save(self.fname)
-
-                            # Closing cursor and database connection
-                                conn.commit()
-                                cursor.close()
-
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Datos importados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg, new_icon
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                print(error)
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
-                    elif self.radioOthers.isChecked()==True:
-                        table_name='tags_data.tags_others'
-                        seq_id='tags_others_id_tag_others_seq'
-                        df_final = df_table.iloc[:,1:15]
-                        filled_column_names = ["tag", "tag_state", "num_offer", "description", "nace"]
-                        empty_counts = []
-                        for column in filled_column_names:
-                            if df_table[column].eq('').sum() > 0:
-                                empty_counts.append(column)
-
-                        if len(empty_counts) > 0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Las siguientes columnas no pueden tener celdas vacías:\n" + 
-                                        ', '.join(empty_counts) + "\n\n" + "El Excel no se importará")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
-
-                        else:
-                            try:
-                            # Loading Excel Template
-                                self.wb = load_workbook(self.fname)  
-
-                            # Editing sheet Import
-                                sheet_name = "Import"
-
-                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
-                                cursor.execute(sql_query_id)
-                                id_tag = int(cursor.fetchone()[0]) + 1
-
-                                for index, row in df_final.iterrows():
-                                # Create a list of pairs for each column with value
-                                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
-                                    self.ws = self.wb[sheet_name]
-                                    cell_value = self.ws[f'A{index+9}'].value
-
-                                # Creating string for columns names and values
-                                    columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([
-                                                f"'{values.replace('.', ',')}'" if column in ['amount']
-                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
-                                                else f"'{values}'") for column, values in columns_values
-                                                ])
-
-                                # Creating insertion query and executing it
-                                    if cell_value is None or str(cell_value).strip() == '':
-                                        self.ws[f'A{index+9}'] = id_tag
-
-                                        id_tag += 1
-
-                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                        cursor.execute(sql_insertion)
-
-                                #Setting data validation as original excel
-                                    relation_column_validation={'C':'A', 'K':'B'}
-                                    for key, value in relation_column_validation.items():
-                                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
-                                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
-                                        self.ws.add_data_validation(dv)
-                                        dv.add(f'{key}9:{key}2000')
-
-                                self.wb.save(self.fname)
-
-                            # Closing cursor and database connection
-                                conn.commit()
-                                cursor.close()
-
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Datos importados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg, new_icon
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                print(error)
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
-                    else:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Selecciona un tipo de equipo")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    self.label_name_file.setText("")
-
+                with open(excel_file, 'r+') as f:
+                    pass
             except PermissionError:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El archivo Excel seleccionado está abierto\n" + 
-                            "Debe estar cerrado para poder realizar la acción")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(
+                    "El archivo Excel está abierto. Por favor, ciérralo antes de importar.", 
+                    "warning"
+                )
+                return
+
+        # Set config
+            tag_configs = {
+            'radioFlow': {
+                'table_name': 'tags_data.tags_flow',
+                'seq_id': 'tags_flow_id_tag_flow_seq',
+                'columns_range': (1, 34),
+                'required_columns': ["tag", "tag_state", "num_offer", "item_type", "line_size",
+                                "rating", "facing", "schedule", "flange_material", "flange_type",
+                                "tube_material", "tapping_num_size", "element_material", "plate_type", 
+                                "plate_thk", "plate_std", "gasket_material", "bolts_nuts_material", "nace"],
+                'decimal_columns': ['amount', 'plate_thk'],
+                'null_columns': ['num_order', 'contractual_date'],
+                'validation_map': {'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'N':'F', 
+                                'O':'N', 'P':'Q', 'Q':'G', 'R':'H', 'S':'I', 'T':'J', 'U':'K', 
+                                'V':'L', 'W':'M', 'Z':'O'}
+            },
+            'radioTemp': {
+                'table_name': 'tags_data.tags_temp',
+                'seq_id': 'tags_temp_id_tag_temp_seq',
+                'columns_range': (1, 39),
+                'required_columns': ["tag", "tag_state", "num_offer", "item_type", "tw_type", "size", 
+                                "rating", "facing", "material_tw", "root_diam", "tip_diam", 
+                                "sensor_element", "sheath_stem_material", "sheath_stem_diam", 
+                                "insulation", "temp_inf", "temp_sup", "nipple_ext_material", 
+                                "nipple_ext_length", "head_case_material", "elec_conn_case_diam", 
+                                "tt_cerblock", "material_flange_lj", "gasket_material", "puntal", 
+                                "tube_t", "nace"],
+                'int_columns': ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 
+                            'temp_sup', 'root_diam', 'tip_diam'],
+                'decimal_columns': ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam'],
+                'null_columns': ['num_order', 'contractual_date'],
+                'na_null_columns': ['std_length', 'ins_length'],
+                'validation_map': {'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'O':'F', 
+                                'R':'I', 'S':'J', 'T':'L', 'U':'M', 'V':'N', 'W':'O', 'X':'P', 
+                                'Y':'Q', 'Z':'R', 'AA':'S', 'AB':'T', 'AC':'U', 'AD':'V', 'AE':'W', 
+                                'AF':'X', 'AG':'Z', 'AH':'AA', 'AI':'K'}
+            },
+            'radioLevel': {
+                'table_name': 'tags_data.tags_level',
+                'seq_id': 'tags_level_id_tag_level_seq',
+                'columns_range': (1, 40),
+                'required_columns': ["tag", "tag_state", "num_offer", "item_type", "model_num",
+                                "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", 
+                                "proc_conn_facing", "conn_type", "valve_type", "dv_conn", "dv_size", 
+                                "dv_rating", "dv_facing", "gasket_mica", "stud_nuts_material", 
+                                "illuminator", "float_material", "case_cover_material", "scale_type", 
+                                "flags", "ip_code", "flange_type", "nipple_hex", "nipple_tub", 
+                                "antifrost", "nace"],
+                'int_columns': ['proc_conn_rating', 'dv_rating'],
+                'decimal_columns': ['amount'],
+                'null_columns': ['num_order', 'contractual_date'],
+                'na_null_columns': ['visibility', 'cc_length'],
+                'validation_map': {'C':'AD', 'I':'A', 'J':'B', 'K':'C', 'L':'E', 'M':'F', 'N':'G', 
+                                'O':'H', 'P':'I', 'S':'J', 'T':'K', 'U':'L', 'V':'M', 'W':'N', 
+                                'X':'O', 'Y':'P', 'Z':'Q', 'AA':'R', 'AB':'S', 'AC':'T', 'AD':'U', 
+                                'AE':'V', 'AF':'W', 'AG':'X', 'AH':'X', 'AI':'Y', 'AJ':'D'}
+            },
+            'radioOthers': {
+                'table_name': 'tags_data.tags_others',
+                'seq_id': 'tags_others_id_tag_others_seq',
+                'columns_range': (1, 15),
+                'required_columns': ["tag", "tag_state", "num_offer", "description", "nace"],
+                'decimal_columns': ['amount'],
+                'null_columns': ['num_order', 'contractual_date'],
+                'validation_map': {'C':'A', 'K':'B'}
+            }
+        }
+
+        # Select active config
+        config_key = next((key for key in tag_configs.keys() if getattr(self, key).isChecked()), None)
+        if not config_key:
+            MessageHelper.show_message("Selecciona un tipo de tag", "warning")
+            return
+
+        config_tags = tag_configs[config_key]
+        wb = None
+
+        try:
+        # Load Excel data
+            df_table = pd.read_excel(
+                excel_file, 
+                na_values=['N/A'], 
+                keep_default_na=False, 
+                skiprows=7, 
+                dtype={'plate_thk': str}
+            )
+            df_table = df_table.astype(str).replace('nan', 'N/A')
+            df_final = df_table.iloc[:, config_tags['columns_range'][0]:config_tags['columns_range'][1]]
+
+        # Validate required columns
+            empty_columns = [col for col in config_tags['required_columns'] if df_table[col].eq('').sum() > 0]
+            if empty_columns:
+                MessageHelper.show_message(
+                    f"Las siguientes columnas no pueden tener celdas vacías:\n{', '.join(empty_columns)}\n\n"
+                    "El Excel no se importará", 
+                    "warning"
+                )
+                return
+
+        # Load workbook
+            wb = load_workbook(self.fname)
+            ws = wb["Import"]
+            
+
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cursor:
+                    # Obtain next ID
+                    sql_query_id = (
+                        f"SELECT last_value FROM pg_sequences "
+                        f"WHERE schemaname = 'tags_data' AND sequencename = '{config_tags['seq_id']}'"
+                    )
+                    cursor.execute(sql_query_id)
+                    id_tag = int(cursor.fetchone()[0]) + 1
+
+                    # Procesar cada fila
+                    for index, row in df_final.iterrows():
+                        cell_value = ws[f'A{index+9}'].value
+
+                        # Solo procesar filas sin ID
+                        if cell_value is None or str(cell_value).strip() == '':
+                            # Preparar datos para inserción
+                            columns_values = [
+                                (column, row[column]) 
+                                for column in df_final.columns 
+                                if not pd.isnull(row[column])
+                            ]
+
+                            columns = ', '.join([column for column, _ in columns_values])
+
+                            # Format values according to config_tags
+                            formatted_values = []
+                            for column, value in columns_values:
+                                # Replace float to integer
+                                if config_tags.get('int_columns') and column in config_tags['int_columns'] and value.endswith('.0'):
+                                    formatted_values.append(f"'{int(float(value))}'")
+                                # Replace decimal point
+                                elif config_tags.get('decimal_columns') and column in config_tags['decimal_columns']:
+                                    formatted_values.append(f"'{value.replace('.', ',')}'")
+                                # Replace nan to Null
+                                elif config_tags.get('na_null_columns') and column in config_tags['na_null_columns'] and value == 'N/A':
+                                    formatted_values.append('NULL')
+                                # Replace blank fot NULL
+                                elif config_tags.get('null_columns') and column in config_tags['null_columns'] and value == '':
+                                    formatted_values.append('NULL')
+                                # Standard value
+                                else:
+                                    formatted_values.append(f"'{value}'")
+
+                            values = ', '.join(formatted_values)
+
+                            # Insert data into DataBase
+                            sql_insertion = f"INSERT INTO {config_tags['table_name']} ({columns}) VALUES ({values})"
+                            cursor.execute(sql_insertion)
+                            
+                            # Update Excel file with new IDs
+                            ws[f'A{index+9}'] = id_tag
+                            id_tag += 1
+                    
+                    # Apply data validation
+                    for key, value in config_tags['validation_map'].items():
+                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+                        ws.add_data_validation(dv)
+                        dv.add(f'{key}9:{key}2000')
+
+                    conn.commit()
+
+            wb.save(self.fname)
+            MessageHelper.show_message("Datos importados con éxito", "info")
+            
+        except (Exception, psycopg2.DatabaseError) as error:
+            error_msg = str(error).splitlines()
+            tag_name = df_final.iloc[0, 0] if not df_final.empty else "desconocido"
+            MessageHelper.show_message(
+                f"<html><body>Error con el tag <b>{tag_name}:</b><br><br>"
+                f"{error_msg[1] if len(error_msg) > 1 else error_msg[0]}<br><br>"
+                "<b><u>NO SE REALIZARÁ LA IMPORTACIÓN</u></b></body></html>", 
+                "critical"
+            )
+        finally:
+            if wb is not None:
+                del wb
+
+
+            # try:
+            #     with open(self.fname, "r+") as f:
+            #         excel_file=self.label_name_file.text().split("Archivo: ")[1]
+
+            #         params = config()
+            #         conn = psycopg2.connect(**params)
+            #         cursor = conn.cursor()
+
+            #     #Importing excel file into dataframe
+            #         df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7, dtype={'plate_thk': str})
+            #         df_table = df_table.astype(str)
+            #         df_table.replace('nan', 'N/A', inplace=True)
+
+            #         if self.radioFlow.isChecked()==True:
+            #             table_name='tags_data.tags_flow'
+            #             seq_id='tags_flow_id_tag_flow_seq'
+            #             df_final = df_table.iloc[:,1:34]
+
+            #             filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "line_size",
+            #                             "rating", "facing", "schedule", "flange_material", "flange_type",
+            #                             "tube_material", "tapping_num_size", "element_material", "plate_type", "plate_thk",
+            #                             "plate_std", "gasket_material", "bolts_nuts_material", "nace"]
+
+            #             empty_counts = [col for col in filled_column_names if df_table[col].eq('').sum() > 0]
+
+            #             if len(empty_counts) > 0:
+            #                 MessageHelper.show_message("Las siguientes columnas no pueden tener celdas vacías:\n" + 
+            #                             ', '.join(empty_counts) + "\n\n" + "El Excel no se importará", "warning")
+
+            #             else:
+            #                 try:
+            #                 # Loading Excel Template
+            #                     self.wb = load_workbook(self.fname)    
+
+            #                 # Editing sheet Import
+            #                     sheet_name = "Import"
+
+            #                     with Database_Connection(config()) as conn:
+            #                         with conn.cursor() as cursor:
+            #                             sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+            #                             cursor.execute(sql_query_id)
+            #                             id_tag = int(cursor.fetchone()[0]) + 1
+
+            #                             for index, row in df_final.iterrows():
+            #                             # Create a list of pairs for each column with value
+            #                                 columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+            #                                 self.ws = self.wb[sheet_name]
+            #                                 cell_value = self.ws[f'A{index+9}'].value
+
+            #                             # Creating string for columns names and values
+            #                                 columns = ', '.join([column for column, _ in columns_values])
+            #                                 values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount', 'plate_thk']
+            #                                                     else ('NULL' if values == '' and column in ['num_order','contractual_date']
+            #                                                     else f"'{values}'") for column, values in columns_values])
+
+            #                             # Creating insertion query and executing it
+            #                                 if cell_value is None or str(cell_value).strip() == '':
+            #                                     self.ws[f'A{index+9}'] = id_tag
+
+            #                                     id_tag += 1
+
+            #                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+            #                                     cursor.execute(sql_insertion)
+
+            #                             #Setting data validation as original excel
+            #                                 relation_column_validation={'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
+            #                                                             'M':'E', 'N':'F', 'O':'N', 'P':'Q', 'Q':'G',
+            #                                                             'R':'H', 'S':'I', 'T':'J', 'U':'K', 'V':'L',
+            #                                                             'W':'M', 'Z':'O'}
+            #                                 for key, value in relation_column_validation.items():
+            #                                     formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+            #                                     dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+            #                                     self.ws.add_data_validation(dv)
+            #                                     dv.add(f'{key}9:{key}2000')
+
+            #                     self.wb.save(self.fname)
+
+            #                     MessageHelper.show_message("Datos importados con éxito", "info")
+
+            #                 except (Exception, psycopg2.DatabaseError) as error:
+            #                     MessageHelper.show_message(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>", "critical")
+            #                 finally:
+            #                     if self.wb is not None:
+            #                         del self.wb
+
+            #         elif self.radioTemp.isChecked()==True:
+            #             table_name='tags_data.tags_temp'
+            #             seq_id='tags_temp_id_tag_temp_seq'
+            #             df_final = df_table.iloc[:,1:39]
+            #             filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "tw_type",
+            #                             "size", "rating", "facing", "material_tw", "root_diam",
+            #                             "tip_diam", "sensor_element", "sheath_stem_material", "sheath_stem_diam", "insulation",
+            #                             "temp_inf", "temp_sup", "nipple_ext_material", "nipple_ext_length", "head_case_material",
+            #                             "elec_conn_case_diam", "tt_cerblock", "material_flange_lj", "gasket_material", "puntal",
+            #                             "tube_t", "nace"]
+                        
+            #             empty_counts = [col for col in filled_column_names if df_table[col].eq('').sum() > 0]
+
+            #             if len(empty_counts) > 0:
+            #                 MessageHelper.show_message("Las siguientes columnas no pueden tener celdas vacías:\n" + 
+            #                             ', '.join(empty_counts) + "\n\n" + "El Excel no se importará", "warning")
+
+            #             else:
+            #                 try:
+            #                 # Loading Excel Template
+            #                     self.wb = load_workbook(self.fname)    
+
+            #                 # Editing sheet Import
+            #                     sheet_name = "Import"
+
+            #                     with Database_Connection(config()) as conn:
+            #                         with conn.cursor() as cursor:
+            #                             sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+            #                             cursor.execute(sql_query_id)
+            #                             id_tag = int(cursor.fetchone()[0]) + 1
+
+            #                             for index, row in df_final.iterrows():
+            #                             # Create a list of pairs for each column with value
+            #                                 columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+            #                                 self.ws = self.wb[sheet_name]
+            #                                 cell_value = self.ws[f'A{index+9}'].value
+
+            #                             # Creating string for columns names and values
+            #                                 columns = ', '.join([column for column, _ in columns_values])
+            #                                 values = ', '.join([
+            #                                             f"'{int(float(values))}'" if column in ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
+            #                                             else (f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
+            #                                             else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
+            #                                             else ('NULL' if values == '' and column in ['num_order','contractual_date']
+            #                                             else f"'{values}'"))) for column, values in columns_values
+            #                                             ])
+
+            #                             # Creating insertion query and executing it
+            #                                 if cell_value is None or str(cell_value).strip() == '':
+            #                                     self.ws[f'A{index+9}'] = id_tag
+
+            #                                     id_tag += 1
+
+            #                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+            #                                     cursor.execute(sql_insertion)
+
+            #                             #Setting data validation as original excel
+            #                                 relation_column_validation={'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
+            #                                                             'M':'E', 'O':'F', 'R':'I', 'S':'J', 'T':'L',
+            #                                                             'U':'M', 'V':'N', 'W':'O', 'X':'P', 'Y':'Q',
+            #                                                             'Z':'R', 'AA':'S', 'AB':'T', 'AC':'U', 'AD':'V',
+            #                                                             'AE':'W', 'AF':'X', 'AG':'Z', 'AH':'AA', 'AI':'K'}
+            #                                 for key, value in relation_column_validation.items():
+            #                                     formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+            #                                     dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+            #                                     self.ws.add_data_validation(dv)
+            #                                     dv.add(f'{key}9:{key}2000')
+
+            #                     self.wb.save(self.fname)
+
+            #                     MessageHelper.show_message("Datos importados con éxito", "info")
+
+            #                 except (Exception, psycopg2.DatabaseError) as error:
+            #                     MessageHelper.show_message(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>", "critical")
+            #                 finally:
+            #                     if self.wb is not None:
+            #                         del self.wb
+
+            #         elif self.radioLevel.isChecked()==True:
+            #             table_name='tags_data.tags_level'
+            #             seq_id='tags_level_id_tag_level_seq'
+            #             df_final = df_table.iloc[:,1:40]
+            #             filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "model_num",
+            #                                     "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", "proc_conn_facing",
+            #                                     "conn_type", "valve_type", "dv_conn", "dv_size", "dv_rating",
+            #                                     "dv_facing", "gasket_mica", "stud_nuts_material", "illuminator", "float_material",
+            #                                     "case_cover_material", "scale_type", "flags", "ip_code", "flange_type",
+            #                                     "nipple_hex", "nipple_tub", "antifrost", "nace"]
+                        
+            #             empty_counts = [col for col in filled_column_names if df_table[col].eq('').sum() > 0]
+
+            #             if len(empty_counts) > 0:
+            #                 MessageHelper.show_message("Las siguientes columnas no pueden tener celdas vacías:\n" + 
+            #                             ', '.join(empty_counts) + "\n\n" + "El Excel no se importará", "warning")
+
+            #             else:
+            #                 try:
+            #                 # Loading Excel Template
+            #                     self.wb = load_workbook(self.fname)  
+
+            #                 # Editing sheet Import
+            #                     sheet_name = "Import"
+
+            #                     with Database_Connection(config()) as conn:
+            #                         with conn.cursor() as cursor:
+            #                             sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+            #                             cursor.execute(sql_query_id)
+            #                             id_tag = int(cursor.fetchone()[0]) + 1
+
+            #                             for index, row in df_final.iterrows():
+            #                             # Create a list of pairs for each column with value
+            #                                 columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+            #                                 self.ws = self.wb[sheet_name]
+            #                                 cell_value = self.ws[f'A{index+9}'].value
+
+            #                             # Creating string for columns names and values
+            #                                 columns = ', '.join([column for column, _ in columns_values])
+            #                                 values = ', '.join([
+            #                                             f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
+            #                                             else (f"'{values.replace('.', ',')}'" if column in ['amount']
+            #                                             else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
+            #                                             else ('NULL' if values == '' and column in ['num_order','contractual_date']
+            #                                             else f"'{values}'"))) for column, values in columns_values
+            #                                             ])
+
+            #                             # Creating insertion query and executing it
+            #                                 if cell_value is None or str(cell_value).strip() == '':
+            #                                     self.ws[f'A{index+9}'] = id_tag
+
+            #                                     id_tag += 1
+
+            #                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+            #                                     cursor.execute(sql_insertion)
+
+            #                             #Setting data validation as original excel
+            #                                 relation_column_validation={'C':'AD', 'I':'A', 'J':'B', 'K':'C', 'L':'E',
+            #                                                             'M':'F', 'N':'G', 'O':'H', 'P':'I', 'S':'J', 'T':'K',
+            #                                                             'U':'L', 'V':'M', 'W':'N', 'X':'O', 'Y':'P',
+            #                                                             'Z':'Q', 'AA':'R', 'AB':'S', 'AC':'T', 'AD':'U',
+            #                                                             'AE':'V', 'AF':'W', 'AG':'X', 'AH':'X', 'AI':'Y', 'AJ':'D'}
+            #                                 for key, value in relation_column_validation.items():
+            #                                     formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+            #                                     dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+            #                                     self.ws.add_data_validation(dv)
+            #                                     dv.add(f'{key}9:{key}2000')
+
+            #                     self.wb.save(self.fname)
+
+            #                     MessageHelper.show_message("Datos importados con éxito", "info")
+
+            #                 except (Exception, psycopg2.DatabaseError) as error:
+            #                     MessageHelper.show_message(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>", "critical")
+            #                 finally:
+            #                     if self.wb is not None:
+            #                         del self.wb
+
+            #         elif self.radioOthers.isChecked()==True:
+            #             table_name='tags_data.tags_others'
+            #             seq_id='tags_others_id_tag_others_seq'
+            #             df_final = df_table.iloc[:,1:15]
+            #             filled_column_names = ["tag", "tag_state", "num_offer", "description", "nace"]
+
+            #             empty_counts = [col for col in filled_column_names if df_table[col].eq('').sum() > 0]
+
+            #             if len(empty_counts) > 0:
+            #                 MessageHelper.show_message("Las siguientes columnas no pueden tener celdas vacías:\n" + 
+            #                             ', '.join(empty_counts) + "\n\n" + "El Excel no se importará", "warning")
+
+            #             else:
+            #                 try:
+            #                 # Loading Excel Template
+            #                     self.wb = load_workbook(self.fname)  
+
+            #                 # Editing sheet Import
+            #                     sheet_name = "Import"
+
+            #                     with Database_Connection(config()) as conn:
+            #                         with conn.cursor() as cursor:
+            #                             sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+            #                             cursor.execute(sql_query_id)
+            #                             id_tag = int(cursor.fetchone()[0]) + 1
+
+            #                             for index, row in df_final.iterrows():
+            #                             # Create a list of pairs for each column with value
+            #                                 columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+            #                                 self.ws = self.wb[sheet_name]
+            #                                 cell_value = self.ws[f'A{index+9}'].value
+
+            #                             # Creating string for columns names and values
+            #                                 columns = ', '.join([column for column, _ in columns_values])
+            #                                 values = ', '.join([
+            #                                             f"'{values.replace('.', ',')}'" if column in ['amount']
+            #                                             else ('NULL' if values == '' and column in ['num_order','contractual_date']
+            #                                             else f"'{values}'") for column, values in columns_values
+            #                                             ])
+
+            #                             # Creating insertion query and executing it
+            #                                 if cell_value is None or str(cell_value).strip() == '':
+            #                                     self.ws[f'A{index+9}'] = id_tag
+
+            #                                     id_tag += 1
+
+            #                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+            #                                     cursor.execute(sql_insertion)
+
+            #                             #Setting data validation as original excel
+            #                                 relation_column_validation={'C':'A', 'K':'B'}
+            #                                 for key, value in relation_column_validation.items():
+            #                                     formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+            #                                     dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+            #                                     self.ws.add_data_validation(dv)
+            #                                     dv.add(f'{key}9:{key}2000')
+
+            #                     self.wb.save(self.fname)
+
+            #                     MessageHelper.show_message("Datos importados con éxito", "info")
+
+            #                 except (Exception, psycopg2.DatabaseError) as error:
+            #                     MessageHelper.show_message(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>", "critical")
+            #                 finally:
+            #                     if self.wb is not None:
+            #                         del self.wb
+
+                    # else:
+                    #     MessageHelper.show_message("Selecciona un tipo de equipo", "warning")
+
+                    # self.label_name_file.setText("")
+
+            # except PermissionError:
+            #     MessageHelper.show_message("El archivo Excel seleccionado está abierto\n" + 
+            #                 "Debe estar cerrado para poder realizar la acción", "warning")
 
 
 
