@@ -960,6 +960,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
     "min-height: 35px;\n"
     "}\n"
     "\n"
+    "QLineEdit, QTextEdit {border: 1px solid white;}\n"
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
