@@ -8,14 +8,14 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config
-import os
+from config import config, get_path
 from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, offer_flow_temp_level, \
     offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, \
     offer_short_flow_english, offer_short_temp_english, offer_short_level_english
 from datetime import *
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Form(object):
@@ -49,7 +49,7 @@ class Ui_ExportOffer_Form(object):
         ExportOffer_Form.setMinimumSize(QtCore.QSize(750, 425))
         ExportOffer_Form.setMaximumSize(QtCore.QSize(750, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Form.setWindowIcon(icon)
         ExportOffer_Form.setStyleSheet(
 "QPushButton {\n"
@@ -490,37 +490,13 @@ class Ui_ExportOffer_Form(object):
             format_offer = 'Not Value'
 
         if any(value  in ['None',''] for value in [validity, delivery_time, delivery_term, testinspection, project]):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar Oferta")
-            dlg.setText('Los campos "Validez", "T. Entrega", "Cond. Entrega" y "Test & Inspec." no puede ser "None" ni estar vacíos')
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message('Los campos "Validez", "T. Entrega", "Cond. Entrega" y "Test & Inspec." no puede ser "None" ni estar vacíos', "warning")
 
         elif pay_term == 'Not Value':
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Exportar Oferta")
-                dlg.setText("Selecciona un método de pago")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Selecciona un método de pago", "warning")
 
         elif format_offer == 'Not Value':
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Exportar Oferta")
-                dlg.setText("Selecciona un formato de oferta")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Selecciona un formato de oferta", "warning")
 
         else:
             #SQL Query for updating values in database
@@ -529,20 +505,12 @@ class Ui_ExportOffer_Form(object):
                         SET "validity" = %s, "delivery_time" = %s, "delivery_term" = %s, "project" = %s, "payment_term" = %s, "last_rev"= %s, "last_rev_date" = %s
                         WHERE "num_offer" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data=(validity, delivery_time, delivery_term, project, pay_term, rev, actual_date, numoffer,)
-                cur.execute(commands_updateofferdata,data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        data=(validity, delivery_time, delivery_term, project, pay_term, rev, actual_date, numoffer,)
+                        cur.execute(commands_updateofferdata,data)
 
                 if format_offer == 'Long':
                     if self.variable == 'Caudal':
@@ -636,32 +604,13 @@ class Ui_ExportOffer_Form(object):
                             offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                             offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Exportar Oferta")
-                dlg.setText("Oferta exportada con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Oferta exportada con éxito", "info")
 
                 # ExportOffer_Form.close
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
     def queryofferdata(self):
         """
@@ -675,20 +624,12 @@ class Ui_ExportOffer_Form(object):
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_loaddataoffer,(numoffer,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_loaddataoffer,(numoffer,))
+                    results=cur.fetchall()
 
             self.Validity_ExportOffer_Form.setText(str(results[0][0]))
             self.DeliveryTime_ExportOffer_Form.setText(str(results[0][1]))
@@ -696,19 +637,8 @@ class Ui_ExportOffer_Form(object):
             self.Project_ExportOffer_Form.setText(str(results[0][3]))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 if __name__ == "__main__":

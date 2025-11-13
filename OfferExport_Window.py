@@ -8,11 +8,10 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config import config  
-import os
+from config import config, get_path  
 from OfferExport_Form import Ui_ExportOffer_Form
-
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
 
 class Ui_ExportOffer_Window(object):
@@ -45,7 +44,7 @@ class Ui_ExportOffer_Window(object):
         ExportOffer_Window.setMinimumSize(QtCore.QSize(275, 390))
         ExportOffer_Window.setMaximumSize(QtCore.QSize(275, 390))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Window.setWindowIcon(icon)
         ExportOffer_Window.setAutoFillBackground(False)
         ExportOffer_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
@@ -192,46 +191,20 @@ class Ui_ExportOffer_Window(object):
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_checkoffer,(numoffer,))
-            results=cur.fetchall()
-            match=list(filter(lambda x:numoffer in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_checkoffer,(numoffer,))
+                    results=cur.fetchall()
+                    match=list(filter(lambda x:numoffer in x, results))
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if numoffer=="" or (numoffer==" " or len(match)==0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar Oferta")
-            dlg.setText("El número de oferta no se encuentra registrado")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("El número de oferta no se encuentra registrado", "warning")
 
         else:
             query_typematerial = ('''
@@ -241,17 +214,14 @@ class Ui_ExportOffer_Window(object):
                         WHERE
                         UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
                         ''')
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur=conn.cursor()
-                cur.execute(query_typematerial,(numoffer,))
-                results_variable=cur.fetchone()
-                variable = results_variable[1] if results_variable != None else ''
-                responsible = results_variable[2] if results_variable != None else ''
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_typematerial,(numoffer,))
+                        results_variable=cur.fetchone()
+                        variable = results_variable[1] if results_variable != None else ''
+                        responsible = results_variable[2] if results_variable != None else ''
 
                 self.exportoffer_form=QtWidgets.QMainWindow()
                 self.ui=Ui_ExportOffer_Form(responsible,numoffer,revision,variable)
@@ -260,23 +230,9 @@ class Ui_ExportOffer_Window(object):
                 ExportOffer_Window.hide()
                 self.ui.Button_Cancel.clicked.connect(ExportOffer_Window.show)
 
-            # close communication with the PostgreSQL database server
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 if __name__ == "__main__":
