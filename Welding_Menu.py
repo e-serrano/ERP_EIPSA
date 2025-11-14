@@ -18,6 +18,7 @@ from PDF_Styles import welding_homologation
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
+from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
 
@@ -141,6 +142,16 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
         self.Button_Homologation.setObjectName("Button_Homologation")
         self.Button_Homologation.setText("Homologación")
         self.verticalLayout_3.addWidget(self.Button_Homologation)
+        self.Button_Homologation_PED = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Homologation_PED.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Homologation_PED.setFont(font)
+        self.Button_Homologation_PED.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Homologation_PED.setObjectName("Button_Homologation_PED")
+        self.Button_Homologation_PED.setText("Homologación PED")
+        self.verticalLayout_3.addWidget(self.Button_Homologation_PED)
         self.Button_Resume = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Resume.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -183,6 +194,7 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
         self.retranslateUi(Welding_Menu)
         self.Button_Cancel.clicked.connect(Welding_Menu.close) # type: ignore
         self.Button_Homologation.clicked.connect(self.homologation_data)
+        self.Button_Homologation_PED.clicked.connect(self.homologation_ped)
         self.Button_Resume.clicked.connect(self.resume_data)
 
         QtCore.QMetaObject.connectSlotsByName(Welding_Menu)
@@ -197,6 +209,19 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
         Welding_Menu.setWindowTitle(_translate("Welding_Menu", "Pruebas"))
         self.Button_Cancel.setText(_translate("Welding_Menu", "Cancelar"))
 
+
+    def homologation_ped(self):
+        from Workshop_PED_Welding_Certificates_Window import Ui_Workshop_PED_Welding_Certificates_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_ped = Create_DBconnection(user_database, password_database)
+        if not db_ped:
+            sys.exit()
+
+        self.edit_tags_app = Ui_Workshop_PED_Welding_Certificates_Window(db_ped, self.username )
+        self.edit_tags_app.showMaximized()
 
 # Function to query data related to welding homolgation and generate a PDF report
     def homologation_data(self):
