@@ -163,6 +163,9 @@ def general_dwg_landscape(num_ot, material=None):
     pdf.set_font("helvetica", "B", 12)
     pdf.set_text_color(49, 49, 229)
 
+    x_center = pdf.w / 2
+    y_center = pdf.h / 2
+
     query = ('''
         SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
         FROM validation_data.material_color_code AS colors
@@ -184,18 +187,19 @@ def general_dwg_landscape(num_ot, material=None):
     border_color = results_colors[0][2]
 
     pdf.add_page()
-    pdf.image(str(get_path("Resources", "Iconos", "QualityStamp.png")), x = 130, y = 3, w = 15, h = 10)
+    with pdf.rotation(angle=90, x=130, y=283):
+        pdf.image(str(get_path("Resources", "Iconos", "QualityStamp.png")), x = 130, y = 283, w = 15, h = 10)
 
     pdf.set_line_width(1)
     pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(5, 18, 199, 271, style='D')
+    pdf.rect(5, 4, 199, 276, style='D')
 
     pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(4, 17, 201, 273, style='D')
+    pdf.rect(4, 3, 201, 278, style='D')
 
     if border_color is not None:
         pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(3, 16, 203, 275, style='D')
+        pdf.rect(3, 2, 203, 280, style='D')
 
     pdf.set_xy(18, 263)
 
@@ -204,8 +208,8 @@ def general_dwg_landscape(num_ot, material=None):
     pdf.set_font("IDAutomationHC39M", size=16)
     pdf.set_x(160)
     pdf.set_y(8)
-    # with pdf.rotation(90):
-    pdf.cell(60, 10, "*" + num_ot + "*", align='C')
+    with pdf.rotation(180, x_center, y_center):
+        pdf.cell(60, 10, "*" + num_ot + "*", align='C')
 
     pdf.set_font("helvetica", "B", 12)
 
