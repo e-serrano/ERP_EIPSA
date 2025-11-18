@@ -484,7 +484,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
             print(tables_db_names)
 
-            tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Productos Químicos', 'Albaranes', 'Verif. Planos DIM',
+            tables_names = ['Cert. PED Soldadura', 'Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Productos Químicos', 'Albaranes', 'Verif. Planos DIM',
                             'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Humedad y Temperatura Armario','Valores PT100 INTA', 'Valores TC INTA',
                             'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
                             'Revisiones Máquinas', 'Manometros', 'Manometros y Termoelementos Taller', 'Revisiones Manometros y Termoelementos Taller', 'Patrones Termoelementos',
@@ -497,7 +497,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
             self.dict_tables = dict(zip(tables_db_names, tables_names))
 
-            tables_to_delete = ['al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification', 'flanges_verification',
+            tables_to_delete = ['PED_Welding_certificates', 'al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification', 'flanges_verification',
                                 'gas_flowmeters_workshop','gas_flowmeters_workshop_revisions','handtools_workshop','handtools_workshop_revisions', 'humidity_temp_closet','exp_verification', 'm_drawing_verification', 'machines_workshop',
                                 'machines_workshop_revisions', 'manometers_thermoelements_workshop', 'manometers_thermoelements_workshop_revisions', 'nc_report', 'of_drawing_verification',
                                 'ppi_verification', 'staff_certificates', 'suppliers_verification', 'test_hardness', 'test_hydro',
