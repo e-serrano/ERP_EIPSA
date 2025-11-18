@@ -733,7 +733,6 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.set_fill_color(3, 174, 236)
 
     df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Responsable', 'Nº Oferta'])
-
     if df_registered.shape[0] > 0:
         pdf.cell(3, 0.5, 'REGISTRADAS:')
         pdf.cell(3, 0.5, str(df_registered.shape[0]), align='L')
@@ -811,89 +810,87 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.ln()
 
     df_study = df_active[df_active['Estado'] == 'En Estudio'].sort_values(by=['Responsable', 'Nº Oferta'])
+    if df_study.shape[0] > 0:
+        df_study['Fecha Vto.'] = pd.to_datetime(df_study['Fecha Vto.'], format='%d/%m/%Y', errors='coerce')
+        df_study['days_diff'] = (pd.Timestamp.today() - df_study['Fecha Vto.']).dt.days
+        df_study['Fecha Vto.'] = df_study['Fecha Vto.'].dt.strftime('%d/%m/%Y')
 
-    df_study['Fecha Vto.'] = pd.to_datetime(df_study['Fecha Vto.'], format='%d/%m/%Y', errors='coerce')
-    df_study['days_diff'] = (pd.Timestamp.today() - df_study['Fecha Vto.']).dt.days
-    df_study['Fecha Vto.'] = df_study['Fecha Vto.'].dt.strftime('%d/%m/%Y')
+        pdf.set_font('Helvetica', 'B', size=7)
+        pdf.cell(3, 0.5, 'EN ESTUDIO:')
+        pdf.cell(3, 0.5, str(df_study.shape[0]), align='L')
+        pdf.ln(0.5)
 
-    pdf.set_font('Helvetica', 'B', size=7)
-    pdf.cell(3, 0.5, 'EN ESTUDIO:')
-    pdf.cell(3, 0.5, str(df_study.shape[0]), align='L')
-    pdf.ln(0.5)
+        pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
+        pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
+        pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
+        pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
+        pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+        pdf.ln()
 
-    pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
-    pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
-    pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
-    pdf.ln()
+        pdf.set_fill_color(255, 105, 105)
+        pdf.set_font('DejaVuSansCondensed', size=6)
+        for _, row in df_study.iterrows():
+            # getting the required height of the row
+            line_h = pdf.font_size * 1.5
+            h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
+            h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
+            h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
 
-    pdf.set_fill_color(255, 105, 105)
-    pdf.set_font('DejaVuSansCondensed', size=6)
-    for _, row in df_study.iterrows():
-        # getting the required height of the row
-        line_h = pdf.font_size * 1.5
-        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
-        h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+            row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
 
-        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+            # Setting values for table
+            pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
+            pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
-        # Setting values for table
-        pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
-        pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+            pdf.set_xy(x + 3, y)
 
-        x = pdf.get_x()
-        y = pdf.get_y()
-        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-        pdf.set_xy(x + 3, y)
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
+            pdf.set_xy(x + 3.5, y)
 
-        x = pdf.get_x()
-        y = pdf.get_y()
-        pdf.fixed_height_multicell(3.5, row_height, '' if row['Cl. Final'] is None else str(row['Cl. Final']), border=1)
-        pdf.set_xy(x + 3.5, y)
+            pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
+            pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C', fill=True if row['days_diff'] > 0 else False)
+            pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
+            pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
-        pdf.cell(1.5, row_height, '' if row['Fecha Rec.'] is None else str(row['Fecha Rec.']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C', fill=True if row['days_diff'] > 0 else False)
-        pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+            pdf.set_xy(x + 2.75, y)
 
-        x = pdf.get_x()
-        y = pdf.get_y()
-        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-        pdf.set_xy(x + 2.75, y)
+            pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
+            pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
-        pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+            pdf.set_xy(x + 2.5, y)
 
-        x = pdf.get_x()
-        y = pdf.get_y()
-        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
-        pdf.set_xy(x + 2.5, y)
+            pdf.ln(row_height)
 
-        pdf.ln(row_height)
-
-    pdf.set_font('DejaVuSansCondensed-Bold', size=7)
-    pdf.cell(20.75, 0.3, '')
-    pdf.cell(5, 0.3, 'TOTAL:', align='R')
-    pdf.cell(3, 0.3, euro_format(df_study['Importe Euros'].sum()), align='C')
-    pdf.ln()
-
-    # pdf.add_page()
+        pdf.set_font('DejaVuSansCondensed-Bold', size=7)
+        pdf.cell(20.75, 0.3, '')
+        pdf.cell(5, 0.3, 'TOTAL:', align='R')
+        pdf.cell(3, 0.3, euro_format(df_study['Importe Euros'].sum()), align='C')
+        pdf.ln()
 
     df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Fecha Pres.'])
     
@@ -1062,7 +1059,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     df_budgetary = df_active[(df_active['Estado'] == 'Budgetary') & (pd.to_datetime(df_active['Fecha Rec.'], dayfirst=True, errors='coerce').dt.year == datetime.now().year)].sort_values(by=['Responsable', 'Nº Oferta'])
 
     pdf.set_font('Helvetica', 'B', size=7)
-    pdf.cell(3, 0.5, 'BUDGETARIES (' + str(datetime.now().year) + ':')
+    pdf.cell(3, 0.5, 'BUDGETARIES (' + str(datetime.now().year) + '):')
     pdf.cell(3, 0.5, str(df_budgetary.shape[0]), align='L')
     pdf.ln(0.5)
 
@@ -1140,7 +1137,6 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
 
     pdf.set_fill_color(3, 174, 236)
 
-
     return pdf
 
 def euro_format(valor):
@@ -1195,17 +1191,19 @@ def graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2):
 
     pivot_table_commercial_1 = df_graph_commercial_1.pivot_table(index='Responsable', columns='Estado', values='Importe Final', aggfunc='sum', fill_value=0)
 
+    pivot_table_commercial_1.columns = pivot_table_commercial_1.columns.str.strip()
     categories = pivot_table_commercial_1.index.tolist()
     final_states = list(final_state_mapping.keys())
     final_values = np.zeros((len(categories), len(final_states)))
 
-    for state in state_colors.keys():
-        if state not in pivot_table_commercial_1.columns:
-            pivot_table_commercial_1[state] = 0
+    for col_list in final_state_mapping.values():
+        for col in col_list:
+            if col not in pivot_table_commercial_1.columns:
+                pivot_table_commercial_1[col] = 0
 
+    # Calcular los valores finales por estado
     for j, final_state in enumerate(final_states):
         original_list = final_state_mapping[final_state]
-        # Sumatorio de las columnas originales que forman el estado final
         final_values[:, j] = pivot_table_commercial_1[original_list].sum(axis=1)
 
     x = np.arange(len(categories))           # Categories position
@@ -1232,17 +1230,19 @@ def graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2):
 
     pivot_table_commercial_2 = df_graph_commercial_2.pivot_table(index='Responsable', columns='Estado', values='Nº Oferta', aggfunc='count', fill_value=0)
 
+    pivot_table_commercial_2.columns = pivot_table_commercial_2.columns.str.strip()
     categories = pivot_table_commercial_2.index.tolist()
     final_states = list(final_state_mapping.keys())
     final_values = np.zeros((len(categories), len(final_states)))
 
-    for state in state_colors.keys():
-        if state not in pivot_table_commercial_2.columns:
-            pivot_table_commercial_2[state] = 0
+    for col_list in final_state_mapping.values():
+        for col in col_list:
+            if col not in pivot_table_commercial_2.columns:
+                pivot_table_commercial_2[col] = 0
 
+    # Calcular los valores finales por estado
     for j, final_state in enumerate(final_states):
         original_list = final_state_mapping[final_state]
-        # Sumatorio de las columnas originales que forman el estado final
         final_values[:, j] = pivot_table_commercial_2[original_list].sum(axis=1)
 
     x = np.arange(len(categories))           # Categories position
