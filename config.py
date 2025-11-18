@@ -1,16 +1,7 @@
 #!/usr/bin/python
 from configparser import ConfigParser
 from pathlib import Path
-import sys
 from config_keys import HOST_DATABASE, NAME_DATABASE, INI_FILE_PATH, APP_PATH
-
-# Base directory for the project (common folder for all PCs)
-if getattr(sys, 'frozen', False):
-    # If running as PyInstaller exe
-    BASEDIR = Path(sys.executable).parent
-else:
-    # If running as normal Python script
-    BASEDIR = Path(r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP")
 
 
 # Helper function to build paths
