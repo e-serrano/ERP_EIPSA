@@ -21,6 +21,7 @@ from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
+from PDF_Styles import welding_homologation
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -562,7 +563,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
 
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        # self.toolExpData.clicked.connect(self.export_data)
+        self.toolExpData.clicked.connect(self.export_data)
         self.toolPDF.clicked.connect(self.add_pdf)
 
         self.query_certificates()
@@ -1328,15 +1329,14 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
                 tag_data = []
                 for column in visible_columns:
                     value = self.proxy.data(self.proxy.index(row, column))
-                    if isinstance(value, QDate):
-                        value = value.toString("dd/MM/yyyy")
                     tag_data.append(value)
                 final_data.append(tag_data)
 
             final_data.insert(0, visible_headers)
             df = pd.DataFrame(final_data)
             df.columns = df.iloc[0]
-            df = df[1:]
+
+            df = df.iloc[1:, 1:-1]
 
             while True:
                 doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
@@ -1372,68 +1372,120 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
 
-        pdf = CustomPDF('P', 'cm', 'A4')
+        commands_welding = ("""
+                        SELECT personal."name", TO_CHAR(Max(imp_ot."date_ot"), 'dd/mm/yyyy') as max_date, operations."name_eipsa"
+                        FROM fabrication.personal AS personal
+                        RIGHT JOIN fabrication.imp_ot AS imp_ot ON personal."code" = imp_ot."personal_id"
+                        LEFT JOIN fabrication.operations AS operations ON imp_ot."operations_id" = operations."id"
+                        GROUP BY personal."name", operations."name_eipsa", personal."code", operations."name"
+                        HAVING (personal."code" = 13 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '012 TIG + ELECTRODO (GTAW + SMAW)')) OR (personal."code" = 67 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '012 TIG + ELECTRODO (GTAW + SMAW)'))
+                        ORDER BY personal."name", operations."name_eipsa", personal."code"
+                        """)
 
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_welding)
+                    results = cur.fetchall()
+                    df_weld_dates = pd.DataFrame(results, columns=["name", "max_date", "operation"])
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+        df_weld_dates['name'] = df_weld_dates['name'].replace('ROMERO, Luis', 'LUIS ROMEO')
+        df_weld_dates['name'] = df_weld_dates['name'].replace('SEGURA RODRIGUEZ, Javier', 'JAVIER SEGURA')
+        df_weld_dates['operation'] = df_weld_dates['operation'].replace('011 TIG (GTAW)', 'GTAW')
+        df_weld_dates['operation'] = df_weld_dates['operation'].replace('012 TIG + ELECTRODO (GTAW + SMAW)', 'GTAW+SMAW')
+
+        df_final = dataframe.merge(
+        df_weld_dates[['name', 'operation', 'max_date']],
+        left_on=['SOLDADORES', 'PROCESO'],
+        right_on=['name', 'operation'],
+        how='left'
+        )
+
+        df_final['max_date'] = pd.to_datetime(df_final['max_date'], format='%d/%m/%Y', dayfirst=True)
+        df_final['FECHA SOLD.'] = pd.to_datetime(df_final['FECHA SOLD.'], format='%d/%m/%Y', dayfirst=True)
+        df_final['FECHA_6M'] = df_final['FECHA SOLD.'] + pd.DateOffset(months=6)
+        df_final['DIF_DIAS'] = (df_final['FECHA_6M'] - df_final['max_date']).dt.days
+
+        pdf = welding_homologation()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
         pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
         pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.set_xy(16, 0.5)
+        pdf.cell(3, 0.5, self.format_date_spanish(date.today()))
+        pdf.ln(1)
 
-        pdf.set_auto_page_break(auto=True)
-        pdf.set_margins(1.5, 1.5)
-
-        pdf.add_page()
-
-        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
-        pdf.ln()
-        pdf.set_font('Helvetica', 'B', 18)
-        pdf.multi_cell(18, 1, "RELACION DE CALIBRADO DE EQUIPOS DE SOLDADURA", align='C')
-        pdf.ln(0)
-        pdf.cell(18, 0.5, "")
-        pdf.ln()
-        y_position = pdf.get_y()
-        pdf.set_font('Helvetica', '', 8)
-        pdf.cell(2, 1, "NUMERO", border=1, align='C')
-        pdf.cell(4, 1, "INSTRUMENTO", border=1, align='C')
-        pdf.cell(4, 1, "CERTIFICADO", border=1, align='L')
-        pdf.multi_cell(2.5, 0.5, "FECHA ULTIMA CALIBRACION", border=1, align='L')
-        pdf.set_xy(pdf.get_x(), y_position)
-        pdf.multi_cell(3, 0.5, "FECHA PROXIMA CALIBRACION", border=1, align='L')
-        pdf.set_xy(pdf.get_x(), y_position)
-        pdf.multi_cell(2.5, 0.5, "FREC. CALIBRACIÓN", border=1, align='L')
-        pdf.ln(0)
-
-        for i in range(dataframe.shape[0]):
-            y_position = pdf.get_y()
-            pdf.set_font('Helvetica', '', 8)
-            pdf.cell(2, 0.5, dataframe.iloc[i, 0], border=1, align='L')
-            pdf.cell(4, 0.5, dataframe.iloc[i, 1], border=1, align='L')
-            pdf.cell(2, 0.5, dataframe.iloc[i, 2], border='LTB', align='L')
-            pdf.cell(2, 0.5, dataframe.iloc[i, 3], border='RTB', align='L')
-            pdf.cell(2.5, 0.5, dataframe.iloc[i, 4], border=1, align='R')
-            pdf.cell(3, 0.5, dataframe.iloc[i, 5] if str(dataframe.iloc[i, 5]) != '' else '(1)', border=1, align='R')
-            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 6]) + " año" if str(dataframe.iloc[i, 6]) != '' else '', border=1, align='R')
-            pdf.ln()
-
-        pdf.set_y(27.5)
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(3, 0.5, 'Informe de estado de homologación de soldadores')
         pdf.set_font('Helvetica', 'B', 8)
-        pdf.cell(4.5, 0.5, "RPC-001-03", border=1, align='C')
-        pdf.cell(7.5, 0.5, "")
-        pdf.cell(6, 0.5, "Garantia de Calidad", align='C')
+
+        pdf.ln(2)
+
+        pdf.set_fill_color(121, 167, 227)
+        pdf.cell(3, 0.53, "Nombre", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(4, 0.53, "Procedimiento", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(4, 0.53, "Proceso", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(2, 0.53, "Última Fecha", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(4, 0.53, "Fecha Ctrl. Semestral", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(1, 0.53, "Días", align='C', fill=True)
+
         pdf.ln()
 
-        pdf.set_font('Helvetica', '', 8)
-        pdf.cell(12, 0.5, "")
-        pdf.cell(6, 0.5, str(datetime.today().strftime('%d/%m/%Y')), align='C')
-        pdf.ln()
+        for row in range(df_final.shape[0]):
+            pdf.cell(3, 0.53, df_final.iloc[row, 14], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(4, 0.53, df_final.iloc[row, 0], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(4, 0.53, df_final.iloc[row, 15], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(2, 0.53, df_final.iloc[row, 16].strftime("%d/%m/%Y"), align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(4, 0.53, df_final.iloc[row, 17].strftime("%d/%m/%Y"), align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(1, 0.53, str(int(df_final.iloc[row, 18])), align='C')
+
+            pdf.ln(1)
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
 
+        pdf.close()
+
         self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
+
+# Function to format date to long in spanish
+    def format_date_spanish(self, date_toformat):
+        """
+        Formats a date object to a long string in Spanish.
+
+        Args:
+            date_toformat (date): The date to format.
+            
+        Returns:
+            str: The formatted date as a string in the format "day de month de year".
+        """
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
 
 
 
