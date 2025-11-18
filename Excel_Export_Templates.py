@@ -10095,7 +10095,7 @@ class order_reports:
         Args:
             df (str): The order number.
         """
-        self.df_orders_P = df1.iloc[:, :-5]
+        self.df_orders_P = df1.iloc[:, :-3]
         self.df_orders_PA = df2
         self.df_orders_sent = df3
         self.df_orders_R = df4
