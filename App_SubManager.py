@@ -1018,6 +1018,10 @@ class Ui_App_SubManager(object):
                 with conn.cursor() as cur:
                     cur.execute(commands_appcomercial)
                     results=cur.fetchall()
+
+                    self.tableOffer.setUpdatesEnabled(False)
+                    self.tableOffer.blockSignals(True)   
+
                     self.tableOffer.setRowCount(len(results))
                     tablerow=0
 
@@ -1035,6 +1039,9 @@ class Ui_App_SubManager(object):
 
                     self.tableOffer.verticalHeader().hide()
                     self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
+
+                    self.tableOffer.blockSignals(False)
+                    self.tableOffer.setUpdatesEnabled(True)
                     self.tableOffer.setSortingEnabled(False)
 
         except (Exception, psycopg2.DatabaseError) as error:
