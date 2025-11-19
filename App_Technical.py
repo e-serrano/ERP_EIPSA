@@ -2831,16 +2831,21 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 # Function to open commercial menu
     def commercial_menu(self):
         while True:
-            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
+            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Consultar Ofertas',
+                                                                                                'Nueva Oferta',
                                                                                                 'Editar Oferta',
                                                                                                 'Reclamar Oferta',
+                                                                                                'Exportar Oferta',
                                                                                                 'Nuevo Pedido',
                                                                                                 'Editar Pedido',
                                                                                                 'Nuevo Tag(s)',
                                                                                                 'Editar Tag(s)'], 0, False)
             if ok and action:
                 while True:
-                    if action == 'Nueva Oferta':
+                    if action == 'Consultar Oferta':
+                        self.query_offer()
+                        break
+                    elif action == 'Nueva Oferta':
                         self.new_offer()
                         break
                     elif action == 'Editar Oferta':
@@ -2848,6 +2853,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                         break
                     elif action == 'Reclamar Oferta':
                         self.reclamation_offer()
+                        break
+                    elif action == 'Exportar Oferta':
+                        self.export_offer()
                         break
                     elif action == 'Nuevo Pedido':
                         self.new_order()
@@ -3082,6 +3090,25 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.order_control_window = Ui_Technical_Order_Control_Window(db_order_control, self.username)
         self.order_control_window.showMaximized()
 
+# Function to export offers in excel format
+    def export_offer(self):
+        from OfferExport_Window import Ui_ExportOffer_Window
+        """
+        Opens the 'export_offer' window. Sets up the UI for the user.
+        """
+        self.exportoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ExportOffer_Window(self.username)
+        self.ui.setupUi(self.exportoffer_window)
+        self.exportoffer_window.show()
+
+# Function to open window for query offers
+    def query_offer(self):
+        """
+        Opens a new window for querying offers. 
+        """
+        from OfferQuery_Window import Ui_QueryOffer_Window
+        self.query_offer_window=Ui_QueryOffer_Window(self.username)
+        self.query_offer_window.show()
 
 
 if __name__ == "__main__":
