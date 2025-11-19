@@ -57,7 +57,24 @@ class EditableTableModel(QtSql.QSqlTableModel):
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
         """
         super().__init__(parent)
+        self._modified_rows = set()
         self.column_range = column_range
+
+    def setData(self, index, value, role=QtCore.Qt.ItemDataRole.EditRole):
+        if role == QtCore.Qt.ItemDataRole.EditRole:
+            current_value = self.data(index, role)
+            if current_value != value:
+                success = super().setData(index, value, role)
+                if success:
+                    self._modified_rows.add(index.row())
+                return success
+        return super().setData(index, value, role)
+
+    def getModifiedRows(self):
+        return list(self._modified_rows)
+
+    def clearModifiedRows(self):
+        self._modified_rows.clear()
 
     def setAllColumnHeaders(self, headers):
         """
@@ -153,6 +170,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             db: The database connection.
         """
         super().__init__()
+        self._saving1 = False
         self.model = EditableTableModel()
         self.db = db
         self.username = username
@@ -441,6 +459,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
         self.retranslateUi(DBEditRegVerif_Window)
         self.comboBox.currentIndexChanged.connect(self.loadtable)
         self.Button_Add.clicked.connect(self.add_dbregister)
+        self.model.dataChanged.connect(self.saveChanges)
         QtCore.QMetaObject.connectSlotsByName(DBEditRegVerif_Window)
 
 
@@ -481,8 +500,6 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
         try:
             tables_db_names = [x[0] for x in results]
-
-            print(tables_db_names)
 
             tables_names = ['Cert. PED Soldadura', 'Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Productos Químicos', 'Albaranes', 'Verif. Planos DIM',
                             'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Humedad y Temperatura Armario','Valores PT100 INTA', 'Valores TC INTA',
@@ -541,6 +558,31 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
         Saves changes made to the data models and updates unique values for each column.
         """
         self.model.submitAll()
+
+        if self._saving1:
+            return  # Avoid recursive entries
+        self._saving1 = True
+
+        db = self.model.database()
+        db.transaction()
+
+        success = True
+        for row in self.model.getModifiedRows():
+            if not self.model.submit():
+                print(f"❌ Error guardando fila {row}: {self.model.lastError().text()}")
+                success = False
+
+        if success:
+            db.commit()
+
+            for row in self.model.getModifiedRows():
+                top_left = self.model.index(row, 0)
+                bottom_right = self.model.index(row, self.model.columnCount() - 1)
+                self.model.dataChanged.emit(top_left, bottom_right)
+        else:
+            db.rollback()
+
+        self.model.clearModifiedRows()
 
 # Function to add a new register to table
     def add_dbregister(self):
