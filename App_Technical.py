@@ -2839,7 +2839,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                                                                 'Nuevo Pedido',
                                                                                                 'Editar Pedido',
                                                                                                 'Nuevo Tag(s)',
-                                                                                                'Editar Tag(s)'], 0, False)
+                                                                                                'Editar Tag(s)',
+                                                                                                'Importar Tag(s)'], 0, False)
             if ok and action:
                 while True:
                     if action == 'Consultar Oferta':
@@ -2868,6 +2869,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                         break
                     elif action == 'Editar Tag(s)':
                         self.edit_tag_commercial()
+                        break
+                    elif action == 'Importar Tag(s)':
+                        self.import_tag()
                         break
                 break
             else:
@@ -3109,6 +3113,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=Ui_QueryOffer_Window(self.username)
         self.query_offer_window.show()
+
+# Function to open window for importing tags
+    def import_tag(self):
+        """
+        Opens the 'import_tag' window and closes the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            Create_Tag_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
+        from TAGImport_Window import Ui_ImportTAG_Window
+        self.import_tag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ImportTAG_Window()
+        self.ui.setupUi(self.import_tag_window)
+        self.import_tag_window.show()
 
 
 if __name__ == "__main__":
