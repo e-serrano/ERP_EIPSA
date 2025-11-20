@@ -731,12 +731,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
         else:
             try:
-                name, surname = [word.lower() for word in self.name.split()]
-                username = name[0] + "." + surname
-
                 with Database_Connection(config()) as conn:
                     with conn.cursor() as cur:
-                        data=(username,)
+                        data=(self.username,)
                         cur.execute(commands_responsiblemail,data)
                         results_email=cur.fetchall()
                         email=results_email[0][0]
@@ -888,6 +885,6 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Luis Bravo', 's.sanz')
+    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Luis Bravo', 'julian.martinez')
     ReclamationOffer_Window.show()
     sys.exit(app.exec())
