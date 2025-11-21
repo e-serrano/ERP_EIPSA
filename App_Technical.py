@@ -131,8 +131,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -1211,6 +1210,42 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Header.addWidget(self.Button_OT)
             spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem2)
+
+            self.Button_FactoryTimes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_FactoryTimes.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_FactoryTimes.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_FactoryTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_FactoryTimes.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_FactoryTimes.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Factory_Times.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_FactoryTimes.setIcon(icon2)
+            self.Button_FactoryTimes.setIconSize(QtCore.QSize(40, 40))
+            self.Button_FactoryTimes.setObjectName("Button_FactoryTimes")
+            self.Button_FactoryTimes.setToolTip("Tiempos Fabricación")
+            self.Header.addWidget(self.Button_FactoryTimes)
+            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem2)
             self.HeaderOT = QtWidgets.QLabel(parent=self.frame)
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -1235,8 +1270,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_PDFEdit.clicked.connect(self.editpdf)
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
             self.Button_OT.clicked.connect(self.otorder)
+            self.Button_FactoryTimes.clicked.connect(self.timesfactory)
             self.HeaderOT_scp.editingFinished.connect(self.save_otscp)
-        
+
         elif username in ["j.paredes"]:
             self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
@@ -1272,7 +1308,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Purchases.setToolTip("Compras")
             self.Header.addWidget(self.Button_Purchases)
             self.Button_Purchases.clicked.connect(self.purchase)
-        
+
         elif username in ["j.valtierra"]:
             self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
@@ -1708,7 +1744,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ClockIn.clicked.connect(self.clockin)
             self.Button_Index_Drawings.clicked.connect(self.index_drawing)
             self.Button_Verification.clicked.connect(self.verification)
-        
+
         elif username in ["s.sanchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -1744,7 +1780,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TechOffice.setToolTip("Oficina Técnica")
             self.Header.addWidget(self.Button_TechOffice)
             self.Button_TechOffice.clicked.connect(self.techoffice)
-        
+
         elif username in ["julian.martinez"]:
             self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
             self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
@@ -2079,7 +2115,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Provides options to edit the password.
         """
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
+        menu.setStyleSheet("QMenu { border: 1px solid; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
@@ -2327,15 +2363,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         header_labels = [self.tableDocs.horizontalHeaderItem(col).text() for col in sorted(cols)]
         for label in header_labels:
             cursor.insertText(label)
-            cursor.insertText('\t')  # Tab separador de columnas
-        cursor.insertText('\n')   # Salto de línea después de las cabeceras
+            cursor.insertText('\t')  # Tab column separator
+        cursor.insertText('\n')   # Line Break after headers
 
         for row in sorted(rows):
             for col in sorted(cols):
                 cell_data = self.tableDocs.item(row, col).data(QtCore.Qt.ItemDataRole.DisplayRole)
                 cursor.insertText(cell_data)
-                cursor.insertText('\t')  # Tab separador de columnas
-            cursor.insertText('\n')  # Salto de línea al final de la fila
+                cursor.insertText('\t')  # Tab column separator
+            cursor.insertText('\n')  # Line break after row end
 
         return text_doc.toPlainText()
 
@@ -3129,11 +3165,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.import_tag_window.show()
 
 
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','e.carrillo')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())
