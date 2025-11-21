@@ -2006,79 +2006,43 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if excel_file:
             try:
-    # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # Saving Excel in Pandas Dataframe
                 df = pd.read_excel(excel_file)
 
-            # Reading each row and inserting data in table
-                for index, row in df.iterrows():
-                # Creating SQL sentence
-                    values=[str(value) for value in row.values]
-                    values.append('')
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        for index, row in df.iterrows():
+                        # Creating SQL sentence
+                            values=[str(value) for value in row.values]
+                            values.append('')
 
-                    query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
-                    cur.execute(query, (values[0],))
-                    results=cur.fetchall()
-                    match=list(filter(lambda x:values[0] in x, results))
+                            query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
+                            cur.execute(query, (values[0],))
+                            results=cur.fetchall()
+                            match=list(filter(lambda x:values[0] in x, results))
 
-                    if len(match)>0:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Nuevo Documento")
-                        dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
+                            if len(match)>0:
+                                MessageHelper.show_message(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo", "warning")
 
-                    else:
-                        query = "SELECT id FROM document_type WHERE doc_type = %s"
-                        cur.execute(query, (values[4],))
-                    # get results from query
-                        resultado = cur.fetchone()
-                    # get id from table
-                        id_doctype = resultado[0]
-                    #inserting values to BBDD
-                        values[4]=str(id_doctype)
-                        values = "', '".join(['' if value=='nan' else value for value in values])
-                        sql_insertion = f"INSERT INTO documentation (num_doc_eipsa,num_doc_client,num_order,doc_title,doc_type_id,critical,state) VALUES ('{values}')"
-                    # Executing SQL sentence
-                        cur.execute(sql_insertion)
+                            else:
+                                query = "SELECT id FROM document_type WHERE doc_type = %s"
+                                cur.execute(query, (values[4],))
+                            # get results from query
+                                resultado = cur.fetchone()
+                            # get id from table
+                                id_doctype = resultado[0]
+                            #inserting values to BBDD
+                                values[4]=str(id_doctype)
+                                values = "', '".join(['' if value=='nan' else value for value in values])
+                                sql_insertion = f"INSERT INTO documentation (num_doc_eipsa,num_doc_client,num_order,doc_title,doc_type_id,critical,state) VALUES ('{values}')"
+                            # Executing SQL sentence
+                                cur.execute(sql_insertion)
+                    conn.commit()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Importar Documentos")
-                dlg.setText("Importación completada")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Importación completada", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to open window for documentation edition
     def edit_documents(self):
@@ -2252,59 +2216,34 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             final_df.columns = ['personal_id','date_ot', 'start_hour', 'end_hour', 'total_time','time_ot','number_ot','operations_id']
             final_df['number_ot'] = final_df['number_ot'].str.replace(' ', '')
 
-            params = config()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-
             try:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        for index, row in final_df.iterrows():
+                        # Create a list of pairs (column_name, column_value) for each column with value
+                            columns_values = [(column, row[column]) for column in final_df.columns if not pd.isnull(row[column])]
 
-                for index, row in final_df.iterrows():
-                # Create a list of pairs (column_name, column_value) for each column with value
-                    columns_values = [(column, row[column]) for column in final_df.columns if not pd.isnull(row[column])]
+                        # Creating string for columns names
+                            columns = ', '.join([column for column, _ in columns_values])
 
-                # Creating string for columns names
-                    columns = ', '.join([column for column, _ in columns_values])
+                        # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                            values = ', '.join([f"'{values.replace(':', '.')}'" if column in ['total_time', 'time_ot'] else f"'{values}'" for column, values in columns_values])
 
-                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                    values = ', '.join([f"'{values.replace(':', '.')}'" if column in ['total_time', 'time_ot'] else f"'{values}'" for column, values in columns_values])
+                            sql_insertion = f"INSERT INTO fabrication.imp_ot ({columns}) VALUES ({values})"
 
-                    sql_insertion = f"INSERT INTO fabrication.imp_ot ({columns}) VALUES ({values})"
+                            cur.execute(sql_insertion)
 
-                    cursor.execute(sql_insertion)
-
-                conn.commit()
-                cursor.close()
-
-                new_fname = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+                    conn.commit()
 
                 new_fname = "//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
 
                 os.rename(fname, new_fname)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("TXT importado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("TXT importado con éxito", "critical")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to show clock-in menu
     def clockin(self):
@@ -2427,20 +2366,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     FROM tags_data.tags_level
                                     WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
                                     ''')
-                                conn = None
                                 try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_flow,(order_number,))
-                                    results_flow=cur.fetchall()
-                                    cur.execute(query_temp,(order_number,))
-                                    results_temp=cur.fetchall()
-                                    cur.execute(query_level,(order_number,))
-                                    results_level=cur.fetchall()
+                                    with Database_Connection(config()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(query_flow,(order_number,))
+                                            results_flow=cur.fetchall()
+                                            cur.execute(query_temp,(order_number,))
+                                            results_temp=cur.fetchall()
+                                            cur.execute(query_level,(order_number,))
+                                            results_level=cur.fetchall()
 
                                     columns = ["tag", "technical_notes"]
                                     df_flow = pd.DataFrame(results_flow, columns=columns)
@@ -2470,45 +2404,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                             writer.append_pages_from_reader(reader)
                                             writer.write(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
 
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("ERP EIPSA")
-                                        dlg.setText("PDFs editados con éxito")
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                        dlg.exec()
-                                        del dlg, new_icon
+                                        MessageHelper.show_message("PDFs editados con éxito", "info")
 
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    print(error)
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Texto en PDF")
-                            dlg_error.setText("El número de pedido no puede estar vacío. Introduce un valor válido.")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                            MessageHelper.show_message("El número de pedido no puede estar vacío. Introduce un valor válido.", "warning")
                         else:
                             break
                 else:
@@ -2538,28 +2440,12 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 writer.append_pages_from_reader(reader)
                                 writer.write(output_path)
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("PDF Generado con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
+                                MessageHelper.show_message("PDF Generado con éxito", "info")
                                 del dlg, new_icon
 
                         except Exception as error:
-                            print(error)
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
                 break
             else:
                 break
@@ -2587,15 +2473,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     self.ui.setupUi(self.testquery_window)
                     self.testquery_window.showMaximized()
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Verificación")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -2672,63 +2550,23 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                                     excel_to_export = nuclear_annexes(annex_type, numorder, ana_code, ana_order, line_number)
                                                                     excel_to_export.save_excel_doc()
                                                                     break
-                                                                dlg_error = QtWidgets.QMessageBox()
-                                                                new_icon = QtGui.QIcon()
-                                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                                dlg_error.setWindowIcon(new_icon)
-                                                                dlg_error.setWindowTitle("Anexos Nucleares")
-                                                                dlg_error.setText("La línea no puede estar vacía")
-                                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                                dlg_error.exec()
-                                                                del dlg_error,new_icon
+                                                                MessageHelper.show_message("La línea no puede estar vacía", "warning")
                                                             else:
                                                                 break
                                                         break
-                                                    dlg_error = QtWidgets.QMessageBox()
-                                                    new_icon = QtGui.QIcon()
-                                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                    dlg_error.setWindowIcon(new_icon)
-                                                    dlg_error.setWindowTitle("Anexos Nucleares")
-                                                    dlg_error.setText("El pedido A.N.A. no puede estar vacío")
-                                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                    dlg_error.exec()
-                                                    del dlg_error,new_icon
+                                                    MessageHelper.show_message("El pedido A.N.A. no puede estar vacío", "warning")
                                                 else:
                                                     break
                                             break
-                                        dlg_error = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg_error.setWindowIcon(new_icon)
-                                        dlg_error.setWindowTitle("Anexos Nucleares")
-                                        dlg_error.setText("El código A.N.A. no puede estar vacío")
-                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                        dlg_error.exec()
-                                        del dlg_error,new_icon
+                                        MessageHelper.show_message("El código A.N.A. no puede estar vacío", "warning")
                                     else:
                                         break
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Anexos Nucleares")
-                            dlg_error.setText("El número de pedido no puede estar vacío")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                            MessageHelper.show_message("El número de pedido no puede estar vacío", "warning")
                         else:
                             break
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Anexos Nucleares")
-                dlg_error.setText("Selecciona un anexo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un anexo", "warning")
             else:
                 break
 
@@ -2815,15 +2653,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El pedido no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El pedido no puede estar vacío", "warning")
                             else:
                                 break
                         break
@@ -2840,27 +2670,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El número OT no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El número OT no puede estar vacío", "warning")
                             else:
                                 break
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Consultar tiempos")
-                dlg_error.setText("Selecciona un tipo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un tipo", "warning")
             else:
                 break
 
