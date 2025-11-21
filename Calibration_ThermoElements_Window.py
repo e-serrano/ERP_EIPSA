@@ -859,7 +859,11 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                             df_elements.loc[:,'master_4'] = master_4
 
                             df_elements['sensor'] = df_elements['sensor'].replace('A385', 'PT100')
-                            df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P' else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A' else 'NO PEDIDO'))
+                            df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P'
+                                                                                    else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A'
+                                                                                    else ('AL-' + x[1:3] + '/' + x[3:6] if x[0] == 'L'
+                                                                                    else ('NU-' + x[1:3] + '/' + x[3:6] if x[0] == 'N'
+                                                                                    else 'NO PEDIDO'))))
                             df_elements['tag'] = df_elements.index
                             df_elements['folder_data'] = subfolder
 
