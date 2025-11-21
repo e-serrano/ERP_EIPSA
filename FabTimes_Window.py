@@ -16,7 +16,8 @@ from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
-import re
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
@@ -647,9 +648,9 @@ class Ui_FabTimes_Window(object):
         self.gridLayout1.setObjectName("gridLayout1")
         self.tableTimes = CustomTableWidget()
         self.tableTimes.setObjectName("tableWidget")
-        self.tableTimes.setColumnCount(8)
+        self.tableTimes.setColumnCount(9)
         self.tableTimes.setRowCount(0)
-        for i in range(8):
+        for i in range(9):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(self.letter_size)
@@ -692,9 +693,9 @@ class Ui_FabTimes_Window(object):
         self.gridLayout2.setObjectName("gridLayout2")
         self.tableOT = CustomTableWidget()
         self.tableOT.setObjectName("tableOT")
-        self.tableOT.setColumnCount(3)
+        self.tableOT.setColumnCount(4)
         self.tableOT.setRowCount(0)
-        for i in range(3):
+        for i in range(4):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(self.letter_size)
@@ -702,6 +703,35 @@ class Ui_FabTimes_Window(object):
             item.setFont(font)
             self.tableOT.setHorizontalHeaderItem(i, item)
         self.gridLayout2.addWidget(self.tableOT, 1, 0, 1, 7)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.label_SumItems_OT = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems_OT.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_OT.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_OT.setText("")
+        self.label_SumItems_OT.setObjectName("label_SumItems_OT")
+        self.horizontalLayout.addWidget(self.label_SumItems_OT)
+        self.label_SumValue_OT = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue_OT.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_OT.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_OT.setText("")
+        self.label_SumValue_OT.setObjectName("label_SumValue_OT")
+        self.horizontalLayout.addWidget(self.label_SumValue_OT)
+        self.label_CountItems_OT = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_OT.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_OT.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_OT.setText("")
+        self.label_CountItems_OT.setObjectName("label_CountItems_OT")
+        self.horizontalLayout.addWidget(self.label_CountItems_OT)
+        self.label_CountValue_OT = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue_OT.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_OT.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_OT.setText("")
+        self.label_CountValue_OT.setObjectName("label_CountValue_OT")
+        self.horizontalLayout.addWidget(self.label_CountValue_OT)
+        self.gridLayout2.addLayout(self.horizontalLayout, 2, 0, 1, 7)
 
         self.gridLayout3 = QtWidgets.QGridLayout(self.tab_operation)
         self.gridLayout3.setSpacing(0)
@@ -751,8 +781,10 @@ class Ui_FabTimes_Window(object):
 
         self.loaddata(self.reference)
 
-        self.tableTimes.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableTimes.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_times)
+        self.tableOT.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_OT)
         self.tableTimes.itemSelectionChanged.connect(self.countSelectedCells)
+        self.tableOT.itemSelectionChanged.connect(self.countSelectedCells_OT)
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, FabTimes):
@@ -766,25 +798,29 @@ class Ui_FabTimes_Window(object):
         item = self.tableTimes.horizontalHeaderItem(0)
         item.setText(_translate("FabTimes", "Num. OT"))
         item = self.tableTimes.horizontalHeaderItem(1)
-        item.setText(_translate("FabTimes", "Fecha"))
+        item.setText(_translate("FabTimes", "Pedido"))
         item = self.tableTimes.horizontalHeaderItem(2)
-        item.setText(_translate("FabTimes", "Inicio"))
+        item.setText(_translate("FabTimes", "Fecha"))
         item = self.tableTimes.horizontalHeaderItem(3)
-        item.setText(_translate("FabTimes", "Fin"))
+        item.setText(_translate("FabTimes", "Inicio"))
         item = self.tableTimes.horizontalHeaderItem(4)
-        item.setText(_translate("FabTimes", "Total"))
+        item.setText(_translate("FabTimes", "Fin"))
         item = self.tableTimes.horizontalHeaderItem(5)
-        item.setText(_translate("FabTimes", "Total Efec."))
+        item.setText(_translate("FabTimes", "Total"))
         item = self.tableTimes.horizontalHeaderItem(6)
-        item.setText(_translate("FabTimes", "Nombre"))
+        item.setText(_translate("FabTimes", "Total Efec."))
         item = self.tableTimes.horizontalHeaderItem(7)
+        item.setText(_translate("FabTimes", "Nombre"))
+        item = self.tableTimes.horizontalHeaderItem(8)
         item.setText(_translate("FabTimes", "Operación"))
 
         item = self.tableOT.horizontalHeaderItem(0)
         item.setText(_translate("FabTimes", "Num. OT"))
         item = self.tableOT.horizontalHeaderItem(1)
-        item.setText(_translate("FabTimes", "Tiempo Total"))
+        item.setText(_translate("FabTimes", "Pedido"))
         item = self.tableOT.horizontalHeaderItem(2)
+        item.setText(_translate("FabTimes", "Tiempo Total"))
+        item = self.tableOT.horizontalHeaderItem(3)
         item.setText(_translate("FabTimes", "Tiempo Efectivo"))
 
         item = self.tableOperations.horizontalHeaderItem(0)
@@ -800,7 +836,6 @@ class Ui_FabTimes_Window(object):
         item.setText(_translate("FabTimes", "Tiempo Total"))
         item = self.tablePersonal.horizontalHeaderItem(2)
         item.setText(_translate("FabTimes", "Tiempo Efectivo"))
-        
 
 # Function to load data in table
     def loaddata(self, reference_query):
@@ -811,7 +846,17 @@ class Ui_FabTimes_Window(object):
 
         if reference_query[0] == 'P':
             commands_querytable = ("""
-                        SELECT DISTINCT orders."ot_num", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
+                        SELECT DISTINCT orders."ot_num", 
+                        CASE
+                            WHEN split_part(tag, '-', 3) ~ '^[A-Za-z][0-9]+$' THEN
+                                split_part(tag, '-', 1) || '-' ||
+                                split_part(tag, '-', 2) || '-' ||
+                                split_part(tag, '-', 3)
+                            ELSE
+                                split_part(tag, '-', 1) || '-' ||
+                                split_part(tag, '-', 2)
+                        END AS order,
+                        TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
                         REPLACE(TO_CHAR(times."total_time", '90.00'), '.', ':'), REPLACE(TO_CHAR(times."time_ot", '90.00'), '.', ':'),
                         personal."name", operations."name", times."cent_total_time", times."cent_time_ot", times."date_ot"
                         FROM fabrication.imp_ot AS times
@@ -822,9 +867,20 @@ class Ui_FabTimes_Window(object):
                         ORDER BY times."date_ot" ASC
                         """)
             self.label.setText('Pedido:')
+
         else:
             commands_querytable = ("""
-                        SELECT DISTINCT times."number_ot", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
+                        SELECT DISTINCT times."number_ot",
+                        CASE
+                            WHEN split_part(tag, '-', 3) ~ '^[A-Za-z][0-9]+$' THEN
+                                split_part(tag, '-', 1) || '-' ||
+                                split_part(tag, '-', 2) || '-' ||
+                                split_part(tag, '-', 3)
+                            ELSE
+                                split_part(tag, '-', 1) || '-' ||
+                                split_part(tag, '-', 2)
+                        END AS order,
+                        TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
                         REPLACE(TO_CHAR(times."total_time", '90.00'), '.', ':'), REPLACE(TO_CHAR(times."time_ot", '90.00'), '.', ':'),
                         personal."name", operations."name", times."cent_total_time", times."cent_time_ot", times."date_ot"
                         FROM fabrication.imp_ot AS times
@@ -836,24 +892,14 @@ class Ui_FabTimes_Window(object):
             self.label.setText('Número OT:')
 
         self.reference_value.setText(reference_query)
-        conn = None
 
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytable,(reference_query,))
-            results=cur.fetchall()
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_querytable,(reference_query,))
+                    results=cur.fetchall()
 
-            dataframe_times = pd.DataFrame(results, columns=['Num. OT', 'Fecha', 'Inicio', 'Fin', 'Total', 'Efectivo', 'Nombre', 'Operación', 'Total C', 'Efectivo C', 'Fecha OT'])
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            dataframe_times = pd.DataFrame(results, columns=['Num. OT', 'Pedido', 'Fecha', 'Inicio', 'Fin', 'Total', 'Efectivo', 'Nombre', 'Operación', 'Total C', 'Efectivo C', 'Fecha OT'])
 
             font = QtGui.QFont()
             font.setPointSize(self.letter_table_size)
@@ -875,20 +921,8 @@ class Ui_FabTimes_Window(object):
                 tablerow+=1
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.total_time.setText(self.format_time(str(dataframe_times['Total C'].sum())))
         self.efective_time.setText(self.format_time(str(dataframe_times['Efectivo C'].sum())))
@@ -896,11 +930,11 @@ class Ui_FabTimes_Window(object):
         if reference_query[0] != 'P':
             self.tableTimes.hideColumn(0)
 
-        group_ot = dataframe_times.groupby(['Num. OT']).agg({'Total C': 'sum', 'Efectivo C': 'sum'}).reset_index()
+        group_ot = dataframe_times.groupby(['Num. OT', 'Pedido']).agg({'Total C': 'sum', 'Efectivo C': 'sum'}).reset_index()
         group_operations = dataframe_times.groupby(['Operación']).agg({'Total C': 'sum', 'Efectivo C': 'sum'}).reset_index()
         group_personal = dataframe_times.groupby(['Nombre']).agg({'Total C': 'sum', 'Efectivo C': 'sum'}).reset_index()
 
-    # fill the Qt Table with the query results
+    # fill the OT Table with the query results
         self.tableOT.setRowCount(group_ot.shape[0])
         tablerow=0
         for row in range(group_ot.shape[0]):
@@ -908,7 +942,7 @@ class Ui_FabTimes_Window(object):
                 value = group_ot.iloc[row, column]
                 if value is None:
                     value = ''
-                it = QtWidgets.QTableWidgetItem(str(value if column == 0 else self.format_time(str(value))))
+                it = QtWidgets.QTableWidgetItem(str(value if column in [0, 1] else self.format_time(str(value))))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableOT.setItem(tablerow, column, it)
@@ -916,7 +950,7 @@ class Ui_FabTimes_Window(object):
             self.tableOT.setItemDelegateForRow(tablerow, AlignDelegate(self.tableOT))
             tablerow+=1
 
-    # fill the Qt Table with the query results
+    # fill the Operations Table with the query results
         self.tableOperations.setRowCount(group_operations.shape[0])
         tablerow=0
         for row in range(group_operations.shape[0]):
@@ -932,7 +966,7 @@ class Ui_FabTimes_Window(object):
             self.tableOperations.setItemDelegateForRow(tablerow, AlignDelegate(self.tableOperations))
             tablerow+=1
 
-    # fill the Qt Table with the query results
+    # fill the Personal Table with the query results
         self.tablePersonal.setRowCount(group_personal.shape[0])
         tablerow=0
         for row in range(group_personal.shape[0]):
@@ -947,8 +981,6 @@ class Ui_FabTimes_Window(object):
 
             self.tablePersonal.setItemDelegateForRow(tablerow, AlignDelegate(self.tablePersonal))
             tablerow+=1
-
-
 
         self.tableTimes.verticalHeader().hide()
         self.tableTimes.setSortingEnabled(False)
@@ -973,7 +1005,6 @@ class Ui_FabTimes_Window(object):
         self.tablePersonal.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tablePersonal.setStyleSheet("gridline-color: rgb(128, 128, 128);")
         self.tablePersonal.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
-
 
 # Function to generate excel
     def generate_excel(self):
@@ -1006,8 +1037,8 @@ class Ui_FabTimes_Window(object):
             # Save Excel
             wb.save(output_path)
 
-# Function when header table is clicked
-    def on_header_section_clicked(self, logical_index):
+# Function when header table times is clicked
+    def on_header_section_clicked_times(self, logical_index):
         """
         Handles the click event on the table header.
         Displays a context menu for unique values in the clicked column header.
@@ -1017,31 +1048,124 @@ class Ui_FabTimes_Window(object):
         popup_pos = self.tableTimes.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTimes.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function when header table OT is clicked
+    def on_header_section_clicked_OT(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
+        header_pos = self.tableOT.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableOT.horizontalHeader().height()
+        popup_pos = self.tableOT.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableOT.show_unique_values_menu(logical_index, popup_pos, header_height)
+
 # Function to count selected cell and sum its values if possible
     def countSelectedCells(self):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
         """
-        if len(self.tableTimes.selectedIndexes()) > 1:
-            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-            self.label_SumItems.setText("")
-            self.label_SumValue.setText("")
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        indexes = self.tableTimes.selectedIndexes()
 
-            sum_value = sum([(float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() > 1) else 0) for ix in self.tableTimes.selectedIndexes()])
-            count_value = len([ix for ix in self.tableTimes.selectedIndexes() if ix.data() != ""])
-            if sum_value > 0:
-                self.label_SumItems.setText("Suma:")
-                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
-            if count_value > 0:
-                self.label_CountItems.setText("Recuento:")
-                self.label_CountValue.setText(str(count_value))
+        # Reset labels
+        self.label_SumItems.setText("")
+        self.label_SumValue.setText("")
+        self.label_CountItems.setText("")
+        self.label_CountValue.setText("")
+
+
+        if len(indexes) < 1:
+            return
+
+        total_minutes = 0
+        count_non_empty = 0
+
+        for ix in indexes:
+            value = ix.data()
+
+            if not value:
+                continue
+
+            count_non_empty += 1
+
+            val = str(value).strip()
+
+            if ":" in val:
+                parts = val.split(":")
+                if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                    horas = int(parts[0])
+                    minutos = int(parts[1])
+                    total_minutes += horas * 60 + minutos
+                    continue
+
+        if total_minutes > 0:
+            hh = total_minutes // 60
+            mm = total_minutes % 60
+            sum_horas = f"{hh:02d}:{mm:02d}"
         else:
-            self.label_SumItems.setText("")
-            self.label_SumValue.setText("")
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+            sum_horas = None
+
+        if sum_horas:
+            self.label_SumItems.setText("Suma:")
+            self.label_SumValue.setText(sum_horas)
+
+        if count_non_empty > 0:
+            self.label_CountItems.setText("Recuento:")
+            self.label_CountValue.setText(str(count_non_empty))
+
+# Function to count selected cell and sum its values if possible
+    def countSelectedCells_OT(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        indexes = self.tableOT.selectedIndexes()
+
+        # Reset labels
+        self.label_SumItems_OT.setText("")
+        self.label_SumValue_OT.setText("")
+        self.label_CountItems_OT.setText("")
+        self.label_CountValue_OT.setText("")
+
+
+        if len(indexes) < 1:
+            return
+
+        total_minutes = 0
+        count_non_empty = 0
+
+        for ix in indexes:
+            value = ix.data()
+
+            if not value:
+                continue
+
+            count_non_empty += 1
+
+            val = str(value).strip()
+
+            if ":" in val:
+                parts = val.split(":")
+                if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                    horas = int(parts[0])
+                    minutos = int(parts[1])
+                    total_minutes += horas * 60 + minutos
+                    continue
+
+        if total_minutes > 0:
+            hh = total_minutes // 60
+            mm = total_minutes % 60
+            sum_horas = f"{hh:02d}:{mm:02d}"
+        else:
+            sum_horas = None
+
+        if sum_horas:
+            self.label_SumItems_OT.setText("Suma:")
+            self.label_SumValue_OT.setText(sum_horas)
+
+        if count_non_empty > 0:
+            self.label_CountItems_OT.setText("Recuento:")
+            self.label_CountValue_OT.setText(str(count_non_empty))
 
 # Function to format time values
     def format_time(self, time_to_format):
@@ -1058,7 +1182,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     FabTimes = QtWidgets.QMainWindow()
-    ui = Ui_FabTimes_Window('j.martinez','P-24/091')
+    ui = Ui_FabTimes_Window('j.martinez','P-25/011')
     ui.setupUi(FabTimes)
     FabTimes.show()
     sys.exit(app.exec())
