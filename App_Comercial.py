@@ -18,7 +18,7 @@ from ExportDocs_Menu import Ui_ExportDocs_Menu
 import pandas as pd
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from utils.Business_Report import report_offers, report_orders
+from utils.Business_Report import report_offers, report_orders, report_projects
 import sys
 
 
@@ -1816,7 +1816,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Generates a report based on chosen selection
         """
         while True:
-            report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos'], 0, False)
+            report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos', 'Proyectos'], 0, False)
             if ok and report:
                 while True:
                     if report == 'Ofertas':
@@ -1824,6 +1824,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         break
                     elif report == 'Pedidos':
                         report_orders()
+                        break
+                    elif report == 'Proyectos':
+                        report_projects()
                         break
                 break
             else:
