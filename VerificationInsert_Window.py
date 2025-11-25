@@ -1261,6 +1261,57 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_lptest.setFont(font)
         self.label_lptest.setObjectName("label_lptest")
         self.gridLayout_2.addWidget(self.label_lptest, 4, 0, 1, 1)
+        self.hn_lp_996pb = QtWidgets.QLineEdit(parent=self.frame)
+        self.hn_lp_996pb.setMinimumSize(QtCore.QSize(170, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.hn_lp_996pb.setFont(font)
+        self.hn_lp_996pb.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.hn_lp_996pb.setObjectName("hn_lp_996pb")
+        self.gridLayout_2.addWidget(self.hn_lp_996pb, 4, 1, 1, 1)
+        self.hn_lp_9d1b = QtWidgets.QLineEdit(parent=self.frame)
+        self.hn_lp_9d1b.setMinimumSize(QtCore.QSize(170, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.hn_lp_9d1b.setFont(font)
+        self.hn_lp_9d1b.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.hn_lp_9d1b.setObjectName("hn_lp_9d1b")
+        self.gridLayout_2.addWidget(self.hn_lp_9d1b, 4, 2, 1, 1)
+        self.hn_lp_9pr5 = QtWidgets.QLineEdit(parent=self.frame)
+        self.hn_lp_9pr5.setMinimumSize(QtCore.QSize(170, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.hn_lp_9pr5.setFont(font)
+        self.hn_lp_9pr5.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.hn_lp_9pr5.setObjectName("hn_lp_9pr5")
+        self.gridLayout_2.addWidget(self.hn_lp_9pr5, 4, 3, 1, 1)
+        self.label_lp_996pb = QtWidgets.QLabel(parent=self.frame)
+        self.label_lp_996pb.setMinimumSize(QtCore.QSize(204, 25))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.label_lp_996pb.setFont(font)
+        self.label_lp_996pb.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_lp_996pb.setObjectName("label_lp_996pb")
+        self.gridLayout_2.addWidget(self.label_lp_996pb, 5, 1, 1, 1)
+        self.label_lp_9d1b = QtWidgets.QLabel(parent=self.frame)
+        self.label_lp_9d1b.setMinimumSize(QtCore.QSize(204, 25))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.label_lp_9d1b.setFont(font)
+        self.label_lp_9d1b.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_lp_9d1b.setObjectName("label_lp_9d1b")
+        self.gridLayout_2.addWidget(self.label_lp_9d1b, 5, 2, 1, 1)
+        self.label_lp_9pr5 = QtWidgets.QLabel(parent=self.frame)
+        self.label_lp_9pr5.setMinimumSize(QtCore.QSize(204, 25))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.label_lp_9pr5.setFont(font)
+        self.label_lp_9pr5.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_lp_9pr5.setObjectName("label_lp_9pr5")
+        self.gridLayout_2.addWidget(self.label_lp_9pr5, 5, 3, 1, 1)
         self.Button_SeePhoto = QtWidgets.QPushButton(parent=self.frame)
         self.Button_SeePhoto.setMinimumSize(QtCore.QSize(100, 25))
         self.Button_SeePhoto.setObjectName("Button_SeePhoto")
@@ -1426,6 +1477,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_manometer2.setText(_translate("VerificationInsert_Window", "Manómetro 2:"))
         self.label_pressure1.setText(_translate("VerificationInsert_Window", "Presión 1:"))
         self.label_pressure2.setText(_translate("VerificationInsert_Window", "Presión 2:"))
+        self.label_lp_996pb.setText(_translate("VerificationInsert_Window", "996PB"))
+        self.label_lp_9d1b.setText(_translate("VerificationInsert_Window", "9D1B"))
+        self.label_lp_9pr5.setText(_translate("VerificationInsert_Window", "9PR5"))
         self.label_lptest.setText(_translate("VerificationInsert_Window", "Líquidos Penetrantes:"))
         self.label_date.setText(_translate("VerificationInsert_Window", "Fecha:"))
         self.label_state.setText(_translate("VerificationInsert_Window", "Estado:"))
@@ -1861,19 +1915,19 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                             conn.commit()
 
                             if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
-                                query_hn_liq = ("""SELECT liquid, heat_number FROM verification.liquid_heat_number""")
-                                with Database_Connection(config()) as conn:
-                                    with conn.cursor() as cur:
-                                        cur.execute(query_hn_liq)
-                                        results_hn=cur.fetchall()
+                                # query_hn_liq = ("""SELECT liquid, heat_number FROM verification.liquid_heat_number""")
+                                # with Database_Connection(config()) as conn:
+                                #     with conn.cursor() as cur:
+                                #         cur.execute(query_hn_liq)
+                                #         results_hn=cur.fetchall()
 
-                                match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
-                                match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
-                                match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+                                # match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                # match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                # match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
 
-                                hn_liq1=match_liq1[0][1]
-                                hn_liq2=match_liq2[0][1]
-                                hn_liq3=match_liq3[0][1]
+                                hn_liq1=self.hn_lp_996pb.text()
+                                hn_liq2=self.hn_lp_9d1b.text()
+                                hn_liq3=self.hn_lp_9pr5.text()
 
                                 item_date_lp = self.tableTags.item(row_index, 12)
                                 date_lp = item_date_lp.text() if item_date_lp is not None else ''
@@ -2423,6 +2477,13 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             ORDER BY "id"
                             """)
 
+        query_lp = ("""
+                    SELECT DISTINCT ON (product)
+                    product, notes, heat_number, expiration_date
+                    FROM verification.chemical_products_workshop
+                    WHERE product LIKE 'ARDROX%' and quantity > 0
+                    ORDER BY product, expiration_date ASC""")
+
         try:
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cur:
@@ -2435,6 +2496,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     results_manometers=cur.fetchall()
                     list_manometers = [x[0] for x in results_manometers]
 
+                    cur.execute(query_lp)
+                    results_lp = cur.fetchall()
+                    list_lp = [x[1] + ' (' + x[2] + ')' for x in results_lp]
+
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
@@ -2444,6 +2509,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
         self.manometer1.addItems(list_manometers)
         self.manometer2.addItems([''] + list_manometers)
+
+        self.hn_lp_996pb.setText(list_lp[0])
+        self.hn_lp_9d1b.setText(list_lp[1])
+        self.hn_lp_9pr5.setText(list_lp[2])
 
 # Function to events for keys
     def keyPressEvent(self, event):
