@@ -4286,7 +4286,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     if quotation_date != '':
                         commands_newquotation = ("""
                                             INSERT INTO purch_fact.quotation_header (supplier_id, quot_date)
-                                            VALUES (%s,%s,%s)
+                                            VALUES (%s,%s)
                                             """)
                         
                         conn = None
