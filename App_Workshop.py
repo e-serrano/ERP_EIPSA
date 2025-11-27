@@ -347,6 +347,42 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Calibrations.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Calibrations.setObjectName("Button_Calibrations")
         self.Header.addWidget(self.Button_Calibrations)
+
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_Workshop_Hours = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Workshop_Hours.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Workshop_Hours.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Workshop_Hours.setToolTip('Horas Taller')
+        self.Button_Workshop_Hours.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Workshop_Hours.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Workshop_Hours.setText("")
+        # icon2 = QtGui.QIcon()
+        # icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Calibration.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # self.Button_Workshop_Hours.setIcon(icon2)
+        self.Button_Workshop_Hours.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Workshop_Hours.setObjectName("Button_Workshop_Hours")
+        self.Header.addWidget(self.Button_Workshop_Hours)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -585,6 +621,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Revisions.clicked.connect(self.revisions)
         self.Button_Calibrations.clicked.connect(self.calibration)
         self.Button_Reports.clicked.connect(self.generate_report)
+        self.Button_Workshop_Hours.clicked.connect(self.workshop_hours)
 
         self.load_notifications()
 
@@ -978,6 +1015,23 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
                 break
             else:
                 break
+
+# Function to open window with order control hours
+    def workshop_hours(self):
+        """
+        Opens the workshop hours window for managing orders hours estimation
+        """
+        from Workshop_Hours_Window import Ui_Workshop_Hours_Window
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_ws_hours = Create_DBconnection(user_database, password_database, 'ws_hours_connection')
+        if not db_ws_hours:
+            sys.exit()
+
+        self.ws_hours_window = Ui_Workshop_Hours_Window(db_ws_hours, self.username)
+        self.ws_hours_window.showMaximized()
 
 
 # if __name__ == "__main__":
