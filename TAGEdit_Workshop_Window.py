@@ -2671,9 +2671,18 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 start_row = 1
                 for idx, group in enumerate(groups):
                     group_transposed = group.T
-                    for r_idx, row in enumerate(group_transposed.iterrows(), start=start_row + idx * 4):
-                        for c_idx, value in enumerate(row[1], 1):
-                            ws.cell(row=r_idx, column=c_idx, value=value)
+                    # for r_idx, row in enumerate(group_transposed.iterrows(), start=start_row + idx * 4):
+                    #     for c_idx, value in enumerate(row[1], 1):
+                    #         ws.cell(row=r_idx, column=c_idx, value=value)
+
+                    block_start = start_row + idx * 5
+                    for offset, (_, row) in enumerate(group_transposed.iterrows()):
+                        for c_idx, value in enumerate(row, start=1):
+                            ws.cell(row=block_start + offset, column=c_idx, value=value)
+
+                    blank_row = block_start + 4
+                    for c_idx in range(1, len(group_transposed.columns) + 1):
+                        ws.cell(row=blank_row, column=c_idx, value=None)
 
                 output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
                 if output_path:
