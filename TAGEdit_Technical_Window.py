@@ -1024,7 +1024,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
-        self.toolMatOrder.clicked.connect(lambda: self.materialorder(self.variable))
+        self.toolMatOrder.clicked.connect(self.materialorder)
         self.toolFabOrder.clicked.connect(self.faborder)
         self.toolInspection.clicked.connect(self.setinspection)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
@@ -2713,7 +2713,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setWindowTitle('Pedido Materiales Caudal')
             dlg.setLabelText('Introduce el pedido:')
             clickedButton=dlg.exec()
 
@@ -2731,7 +2731,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setWindowTitle('Pedido Materiales Temperatura')
             dlg.setLabelText('Introduce el pedido:')
             clickedButton=dlg.exec()
 
@@ -2749,7 +2749,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setWindowTitle('Pedido Materiales Nivel')
             dlg.setLabelText('Introduce el pedido:')
             clickedButton=dlg.exec()
 
@@ -2767,7 +2767,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setWindowTitle('Pedido Materiales Otros')
             dlg.setLabelText('Introduce el pedido:')
             clickedButton=dlg.exec()
 
@@ -3119,7 +3119,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             return 0.0
 
 # Function to select which material order has to be created
-    def materialorder(self, variable):
+    def materialorder(self):
         """
         Initiates material order process based on the variable value.
         """
@@ -3142,6 +3142,15 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.materialorder_level()
             elif self.variable == 'Otros':
                 self.materialorder_others()
+            elif self.variable == 'Caudal+Temp':
+                self.materialorder_flow()
+                self.materialorder_temp()
+            elif self.variable == 'Caudal+Nivel':
+                self.materialorder_flow()
+                self.materialorder_level()
+            elif self.variable =='Temp+Nivel':
+                self.materialorder_temp()
+                self.materialorder_level()
 
 # Function for creating context menu
     def createContextMenu(self):
@@ -3398,6 +3407,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('julian.martinez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('s.sanchez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
