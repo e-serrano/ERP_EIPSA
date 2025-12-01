@@ -9,7 +9,7 @@ from PySide6.QtCore import Qt, QMimeData, QDate
 from PySide6.QtGui import QKeySequence
 import sys
 from config import config, get_path
-import psycopg2
+import locale
 import pandas as pd
 
 
@@ -526,12 +526,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Hours_Window.setWindowIcon(icon)
-        Workshop_Hours_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
+        Workshop_Hours_Window.setStyleSheet(".QFrame {\n"
+"    border: 2px solid;\n"
 "}\n"
 "\n"
 "QPushButton {\n"
@@ -618,6 +614,37 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.model_P = EditableTableModel_P(database=self.db)
         self.tableWorkshop_P.setObjectName("tableWorkshop_P")
         self.gridLayout_3.addWidget(self.tableWorkshop_P, 2, 0, 1, 1)
+
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.label_SumItems_P = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems_P.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_P.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_P.setText("")
+        self.label_SumItems_P.setObjectName("label_SumItems_P")
+        self.horizontalLayout.addWidget(self.label_SumItems_P)
+        self.label_SumValue_P = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue_P.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_P.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_P.setText("")
+        self.label_SumValue_P.setObjectName("label_SumValue_P")
+        self.horizontalLayout.addWidget(self.label_SumValue_P)
+        self.label_CountItems_P = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_P.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_P.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_P.setText("")
+        self.label_CountItems_P.setObjectName("label_CountItems_P")
+        self.horizontalLayout.addWidget(self.label_CountItems_P)
+        self.label_CountValue_P = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue_P.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_P.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_P.setText("")
+        self.label_CountValue_P.setObjectName("label_CountValue_P")
+        self.horizontalLayout.addWidget(self.label_CountValue_P)
+        self.gridLayout_3.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+
         self.hLayout_O = QtWidgets.QHBoxLayout()
         self.hLayout_O.setObjectName("hLayout_O")
         self.Button_All_O = QtWidgets.QPushButton(parent=self.frame)
@@ -631,6 +658,37 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.model_O = EditableTableModel_O(database=self.db)
         self.tableWorkshop_O.setObjectName("tableWorkshop_O")
         self.gridLayout_4.addWidget(self.tableWorkshop_O, 2, 0, 1, 1)
+
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.label_SumItems_O = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems_O.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_O.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_O.setText("")
+        self.label_SumItems_O.setObjectName("label_SumItems_O")
+        self.horizontalLayout.addWidget(self.label_SumItems_O)
+        self.label_SumValue_O = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue_O.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_O.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_O.setText("")
+        self.label_SumValue_O.setObjectName("label_SumValue_O")
+        self.horizontalLayout.addWidget(self.label_SumValue_O)
+        self.label_CountItems_O = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_O.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_O.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_O.setText("")
+        self.label_CountItems_O.setObjectName("label_CountItems_O")
+        self.horizontalLayout.addWidget(self.label_CountItems_O)
+        self.label_CountValue_O = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue_O.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_O.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_O.setText("")
+        self.label_CountValue_O.setObjectName("label_CountValue_O")
+        self.horizontalLayout.addWidget(self.label_CountValue_O)
+        self.gridLayout_4.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+
         self.gridLayout_2.addWidget(self.tabwidget, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Workshop_Hours_Window.setCentralWidget(self.centralwidget)
@@ -642,9 +700,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         Workshop_Hours_Window.setStatusBar(self.statusbar)
         self.tableWorkshop_P.setSortingEnabled(True)
-        self.tableWorkshop_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.tableWorkshop_O.setSortingEnabled(True)
-        self.tableWorkshop_O.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_O.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         # Workshop_Hours_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(Workshop_Hours_Window)
@@ -652,6 +710,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         self.query_data()
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.tableWorkshop_P.selectionModel().selectionChanged.connect(self.countSelectedCells_P)
+        self.tableWorkshop_O.selectionModel().selectionChanged.connect(self.countSelectedCells_O)
 
 
 # Function to translate and updates the text of various UI elements
@@ -1018,7 +1078,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_3.addWidget(self.tableWorkshop_P, 2, 0, 1, 1)
 
         self.model_P.setAllColumnHeaders(headers_P)
@@ -1101,7 +1161,6 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -1154,9 +1213,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableWorkshop_P.mapToGlobal(self.tableWorkshop_P.horizontalHeader().pos())        
@@ -1359,7 +1416,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_O.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_4.addWidget(self.tableWorkshop_O, 2, 0, 1, 1)
 
         self.model_O.setAllColumnHeaders(headers_O)
@@ -1699,6 +1756,89 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df_P.to_excel(writer, sheet_name='P-', index=False)
                 df_O.to_excel(writer, sheet_name='PA-', index=False)
+
+# Function to count selected cell and sum its values if possible
+    def countSelectedCells_P(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        indexes = self.tableWorkshop_P.selectedIndexes()
+
+        # Reset labels
+        self.label_SumItems_P.setText("")
+        self.label_SumValue_P.setText("")
+        self.label_CountItems_P.setText("")
+        self.label_CountValue_P.setText("")
+
+
+        if len(indexes) < 1:
+            return
+
+        count_non_empty = 0
+        sum_values = 0
+
+        for ix in indexes:
+            value = ix.data()
+
+            if value not in [None, '', 0]:
+                count_non_empty += 1
+
+                try:
+                    sum_values += int(value)
+                except (ValueError, TypeError):
+                    pass
+
+        if sum_values:
+            self.label_SumItems_P.setText("Suma:")
+            self.label_SumValue_P.setText(sum_values)
+
+        if count_non_empty > 0:
+            self.label_CountItems_P.setText("Recuento:")
+            self.label_CountValue_P.setText(str(count_non_empty))
+
+# Function to count selected cell and sum its values if possible
+    def countSelectedCells_O(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        indexes = self.tableWorkshop_O.selectedIndexes()
+
+        # Reset labels
+        self.label_SumItems_O.setText("")
+        self.label_SumValue_O.setText("")
+        self.label_CountItems_O.setText("")
+        self.label_CountValue_O.setText("")
+
+
+        if len(indexes) < 1:
+            return
+
+        count_non_empty = 0
+        sum_values = 0
+
+        for ix in indexes:
+            value = ix.data()
+
+            if value not in [None, '', 0]:
+                count_non_empty += 1
+
+                try:
+                    sum_values += int(value)
+                except (ValueError, TypeError):
+                    pass
+
+        if sum_values:
+            self.label_SumItems_O.setText("Suma:")
+            self.label_SumValue_O.setText(sum_values)
+
+        if count_non_empty > 0:
+            self.label_CountItems_O.setText("Recuento:")
+            self.label_CountValue_O.setText(str(count_non_empty))
+
+
+
 
 
 

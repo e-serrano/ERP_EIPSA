@@ -112,11 +112,11 @@ class ColorDelegate(QtWidgets.QItemDelegate):
             index (QtCore.QModelIndex): The model index of the item.
         """
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-        background_color = QtGui.QColor(255, 255, 255)
+        background_color = QtGui.QColor(255, 255, 255, 0)
 
         if index.column() == 11:
             if value <= 50 and value >= 1:
-                background_color = QtGui.QColor(255, 255, 0) #Yellow
+                background_color = QtGui.QColor(240, 208, 88) #Yellow
             elif value < 100  and value > 50:
                 background_color = QtGui.QColor(0, 255, 0) #Green
             elif value == 100:
@@ -859,12 +859,9 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Window.setWindowIcon(icon)
-        Workshop_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
+        Workshop_Window.setStyleSheet(
 ".QFrame {\n"
-"    border: 2px solid black;\n"
+"    border: 2px solid;\n"
 "}\n"
 "\n"
 "QPushButton {\n"
@@ -1007,11 +1004,11 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         Workshop_Window.setStatusBar(self.statusbar)
         self.tableWorkshop_P.setSortingEnabled(True)
-        self.tableWorkshop_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.tableWorkshop_PA.setSortingEnabled(True)
-        self.tableWorkshop_PA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_PA.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.tableWorkshop_AL.setSortingEnabled(True)
-        self.tableWorkshop_AL.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_AL.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         # Workshop_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(Workshop_Window)
@@ -1620,7 +1617,6 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -1673,9 +1669,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableWorkshop_P.mapToGlobal(self.tableWorkshop_P.horizontalHeader().pos())        
