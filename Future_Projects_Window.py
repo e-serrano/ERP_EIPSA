@@ -739,7 +739,6 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         # self.tableProjects.verticalHeader().hide()
         self.tableProjects.setItemDelegate(AlignDelegate(self.tableProjects))
-        self.tableProjects.setItemDelegateForColumn(4,ComboBoxDelegate_Relational(1,self.tableProjects))
         self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -799,7 +798,6 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         # self.tableProjects.verticalHeader().hide()
         self.tableProjects.setItemDelegate(AlignDelegate(self.tableProjects))
-        self.tableProjects.setItemDelegateForColumn(4,ComboBoxDelegate_Relational(1,self.tableProjects))
         self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
