@@ -912,7 +912,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 "    border: 2px solid black;\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=EditTagsWorkshop_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
