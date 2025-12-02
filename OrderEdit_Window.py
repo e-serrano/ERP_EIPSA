@@ -46,7 +46,7 @@ class Ui_Edit_Order_Window(object):
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .4em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -255,14 +255,13 @@ class Ui_Edit_Order_Window(object):
         self.vlLayout4.addWidget(self.NumItems_EditOrder)
         spacerItem13 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem13)
-        self.Regularisation_EditOrder = QtWidgets.QComboBox(parent=self.frame)
-        self.Regularisation_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.Regularisation_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Regularisation_EditOrder.setFont(font)
-        self.Regularisation_EditOrder.setObjectName("Regularisation_EditOrder")
-        self.vlLayout4.addWidget(self.Regularisation_EditOrder)
+        self.Button_Regularisation = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Regularisation.setMinimumSize(QtCore.QSize(125, 30))
+        self.Button_Regularisation.setMaximumSize(QtCore.QSize(125, 30))
+        self.Button_Regularisation.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Regularisation.setAutoDefault(True)
+        self.Button_Regularisation.setObjectName("Button_Regularisation")
+        self.vlLayout4.addWidget(self.Button_Regularisation)
         self.hLayout.addLayout(self.vlLayout4)
         self.verticalLayout.addLayout(self.hLayout)
         spacerItem10 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -315,12 +314,11 @@ class Ui_Edit_Order_Window(object):
         Edit_Order_Window.setStatusBar(self.statusbar)
         Edit_Order_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
-        self.Regularisation_EditOrder.addItems(['', 'Si', 'No'])
-
         self.retranslateUi(Edit_Order_Window)
         self.Button_Cancel.clicked.connect(Edit_Order_Window.close) # type: ignore
         self.Button_EditOrder.clicked.connect(self.editorder) # type: ignore
         self.NumOrder_EditOrder.returnPressed.connect(self.queryorderdata)
+        self.Button_Regularisation.clicked.connect(self.show_dialog_regularisation)
         QtCore.QMetaObject.connectSlotsByName(Edit_Order_Window)
 
 
@@ -338,7 +336,7 @@ class Ui_Edit_Order_Window(object):
         self.label_Notes.setText(_translate("Edit_Order_Window", "Notas:"))
         self.label_Amount.setText(_translate("Edit_Order_Window", "Importe (€):"))
         self.label_num_items.setText(_translate("New_Order", "Nº Equipos:"))
-        self.label_Regularisation.setText(_translate("New_Order", "Regularización:"))
+        self.Button_Regularisation.setText(_translate("Edit_Offer_Window", "Regularización"))
         self.Button_EditOrder.setText(_translate("Edit_Order_Window", "Editar Pedido"))
         self.Button_Cancel.setText(_translate("Edit_Order_Window", "Cancelar"))
 
@@ -419,7 +417,8 @@ class Ui_Edit_Order_Window(object):
         self.original_numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""
-                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",CAST("order_amount" AS numeric) AS "amount","items_number", "regularisation"
+                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",
+                                CAST("order_amount" AS numeric) AS "amount","items_number", "regularisation"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
@@ -445,7 +444,60 @@ class Ui_Edit_Order_Window(object):
             self.Notes_EditOrder.setText(str(results[0][4]))
             self.Amount_EditOrder.setText(str(results[0][5]))
             self.NumItems_EditOrder.setText(str(results[0][6]))
-            self.Regularisation_EditOrder.setCurrentText(str(results[0][6]))
+            self.regularisation = (str(results[0][7]) if str(results[0][7]) != 'None' else '')
+
+    def show_dialog_regularisation(self):
+        """
+        Displays a dialog window allowing the user to view and edit regularisation.
+        The dialog is only shown if the Offer number is not empty.
+        """
+        if self.NumOrder_EditOrder.text() != '':
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_regularisation)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.regularisation)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.show()
+
+            self.dialog = dlg
+
+
+    def save_regularisation(self):
+        """
+        Saves the offer actions to the database.
+        """
+        num_order = self.NumOrder_EditOrder.text()
+        self.regularisation = self.te.toPlainText()
+
+        commands_update_regularisation = ("""
+                        UPDATE offers
+                        SET "actions" = %s
+                        WHERE "num_offer" = %s
+                        """)
+
+        try:
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.regularisation, num_order,)
+                    cur.execute(commands_update_regularisation, data)
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+
 
 
 if __name__ == "__main__":
