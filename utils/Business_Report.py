@@ -1,4 +1,4 @@
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtWidgets
 from PDF_Styles import CustomPDF_A3
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -29,12 +29,6 @@ def report_offers():
                             SELECT num_offer, state, responsible, 'offers' AS source_table
                             FROM offers
                             WHERE EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-
-                            UNION ALL
-
-                            SELECT id_offer, state, responsible, 'received_offers' AS source_table
-                            FROM received_offers
-                            WHERE EXTRACT(YEAR FROM received_offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE)
                             """)
 
         query_graph_calculation_1 = ("""
@@ -53,43 +47,27 @@ def report_offers():
 
         query_last_weekly_summary = ("""
                             SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
-                            recep_date, presentation_date, limit_date,
-                            probability, priority, material, items_number, offer_amount, actions, source_table
-                            FROM (
-                            SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
                             TO_CHAR(recep_date, 'DD/MM/YYYY') as recep_date, TO_CHAR(presentation_date, 'DD/MM/YYYY') as presentation_date, TO_CHAR(limit_date, 'DD/MM/YYYY') as limit_date,
                             probability, '' as priority, material, items_number, offer_amount, actions, 'offers' AS source_table
                             FROM offers
                             WHERE register_date >= %s AND register_date <= %s
-
-                            UNION ALL
-
-                            SELECT id_offer as num_offer, state, responsible, '' as responsible_calculations, client, final_client,
-                            TO_CHAR(recep_date, 'DD/MM/YYYY') as recep_date, '' as presentation_date, TO_CHAR(limit_date, 'DD/MM/YYYY') as limit_date,
-                            '' as probability, '' as priority, material, items_number, '' as offer_amount, '' as actions, 'received_offers' AS source_table
-                            FROM received_offers
-                            WHERE register_date >= %s AND register_date <= %s) as final_table
-
-                            ORDER BY array_position(
-                            ARRAY['No Ofertada', 'Declinada', 'Perdida', 'Recibida', 'Budgetary', 'Registrada', 'En Estudio', 'Presentada', 'Adjudicada'], state), num_offer
                             """)
 
         query_active_summary = ("""
-                            SELECT * FROM (
                             SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
                             TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
                             probability, '' as priority, material, items_number, offer_amount, actions
                             FROM offers
-                            WHERE state IN ('Registrada', 'En Estudio', 'Presentada', 'Budgetary')
+                            WHERE num_offer NOT LIKE '%B-%' AND state IN ('Registrada', 'En Estudio', 'Presentada')
+                            ORDER BY state
+                            """)
 
-                            UNION ALL
-
-                            SELECT id_offer as num_offer, state, responsible, '' as responsible_calculations, client, final_client,
-                            TO_CHAR(recep_date, 'DD/MM/YYYY'), '' as presentation_date, TO_CHAR(limit_date, 'DD/MM/YYYY'),
-                            '' as probability, '' as priority, material, items_number, '' as offer_amount, '' as actions
-                            FROM received_offers
-                            WHERE state IN ('Registrada')) as final_table
-
+        query_active_budgetary_summary = ("""
+                            SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
+                            TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
+                            probability, '' as priority, material, items_number, offer_amount, actions
+                            FROM offers
+                            WHERE (num_offer LIKE '%B-%') AND (EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE))
                             ORDER BY state
                             """)
 
@@ -142,7 +120,7 @@ def report_offers():
 
                 df_graph_orders_1 = df_graph_commercial_1.dropna(subset=['Nº Pedido'])
 
-                cur.execute(query_last_weekly_summary, (start_date, end_date, start_date, end_date))
+                cur.execute(query_last_weekly_summary, (start_date, end_date))
                 results_weekly = cur.fetchall()
                 df_weekly = pd.DataFrame(results_weekly,
                 columns=['Nº Oferta', 'Estado', 'Responsable', 'Cálculos', 'Cliente', 'Cl. Final',
@@ -168,8 +146,23 @@ def report_offers():
                                             .str.replace('.', '', regex=False) \
                                             .str.replace(',', '.', regex=False) \
                                             .astype(float)
+                
+                cur.execute(query_active_budgetary_summary)
+                results_active_budgetary = cur.fetchall()
+                df_active_budgetary = pd.DataFrame(results_active_budgetary, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cálculos', 'Cliente', 'Cl. Final',
+                'Fecha Rec.', 'Fecha Pres.', 'Fecha Vto.',
+                'Prob.', 'Prior.', 'Material', 'Nº Eqs.', 'Importe', 'Acciones']
+                )
 
-        pdf = generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active)
+                df_active_budgetary['Importe Euros'] = df_active_budgetary['Importe']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
+
+        pdf = generate_report_offers(start_date, end_date,
+                                    df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1,
+                                    df_weekly, df_active, df_active_budgetary)
 
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar PDF", "", "Archivos PDF (*.pdf)")
         if output_path:
@@ -196,25 +189,6 @@ def report_orders():
                 LEFT JOIN offers as o ON p.num_offer = o.num_offer
                 LEFT JOIN product_type as pt ON o.material = pt.material
                 WHERE p.total_charged <> 'OK' OR p.total_charged IS NULL""")
-
-    query_order_amount = ("""
-            SELECT num_order, SUM(amount) AS total_amount_tags FROM (
-            SELECT num_order, amount FROM tags_data.tags_flow
-
-            UNION ALL
-
-            SELECT num_order, amount FROM tags_data.tags_temp
-
-            UNION ALL
-
-            SELECT num_order, amount FROM tags_data.tags_level
-
-            UNION ALL
-
-            SELECT num_order, amount FROM tags_data.tags_others
-            ) AS combined
-            GROUP BY num_order
-            """)
 
     query_docs = ("""
                 SELECT 
@@ -267,46 +241,44 @@ def report_orders():
 
     query_tags_count = ("""
             SELECT num_order, COUNT(num_order) AS items_order, COUNT(final_verif_dim_date) AS items_verified FROM (
-            SELECT num_order, final_verif_dim_date FROM tags_data.tags_flow WHERE item_type IS NOT NULL
+            SELECT num_order, final_verif_dim_date FROM tags_data.tags_flow WHERE dim_drawing IS NOT NULL
 
             UNION ALL
 
-            SELECT num_order, final_verif_dim_date FROM tags_data.tags_temp WHERE item_type IS NOT NULL
+            SELECT num_order, final_verif_dim_date FROM tags_data.tags_temp WHERE dim_drawing IS NOT NULL
 
             UNION ALL
 
-            SELECT num_order, final_verif_dim_date FROM tags_data.tags_level WHERE item_type IS NOT NULL
+            SELECT num_order, final_verif_dim_date FROM tags_data.tags_level WHERE dim_drawing IS NOT NULL
 
             UNION ALL
 
-            SELECT num_order, final_verif_dim_date FROM tags_data.tags_others WHERE description IS NOT NULL
+            SELECT num_order, final_verif_dim_date FROM tags_data.tags_others WHERE dim_drawing IS NOT NULL
             ) AS combined
             GROUP BY num_order
             """)
 
     query_tags_fact = ("""
-            SELECT num_order, SUM(percent_amount_fact) AS percent_fact, SUM(amount_fact) AS total_fact FROM (
-            SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_flow
-
+        SELECT 
+            num_order,
+            SUM(amount_fact * COALESCE(percent_invoiced, 0) / 100.0) AS total_fact,
+            SUM(amount_fact) as total_order_fact
+        FROM (
+            SELECT num_order, amount_fact::numeric, percent_invoiced FROM tags_data.tags_flow
             UNION ALL
-
-            SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_temp
-
+            SELECT num_order, amount_fact::numeric, percent_invoiced FROM tags_data.tags_temp
             UNION ALL
-
-            SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_level
-
+            SELECT num_order, amount_fact::numeric, percent_invoiced FROM tags_data.tags_level
             UNION ALL
-
-            SELECT num_order, (amount_fact::numeric * COALESCE(percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact FROM tags_data.tags_others
-            ) AS combined
-            GROUP BY num_order
-            """)
+            SELECT num_order, amount_fact::numeric, percent_invoiced FROM tags_data.tags_others
+        ) AS combined
+        GROUP BY num_order
+    """)
 
     query_tags_charged = ("""
-            SELECT combined.num_order, SUM(combined.percent_amount_fact) AS percent_charged, SUM(combined.amount_fact) AS total_charged
+            SELECT combined.num_order, SUM(combined.percent_amount_fact) AS total_charged
             FROM (
-                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact
                 FROM tags_data.tags_flow AS t
                 LEFT JOIN purch_fact.invoice_header AS i
                 ON t.invoice_number = i.num_invoice
@@ -314,7 +286,7 @@ def report_orders():
 
                 UNION ALL
 
-                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact
                 FROM tags_data.tags_temp AS t
                 LEFT JOIN purch_fact.invoice_header AS i
                 ON t.invoice_number = i.num_invoice
@@ -322,7 +294,7 @@ def report_orders():
 
                 UNION ALL
 
-                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact
                 FROM tags_data.tags_level AS t
                 LEFT JOIN purch_fact.invoice_header AS i
                 ON t.invoice_number = i.num_invoice
@@ -330,7 +302,7 @@ def report_orders():
 
                 UNION ALL
 
-                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact, amount_fact
+                SELECT t.num_order, (t.amount_fact::numeric * COALESCE(t.percent_invoiced, 0) / 100.0) AS percent_amount_fact
                 FROM tags_data.tags_others AS t
                 LEFT JOIN purch_fact.invoice_header AS i
                 ON t.invoice_number = i.num_invoice
@@ -378,18 +350,18 @@ def report_orders():
                 END AS new_contractual_date,
                 query1."material_available", 
                 query1."porc_workshop", query1."expected_date_workshop", query1."porc_assembly", query1."expected_date_assembly",
-                TO_CHAR(query4."max_date_fab", 'DD/MM/YYYY') AS max_date_fab,
-                query5."items_verified",
+                (query5.items_verified::numeric / NULLIF(query5.items_order::numeric, 0) * 100)::numeric(10,0) AS percent_items_verified,
+                TO_CHAR(query4."max_date_fab", 'DD/MM/YYYY') AS max_date_verif,
                 query3."min_date_sent_dossier",
                 query3."max_date_approved_dossier",
                 query1."porc_deliveries", query1."last_date_deliveries",
-                (query6.percent_fact::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS fact_percent,
-                (query7.percent_charged::numeric / NULLIF(query6.total_fact::numeric, 0) * 100)::numeric(10,2) AS charged_percent,
+                (query6.total_fact::numeric / NULLIF(query6.total_order_fact::numeric, 0) * 100)::numeric(10,2) AS fact_percent,
+                (query7.total_charged::numeric / NULLIF(query6.total_order_fact::numeric, 0) * 100)::numeric(10,2) AS charged_percent,
                 query1."regularisation", query1."notes", query1."notes_technical",
+                '' as pending_to_charged,
                 query1."order_amount",
-                query1."variable", query8."verif_ppi_date", query1."total_charged"
+                query1."variable", query8."verif_ppi_date", query1."total_charged", NULLIF(query6."total_fact"::numeric, 0), NULLIF(query7."total_charged"::numeric, 0)
             FROM ({query_orders}) AS query1
-            LEFT JOIN ({query_order_amount}) AS query2 ON query1."num_order" = query2."num_order"
             LEFT JOIN ({query_docs}) AS query3 ON query1."num_order" = query3."num_order"
             LEFT JOIN ({query_tags_fab}) AS query4 ON query1."num_order" = query4."num_order"
             LEFT JOIN ({query_tags_count}) AS query5 ON query1."num_order" = query5."num_order"
@@ -397,7 +369,7 @@ def report_orders():
             LEFT JOIN ({query_tags_charged}) AS query7 ON query1."num_order" = query7."num_order"
             LEFT JOIN ({query_ppi}) AS query8 ON query1."num_order" = query8."num_order"
         ) AS final
-        WHERE final.charged_percent IS NULL OR final.charged_percent < 100
+        
         ORDER BY final."num_order" ASC
     """)
 
@@ -408,15 +380,15 @@ def report_orders():
                 'FECHA ENV FAB.', '% ENV FAB',
                 'NUEVA FECHA CONT.',
                 'MAT. DISP.', '% FAB', 'PREV. FAB', '% MONT','PREV. MONT.',
-                'FECHA FINAL FAB.',
-                'EQS INSPEC.',
+                '% VERIF.',
+                'FECHA FINAL VERIF.',
                 'FECHA ENV DOSSIER', 'FECHA AP DOSSIER',
                 '% ENV.', 'FECHA ENVÍO',
                 '% FACT.',
                 '% COBRADO',
                 'ORDENES CAMBIO', 'NOTAS', 'NOTAS TÉCNICAS',
-                'IMPORTE',
-                'VARIABLE', 'PPI', 'TOTAL COBRADO']
+                'PTE. COBRAR', 'IMPORTE',
+                'VARIABLE', 'PPI', 'NOTAS FACT_COB', 'TOTAL FACT', 'TOTAL COB']
 
     columns_2 = ['VARIABLE', 'Nº PEDIDOS', 'IMPORTE TOTAL', '% FACT.', '% COBRADO', 'PTE FACTURAR']
 
@@ -438,31 +410,37 @@ def report_orders():
 
         df_orders['IMPORTE'] = df_orders['IMPORTE'].astype(float)
 
-        print(df_orders)
-
         df_orders['% ENV.'] = df_orders.apply(lambda row: 100 if 'R' in row['PEDIDO'] else row['% ENV.'],axis=1)
+        df_orders['FECHA ENVÍO'] = df_orders.apply(lambda row: row['FECHA CONT.'] if 'R' in row['PEDIDO'] else row['FECHA ENVÍO'], axis=1)
 
-        df_orders['FECHA ENVÍO'] = df_orders.apply(lambda row: row['FECHA CONT.'] if 'R' in row['PEDIDO'] else row['FECHA ENVÍO'],axis=1)
+        df_orders['% VERIF.'] = df_orders.apply(lambda row: row['Nº EQUIPOS'] if row['% VERIF.']== '' else row['% VERIF.'], axis=1)
+        df_orders['FECHA FINAL VERIF.'] = df_orders.apply(lambda row: row['PPI'] if row['FECHA FINAL VERIF.'] == '' else row['FECHA FINAL VERIF.'], axis=1)
 
-        df_orders['FECHA FINAL FAB.'] = df_orders.apply(lambda row: row['PPI'] if row['FECHA FINAL FAB.'] == '' else row['FECHA FINAL FAB.'],axis=1)
-        df_orders['EQS INSPEC.'] = df_orders.apply(lambda row: row['Nº EQUIPOS'] if row['EQS INSPEC.']== '' else row['EQS INSPEC.'],axis=1)
+        df_orders['% FACT.'] = df_orders.apply(lambda row: (float(row['NOTAS FACT_COB'].split(" / ")[0].replace(',','.')) if ("/" in row['NOTAS FACT_COB']) else row['% FACT.']), axis=1)
+        df_orders['% COBRADO'] = df_orders.apply(lambda row: (float(row['NOTAS FACT_COB'].split(" / ")[1].replace(',','.')) if ("/" in row['NOTAS FACT_COB']) else row['% COBRADO']), axis=1)
 
-        df_orders['% FACT.'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[0] if (row['% FACT.'] == '' and row['TOTAL COBRADO'] != '') else row['% FACT.'],axis=1)
-        df_orders['% COBRADO'] = df_orders.apply(lambda row: row['TOTAL COBRADO'].split("/")[1] if (row['% COBRADO']== '' and row['TOTAL COBRADO'] != '') else row['% COBRADO'],axis=1)
+        df_orders['PTE. COBRAR'] = df_orders.apply(
+                                    lambda row: (
+                                        (float(row['IMPORTE']) * (100 - float(row['% COBRADO'])) / 100) if "/" in row['NOTAS FACT_COB'] and row['% FACT.'] not in ['','0',0] else
+                                        ((float(row['IMPORTE']) * float(row['% FACT.']) / 100) if row['% COBRADO'] in ['','0',0] and row['% FACT.'] not in ['','0',0] else
+                                        (float(row['TOTAL FACT'] or 0) - float(row['TOTAL COB'] or 0)))),
+                                    axis=1)
+
+        df_orders=df_orders[df_orders['% COBRADO'] != 100]
 
         df_orders_P = df_orders[(df_orders['PEDIDO'].str.startswith('P-')) & (~df_orders['PEDIDO'].str.startswith('PA')) & (~df_orders['PEDIDO'].str.endswith('R')) & (df_orders['% ENV.'] != 100)]
 
         cols_PA = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
-                'FECHA PO', 'FECHA CONT.', '% MONT','PREV. MONT.', 'FECHA FINAL FAB.', 'EQS INSPEC.',
-                '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
+                'FECHA PO', 'FECHA CONT.', '% MONT','PREV. MONT.', '% VERIF.', 'FECHA FINAL VERIF.',
+                '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'PTE. COBRAR', 'IMPORTE']
 
         cols_sent = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
-                'FECHA PO', 'FECHA CONT.',
-                '% ENV.', 'FECHA ENVÍO', '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
+                'FECHA PO', 'FECHA CONT.', '% ENV.', 'FECHA ENVÍO',
+                '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'PTE. COBRAR', 'IMPORTE']
 
-        cols_R = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL',
-                'FECHA PO', 'FECHA CONT.', '% FACT.', '% COBRADO',
-                'NOTAS', 'NOTAS TÉCNICAS', 'IMPORTE']
+        cols_R = ['PEDIDO', 'RESPONSABLE', 'CLIENTE', 'CLIENTE FINAL', 'MATERIAL', 'Nº EQUIPOS',
+                'FECHA PO', 'FECHA CONT.', '% ENV.', 'FECHA ENVÍO',
+                '% FACT.', '% COBRADO', 'NOTAS', 'NOTAS TÉCNICAS', 'PTE. COBRAR', 'IMPORTE']
 
         df_orders_PA = df_orders[df_orders['PEDIDO'].str.startswith('PA') & (df_orders['% ENV.'] != 100)][cols_PA]
         df_orders_sent = df_orders[(df_orders['% ENV.'] == 100) & (~df_orders['PEDIDO'].str.endswith('R'))][cols_sent]
@@ -517,7 +495,7 @@ def report_projects():
 
     future_projects(final_df)
 
-def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active):
+def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active, df_active_budgetary):
     pdf = CustomPDF_A3('P')
 
     pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
@@ -548,8 +526,8 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.fixed_height_multicell(4, 0.6, 'TOTAL IMPORTE ADJUDICADO ' + str(datetime.today().year), fill=True)
 
     received_amount = df_graph_commercial_1['Importe Oferta'].sum()
-    offered_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] != 'Budgetary']['Importe Oferta'].sum()
-    budgetary_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] == 'Budgetary']['Importe Oferta'].sum()
+    offered_amount = df_graph_commercial_1[~df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
+    budgetary_amount = df_graph_commercial_1[df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
     order_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] == 'Adjudicada']['Importe Oferta'].sum()
 
     pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
@@ -582,10 +560,10 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.set_xy(26.4, y_position)
 
     received_count = df_graph_commercial_2.shape[0]
-    offered_count = df_graph_commercial_2[df_graph_commercial_2['Estado'] != 'Budgetary'].shape[0]
-    budgetary_count = df_graph_commercial_2[df_graph_commercial_2['Estado'] == 'Budgetary'].shape[0]
+    offered_count = df_graph_commercial_2[~df_graph_commercial_2['Nº Oferta'].str.contains('B-', na=False)].shape[0]
+    budgetary_count = df_graph_commercial_2[df_graph_commercial_2['Nº Oferta'].str.contains('B-', na=False)].shape[0]
     order_count = df_graph_commercial_2[df_graph_commercial_2['Estado'] == 'Adjudicada'].shape[0]
-    
+
     pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
     y_position = 2.2
     pdf.set_xy(12.55, y_position)
@@ -657,6 +635,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.ln()
 
     pdf.set_font('DejaVuSansCondensed', size=6)
+    df_weekly.sort_values(by=['Nº Oferta'], inplace=True)
     for _, row in df_weekly.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
@@ -716,7 +695,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
 
     pdf.set_fill_color(3, 174, 236)
 
-    df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Responsable', 'Nº Oferta'])
+    df_registered = df_active[df_active['Estado'] == 'Registrada'].sort_values(by=['Nº Oferta'])
     if df_registered.shape[0] > 0:
         pdf.cell(3, 0.5, 'REGISTRADAS:')
         pdf.cell(3, 0.5, str(df_registered.shape[0]), align='L')
@@ -793,7 +772,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.cell(3, 0.3, euro_format(df_registered['Importe Euros'].sum()), align='C')
         pdf.ln()
 
-    df_study = df_active[df_active['Estado'] == 'En Estudio'].sort_values(by=['Responsable', 'Nº Oferta'])
+    df_study = df_active[df_active['Estado'] == 'En Estudio'].sort_values(by=['Nº Oferta'])
     if df_study.shape[0] > 0:
         df_study['Fecha Vto.'] = pd.to_datetime(df_study['Fecha Vto.'], format='%d/%m/%Y', errors='coerce')
         df_study['days_diff'] = (pd.Timestamp.today() - df_study['Fecha Vto.']).dt.days
@@ -877,8 +856,10 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
         pdf.ln()
 
     df_presented = df_active[df_active['Estado'] == 'Presentada'].sort_values(by=['Fecha Pres.'])
-    
+
     df_presented['Fecha Pres.'] = pd.to_datetime(df_presented['Fecha Pres.'], format='%d/%m/%Y', errors='coerce')
+    df_presented.sort_values(by=['Nº Oferta'], inplace=True)
+
     df_presented['days_diff'] = (pd.Timestamp.today() - df_presented['Fecha Pres.']).dt.days
 
     df_less_30 = df_presented[df_presented['days_diff'] <= 30].copy()
@@ -890,7 +871,6 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.set_fill_color(3, 174, 236)
     pdf.set_font('Helvetica', 'B', size=7)
     pdf.cell(3, 0.5, 'PRESENTADAS:')
-    pdf.cell(3, 0.5, str(df_presented.shape[0]), align='L')
     pdf.ln(0.5)
 
     df_presented['Fecha Pres.'] = pd.to_datetime(df_presented['Fecha Pres.'], errors='coerce', dayfirst=True)
@@ -1040,11 +1020,11 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.cell(3, 0.3, euro_format(df_more_30['Importe Euros'].sum()), align='C')
     pdf.ln()
 
-    df_budgetary = df_active[(df_active['Estado'] == 'Budgetary') & (pd.to_datetime(df_active['Fecha Rec.'], dayfirst=True, errors='coerce').dt.year == datetime.now().year)].sort_values(by=['Responsable', 'Nº Oferta'])
+    df_active_budgetary.sort_values(by=['Nº Oferta'], inplace=True)
 
     pdf.set_font('Helvetica', 'B', size=7)
     pdf.cell(3, 0.5, 'BUDGETARIES (' + str(datetime.now().year) + '):')
-    pdf.cell(3, 0.5, str(df_budgetary.shape[0]), align='L')
+    pdf.cell(3, 0.5, str(df_active_budgetary.shape[0]), align='L')
     pdf.ln(0.5)
 
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
@@ -1066,7 +1046,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
 
     pdf.set_fill_color(255, 105, 105)
     pdf.set_font('DejaVuSansCondensed', size=6)
-    for _, row in df_budgetary.iterrows():
+    for _, row in df_active_budgetary.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
         h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
@@ -1116,7 +1096,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     pdf.set_font('DejaVuSansCondensed-Bold', size=7)
     pdf.cell(20.75, 0.3, '')
     pdf.cell(5, 0.3, 'TOTAL:', align='R')
-    pdf.cell(3, 0.3, euro_format(df_budgetary['Importe Euros'].sum()), align='C')
+    pdf.cell(3, 0.3, euro_format(df_active_budgetary['Importe Euros'].sum()), align='C')
     pdf.ln()
 
     pdf.set_fill_color(3, 174, 236)
