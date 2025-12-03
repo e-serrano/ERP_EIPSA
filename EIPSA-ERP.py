@@ -52,6 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if content != "OK":
                         print("Recibiendo comando de cierre...")
                         self.close_all_instances("EIPSA-ERP.exe")
+                        self.close_all_instances("EIPSA-ERP_CLOUD.exe")
                         self.close()
                         sys.exit()  # Exit the application
         except Exception as e:
