@@ -398,6 +398,8 @@ def report_orders():
             results_1 = cur.fetchall()
 
         df_orders = pd.DataFrame(results_1, columns=columns_1)
+        cols= ['DOCS TOTALES', 'DOCS NO ENV.', 'DOCS ENV.', 'DOCS COM.', 'DOCS ELIM.', 'DOCS AP.']
+        df_orders[cols] = df_orders[cols].fillna('N/A')
         df_orders = df_orders.fillna('')
         df_orders.replace('None', '')
 
