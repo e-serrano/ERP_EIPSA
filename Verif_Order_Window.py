@@ -1940,7 +1940,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         """
         Updates the expedition data
         """
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez']:
             num_order = self.numorder
             verif_date = date.today().strftime("%d/%m/%Y")
             verif_state = 'Realizado Por Mario'

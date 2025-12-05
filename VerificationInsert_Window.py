@@ -1771,7 +1771,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         Inserts or updates data based on the order number format.
         """
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez']:
             self.num_order_value = self.num_order.text().upper()
             if self.num_order_value != '':
                 if self.num_order_value[:3] != 'AL-':
