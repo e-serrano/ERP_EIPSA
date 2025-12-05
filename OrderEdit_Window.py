@@ -353,7 +353,6 @@ class Ui_Edit_Order_Window(object):
         amount=self.Amount_EditOrder.text()
         num_items=self.NumItems_EditOrder.text() if self.NumItems_EditOrder.text() != '' else '0'
         amount=amount.replace(".",",")
-        regularisation=self.Regularisation_EditOrder.currentText()
 
         #SQL Query for checking if order number exists in database
         commands_checkorder = ("""
@@ -383,14 +382,14 @@ class Ui_Edit_Order_Window(object):
             #SQL Query for updating values in database
             commands_editorder = ("""
                         UPDATE orders
-                        SET "num_order" = %s, "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s, "items_number" = %s, "regularisation" = %s
+                        SET "num_order" = %s, "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s, "items_number" = %s
                         WHERE "num_order" = %s
                         """)
 
             try:
                 with Database_Connection(config()) as conn:
                     with conn.cursor() as cur:
-                        data=(numorder,numoffer,numref,expectdate,notes,amount,num_items,regularisation,self.original_numorder,)
+                        data=(numorder,numoffer,numref,expectdate,notes,amount,num_items,self.original_numorder,)
                         cur.execute(commands_editorder,data)
                     conn.commit()
 
