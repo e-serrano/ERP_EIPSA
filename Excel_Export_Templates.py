@@ -9517,69 +9517,69 @@ class spares_two_years:
                     results_others=cur.fetchall()
 
                     if len(results_flow) != 0:
-                        self.variable = 'Caudal'
+                        variable = 'Caudal'
                     elif len(results_temp) != 0:
-                        self.variable = 'Temperatura'
+                        variable = 'Temperatura'
                     elif len(results_level) != 0:
-                        self.variable = 'Nivel'
+                        variable = 'Nivel'
                     elif len(results_others) != 0:
-                        self.variable = 'Otros'
+                        variable = 'Otros'
                     else:
-                        self.variable = ''
+                        variable = ''
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
-            if self.variable == 'Caudal':
-                self.table_name = "tags_data.tags_flow"
-            elif self.variable == 'Temperatura':
-                self.table_name = "tags_data.tags_temp"
-            elif self.variable == 'Nivel':
-                self.table_name = "tags_data.tags_level"
-            elif self.variable == 'Otros':
-                self.table_name = "tags_data.tags_others"
-            else:
-                self.table_name = ''
+        if variable == 'Caudal':
+            table_name = "tags_data.tags_flow"
+        elif variable == 'Temperatura':
+            table_name = "tags_data.tags_temp"
+        elif variable == 'Nivel':
+            table_name = "tags_data.tags_level"
+        elif variable == 'Otros':
+            table_name = "tags_data.tags_others"
+        else:
+            table_name = ''
 
-        if self.table_name == "tags_data.tags_flow":
+        if table_name == "tags_data.tags_flow":
             commands_tags = f"""
             SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.line_size || tags.rating || ' Material: ' || tags.gasket_material,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
-            FROM {self.table_name} AS tags
+            FROM {table_name} AS tags
             LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
-            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') AND tags.gasket_material not in ('N/A','OTHERS')
+            WHERE tags.num_order LIKE UPPER ('%%'||'{num_order}'||'%%') AND tags.gasket_material not in ('N/A','OTHERS')
             ORDER BY tags.num_order
             """
 
-        elif self.table_name == "tags_data.tags_temp":
+        elif table_name == "tags_data.tags_temp":
             commands_tags = f"""
             SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.tw_type || ' ' || tags.size || tags.rating || tags.facing || ' Material.' || tags.material_tw ||
             ' - U(mm)=' || tags.ins_length || ' - Rootø(mm)=' || tags.root_diam || ' - Tipø(mm)=' || tags.tip_diam || ' ' || tags.sensor_element,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
-            FROM {self.table_name} AS tags
+            FROM {table_name} AS tags
             LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
-            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%')
+            WHERE tags.num_order LIKE UPPER ('%%'||'{num_order}'||'%%')
             ORDER BY tags.num_order
             """
 
-        elif self.table_name == "tags_data.tags_level":
+        elif table_name == "tags_data.tags_level":
             commands_tags = f"""
             SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.model_num,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
-            FROM {self.table_name} AS tags
+            FROM {table_name} AS tags
             LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
-            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') AND tags.item_type in ('Reflex','Transparent')
+            WHERE tags.num_order LIKE UPPER ('%%'||'{num_order}'||'%%') AND tags.item_type in ('Reflex','Transparent')
             ORDER BY tags.num_order
             """
 
-        if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+        if variable in ['Caudal', 'Temperatura', 'Nivel']:
             try:
                 with Database_Connection(config()) as conn:
                     with conn.cursor() as cur:
@@ -9605,7 +9605,7 @@ class spares_two_years:
             df_unique.insert(1, 'spare_id', "")
             df_unique.insert(2, 'model_number', "")
 
-            if self.variable == 'Nivel':
+            if variable == 'Nivel':
                 df_unique['recommended_pre'] = np.ceil((1 if df_unique['DESCRIPTION'][-1] == 'R' else 2) * int(df_unique['DESCRIPTION'][4]) * df_unique['total_number'] * 0.10).astype(int)
                 df_unique['recommended_two'] = np.ceil((1 if df_unique['DESCRIPTION'][-1] == 'R' else 2) * int(df_unique['DESCRIPTION'][4]) * df_unique['total_number'] * 0.20).astype(int)
             else:
