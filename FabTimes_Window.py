@@ -886,6 +886,7 @@ class Ui_FabTimes_Window(object):
                         FROM fabrication.imp_ot AS times
                         JOIN fabrication.personal AS personal ON times."personal_id" = personal."code"
                         JOIN fabrication.operations AS operations ON times."operations_id" = operations."id"
+                        JOIN fabrication.fab_order AS orders ON times."number_ot" = orders."ot_num"
                         WHERE times."number_ot" = %s
                         ORDER BY times."date_ot" ASC
                         """)
@@ -908,7 +909,7 @@ class Ui_FabTimes_Window(object):
             self.tableTimes.setRowCount(len(results))
             tablerow=0
             for row in results:
-                for column in range(8):
+                for column in range(9):
                     value = row[column]
                     if value is None:
                         value = ''
