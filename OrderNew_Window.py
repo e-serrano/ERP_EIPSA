@@ -416,9 +416,25 @@ class Ui_New_Order_Window(object):
                             "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount","items_number", "warranty_bond"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);
+                            
                             UPDATE offers
                             SET "state" = %s
                             WHERE "num_offer" = %s;
+                            
+                            UPDATE orders
+                            SET
+                                orders.warehouse_hours = offers.warehouse_hours
+                                orders.quality_hours = offers.quality_hours
+                                orders.packing_hours = offers.packing_hours
+                                orders.milling_hours = offers.milling_hours
+                                orders.assembly_hours = offers.assembly_hours
+                                orders.pyrometry_hours = offers.pyrometry_hours
+                                orders.preparation_hours = offers.preparation_hours
+                                orders.welding_hours = offers.welding_hours
+                                orders.drilling_hours = offers.drilling_hours
+                                orders.lathing_hours = offers.lathing_hours
+                            FROM offers
+                            WHERE orders.num_offer = offers.num_offer
                             """)
 
                 try:
