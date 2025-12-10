@@ -208,7 +208,7 @@ class EditableTableModel_P(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0,4,25]:
+        if index.column() < 45:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -403,7 +403,202 @@ class EditableTableModel_O(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0,4,25]:
+        if index.column() < 38:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
+class CustomProxyModel_AL(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, list_expresions, column, action_name=None):
+        """
+        Updates filters for a specified column based on provided expressions and action name.
+
+        Args:
+            list_expresions (list): List of filter expressions to be applied.
+            column (int): Column index to which the filters are applied.
+            action_name (str, optional): Action to determine how filters are updated. Defaults to None.
+        """
+        for expresion in list_expresions:
+            if expresion or expresion == '':
+                if column in self.filters:
+                    if action_name or action_name == '':
+                        self.filters[column].remove(expresion)
+                    else:
+                        self.filters[column].append(expresion)
+                else:
+                    self.filters[column] = [expresion]
+            elif column in self.filters:
+                if action_name or action_name == '':
+                    self.filters[column].remove(expresion)
+                    if not self.filters[column]:
+                        del self.filters[column]
+                else:
+                    del self.filters[column]
+        self.invalidateFilter()
+
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            for expresion in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
+                        break
+
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+            else:
+                return False
+        return True
+
+class EditableTableModel_AL(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.Signal(str)
+
+    def __init__(self, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
+        super().__init__(parent, database)
+        self.column_range = column_range
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+        if index.column() < 5:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -460,6 +655,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.proxy_P = CustomProxyModel_P()
         self.model_O = EditableTableModel_O(database=db)
         self.proxy_O = CustomProxyModel_O()
+        self.model_AL = EditableTableModel_AL(database=db)
+        self.proxy_AL = CustomProxyModel_AL()
         self.checkbox_states_P = {}
         self.dict_valuesuniques_P = {}
         self.dict_ordersort_P = {}
@@ -470,11 +667,17 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.dict_ordersort_O = {}
         self.action_checkbox_map_O = {}
         self.checkbox_filters_O = {}
+        self.checkbox_states_AL = {}
+        self.dict_valuesuniques_AL = {}
+        self.dict_ordersort_AL = {}
+        self.action_checkbox_map_AL = {}
+        self.checkbox_filters_AL = {}
         self.db = db
         self.username = username
         self.open_windows = {}
         self.model_P.dataChanged.connect(self.saveChanges)
         self.model_O.dataChanged.connect(self.saveChanges)
+        self.model_AL.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -489,6 +692,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 self.model_P.clear()
             if self.model_O:
                 self.model_O.clear()
+            if self.model_AL:
+                self.model_AL.clear()
             self.closeConnection()
         except Exception as e:
             print("Error during close event:", e)
@@ -502,6 +707,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             del self.model_P
             self.tableWorkshop_O.setModel(None)
             del self.model_O
+            self.tableWorkshop_AL.setModel(None)
+            del self.model_AL
             if self.db:
                 self.db.close()
                 del self.db
@@ -597,10 +804,15 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tab_O = QtWidgets.QWidget()
         self.tab_O.setObjectName("tab_O")
         self.tabwidget.addTab(self.tab_O, "O-")
+        self.tab_AL = QtWidgets.QWidget()
+        self.tab_AL.setObjectName("tab_AL")
+        self.tabwidget.addTab(self.tab_AL, "AL-")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.tab_P)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.tab_O)
         self.gridLayout_4.setObjectName("gridLayout_4")
+        self.gridLayout_5 = QtWidgets.QGridLayout(self.tab_AL)
+        self.gridLayout_5.setObjectName("gridLayout_5")
         self.hLayout_P = QtWidgets.QHBoxLayout()
         self.hLayout_P.setObjectName("hLayout_P")
         self.Button_All_P = QtWidgets.QPushButton(parent=self.frame)
@@ -689,6 +901,50 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.horizontalLayout.addWidget(self.label_CountValue_O)
         self.gridLayout_4.addLayout(self.horizontalLayout, 4, 0, 1, 1)
 
+        self.hLayout_AL = QtWidgets.QHBoxLayout()
+        self.hLayout_AL.setObjectName("hLayout_AL")
+        self.Button_All_AL = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_All_AL.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_All_AL.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_All_AL.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_All_AL.setObjectName("Button_All_AL")
+        self.hLayout_AL.addWidget(self.Button_All_AL)
+        self.gridLayout_5.addLayout(self.hLayout_AL, 1, 0, 1, 1)
+        self.tableWorkshop_AL=QtWidgets.QTableView(parent=self.frame)
+        self.model_AL = EditableTableModel_AL(database=self.db)
+        self.tableWorkshop_AL.setObjectName("tableWorkshop_AL")
+        self.gridLayout_5.addWidget(self.tableWorkshop_AL, 2, 0, 1, 1)
+
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.label_SumItems_AL = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems_AL.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_AL.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems_AL.setText("")
+        self.label_SumItems_AL.setObjectName("label_SumItems_AL")
+        self.horizontalLayout.addWidget(self.label_SumItems_AL)
+        self.label_SumValue_AL = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue_AL.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_AL.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue_AL.setText("")
+        self.label_SumValue_AL.setObjectName("label_SumValue_AL")
+        self.horizontalLayout.addWidget(self.label_SumValue_AL)
+        self.label_CountItems_AL = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_AL.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_AL.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems_AL.setText("")
+        self.label_CountItems_AL.setObjectName("label_CountItems_AL")
+        self.horizontalLayout.addWidget(self.label_CountItems_AL)
+        self.label_CountValue_AL = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue_AL.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_AL.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue_AL.setText("")
+        self.label_CountValue_AL.setObjectName("label_CountValue_AL")
+        self.horizontalLayout.addWidget(self.label_CountValue_AL)
+        self.gridLayout_5.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+
         self.gridLayout_2.addWidget(self.tabwidget, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Workshop_Hours_Window.setCentralWidget(self.centralwidget)
@@ -703,6 +959,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_P.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.tableWorkshop_O.setSortingEnabled(True)
         self.tableWorkshop_O.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
+        self.tableWorkshop_AL.setSortingEnabled(True)
+        self.tableWorkshop_AL.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         # Workshop_Hours_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(Workshop_Hours_Window)
@@ -712,6 +970,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.tableWorkshop_P.selectionModel().selectionChanged.connect(self.countSelectedCells_P)
         self.tableWorkshop_O.selectionModel().selectionChanged.connect(self.countSelectedCells_O)
+        self.tableWorkshop_AL.selectionModel().selectionChanged.connect(self.countSelectedCells_AL)
 
 
 # Function to translate and updates the text of various UI elements
@@ -723,6 +982,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         Workshop_Hours_Window.setWindowTitle(_translate("EditTags_Window", "Fabricación"))
         self.Button_All_P.setText(_translate("EditTags_Window", "Ver Todos"))
         self.Button_All_O.setText(_translate("EditTags_Window", "Ver Todos"))
+        self.Button_All_AL.setText(_translate("EditTags_Window", "Ver Todos"))
 
 # Function to load orders on tables
     def query_data(self):
@@ -730,19 +990,29 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         Queries the database for orders not delivered, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        self.model_P.setTable("public.orders")
+        self.model_P.setTable("orders")
         self.model_P.setFilter("num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model_P.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model_P.select()
         self.proxy_P.setSourceModel(self.model_P)
         self.tableWorkshop_P.setModel(self.proxy_P)
 
-        self.model_O.setTable("public.offers")
+        self.model_O.setTable("offers")
         self.model_O.setFilter("state NOT IN ('Declinada', 'Perdida', 'Adjudicada', 'No Ofertada', 'Budgetary')")
         self.model_O.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        pk = QtSql.QSqlIndex()
+        pk.append(QtSql.QSqlField("num_offer"))  # nombre EXACTO en PostgreSQL
+        self.model_O.setPrimaryKey(pk)
         self.model_O.select()
         self.proxy_O.setSourceModel(self.model_O)
         self.tableWorkshop_O.setModel(self.proxy_O)
+
+        self.model_AL.setTable("orders_warehouse")
+        # self.model_AL.setFilter("EXTRACT (YEAR FROM order_date) = NOT IN ('Declinada', 'Perdida', 'Adjudicada', 'No Ofertada', 'Budgetary')")
+        self.model_AL.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model_AL.select()
+        self.proxy_AL.setSourceModel(self.model_AL)
+        self.tableWorkshop_AL.setModel(self.proxy_AL)
 
     # Getting the unique values for each column of the model
         for column in range(self.model_P.columnCount()):
@@ -774,19 +1044,42 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_O[column][str(value)] = True
                 self.dict_valuesuniques_O[column] = list_valuesUnique
 
-        for i in range(4, 45):
+    # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][str(value)] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
+        for i in range(4, 27):
+            self.tableWorkshop_P.hideColumn(i)
+        for i in range(28, 45):
             self.tableWorkshop_P.hideColumn(i)
 
         for i in range(5,9):
             self.tableWorkshop_O.hideColumn(i)
-        for i in range(10,38):
+        for i in range(10,32):
             self.tableWorkshop_O.hideColumn(i)
+        for i in range(33,34):
+            self.tableWorkshop_O.hideColumn(i)
+        for i in range(35,38):
+            self.tableWorkshop_O.hideColumn(i)
+
+        self.tableWorkshop_AL.hideColumn(5)
 
         headers_P =['Nº Pedido', 'Nº Oferta', 'Nº Ref', 'Fecha Pedido','Fecha Cont.','Notas Comercial','','','','','','','','Fecha Env Fab','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
+                '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         headers_O =['Nº Oferta', 'Estado','Responsable','Cliente','Cliente Final',
                     '','','','','Material',
@@ -794,19 +1087,17 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     '','','','','',
                     '','','','','',
                     '','','','','',
-                    '','','','','',
+                    '','','Nº Eqs','','Probabilidad',
                     '','', '',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+
+        headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(self.model_P.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop_P.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_3.addWidget(self.tableWorkshop_P, 3, 0, 1, 1)
 
         self.model_P.setAllColumnHeaders(headers_P)
@@ -818,14 +1109,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableWorkshop_O.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableWorkshop_O.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_O.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_4.addWidget(self.tableWorkshop_O, 3, 0, 1, 1)
 
         self.model_O.setAllColumnHeaders(headers_O)
@@ -835,8 +1120,22 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_O.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_O)
         self.model_O.dataChanged.connect(self.saveChanges)
 
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+        self.gridLayout_5.addWidget(self.tableWorkshop_AL, 3, 0, 1, 1)
+
+        self.model_AL.setAllColumnHeaders(headers_AL)
+
+        self.Button_All_AL.clicked.connect(self.query_all_AL_workshop)
+        self.tableWorkshop_AL.setSortingEnabled(False)
+        self.tableWorkshop_AL.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_AL)
+        self.model_AL.dataChanged.connect(self.saveChanges)
+
         self.tableWorkshop_P.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableWorkshop_P, self.model_P, self.proxy_P)
         self.tableWorkshop_O.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableWorkshop_O, self.model_O, self.proxy_O)
+        self.tableWorkshop_AL.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableWorkshop_AL, self.model_AL, self.proxy_AL)
 
 # Function to save changes into database
     def saveChanges(self):
@@ -844,7 +1143,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         Saves changes made to the data models and updates unique values for each column.
         """
         self.model_P.submitAll()
-        self.proxy_P.invalidateFilter()
+        # self.proxy_P.invalidateFilter()
 
         for column in range(self.model_P.columnCount()):
             list_valuesUnique = []
@@ -859,6 +1158,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             self.dict_valuesuniques_P[column] = list_valuesUnique
 
         self.model_O.submitAll()
+        # self.proxy_O.invalidateFilter()
 
         for column in range(self.model_O.columnCount()):
             list_valuesUnique = []
@@ -871,6 +1171,21 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     if value not in self.checkbox_states_O[column]:
                         self.checkbox_states_O[column][value] = True
             self.dict_valuesuniques_O[column] = list_valuesUnique
+
+        self.model_AL.submitAll()
+        # self.proxy_AL.invalidateFilter()
+
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            for row in range(self.model_AL.rowCount()):
+                value = self.model_AL.record(row).value(column)
+                if value not in list_valuesUnique:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    list_valuesUnique.append(str(value))
+                    if value not in self.checkbox_states_AL[column]:
+                        self.checkbox_states_AL[column][value] = True
+            self.dict_valuesuniques_AL[column] = list_valuesUnique
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
@@ -1066,9 +1381,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         headers_P =['Nº Pedido', 'Nº Oferta', 'Nº Ref', 'Fecha Pedido','Fecha Cont.','Notas Comercial','','','','','','','','Fecha Env Fab','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
-                '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
+                '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1372,7 +1687,6 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.model_O.dataChanged.disconnect(self.saveChanges)
         self.delete_allFilters_O()
         self.model_O.setTable("public.offers")
-        self.model_O.setFilter("state NOT IN ('Declinada', 'Perdida', 'Adjudicada', 'No Ofertada', 'Budgetary')")
         self.model_O.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model_O.select()
         self.proxy_O.setSourceModel(self.model_O)
@@ -1404,9 +1718,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     '','','','','',
                     '','','','','',
                     '','','','','',
-                    '','','','','',
-                    '','','',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno']
+                    '','','Nº Eqs','','Probabilidad',
+                    '','', '',
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1588,19 +1902,19 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map_PA.items():
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_O.items():
                 checkbox_widget.setChecked(checked)
-                self.checkbox_states_PA[self.logicalIndex][checkbox_name] = checked
+                self.checkbox_states_O[self.logicalIndex][checkbox_name] = checked
 
-            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_PA.values()):
-                self.model_PA.setIconColumnHeader(filterColumn, icono)
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_O.values()):
+                self.model_O.setIconColumnHeader(filterColumn, icono)
             else:
-                self.model_PA.setIconColumnHeader(filterColumn, '')
+                self.model_O.setIconColumnHeader(filterColumn, '')
         
         else:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map_PA.items():
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_O.items():
                 checkbox_widget.setChecked(checked)
-                self.checkbox_states_PA[self.logicalIndex][checkbox_widget.text()] = checked
+                self.checkbox_states_O[self.logicalIndex][checkbox_widget.text()] = checked
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled_O(self, checked, action_name):
@@ -1694,11 +2008,336 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy_PA.setFilter([stringAction], filterColumn)
+            self.proxy_O.setFilter([stringAction], filterColumn)
 
             imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
-            self.model_PA.setIconColumnHeader(filterColumn, icono)
+            self.model_O.setIconColumnHeader(filterColumn, icono)
+
+
+# Function to load data
+    def query_all_AL_workshop(self):
+        """
+        Queries the database for all orders O-, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
+        self.model_AL.setTable("public.orders_warehouse")
+        # self.model_AL.setFilter("EXTRACT (YEAR FROM order_date) = NOT IN ('Declinada', 'Perdida', 'Adjudicada', 'No Ofertada', 'Budgetary')")
+        self.model_AL.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model_AL.select()
+        self.proxy_AL.setSourceModel(self.model_AL)
+        self.tableWorkshop_AL.setModel(self.proxy_AL)
+
+        # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][str(value)] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
+        self.tableWorkshop_AL.hideColumn(5)
+
+        headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+        self.gridLayout_5.addWidget(self.tableWorkshop_AL, 3, 0, 1, 1)
+
+        self.model_AL.setAllColumnHeaders(headers_AL)
+
+        self.Button_All_AL.clicked.connect(self.query_all_AL_workshop)
+        self.tableWorkshop_AL.setSortingEnabled(False)
+        self.tableWorkshop_AL.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_AL)
+        self.model_AL.dataChanged.connect(self.saveChanges)
+
+        self.tableWorkshop_AL.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableWorkshop_AL, self.model_AL, self.proxy_AL)
+
+# Function to delete all filters
+    def delete_allFilters_AL(self):
+        """
+        Resets all filters and updates the table model with unique values for each column.
+        """
+        columns_number=self.model_AL.columnCount()
+        for index in range(columns_number):
+            if index in self.proxy_AL.filters:
+                del self.proxy_AL.filters[index]
+            self.model_AL.setIconColumnHeader(index, '')
+
+        self.checkbox_states_AL = {}
+        self.dict_valuesuniques_AL = {}
+        self.dict_ALrdersort_AL = {}
+        self.checkbox_filters_AL = {}
+
+        self.proxy_AL.invalidateFilter()
+        self.tableWorkshop_AL.setModel(None)
+        self.tableWorkshop_AL.setModel(self.proxy_AL)
+
+        # Getting the unique values for each column of the model
+        for column in range(self.model_AL.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states_AL:
+                self.checkbox_states_AL[column] = {}
+                self.checkbox_states_AL[column]['Seleccionar todo'] = True
+                for row in range(self.model_AL.rowCount()):
+                    value = self.model_AL.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states_AL[column][value] = True
+                self.dict_valuesuniques_AL[column] = list_valuesUnique
+
+# Function when header is clicked
+    def on_view_horizontalHeader_sectionClicked_AL(self, logicalIndex):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+        """
+        self.logicalIndex = logicalIndex
+        self.menuValues = QtWidgets.QMenu(self)
+        self.signalMapper = QtCore.QSignalMapper(self.tableWorkshop_AL)
+
+        valuesUnique_view = []
+        for row in range(self.tableWorkshop_AL.model().rowCount()):
+            index = self.tableWorkshop_AL.model().index(row, self.logicalIndex)
+            value = index.data(Qt.ItemDataRole.DisplayRole)
+            if value not in valuesUnique_view:
+                if isinstance(value, QtCore.QDate):
+                    value=value.toString("dd/MM/yyyy")
+                valuesUnique_view.append(value)
+
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableWorkshop_AL)
+        actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered_AL)
+        self.menuValues.addAction(actionSortAscending)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableWorkshop_AL)
+        actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered_AL)
+        self.menuValues.addAction(actionSortDescending)
+        self.menuValues.addSeparator()
+
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableWorkshop_AL)
+        actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered_AL)
+        self.menuValues.addAction(actionDeleteFilterColumn)
+        self.menuValues.addSeparator()
+
+        actionTextFilter = QtGui.QAction("Buscar...", self.tableWorkshop_AL)
+        actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered_AL)
+        self.menuValues.addAction(actionTextFilter)
+        self.menuValues.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+        if not self.checkbox_states_AL[self.logicalIndex]['Seleccionar todo'] == True:
+            checkbox_all_widget.setChecked(False)
+        else:
+            checkbox_all_widget.setChecked(True)
+        
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_AL(checked, name))
+
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map_AL['Seleccionar todo'] = checkbox_all_widget
+
+        if len(self.dict_ordersort_AL) != 0 and self.logicalIndex in self.dict_ordersort_AL:
+            list_uniquevalues = sorted(list(set(self.dict_valuesuniques_AL[self.logicalIndex])))
+        else:
+            list_uniquevalues = sorted(list(set(valuesUnique_view)))
+
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+
+            if self.logicalIndex not in self.checkbox_filters_AL:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters_AL[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
+            else:
+                checkbox_widget.setChecked(True)
+
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_AL(checked, name))
+
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map_AL[actionName] = checkbox_widget
+
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
+
+        self.menuValues.addSeparator()
+
+        accept_button = QtGui.QAction("ACEPTAR", self.tableWorkshop_AL)
+        accept_button.triggered.connect(self.menu_acceptbutton_triggered_AL)
+
+        cancel_button = QtGui.QAction("CANCELAR", self.tableWorkshop_AL)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
+
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        headerPos = self.tableWorkshop_AL.mapToGlobal(self.tableWorkshop_AL.horizontalHeader().pos())        
+
+        posY = headerPos.y() + self.tableWorkshop_AL.horizontalHeader().height()
+        scrollX = self.tableWorkshop_AL.horizontalScrollBar().value()
+        xInView = self.tableWorkshop_AL.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posX = headerPos.x() + xInView - scrollX
+
+        self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+# Function when accept button of menu is clicked
+    def menu_acceptbutton_triggered_AL(self):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        """
+        for column, filters in self.checkbox_filters_AL.items():
+            if filters:
+                self.proxy_AL.setFilter(filters, column)
+            else:
+                self.proxy_AL.setFilter(None, column)
+
+# Function when select all checkbox is clicked
+    def on_select_all_toggled_AL(self, checked, action_name):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_AL.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states_AL[self.logicalIndex][checkbox_name] = checked
+
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_AL.values()):
+                self.model_AL.setIconColumnHeader(filterColumn, icono)
+            else:
+                self.model_AL.setIconColumnHeader(filterColumn, '')
+        
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map_AL.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states_AL[self.logicalIndex][checkbox_widget.text()] = checked
+
+# Function when checkbox of header menu is clicked
+    def on_checkbox_toggled_AL(self, checked, action_name):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            if filterColumn not in self.checkbox_filters_AL:
+                self.checkbox_filters_AL[filterColumn] = [action_name]
+            else:
+                if action_name not in self.checkbox_filters_AL[filterColumn]:
+                    self.checkbox_filters_AL[filterColumn].append(action_name)
+        else:
+            if filterColumn in self.checkbox_filters_AL and action_name in self.checkbox_filters_AL[filterColumn]:
+                self.checkbox_filters_AL[filterColumn].remove(action_name)
+
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map_AL.values()):
+            self.model_AL.setIconColumnHeader(filterColumn, '')
+        else:
+            self.model_AL.setIconColumnHeader(filterColumn, icono)
+
+# Function to delete individual column filter
+    def on_actionDeleteFilterColumn_triggered_AL(self):
+        """
+        Removes the filter from the selected column and updates the table model.
+        """
+        filterColumn = self.logicalIndex
+        if filterColumn in self.proxy_AL.filters:
+            del self.proxy_AL.filters[filterColumn]
+        self.model_AL.setIconColumnHeader(filterColumn, '')
+        self.proxy_AL.invalidateFilter()
+
+        # self.tableWorkshop.setModel(None)
+        self.tableWorkshop_AL.setModel(self.proxy_AL)
+
+        if filterColumn in self.checkbox_filters_AL:
+            del self.checkbox_filters_AL[filterColumn]
+
+        self.checkbox_states_AL[self.logicalIndex].clear()
+        self.checkbox_states_AL[self.logicalIndex]['Seleccionar todo'] = True
+        for row in range(self.tableWorkshop_AL.model().rowCount()):
+            value = self.model_AL.record(row).value(filterColumn)
+            if isinstance(value, QtCore.QDate):
+                    value=value.toString("dd/MM/yyyy")
+            self.checkbox_states_AL[self.logicalIndex][str(value)] = True
+
+# Function to order column ascending
+    def on_actionSortAscending_triggered_AL(self):
+        """
+        Sorts the selected column in ascending order.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.AscendingOrder
+        self.tableWorkshop_AL.sortByColumn(sortColumn, sortOrder)
+
+# Function to order column descending
+    def on_actionSortDescending_triggered_AL(self):
+        """
+        Sorts the selected column in descending order.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.DescendingOrder
+        self.tableWorkshop_AL.sortByColumn(sortColumn, sortOrder)
+
+# Function when text is searched
+    def on_actionTextFilter_triggered_AL(self):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        """
+        filterColumn = self.logicalIndex
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Buscar')
+        clickedButton=dlg.exec()
+
+        if clickedButton == 1:
+            stringAction = dlg.textValue()
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+                stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
+                stringAction=stringAction.toString("yyyy-MM-dd")
+
+            filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+            # del self.proxy.filters[filterColumn]
+            self.proxy_AL.setFilter([stringAction], filterColumn)
+
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
+            icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+            self.model_AL.setIconColumnHeader(filterColumn, icono)
 
 # Function to export data to excel
     def exporttoexcel(self):
@@ -1791,7 +2430,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         if sum_values:
             self.label_SumItems_P.setText("Suma:")
-            self.label_SumValue_P.setText(sum_values)
+            self.label_SumValue_P.setText(str(sum_values))
 
         if count_non_empty > 0:
             self.label_CountItems_P.setText("Recuento:")
@@ -1831,11 +2470,51 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         if sum_values:
             self.label_SumItems_O.setText("Suma:")
-            self.label_SumValue_O.setText(sum_values)
+            self.label_SumValue_O.setText(str(sum_values))
 
         if count_non_empty > 0:
             self.label_CountItems_O.setText("Recuento:")
             self.label_CountValue_O.setText(str(count_non_empty))
+
+# Function to count selected cell and sum its values if possible
+    def countSelectedCells_AL(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        indexes = self.tableWorkshop_AL.selectedIndexes()
+
+        # Reset labels
+        self.label_SumItems_AL.setText("")
+        self.label_SumValue_AL.setText("")
+        self.label_CountItems_AL.setText("")
+        self.label_CountValue_AL.setText("")
+
+
+        if len(indexes) < 1:
+            return
+
+        count_non_empty = 0
+        sum_values = 0
+
+        for ix in indexes:
+            value = ix.data()
+
+            if value not in [None, '', 0]:
+                count_non_empty += 1
+
+                try:
+                    sum_values += int(value)
+                except (ValueError, TypeError):
+                    pass
+
+        if sum_values:
+            self.label_SumItems_AL.setText("Suma:")
+            self.label_SumValue_AL.setText(str(sum_values))
+
+        if count_non_empty > 0:
+            self.label_CountItems_AL.setText("Recuento:")
+            self.label_CountValue_AL.setText(str(count_non_empty))
 
 
 
