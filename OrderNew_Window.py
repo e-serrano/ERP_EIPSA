@@ -423,16 +423,16 @@ class Ui_New_Order_Window(object):
                             
                             UPDATE orders
                             SET
-                                orders.warehouse_hours = offers.warehouse_hours
-                                orders.quality_hours = offers.quality_hours
-                                orders.packing_hours = offers.packing_hours
-                                orders.milling_hours = offers.milling_hours
-                                orders.assembly_hours = offers.assembly_hours
-                                orders.pyrometry_hours = offers.pyrometry_hours
-                                orders.preparation_hours = offers.preparation_hours
-                                orders.welding_hours = offers.welding_hours
-                                orders.drilling_hours = offers.drilling_hours
-                                orders.lathing_hours = offers.lathing_hours
+                                "warehouse_hours" = offers."warehouse_hours",
+                                "quality_hours" = offers."quality_hours",
+                                "packing_hours" = offers."packing_hours",
+                                "milling_hours" = offers."milling_hours",
+                                "assembly_hours" = offers."assembly_hours",
+                                "pyrometry_hours" = offers."pyrometry_hours",
+                                "preparation_hours" = offers."preparation_hours",
+                                "welding_hours" = offers."welding_hours",
+                                "drilling_hours" = offers."drilling_hours",
+                                "lathing_hours" = offers."lathing_hours"
                             FROM offers
                             WHERE orders.num_offer = offers.num_offer
                             """)
