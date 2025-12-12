@@ -1925,9 +1925,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 # match_liq2 = list(filter(lambda x: x[0] == 'revealing', results_hn))
                                 # match_liq3 = list(filter(lambda x: x[0] == 'penetrating', results_hn))
 
-                                hn_liq1=self.hn_lp_penetrating.text()
+                                hn_liq1=self.hn_lp_remover.text()
                                 hn_liq2=self.hn_lp_revealing.text()
-                                hn_liq3=self.hn_lp_remover.text()
+                                hn_liq3=self.hn_lp_penetrating.text()
 
                                 item_date_lp = self.tableTags.item(row_index, 12)
                                 date_lp = item_date_lp.text() if item_date_lp is not None else ''
@@ -2766,9 +2766,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 results=cur.fetchall()
 
                         MessageHelper.show_message("Fecha: " + results[0][0] + "\n"
-                                    "remover: " + results[0][1] + "\n"
-                                    "revealing: " + results[0][2] + "\n"
-                                    "penetrating: " + results[0][3] + "\n"
+                                    "Eliminador: " + results[0][1] + "\n"
+                                    "Revelador: " + results[0][2] + "\n"
+                                    "Penetrante: " + results[0][3] + "\n"
                                     "Observaciones: " + results[0][4], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
