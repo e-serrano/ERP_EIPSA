@@ -673,6 +673,14 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         """
         Opens the workshop window for manufacturing operations.
         """
+        if hasattr(self, "workshop_window") and self.workshop_window.isVisible():
+            if self.workshop_window.isMinimized():
+                self.workshop_window.showNormal()
+
+            self.workshop_window.activateWindow()
+            self.workshop_window.raise_()
+            return
+
         from Workshop_Window import Ui_Workshop_Window
         dbparam = config()
         user_database = dbparam["user"]
@@ -692,6 +700,15 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         """
         Opens the assembly window for managing assembly operations.
         """
+
+        if hasattr(self, "assembly_window") and self.assembly_window.isVisible():
+            if self.assembly_window.isMinimized():
+                self.assembly_window.showNormal()
+
+            self.assembly_window.activateWindow()
+            self.assembly_window.raise_()
+            return
+
         from Assembly_Window import Ui_Assembly_Window
         dbparam = config()
         user_database = dbparam["user"]
@@ -709,6 +726,14 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         """
         Opens the dispatch window for managing dispatch operations.
         """
+        if hasattr(self, "dispatch_window") and self.dispatch_window.isVisible():
+            if self.dispatch_window.isMinimized():
+                self.dispatch_window.showNormal()
+
+            self.dispatch_window.activateWindow()
+            self.dispatch_window.raise_()
+            return
+
         from Dispatch_Window import Ui_Dispatch_Window
         dbparam = config()
         user_database = dbparam["user"]
@@ -1021,6 +1046,14 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         """
         Opens the workshop hours window for managing orders hours estimation
         """
+        if hasattr(self, "ws_hours_window") and self.ws_hours_window.isVisible():
+            if self.ws_hours_window.isMinimized():
+                self.ws_hours_window.showNormal()
+
+            self.ws_hours_window.activateWindow()
+            self.ws_hours_window.raise_()
+            return
+
         from Workshop_Hours_Window import Ui_Workshop_Hours_Window
         dbparam = config()
         user_database = dbparam["user"]

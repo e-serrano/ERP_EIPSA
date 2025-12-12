@@ -219,6 +219,14 @@ class Ui_Purchasing_Menu(object):
         Opens the 'supplies' window. Sets up UI for the user.
         """
 
+        if hasattr(self, "supplies_window") and self.supplies_window.isVisible():
+            if self.supplies_window.isMinimized():
+                self.supplies_window.showNormal()
+
+            self.supplies_window.activateWindow()
+            self.supplies_window.raise_()
+            return
+
         dbparam = config()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
@@ -227,8 +235,8 @@ class Ui_Purchasing_Menu(object):
         if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_Supplies_Window(self.username,db_tag_com)
-        self.edit_tags_app.showMaximized()
+        self.supplies_window = Ui_Supplies_Window(self.username,db_tag_com)
+        self.supplies_window.showMaximized()
 
 
     def clientorder(self):
