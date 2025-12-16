@@ -139,7 +139,6 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
             if order in self.colors_dict:
                 background_color = self.colors_dict[order][1]
-                print(background_color.name())
             else:
                 background_color = QtGui.QColor(255, 255, 255, 0)
 
