@@ -1523,6 +1523,8 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
+        df_combined = df_combined.sort_values(by=df_combined.columns[0])
+        
         excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
         excel_mat_order.save_excel()
 
