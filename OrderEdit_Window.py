@@ -471,18 +471,17 @@ class Ui_Edit_Order_Window(object):
 
             self.dialog = dlg
 
-
     def save_regularisation(self):
         """
-        Saves the offer actions to the database.
+        Saves the order regularisation to the database.
         """
         num_order = self.NumOrder_EditOrder.text()
         self.regularisation = self.te.toPlainText()
 
         commands_update_regularisation = ("""
-                        UPDATE offers
-                        SET "actions" = %s
-                        WHERE "num_offer" = %s
+                        UPDATE orders
+                        SET "regularisation" = %s
+                        WHERE "num_order" = %s
                         """)
 
         try:
