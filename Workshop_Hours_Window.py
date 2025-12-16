@@ -627,18 +627,18 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
     Attributes:
         model_P (EditableTableModel_P): The model for table P.
         proxy_P (CustomProxyModel_P): The proxy model for table P.
-        model_PA (EditableTableModel_PA): The model for table PA.
-        proxy_PA (CustomProxyModel_PA): The proxy model for table PA.
+        model_O (EditableTableModel_O): The model for table O.
+        proxy_O (CustomProxyModel_O): The proxy model for table O.
         checkbox_states_P (dict): A dictionary tracking checkbox states for table P.
         dict_valuesuniques_P (dict): A dictionary of unique values for table P.
         dict_ordersort_P (dict): A dictionary for sorting orders in table P.
         action_checkbox_map_P (dict): A mapping of actions to checkboxes for table P.
         checkbox_filters_P (dict): A dictionary of filters applied to checkboxes for table P.
-        checkbox_states_PA (dict): A dictionary tracking checkbox states for table PA.
-        dict_valuesuniques_PA (dict): A dictionary of unique values for table PA.
-        dict_ordersort_PA (dict): A dictionary for sorting orders in table PA.
-        action_checkbox_map_PA (dict): A mapping of actions to checkboxes for table PA.
-        checkbox_filters_PA (dict): A dictionary of filters applied to checkboxes for table PA.
+        checkbox_states_O (dict): A dictionary tracking checkbox states for table O.
+        dict_valuesuniques_O (dict): A dictionary of unique values for table O.
+        dict_ordersort_O (dict): A dictionary for sorting orders in table O.
+        action_checkbox_map_O (dict): A mapping of actions to checkboxes for table O.
+        checkbox_filters_O (dict): A dictionary of filters applied to checkboxes for table O.
         db (object): The database connection object.
         username (str): The username of the currently logged-in user.
     """
@@ -1079,7 +1079,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         headers_O =['Nº Oferta', 'Estado','Responsable','Cliente','Cliente Final',
                     '','','','','Material',
@@ -1089,10 +1089,10 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     '','','','','',
                     '','','Nº Eqs','','Probabilidad',
                     '','', '',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(self.model_P.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -1383,7 +1383,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1688,6 +1688,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.delete_allFilters_O()
         self.model_O.setTable("public.offers")
         self.model_O.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        pk = QtSql.QSqlIndex()
+        pk.append(QtSql.QSqlField("num_offer"))  # nombre EXACTO en PostgreSQL
+        self.model_O.setPrimaryKey(pk)
         self.model_O.select()
         self.proxy_O.setSourceModel(self.model_O)
         self.tableWorkshop_O.setModel(self.proxy_O)
@@ -1720,7 +1723,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     '','','','','',
                     '','','Nº Eqs','','Probabilidad',
                     '','', '',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2046,7 +2049,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_AL.hideColumn(5)
 
         headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'Preparación', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
 
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2394,7 +2397,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             df_P.to_excel(output_path, index=False, header=True)
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df_P.to_excel(writer, sheet_name='P-', index=False)
-                df_O.to_excel(writer, sheet_name='PA-', index=False)
+                df_O.to_excel(writer, sheet_name='O-', index=False)
 
 # Function to count selected cell and sum its values if possible
     def countSelectedCells_P(self):
