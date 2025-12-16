@@ -434,7 +434,7 @@ class Ui_New_Order_Window(object):
                                 "drilling_hours" = offers."drilling_hours",
                                 "lathing_hours" = offers."lathing_hours"
                             FROM offers
-                            WHERE orders.num_offer = offers.num_offer
+                            WHERE orders."num_offer" = %s
                             """)
 
                 try:
@@ -443,7 +443,7 @@ class Ui_New_Order_Window(object):
 
                     with Database_Connection(config()) as conn:
                         with conn.cursor() as cur:
-                            data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, warranty_bond, state, numoffer)
+                            data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, warranty_bond, state, numoffer, numoffer)
                             cur.execute(commands_neworder, data)
 
                             MessageHelper.show_message("Pedido creado con éxito", "info")
