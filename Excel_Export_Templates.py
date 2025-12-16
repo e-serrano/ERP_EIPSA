@@ -10060,11 +10060,21 @@ class future_projects:
         sheet_name = "PROJECTS"
         ws = self.wb[sheet_name]
 
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
         last_row = 11
         for index, row in df.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row, column=col_num)
                 cell.value = value
+
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
             last_row = last_row + 1
 

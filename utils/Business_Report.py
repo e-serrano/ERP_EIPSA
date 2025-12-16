@@ -482,7 +482,7 @@ def report_projects():
     
     columns = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                 "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions"]
+                "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions", "Contacto EPC", "Datos Contacto"]
     
     with Database_Connection(config()) as conn:
         with conn.cursor() as cur:
