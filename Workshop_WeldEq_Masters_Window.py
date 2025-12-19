@@ -1359,7 +1359,7 @@ class Ui_Workshop_WeldEq_Masters_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                pdf_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar archivo PDF", initialdir)
+                pdf_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo PDF", initialdir, "Archivos PDF (*.pdf)")
 
                 if pdf_path:
                     commands_insert_1 = ("""
