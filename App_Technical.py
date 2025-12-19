@@ -744,6 +744,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.verticalLayout_3.addWidget(self.Button_EditTag)
 
         if self.username in ['julian.martinez']:
+            self.Button_QueryOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_QueryOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_QueryOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_QueryOffer.setFont(font)
+            self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon5 = QtGui.QIcon()
+            icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_QueryOffer.setIcon(icon5)
+            self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_QueryOffer.setObjectName("Button_QueryOffer")
+            self.verticalLayout_3.addWidget(self.Button_QueryOffer)
             self.Button_Commercial = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_Commercial.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_Commercial.setMaximumSize(QtCore.QSize(200, 50))
@@ -936,18 +950,19 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_PortalDoc.clicked.connect(self.portal_doc)
-        self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
     # Setting functions to buttons
         if self.username in ['julian.martinez']:
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
             self.Button_Commercial.clicked.connect(self.commercial_menu)
+            self.Button_QueryOffer.clicked.connect(self.query_offer)
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
             self.Button_NewDoc.clicked.connect(self.create_documents)
             self.Button_ImportDoc.clicked.connect(self.import_documents)
             self.Button_EditDoc.clicked.connect(self.edit_documents)
             self.Button_QueryDoc.clicked.connect(self.query_documents)
+            self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
 
         QtCore.QMetaObject.connectSlotsByName(App_Technical)
 
@@ -966,6 +981,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if self.username in ['julian.martinez']:
             self.Button_Commercial.setText(_translate("App_Technical", "    Comercial"))
             self.Button_FactoryTimes.setText(_translate("App_Technical", "    Tiempos Fab."))
+            self.Button_QueryOffer.setText(_translate("App_Technical", "    Consultar Ofertas"))
 
         else:
             self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
@@ -2681,8 +2697,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 # Function to open commercial menu
     def commercial_menu(self):
         while True:
-            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Consultar Ofertas',
-                                                                                                'Nueva Oferta',
+            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
                                                                                                 'Editar Oferta',
                                                                                                 'Reclamar Oferta',
                                                                                                 'Exportar Oferta',
@@ -2693,10 +2708,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                                                                 'Importar Tag(s)'], 0, False)
             if ok and action:
                 while True:
-                    if action == 'Consultar Oferta':
-                        self.query_offer()
-                        break
-                    elif action == 'Nueva Oferta':
+                    if action == 'Nueva Oferta':
                         self.new_offer()
                         break
                     elif action == 'Editar Oferta':
@@ -2876,7 +2888,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 self.tableDocs.verticalHeader().hide()
                 self.tableDocs.setItemDelegate(AlignDelegate_Docs(self.tableDocs))
 
-                self.tableDocs.itemDoubleClicked.connect(self.on_item_double_clicked)
+                # self.tableDocs.itemDoubleClicked.connect(self.on_item_double_clicked)
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2985,7 +2997,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','e.carrillo')
+    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())
