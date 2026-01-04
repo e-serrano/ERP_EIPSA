@@ -17,7 +17,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

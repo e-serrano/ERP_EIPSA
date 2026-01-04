@@ -14,7 +14,7 @@ import os
 import re
 from utils.MoneyChange import obtain_money_change
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 class Ui_SubmitOffer_Window(object):

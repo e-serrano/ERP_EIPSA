@@ -14,7 +14,7 @@ import psycopg2
 import os
 from config import config
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 class Ui_SetupWindow(object):

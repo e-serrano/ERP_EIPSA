@@ -19,7 +19,7 @@ import pandas as pd
 from PDF_Viewer import PDF_Viewer
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
     """

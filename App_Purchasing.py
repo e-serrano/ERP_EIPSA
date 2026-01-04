@@ -1834,7 +1834,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
                                 df_offers = pd.DataFrame(results_offers, columns=['Oferta', 'Estado', 'Cliente', 'Cliente Final', 'Fecha Reg.', 'Nac./Ext.', 'Importe', 'Año'])
 
-                                existing_workbook = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\ENRIQUE SERRANO\05 COSAS DANI\RESUMEN OFERTAS.xlsm"
+                                existing_workbook = r"\\erp-eipsa-datos\Comunes\ENRIQUE SERRANO\05 COSAS DANI\RESUMEN OFERTAS.xlsm"
                                 wb = load_workbook(existing_workbook, keep_vba=True)
                                 ws = wb["TABLA"]
 

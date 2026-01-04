@@ -24,7 +24,7 @@ from utils.Show_Message import MessageHelper
 from PDF_Styles import welding_homologation
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):

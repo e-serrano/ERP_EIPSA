@@ -10,9 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import pandas as pd
 from OTFabOrder_Window import Ui_OTFabOrder_Window
 import os
-
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
-
+from config import get_path
+from utils.Show_Message import MessageHelper
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -69,7 +68,7 @@ class Ui_CreateFabOrder_Window(object):
         ElementsFabOrder_Window.resize(400, 561)
         ElementsFabOrder_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ElementsFabOrder_Window.setWindowIcon(icon)
         ElementsFabOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -322,16 +321,6 @@ class Ui_CreateFabOrder_Window(object):
     # fill the Qt Table with the results
         for column in range(self.columns_number):
             if column in list_columns:
-                # chkBox = QtWidgets.QCheckBox()
-                # chkBox.setCheckState(QtCore.Qt.CheckState.Unchecked)
-
-                # cell_widget = QtWidgets.QWidget()
-                # cell_layout = QtWidgets.QHBoxLayout()
-                # cell_layout.addWidget(chkBox)
-                # cell_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-                # cell_widget.setLayout(cell_layout)
-                # self.tableElements.setCellWidget(0, column, cell_widget)
-
                 chkBoxItem  = QtWidgets.QTableWidgetItem()
                 chkBoxItem.setFlags(QtCore.Qt.ItemFlag.ItemIsUserCheckable | QtCore.Qt.ItemFlag.ItemIsEnabled)
                 chkBoxItem.setCheckState(QtCore.Qt.CheckState.Unchecked)
@@ -380,15 +369,7 @@ class Ui_CreateFabOrder_Window(object):
                     column_list.append(column)
 
         if len(column_list) == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Orden de Fabricación")
-            dlg.setText("Debe seleccionar al menos una columna para generar OT")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Debe seleccionar al menos una columna para generar OT", "warning")
         else:
             for row in range(self.tableElements.rowCount()):
                 if row != 0:

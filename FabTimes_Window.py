@@ -20,7 +20,7 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

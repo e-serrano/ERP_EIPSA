@@ -17,7 +17,7 @@ import pandas as pd
 from pathlib import Path
 from pypdf import PdfReader, PdfWriter
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 class CustomPDF(FPDF):
     """

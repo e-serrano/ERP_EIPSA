@@ -11,7 +11,7 @@ import re
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
     """
@@ -61,35 +61,35 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    try:
-        with Database_Connection(config()) as conn:
-            with conn.cursor() as cur:
-                cur.execute(commands_numot)
-                results=cur.fetchall()
-                num_ot=results[-1][0]
+    # try:
+    #     with Database_Connection(config()) as conn:
+    #         with conn.cursor() as cur:
+    #             cur.execute(commands_numot)
+    #             results=cur.fetchall()
+    #             num_ot=results[-1][0]
 
-        excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
-        worksheet = workbook.active
-        num_ot = worksheet['B2'].value
-        with Database_Connection(config()) as conn:
-            with conn.cursor() as cur:
-                cur.execute(check_otpedmat)
-                results=cur.fetchall()
+    #     excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+    #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
+    #     worksheet = workbook.active
+    #     num_ot = worksheet['B2'].value
+    #     with Database_Connection(config()) as conn:
+    #         with conn.cursor() as cur:
+    #             cur.execute(check_otpedmat)
+    #             results=cur.fetchall()
 
-        if len(results) == 0:
-            data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-            with Database_Connection(config()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(commands_otpedmat, data)
-                conn.commit()
+    #     if len(results) == 0:
+    #         data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
+    #         with Database_Connection(config()) as conn:
+    #             with conn.cursor() as cur:
+    #                 cur.execute(commands_otpedmat, data)
+    #             conn.commit()
 
-            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-            workbook.save(excel_file_path)
+    #         worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
+    #         workbook.save(excel_file_path)
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                    + str(error), "critical")
+    # except (Exception, psycopg2.DatabaseError) as error:
+    #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+    #                 + str(error), "critical")
 
     for element in id_list:
         for row in range(model.rowCount()):
@@ -97,115 +97,112 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 target_row = row
                 break
         if target_row is not None:
-            code_orifice_flange = model.data(model.index(target_row, 75))[:19] + model.data(model.index(target_row, 75))[23:]
-            codefab_orifice_flange = model.data(model.index(target_row, 76))
-            code_line_flange = model.data(model.index(target_row, 78))
-            codefab_line_flange = model.data(model.index(target_row, 79))
-            code_gasket = model.data(model.index(target_row, 81))
-            codefab_gasket = model.data(model.index(target_row, 82))
-            code_bolts = model.data(model.index(target_row, 84))
-            codefab_bolts = model.data(model.index(target_row, 85))
-            code_plugs = model.data(model.index(target_row, 87))
-            codefab_plugs = model.data(model.index(target_row, 88))
-            code_extractor = model.data(model.index(target_row, 90))
-            codefab_extractor = model.data(model.index(target_row, 91))
-            code_plate = model.data(model.index(target_row, 93))
-            codefab_plate = model.data(model.index(target_row, 94))
-            code_nipple = model.data(model.index(target_row, 96))
-            codefab_nipple = model.data(model.index(target_row, 97))
-            code_handle = model.data(model.index(target_row, 99))
-            codefab_handle = model.data(model.index(target_row, 100))
-            code_chring = model.data(model.index(target_row, 102))
-            codefab_chring = model.data(model.index(target_row, 103))
-            code_tube = model.data(model.index(target_row, 105))
-            codefab_tube = model.data(model.index(target_row, 106))
-            code_piece2 = model.data(model.index(target_row, 108))
-            codefab_piece2 = model.data(model.index(target_row, 109))
+            code_orifice_flange = model.data(model.index(target_row, 156))[:19] + model.data(model.index(target_row, 156))[23:]
+            codefab_orifice_flange = model.data(model.index(target_row, 168))
+            code_line_flange = model.data(model.index(target_row, 157))
+            codefab_line_flange = model.data(model.index(target_row, 169))
+            code_gasket = model.data(model.index(target_row, 158))
+            codefab_gasket = model.data(model.index(target_row, 170))
+            code_bolts = model.data(model.index(target_row, 159))
+            codefab_bolts = model.data(model.index(target_row, 171))
+            code_plugs = model.data(model.index(target_row, 160))
+            codefab_plugs = model.data(model.index(target_row, 172))
+            code_extractor = model.data(model.index(target_row, 161))
+            codefab_extractor = model.data(model.index(target_row, 173))
+            code_plate = model.data(model.index(target_row, 162))
+            codefab_plate = model.data(model.index(target_row, 174))
+            code_nipple = model.data(model.index(target_row, 163))
+            codefab_nipple = model.data(model.index(target_row, 175))
+            code_handle = model.data(model.index(target_row, 164))
+            codefab_handle = model.data(model.index(target_row, 176))
+            code_chring = model.data(model.index(target_row, 165))
+            codefab_chring = model.data(model.index(target_row, 177))
+            code_tube = model.data(model.index(target_row, 166))
+            codefab_tube = model.data(model.index(target_row, 178))
+            code_piece2 = model.data(model.index(target_row, 167))
+            codefab_piece2 = model.data(model.index(target_row, 179))
             all_list_parts =[]
 
             if code_orifice_flange != '':
-                tradcodbror = model.data(model.index(target_row, 113))
+                tradcodbror = model.data(model.index(target_row, 192))
                 schbror = model.data(model.index(target_row, 12))
-                designbror = model.data(model.index(target_row, 111)).replace('.',',')
+                designbror = str(model.data(model.index(target_row, 57))).replace('.',',')
                 processbror = "" #model.data(model.index(target_row, 37))
                 materialbror = model.data(model.index(target_row, 13))
-                qtybror = model.data(model.index(target_row, 77))
+                qtybror = model.data(model.index(target_row, 180))
                 orifice_flange_list.append([code_orifice_flange,codefab_orifice_flange,tradcodbror,schbror,designbror,processbror,materialbror,qtybror])
                 all_list_parts.append(orifice_flange_list)
 
             if code_line_flange != '':
-                tradcodbrline = model.data(model.index(target_row, 114))
+                tradcodbrline = model.data(model.index(target_row, 193))
                 schbrline = model.data(model.index(target_row, 12))
-                designbrline = model.data(model.index(target_row, 111)).replace('.',',')
+                designbrline = str(model.data(model.index(target_row, 57))).replace('.',',')
                 processbrline = "" #model.data(model.index(target_row, 37))
                 materialbrline = model.data(model.index(target_row, 13))
-                qtybrline = model.data(model.index(target_row, 80))
+                qtybrline = model.data(model.index(target_row, 87))
                 line_flange_list.append([code_line_flange,codefab_line_flange,tradcodbrline,schbrline,designbrline,processbrline,materialbrline,qtybrline])
                 all_list_parts.append(line_flange_list)
 
             if code_gasket != '':
-                tradcodgasket = model.data(model.index(target_row, 115))
+                tradcodgasket = model.data(model.index(target_row, 194))
                 schgasket = (model.data(model.index(target_row, 9)) + " " + 
                                 model.data(model.index(target_row, 10)) + " " + 
                                 model.data(model.index(target_row, 11)))
                 designgasket = ''
                 processgasket = ''
                 materialgasket = ''
-                qtygasket = model.data(model.index(target_row, 83))
+                qtygasket = model.data(model.index(target_row, 39))
                 gasket_list.append([code_gasket,codefab_gasket,tradcodgasket,schgasket,designgasket,processgasket,materialgasket,qtygasket])
                 all_list_parts.append(gasket_list)
 
             if code_bolts != '':
-                tradcodbolts = model.data(model.index(target_row, 116))
+                tradcodbolts = model.data(model.index(target_row, 195))
                 modelbolts = (model.data(model.index(target_row, 9)) + " " + 
                                 model.data(model.index(target_row, 10)) + " " + 
                                 model.data(model.index(target_row, 11)))
-                designbolts = ('esp. placa ' + model.data(model.index(target_row, 19)))
+                designbolts = ('esp. placa ' + model.data(model.index(target_row, 21)))
                 processbolts = ''
-                materialbolts = model.data(model.index(target_row, 22))
-                qtybolts = model.data(model.index(target_row, 64))
+                materialbolts = model.data(model.index(target_row, 24)) + " / " + model.data(model.index(target_row, 25))
+                qtybolts = model.data(model.index(target_row, 41))
                 bolts_list.append([code_bolts,codefab_bolts,tradcodbolts,modelbolts,designbolts,processbolts,materialbolts,qtybolts])
                 all_list_parts.append(bolts_list)
 
             if code_extractor != '':
-                tradcodextractor = model.data(model.index(target_row, 118))
+                tradcodextractor = model.data(model.index(target_row, 197))
                 sizebrida = (model.data(model.index(target_row, 9)) + " " + 
                                 model.data(model.index(target_row, 10)) + " " + 
                                 model.data(model.index(target_row, 11)))
-                designextractor = ('esp. placa ' + model.data(model.index(target_row, 19)))
+                designextractor = ('esp. placa ' + model.data(model.index(target_row, 21)))
                 processextractor = ''
-                material_extractor = re.search(r"^(.*?) / (\S+)(?:\s(\S+))?(?:\s)?(?:\s(.+))?$", model.data(model.index(target_row, 22))) if model.data(model.index(target_row, 22)) != 'N/A' else ""
-                term_1 = material_extractor.group(1) if material_extractor != "" else ""
-                term_4 = material_extractor.group(4)  if material_extractor and material_extractor.group(4) else ""
-                materialextractor = f"{term_1} {term_4}" if material_extractor != "" else ""
-                qtyextractor = model.data(model.index(target_row, 66))
+                materialextractor = model.data(model.index(target_row, 44))
+                qtyextractor = model.data(model.index(target_row, 46))
                 extractor_list.append([code_extractor,codefab_extractor,tradcodextractor,sizebrida,designextractor,processextractor,materialextractor,qtyextractor])
                 all_list_parts.append(extractor_list)
 
             if code_plate != '':
-                tradcodplate = model.data(model.index(target_row, 119))
-                modelplate = ('ESP ' + model.data(model.index(target_row, 19)) + 'mm')
-                diamextplate = model.data(model.index(target_row, 61))
-                processplate = 'ARAMCO' if model.data(model.index(target_row, 20)) =='ARA' else ''
-                materialplate = model.data(model.index(target_row, 17))
-                qtyplate = model.data(model.index(target_row, 25)) if model.data(model.index(target_row, 8)) == "MULTISTAGE RO" else 1
+                tradcodplate = model.data(model.index(target_row, 198))
+                modelplate = ('ESP ' + model.data(model.index(target_row, 21)) + 'mm')
+                diamextplate = model.data(model.index(target_row, 58))
+                processplate = 'ARAMCO' if model.data(model.index(target_row, 22)) =='ARA' else ''
+                materialplate = model.data(model.index(target_row, 19))
+                qtyplate = model.data(model.index(target_row, 28)) if model.data(model.index(target_row, 8)) == "MULTISTAGE RO" else 1
                 plate_list.append([code_plate,codefab_plate,tradcodplate,modelplate,diamextplate,processplate,materialplate,qtyplate])
                 all_list_parts.append(plate_list)
 
             if code_nipple != '':
-                tradcodnipple = model.data(model.index(target_row, 120))
+                tradcodnipple = model.data(model.index(target_row, 199))
                 modelnipple = ''
                 designnipple = ''
                 processnipple = ''
                 materialnipple = model.data(model.index(target_row, 13))
-                qtynipple = model.data(model.index(target_row, 57))
+                qtynipple = model.data(model.index(target_row, 17))
                 nipple_list.append([code_nipple,codefab_nipple,tradcodnipple,modelnipple,designnipple,processnipple,materialnipple,qtynipple])
                 all_list_parts.append(nipple_list)
 
-            if code_handle != '' and model.data(model.index(target_row, 19)) not in ['3', '1/8" (3)']:
-                tradcodhandle = model.data(model.index(target_row, 121))
-                modelhandle = (model.data(model.index(target_row, 62)) + 'mm')
-                designhandle = model.data(model.index(target_row, 20))
+            if code_handle != '' and model.data(model.index(target_row, 21)) not in ['3', '1/8" (3)']:
+                tradcodhandle = model.data(model.index(target_row, 200))
+                modelhandle = (model.data(model.index(target_row, 60)) + "x" + model.data(model.index(target_row, 61)) + "x" +model.data(model.index(target_row, 62)) +' mm')
+                designhandle = model.data(model.index(target_row, 22))
                 processhandle = ''
                 materialhandle = '316SS'
                 qtyhandle = 1
@@ -213,29 +210,29 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 all_list_parts.append(handle_list)
 
             if code_chring != '':
-                tradcodchring = model.data(model.index(target_row, 122))
+                tradcodchring = model.data(model.index(target_row, 201))
                 schchring = 'ESP ' if model.data(model.index(target_row, 11)) == "RTJ" else 'ESP 38,5mm ACABADO'
-                designchring = "ø" + str(model.data(model.index(target_row, 61)))
+                designchring = "ø" + str(model.data(model.index(target_row, 58)))
                 processchring = "" #model.data(model.index(target_row, 37))
-                materialchring = model.data(model.index(target_row, 17))
+                materialchring = model.data(model.index(target_row, 19))
                 qtychring = 1
                 chring_list.append([code_chring,codefab_chring,tradcodchring,schchring,designchring,processchring,materialchring,qtychring])
                 all_list_parts.append(chring_list)
 
             if code_plugs != '':
-                tradcodplug = model.data(model.index(target_row, 117))
+                tradcodplug = model.data(model.index(target_row, 196))
                 modelplug = ''
                 designplug = ''
                 processplug = ''
-                materialplug = 'ASTM A105' if model.data(model.index(target_row, 85))[-2:] == 'C1' else model.data(model.index(target_row, 13))
-                qtyplug = int(model.data(model.index(target_row, 55))) if model.data(model.index(target_row, 55)) != '' else 0
+                materialplug = 'ASTM A105' if model.data(model.index(target_row, 171))[-2:] == 'C1' else model.data(model.index(target_row, 13))
+                qtyplug = int(model.data(model.index(target_row, 43))) if model.data(model.index(target_row, 62)) != '' else 0
                 plugs_list.append([code_plugs,codefab_plugs,tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
                 all_list_parts.append(plugs_list)
 
             if code_tube != '':
-                tradcodtube = model.data(model.index(target_row, 123))
+                tradcodtube = model.data(model.index(target_row, 202))
                 schtube = model.data(model.index(target_row, 12))
-                designtube = model.data(model.index(target_row, 111)).replace('.',',')
+                designtube = str(model.data(model.index(target_row, 57))).replace('.',',')
                 processtube = ''
                 commands_flangecode = ("""
                     SELECT code
@@ -264,12 +261,12 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
-                qtytube = model.data(model.index(target_row, 107))
+                qtytube = model.data(model.index(target_row, 190))
                 tube_list.append([code_tube,codefab_tube,tradcodtube,schtube,designtube,processtube,materialtube,qtytube])
                 all_list_parts.append(tube_list)
 
             if code_piece2 != '':
-                tradcodpiece2 = model.data(model.index(target_row, 122))
+                tradcodpiece2 = model.data(model.index(target_row, 203))
                 commands_thk = ("""
                     SELECT wall_thk
                     FROM validation_data.pipe_diam
@@ -358,62 +355,62 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
 
-            try:
-                with Database_Connection(config()) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(check_equipments)
-                        results=cur.fetchall()
+            # try:
+            #     with Database_Connection(config()) as conn:
+            #         with conn.cursor() as cur:
+            #             cur.execute(check_equipments)
+            #             results=cur.fetchall()
 
-                if len(results) == 0:
-                    with Database_Connection(config()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(commands_equipments)
-                        conn.commit()
+            #     if len(results) == 0:
+            #         with Database_Connection(config()) as conn:
+            #             with conn.cursor() as cur:
+            #                 cur.execute(commands_equipments)
+            #             conn.commit()
 
-                else:
-                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
-                    with Database_Connection(config()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(update_equipments)
-                        conn.commit()
+            #     else:
+            #         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
+            #         update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
+            #         with Database_Connection(config()) as conn:
+            #             with conn.cursor() as cur:
+            #                 cur.execute(update_equipments)
+            #             conn.commit()
 
-                for list_part in all_list_parts:
-                    check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-                    with Database_Connection(config()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(check_parts)
-                            results=cur.fetchall()
+            #     for list_part in all_list_parts:
+            #         check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
+            #         with Database_Connection(config()) as conn:
+            #             with conn.cursor() as cur:
+            #                 cur.execute(check_parts)
+            #                 results=cur.fetchall()
 
-                    if len(results) == 0:
-                        list_part_modified = list_part[0].copy()
-                        list_part_modified[-1] = 'Q-CAUD'
-                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-                        commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-                        with Database_Connection(config()) as conn:
-                            with conn.cursor() as cur:
-                                cur.execute(commands_parts)
-                            conn.commit()
+            #         if len(results) == 0:
+            #             list_part_modified = list_part[0].copy()
+            #             list_part_modified[-1] = 'Q-CAUD'
+            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+            #             commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
+            #             with Database_Connection(config()) as conn:
+            #                 with conn.cursor() as cur:
+            #                     cur.execute(commands_parts)
+            #                 conn.commit()
 
-                    else:
-                        list_part_modified = list_part[0].copy()
-                        list_part_modified[-1] = 'Q-CAUD'
-                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
-                        update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-                        with Database_Connection(config()) as conn:
-                            with conn.cursor() as cur:
-                                cur.execute(update_parts)
-                            conn.commit()
+            #         else:
+            #             list_part_modified = list_part[0].copy()
+            #             list_part_modified[-1] = 'Q-CAUD'
+            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+            #             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
+            #             update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
+            #             with Database_Connection(config()) as conn:
+            #                 with conn.cursor() as cur:
+            #                     cur.execute(update_parts)
+            #                 conn.commit()
 
-                with Database_Connection(config()) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(commands_tags)
-                    conn.commit()
+            #     with Database_Connection(config()) as conn:
+            #         with conn.cursor() as cur:
+            #             cur.execute(commands_tags)
+            #         conn.commit()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                            + str(error), "critical")
+            # except (Exception, psycopg2.DatabaseError) as error:
+            #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+            #                 + str(error), "critical")
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -460,7 +457,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                     + str(error), "critical")
 
-    excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
+    excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,'123455')
     excel_mat_order.save_excel()
 
 
@@ -519,7 +516,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -905,7 +902,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -1351,7 +1348,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value

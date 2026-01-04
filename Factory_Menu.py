@@ -12,7 +12,7 @@ import configparser
 from utils.Database_Manager import Create_DBconnection
 from config import config
 
-basedir = r"\\ERP-EIPSA-DATOS\DATOS\Comunes\EIPSA-ERP"
+basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
 
 
 class Ui_Factory_Menu(QtWidgets.QMainWindow):
