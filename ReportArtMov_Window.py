@@ -509,7 +509,7 @@ class Ui_ArtMov_Window(object):
         ReportArtMov.resize(1165, 945)
         ReportArtMov.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReportArtMov.setWindowIcon(icon)
         if self.username == 'd.marquez':
             ReportArtMov.setStyleSheet("QWidget {\n"

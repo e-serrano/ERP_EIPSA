@@ -1554,7 +1554,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Datos importados con éxito")

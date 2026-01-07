@@ -1270,7 +1270,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         Adds pdf paths to the selected master in the database.
         """
         actual_year = datetime.now().year
-        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/PROCEDIMIENTOS DE SOLDADURA HOMOLOGADOS/PROCEDIMIENTOS DE SOLDADURA DIRECTIVA 2014-68-UE PED/" + str(actual_year)
+        initialdir="//ERP-EIPSA-DATOS/Comunes/PROCEDIMIENTOS DE SOLDADURA HOMOLOGADOS/PROCEDIMIENTOS DE SOLDADURA DIRECTIVA 2014-68-UE PED/" + str(actual_year)
 
         selected_indexes = self.tableCertificates.selectionModel().selectedIndexes()
         if not selected_indexes:

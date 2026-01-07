@@ -66,7 +66,7 @@ class Ui_StockVal_Window(object):
         ReportStockVal.resize(1165, 945)
         ReportStockVal.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReportStockVal.setWindowIcon(icon)
         ReportStockVal.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

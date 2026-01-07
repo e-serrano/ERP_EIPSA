@@ -1291,7 +1291,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected machine's record in the database.
         Updates the image field for the specified machine by selecting an image file from the filesystem.
         """
-        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Maquinas"
+        initialdir="//ERP-EIPSA-DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Maquinas"
 
         images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 
@@ -1352,7 +1352,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS"
+                initialdir="//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS"
 
                 document_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos PDF (*.pdf)")
 

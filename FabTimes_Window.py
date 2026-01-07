@@ -492,7 +492,7 @@ class Ui_FabTimes_Window(object):
         FabTimes.resize(1165, 945)
         FabTimes.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         FabTimes.setWindowIcon(icon)
         FabTimes.setStyleSheet("QPushButton {\n"
     "background-color: #33bdef;\n"

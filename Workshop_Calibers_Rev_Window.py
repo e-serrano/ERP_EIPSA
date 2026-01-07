@@ -1406,7 +1406,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected caliber's record in the database.
         Updates the image field for the specified caliber by selecting an image file from the filesystem.
         """
-        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica"
+        initialdir="//ERP-EIPSA-DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica"
 
         images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 

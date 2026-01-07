@@ -2251,7 +2251,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                     conn.commit()
 
-                new_fname = "//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
+                new_fname = "//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
 
                 os.rename(fname, new_fname)
 

@@ -874,10 +874,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+"    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
 "\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())

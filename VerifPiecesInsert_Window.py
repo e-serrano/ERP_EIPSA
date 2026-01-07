@@ -1218,7 +1218,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar archivo pdf","//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos PDF (*.pdf)")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar archivo pdf","//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos PDF (*.pdf)")
 
         if self.fname:
             self.document.setText(self.fname)
@@ -1228,7 +1228,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a image from a predefined directory.
         """
-        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar imagen","//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos JPG (*.jpg)")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Seleccionar imagen","//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN","Archivos JPG (*.jpg)")
 
         if self.fname:
             self.image.setText(self.fname)

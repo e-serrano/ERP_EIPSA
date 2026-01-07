@@ -1298,7 +1298,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         Adds pdf paths to the selected master in the database.
         """
         actual_year = datetime.now().year
-        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
+        initialdir="//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
 
         selected_indexes = self.tableCertificates.selectionModel().selectedIndexes()
         if not selected_indexes:

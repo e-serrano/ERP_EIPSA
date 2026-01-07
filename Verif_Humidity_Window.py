@@ -877,7 +877,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             conn.commit()
             cursor.close()
 
-            new_fname = "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
+            new_fname = "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
 
             os.rename(fname, new_fname)
 

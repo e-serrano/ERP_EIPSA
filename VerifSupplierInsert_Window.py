@@ -1203,7 +1203,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                 self.query_values()
 
-                folder_path = '//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
+                folder_path = '//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
                 file_name = delivnote.split("/")[-1]
                 file_path = os.path.join(folder_path, file_name)
 
@@ -1279,7 +1279,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
             elif item.column() == 1:
                 name_pdf = item.text()
-                file_path = os.path.normpath("//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
+                file_path = os.path.normpath("//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
 
                 if os.path.isfile(file_path):
                     try:
@@ -1351,7 +1351,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         """
         Opens a file dialog to select a PDF file from a predefined directory.
         """
-        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", "Archivos PDF (*.pdf)")
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", "Archivos PDF (*.pdf)")
         if self.fname:
             self.delivnote.setText(self.fname)
 

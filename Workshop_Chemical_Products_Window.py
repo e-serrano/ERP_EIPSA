@@ -1322,7 +1322,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION"
+                initialdir="//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION"
 
                 images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 
@@ -1362,7 +1362,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/MARIO GIL/VERIFICACION/"
+                initialdir="//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/"
 
                 document_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos PDF (*.pdf)")
 

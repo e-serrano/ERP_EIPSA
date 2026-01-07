@@ -1277,7 +1277,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Adds an image to the selected hand tool's record in the database.
         Updates the image field for the specified hand tool by selecting an image file from the filesystem.
         """
-        initialdir="//ERP-EIPSA-DATOS/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano"
+        initialdir="//ERP-EIPSA-DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano"
 
         images_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", initialdir, "Archivos JPG (*.jpg)")
 

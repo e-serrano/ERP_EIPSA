@@ -1552,7 +1552,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         Invoice_Window.setObjectName("Invoice_Window")
         Invoice_Window.resize(1476, 927)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Invoice_Window.setWindowIcon(icon)
         Invoice_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -5383,7 +5383,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if id_invoice == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Selecciona una factura para importar")
@@ -5429,7 +5429,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Datos importados con éxito")
@@ -5694,7 +5694,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Datos importados con éxito")
@@ -5706,7 +5706,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 print(error)
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText(error)
