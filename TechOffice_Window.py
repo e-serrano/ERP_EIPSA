@@ -6,7 +6,7 @@ import configparser
 from datetime import *
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """

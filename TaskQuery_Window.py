@@ -17,7 +17,7 @@ from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PySide6.QtCore import Qt
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

@@ -13,7 +13,7 @@ import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

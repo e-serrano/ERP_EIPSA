@@ -16,7 +16,7 @@ import random
 import re
 import hashlib
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ForgetPass_Window(object):

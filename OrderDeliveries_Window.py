@@ -13,7 +13,7 @@ import os
 from datetime import *
 from openpyxl.styles import NamedStyle
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

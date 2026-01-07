@@ -16,7 +16,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ImportTAG_Window(object):

@@ -11,7 +11,7 @@ import re
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
     """
@@ -68,7 +68,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
     #             results=cur.fetchall()
     #             num_ot=results[-1][0]
 
-    #     excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
     #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
     #     worksheet = workbook.active
     #     num_ot = worksheet['B2'].value
@@ -516,7 +516,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -902,7 +902,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -1348,7 +1348,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 results=cur.fetchall()
                 num_ot=results[-1][0]
 
-        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value

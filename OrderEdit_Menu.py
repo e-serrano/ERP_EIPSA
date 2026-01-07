@@ -11,7 +11,7 @@ from OrderActivation_Window import Ui_OrderActivation_Window
 from OrderEdit_Window import Ui_Edit_Order_Window
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOrder_Menu(object):

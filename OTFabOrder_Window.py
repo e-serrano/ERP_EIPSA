@@ -18,7 +18,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -225,7 +225,7 @@ class Ui_OTFabOrder_Window(object):
                     results=cur.fetchall()
                     self.num_ot=results[-1][0]
 
-            excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
             workbook = load_workbook(excel_file_path, keep_vba=True)
             worksheet = workbook.active
             self.num_ot = worksheet['B2'].value
@@ -548,7 +548,7 @@ class Ui_OTFabOrder_Window(object):
 
             wb.save(output_path)
 
-            excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
             workbook = load_workbook(excel_file_path, keep_vba=True)
             worksheet = workbook.active
             worksheet['B2'].value = self.num_ot

@@ -22,7 +22,7 @@ import pandas as pd
 from openpyxl import load_workbook
 
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -2662,7 +2662,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 groups = [df.iloc[i:i + 4] for i in range(0, len(df), 4)]
 
                 self.wb = load_workbook(
-                    r"\\erp-eipsa-datos\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA PEGATINAS.xlsx"
+                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA PEGATINAS.xlsx"
                 )
                 sheet_name = "Hoja1"  # Selecting template sheet
                 ws = self.wb[sheet_name]

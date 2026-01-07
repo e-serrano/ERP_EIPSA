@@ -23,7 +23,7 @@ from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from PIL import Image, ExifTags
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -1623,7 +1623,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             if results_handtool[0][8] != '':
                 image_path = os.path.abspath(results_handtool[0][8])
                 corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
+                temp_image_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
                 corrected_image.save(temp_image_path)
                 pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
 

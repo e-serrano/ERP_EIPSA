@@ -18,7 +18,7 @@ from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from PIL import Image, ExifTags
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -864,9 +864,9 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 self.adjust_table()
 
                 if self.Facing_Flange.text() == 'RF':
-                    self.image_path = r'\\erp-eipsa-datos\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RF VERIFICACION.png'
+                    self.image_path = r'\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RF VERIFICACION.png'
                 elif self.Facing_Flange.text() == 'RTJ':
-                    self.image_path = r'\\erp-eipsa-datos\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RTJ VERIFICACION.png'
+                    self.image_path = r'\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RTJ VERIFICACION.png'
                 else:
                     self.image_path = None
 

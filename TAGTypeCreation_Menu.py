@@ -14,7 +14,7 @@ from TAGCreateLevel_Window import Ui_CreateTAGNiv_Window
 from TAGCreateOthers_Window import Ui_CreateTAGOthers_Window
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class Ui_TypeTagCreation_Menu(object):
     """

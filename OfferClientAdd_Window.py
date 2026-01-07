@@ -12,7 +12,7 @@ import psycopg2
 from config import config
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OfferClientAdd_Window(object):

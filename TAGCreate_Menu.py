@@ -11,7 +11,7 @@ from TAGImport_Window import Ui_ImportTAG_Window
 from TAGTypeCreation_Menu import Ui_TypeTagCreation_Menu
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTag_Menu(object):

@@ -21,7 +21,7 @@ import os
 import pandas as pd
 
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):

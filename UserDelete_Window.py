@@ -12,7 +12,7 @@ from config import config
 from User_Delete_DB import delete_user_database
 import os
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_DeleteUser_Window(object):

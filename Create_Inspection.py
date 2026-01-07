@@ -4,7 +4,7 @@ from PySide6 import QtGui, QtWidgets
 import psycopg2
 from datetime import *
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 def inspection(proxy, model, variable):
     """

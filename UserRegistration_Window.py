@@ -16,7 +16,7 @@ import os
 import hashlib 
 from Email_Styles import email_new_user
 
-basedir = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP"
+basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_RegistrationWindow(object):

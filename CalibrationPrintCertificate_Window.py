@@ -492,7 +492,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                     + str(error), "critical")
 
-                    output_path = r"\\erp-eipsa-datos\Comunes\MARIO GIL\VERIFICACION\CERTIFICADOS CALIBRACIÓN\\" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+                    output_path = r"\\ERP-EIPSA-DATOS\Comunes\MARIO GIL\VERIFICACION\CERTIFICADOS CALIBRACIÓN\\" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
 
                     if output_path:
                         try:
