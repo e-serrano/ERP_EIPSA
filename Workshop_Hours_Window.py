@@ -1108,7 +1108,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.model_P.dataChanged.connect(self.saveChanges)
 
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(self.model_O.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_O.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_4.addWidget(self.tableWorkshop_O, 3, 0, 1, 1)
@@ -1121,7 +1123,8 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.model_O.dataChanged.connect(self.saveChanges)
 
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(self.model_AL.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_AL.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
         self.gridLayout_5.addWidget(self.tableWorkshop_AL, 3, 0, 1, 1)
@@ -2390,14 +2393,32 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         df_O.columns = df_O.iloc[0]
         df_O = df_O[1:]
 
+        visible_columns = [col for col in range(self.model_AL.columnCount()) if not self.tableWorkshop_AL.isColumnHidden(col)]
+        visible_headers = self.model_AL.getColumnHeaders(visible_columns)
+        for row in range(self.proxy_AL.rowCount()):
+            tag_data = []
+            for column in visible_columns:
+                value = self.proxy_AL.data(self.proxy_AL.index(row, column))
+                if isinstance(value, QDate):
+                    value = value.toString("dd/MM/yyyy")
+                elif column in [16,21]:
+                    value = int(value) if value != '' else 0
+                tag_data.append(value)
+            final_data3.append(tag_data)
+
+        final_data3.insert(0, visible_headers)
+        df_AL = pd.DataFrame(final_data3)
+        df_AL.columns = df_AL.iloc[0]
+        df_AL = df_AL[1:]
+
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
             if not output_path.lower().endswith(".xlsx"):
                 output_path += ".xlsx"
-            df_P.to_excel(output_path, index=False, header=True)
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df_P.to_excel(writer, sheet_name='P-', index=False)
                 df_O.to_excel(writer, sheet_name='O-', index=False)
+                df_AL.to_excel(writer, sheet_name='AL-', index=False)
 
 # Function to count selected cell and sum its values if possible
     def countSelectedCells_P(self):
