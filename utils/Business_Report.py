@@ -530,7 +530,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     received_amount = df_graph_commercial_1['Importe Oferta'].sum()
     offered_amount = df_graph_commercial_1[~df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
     budgetary_amount = df_graph_commercial_1[df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
-    order_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] == 'Adjudicada']['Importe Oferta'].sum()
+    order_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] == 'Adjudicada']['Importe Final'].sum()
 
     pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
     y_position = 1.1
