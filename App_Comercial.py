@@ -1067,14 +1067,23 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for edit tags
     def edit_tag(self):
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
         """
-        Opens a new menu for different types of editing existing tags. 
+        Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
+
+        Args:
+            EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
-        from TAGEdit_Menu import Ui_EditTags_Menu
-        self.edittags_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_EditTags_Menu()
-        self.ui.setupUi(self.edittags_menu)
-        self.edittags_menu.show()
+        dbparam = config()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = Create_DBconnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
 
 # Function to open window for query tags
     def query_tag(self):
