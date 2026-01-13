@@ -1337,7 +1337,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     SELECT "num_offer", "responsible", "state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","probability",
                     "notes","important","tracking","actions"
                     FROM offers
-                    WHERE ("responsible" in (%s, 'c.crespo') AND "state" in ('Presentada', 'Registrada', 'En Estudio'))
+                    WHERE ("responsible" in (%s, 'c.crespo', 'julian.martinez') AND "state" in ('Presentada', 'Registrada', 'En Estudio'))
                     ORDER BY "num_offer"
                     """)
 
