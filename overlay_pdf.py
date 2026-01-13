@@ -88,7 +88,6 @@ def new_content_notes(technical_note):
 
     return io.BytesIO(pdf.output())
 
-
 # Function to create PDF with specific text in a position
 def new_content_tags(value, type_eq):
     """
@@ -105,7 +104,7 @@ def new_content_tags(value, type_eq):
     pdf.set_font("helvetica", "", 10)
     pdf.set_text_color(0, 0, 0)
 
-    excel_file = r"\\erp-eipsa-datos\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+    excel_file = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
     df_data = pd.read_excel(excel_file, sheet_name='Posiciones')
     df_data = df_data.set_index('type')
 
@@ -123,6 +122,8 @@ def new_content_tags(value, type_eq):
         pdf.text(x_position, y_position, value)
 
     return io.BytesIO(pdf.output())
+
+
 
 
 def general_dwg(num_ot, material=None):
@@ -274,7 +275,7 @@ def drawing_number(num_order, info_drawing, counter):
                     """)
 
     try:
-        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -342,7 +343,7 @@ def drawing_number_x(num_order, info_drawing, counter):
     #                 """)
 
     # try:
-    #     excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
     #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
     #     worksheet = workbook.active
     #     num_ot = worksheet['B2'].value
@@ -411,7 +412,7 @@ def drawing_number_landscape(num_order, info_drawing, counter):
                     """)
 
     try:
-        excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
         workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
@@ -478,7 +479,7 @@ def drawing_number_landscape_x(num_order, info_drawing, counter):
     #                 """)
 
     # try:
-    #     excel_file_path = r"\\erp-eipsa-datos\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
     #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
     #     worksheet = workbook.active
     #     num_ot = worksheet['B2'].value
@@ -588,6 +589,7 @@ def general_dwg_m(num_order, item_data, material=None):
 
     return io.BytesIO(pdf.output())
 
+# Function to create M drawings PDF
 
 def flange_dwg_flangedTW(num_order, material, count):
     """
@@ -1356,88 +1358,6 @@ def welding_dwg_meterrun(num_order, material, flange_type, item_data):
     return io.BytesIO(pdf.output())
 
 
-def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exterior_size, item_data):
-    """
-    Generates a PDF containing a new content based on the specified value and equipment type.
-
-    Args:
-        num_order (str): The order number.
-        material (str): The material code.
-        connection_1 (str): The first side connection type.
-        connection_2 (str): The second side connection type.
-        exterior_size (str): The process size connection
-        item_data (list): The list of items to be included in the PDF.
-    """
-    query = ('''
-        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
-        FROM validation_data.material_color_code AS colors
-        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
-        ''')
-
-    try:
-        with Database_Connection(config()) as conn:
-            with conn.cursor() as cur:
-                cur.execute(query,(material,))
-                results_colors=cur.fetchall()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                    + str(error), "critical")
-
-    first_color = results_colors[0][0]
-    second_color = results_colors[0][1]
-    border_color = results_colors[0][2]
-
-    pdf = FPDF(unit='mm')
-    pdf.set_font("helvetica", "B", 12)
-    pdf.set_text_color(49, 49, 229)
-
-    pdf.add_page()
-
-    pdf.set_line_width(1)
-    pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(20, 8, 183, 280, style='D')
-
-    pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(19, 7, 185, 282, style='D')
-
-    if border_color is not None:
-        pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(18, 6, 187, 284, style='D')
-
-    item_data = list(item_data)
-
-    cnt = item_data[0][0]
-
-    pdf.set_draw_color(255, 0, 0)
-
-    pdf.set_xy(44, 146)
-    pdf.cell(27, 9, str(cnt), align='C')
-
-    pdf.set_xy(72, 146)
-    pdf.cell(27, 9, str(material), align='C')
-
-    pdf.set_xy(100, 146)
-    pdf.cell(27, 9, str(exterior_size), align='C')
-
-    pdf.set_xy(128, 146)
-    pdf.cell(27, 9, str(connection_1), align='C')
-
-    pdf.set_xy(156, 146)
-    pdf.cell(27, 9, str(connection_2), align='C')
-    
-    pdf.set_xy(27, 248)
-    pdf.cell(20, 10, str(cnt), align='C')
-    
-    pdf.set_xy(47, 248)
-    pdf.set_font("helvetica", "B", 8)
-    pdf.cell(36, 9, str(material), align='C')
-
-    pdf.set_xy(151, 248)
-    pdf.set_font("helvetica", "B", 12)
-    pdf.cell(49, 9, str(num_order), align='C')
-
-    return io.BytesIO(pdf.output())
 
 
 def dwg_m_landscape(num_order, item_data, material=None):
@@ -1506,68 +1426,6 @@ def dwg_m_landscape(num_order, item_data, material=None):
     return io.BytesIO(pdf.output())
 
 
-def dwg_dim_32218_32219(num_order, material, item_data):
-    """
-    Generates a PDF containing a new content based on the specified value and equipment type.
-
-    Args:
-        num_order (str): The order number.
-        material (str): The material code.
-        item_data (list): The list of items to be included in the PDF.
-    """
-    query = ('''
-        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
-        FROM validation_data.material_color_code AS colors
-        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
-        ''')
-
-    try:
-        with Database_Connection(config()) as conn:
-            with conn.cursor() as cur:
-                cur.execute(query,(material,))
-                results_colors=cur.fetchall()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                    + str(error), "critical")
-
-    first_color = results_colors[0][0]
-    second_color = results_colors[0][1]
-    border_color = results_colors[0][2]
-
-    pdf = FPDF(unit='mm')
-    pdf.set_font("helvetica", "B", 12)
-    pdf.set_text_color(49, 49, 229)
-
-    pdf.add_page()
-
-    pdf.set_line_width(1)
-    pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(6, 19, 198, 270, style='D')
-
-    pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(5, 18, 200, 272, style='D')
-
-    if border_color is not None:
-        pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(4, 17, 202, 274, style='D')
-
-    item_data = list(item_data)
-
-    cnt = item_data[0][0]
-
-    pdf.set_draw_color(255, 0, 0)
-
-    pdf.set_xy(33, 179)
-    with pdf.rotation(270):
-        pdf.cell(10, 10, str(cnt), align='C')
-
-    pdf.set_xy(32, 257)
-    with pdf.rotation(270):
-        pdf.set_font("helvetica", "B", 12)
-        pdf.cell(30, 6, str(num_order), align='C')
-
-    return io.BytesIO(pdf.output())
 
 
 def dwg_m_welding_32218_32219(num_order, material, item_data):
@@ -1696,6 +1554,154 @@ def dwg_m_32218_32219(num_order, material, item_data):
     return io.BytesIO(pdf.output())
 
 
+# Functions to create Dimensional drawings PDFs
+
+def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exterior_size, item_data):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+
+    Args:
+        num_order (str): The order number.
+        material (str): The material code.
+        connection_1 (str): The first side connection type.
+        connection_2 (str): The second side connection type.
+        exterior_size (str): The process size connection
+        item_data (list): The list of items to be included in the PDF.
+    """
+    query = ('''
+        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
+        FROM validation_data.material_color_code AS colors
+        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
+        ''')
+
+    try:
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
+    first_color = results_colors[0][0]
+    second_color = results_colors[0][1]
+    border_color = results_colors[0][2]
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_line_width(1)
+    pdf.set_draw_color(*map(int, first_color.split(',')))
+    pdf.rect(20, 8, 183, 280, style='D')
+
+    pdf.set_draw_color(*map(int, second_color.split(',')))
+    pdf.rect(19, 7, 185, 282, style='D')
+
+    if border_color is not None:
+        pdf.set_draw_color(*map(int, border_color.split(',')))
+        pdf.rect(18, 6, 187, 284, style='D')
+
+    item_data = list(item_data)
+
+    cnt = item_data[0][0]
+
+    pdf.set_draw_color(255, 0, 0)
+
+    pdf.set_xy(44, 146)
+    pdf.cell(27, 9, str(cnt), align='C')
+
+    pdf.set_xy(72, 146)
+    pdf.cell(27, 9, str(material), align='C')
+
+    pdf.set_xy(100, 146)
+    pdf.cell(27, 9, str(exterior_size), align='C')
+
+    pdf.set_xy(128, 146)
+    pdf.cell(27, 9, str(connection_1), align='C')
+
+    pdf.set_xy(156, 146)
+    pdf.cell(27, 9, str(connection_2), align='C')
+    
+    pdf.set_xy(27, 248)
+    pdf.cell(20, 10, str(cnt), align='C')
+    
+    pdf.set_xy(47, 248)
+    pdf.set_font("helvetica", "B", 8)
+    pdf.cell(36, 9, str(material), align='C')
+
+    pdf.set_xy(151, 248)
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(49, 9, str(num_order), align='C')
+
+    return io.BytesIO(pdf.output())
+
+def dwg_dim_32218_32219(num_order, material, item_data):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+
+    Args:
+        num_order (str): The order number.
+        material (str): The material code.
+        item_data (list): The list of items to be included in the PDF.
+    """
+    query = ('''
+        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
+        FROM validation_data.material_color_code AS colors
+        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
+        ''')
+
+    try:
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
+    first_color = results_colors[0][0]
+    second_color = results_colors[0][1]
+    border_color = results_colors[0][2]
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_line_width(1)
+    pdf.set_draw_color(*map(int, first_color.split(',')))
+    pdf.rect(6, 19, 198, 270, style='D')
+
+    pdf.set_draw_color(*map(int, second_color.split(',')))
+    pdf.rect(5, 18, 200, 272, style='D')
+
+    if border_color is not None:
+        pdf.set_draw_color(*map(int, border_color.split(',')))
+        pdf.rect(4, 17, 202, 274, style='D')
+
+    item_data = list(item_data)
+
+    cnt = item_data[0][0]
+
+    pdf.set_draw_color(255, 0, 0)
+
+    pdf.set_xy(33, 179)
+    with pdf.rotation(270):
+        pdf.cell(10, 10, str(cnt), align='C')
+
+    pdf.set_xy(32, 257)
+    with pdf.rotation(270):
+        pdf.set_font("helvetica", "B", 12)
+        pdf.cell(30, 6, str(num_order), align='C')
+
+    return io.BytesIO(pdf.output())
+
 def dwg_dim_flange_plate(num_order: str, tag: str,
                         size: str, schedule: str, rating: str, facing: str,
                         pipe_int_diam: str, bore_diam: str, thickness: str, dv_diam: str, notes: str, tapping_size:str,
@@ -1761,11 +1767,11 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
     # Plate dimensions
     pdf.set_xy(19, 111)
     with pdf.rotation(270):
-        pdf.cell(12, 4, f"{size}", align='C')
-        pdf.cell(10, 4, f"{handle_height}", align='C')
-        pdf.cell(9, 4, f"{handle_width}", align='C')
+        pdf.cell(12, 4, f"{size + ' / ' + rtj_r_type}" if str(facing) == 'RTJ' else f"{size}", align='C')
+        pdf.cell(10, 4, f"{rtj_p_diam}" if str(facing) == 'RTJ' else f"{handle_height}", align='C')
+        pdf.cell(9, 4, f"{rtj_thickness}" if str(facing) == 'RTJ' else f"{handle_width}", align='C')
         pdf.cell(8, 4, f"{plate_c_dim}", align='C')
-        pdf.cell(11, 4, f"{plate_ext_diam}", align='C')
+        pdf.cell(11, 4, f"{handle_height}" if str(facing) == 'RTJ' else f"{plate_ext_diam}", align='C')
 
     pdf.set_xy(52, 66)
     with pdf.rotation(270):
@@ -1859,6 +1865,253 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
         pdf.cell(28, 6, "RANGE OF SURFACE: 125-250 Ra" if facing == 'RF' else ("RANGE OF SURFACE: 63-125 Ra" if facing == 'RF63-125' else ''), align='C')
 
     return io.BytesIO(pdf.output())
+
+def dwg_dim_plate(num_order: str, tag: str,
+                size: str, schedule: str, rating: str, facing: str,
+                pipe_int_diam: str, bore_diam: str, thickness: str, dv_diam: str, notes: str, plate_material: str,
+                handle_height: str, handle_width: str, plate_c_dim: str, plate_ext_diam: str,
+                rtj_thickness: str, rtj_r_type: str, rtj_p_diam: str, rtj_e_diam: str, rtj_f_diam: str,
+                engineering: str, customer: str, project: str, po_number: str,
+                drawing_number: str, drawing_date: str, counter: int) -> io.BytesIO:
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+    """
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("Helvetica", "", 6)
+    pdf.set_text_color(255, 0, 0)
+
+    pdf.add_page()
+
+    # Tapping Size
+    pdf.set_xy(196, 156)
+    with pdf.rotation(270):
+        pdf.cell(22, 6, str(tag), align='C')
+        pdf.cell(18, 3, "", align='C')
+        pdf.cell(17.5, 6, str(plate_material), align='C')
+        pdf.cell(9.5, 6, str(pipe_int_diam), align='C')
+        pdf.cell(9, 6, str(bore_diam), align='C')
+        pdf.cell(9, 6, str(thickness), align='C')
+        pdf.cell(10.5, 6, str(dv_diam), align='C')
+        pdf.cell(10, 6, "", align='C')
+        pdf.cell(31.5, 6, str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else '', align='C')
+
+    pdf.set_xy(196, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, str(size) + " " + str(rating) + " WN " + str(facing), align='C')
+    
+    pdf.set_xy(193, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, "SCH " + str(schedule), align='C')
+
+    # Plate dimensions
+    pdf.set_xy(138, 75)
+    with pdf.rotation(270):
+        pdf.cell(12, 4, "SURFACE: 125-250 Ra" if facing == 'RF' else ("SURFACE: 63-125 Ra" if facing == 'RF63-125' else ''), align='C')
+
+    pdf.set_xy(52, 28.5)
+    with pdf.rotation(270):
+        pdf.cell(12, 4, f"{size + ' / ' + rtj_r_type}" if str(facing) == 'RTJ' else f"{size}", align='C')
+        pdf.cell(10, 4, f"{rtj_p_diam}" if str(facing) == 'RTJ' else f"{handle_height}", align='C')
+        pdf.cell(9, 4, f"{rtj_thickness}" if str(facing) == 'RTJ' else f"{handle_width}", align='C')
+        pdf.cell(8, 4, f"{plate_c_dim}", align='C')
+        pdf.cell(11, 4, f"{handle_height}" if str(facing) == 'RTJ' else f"{plate_ext_diam}", align='C')
+
+    # Project data
+    pdf.set_xy(56, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 5, f"{engineering}", align='C')
+        pdf.cell(31, 5, f"{customer}", align='C')
+
+    pdf.set_xy(46, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 9, f"{project}", align='C')
+        pdf.cell(31, 9, f"{po_number}", align='C')
+
+    # Drawing information
+    pdf.set_xy(21, 177.75)
+    with pdf.rotation(270):
+        pdf.cell(10, 3, f"{drawing_date}", align='C')
+
+    pdf.set_xy(33, 256)
+    with pdf.rotation(270):
+        pdf.cell(37, 6, f"{num_order}", align='C')
+
+    pdf.set_xy(22, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 5, f"{num_order[2:] + "-" + str(drawing_number)}", align='C')
+
+    pdf.set_xy(16, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 6, f"{drawing_number}/{counter:02d}", align='C')
+
+    return io.BytesIO(pdf.output())
+
+def dwg_dim_ro(num_order: str, tag: str,
+                    size: str, schedule: str, rating: str, facing: str, plate_material:str,
+                    pipe_int_diam: str, bore_diam: str, thickness: str, notes: str,
+                    handle_height: str, handle_width: str, plate_ext_diam: str,
+                    rtj_thickness: str, rtj_r_type: str, rtj_p_diam: str, rtj_e_diam: str, rtj_f_diam: str,
+                    engineering: str, customer: str, project: str, po_number: str,
+                    drawing_number: str, drawing_date: str, counter: int) -> io.BytesIO:
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+    """
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("Helvetica", "", 5.5)
+    pdf.set_text_color(255, 0, 0)
+
+    pdf.add_page()
+
+    # Equipment tag and principal dimensions
+    pdf.set_xy(195, 156)
+    with pdf.rotation(270):
+        pdf.cell(22, 5, str(tag), align='C')
+        pdf.cell(18, 5, "", align='C')
+        pdf.cell(18, 5, str(plate_material), align='C')
+        pdf.cell(9, 5, str(pipe_int_diam), align='C')
+        pdf.cell(9, 5, str(bore_diam), align='C')
+        pdf.cell(9, 5, str(thickness), align='C')
+        pdf.cell(11, 5, str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else '', align='C')
+
+    pdf.set_xy(196, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, str(size) + " " + str(rating) + " " + str(facing), align='C')
+    
+    pdf.set_xy(193, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, "SCH " + str(schedule), align='C')
+
+    # Plate dimensions
+    pdf.set_xy(138, 75)
+    with pdf.rotation(270):
+        pdf.cell(12, 4, "SURFACE: 125-250 Ra" if facing == 'RF' else ("SURFACE: 63-125 Ra" if facing == 'RF63-125' else ''), align='C')
+
+    pdf.set_xy(52, 33)
+    with pdf.rotation(270):
+        pdf.cell(12, 4, f"{size + ' / ' + rtj_r_type}" if str(facing) == 'RTJ' else f"{size}", align='C')
+        pdf.cell(10, 4, f"{rtj_p_diam}" if str(facing) == 'RTJ' else f"{handle_height}", align='C')
+        pdf.cell(9, 4, f"{rtj_thickness}" if str(facing) == 'RTJ' else f"{handle_width}", align='C')
+        pdf.cell(11, 4, f"{handle_height}" if str(facing) == 'RTJ' else f"{plate_ext_diam}", align='C')
+
+    # Project data
+    pdf.set_xy(56, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 5, f"{engineering}", align='C')
+        pdf.cell(31, 5, f"{customer}", align='C')
+
+    pdf.set_xy(46, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 9, f"{project}", align='C')
+        pdf.cell(31, 9, f"{po_number}", align='C')
+
+    # Drawing information
+    pdf.set_xy(21, 177.75)
+    with pdf.rotation(270):
+        pdf.cell(10, 3, f"{drawing_date}", align='C')
+
+    pdf.set_xy(33, 256)
+    with pdf.rotation(270):
+        pdf.cell(37, 6, f"{num_order}", align='C')
+
+    pdf.set_xy(22, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 5, f"{num_order[2:] + "-" + str(drawing_number)}", align='C')
+
+    pdf.set_xy(16, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 6, f"{drawing_number}/{counter:02d}", align='C')
+
+    return io.BytesIO(pdf.output())
+
+def dwg_dim_ms_ro(num_order: str, tag: str,
+                    size: str, schedule: str, rating: str, facing: str,
+                    flange_material: str, tube_material: str, plate_material: str,
+                    pipe_int_diam: str, notes: str,
+                    stages_number: str, approx_length: str,
+                    rtj_thickness: str, rtj_r_type: str, rtj_p_diam: str, rtj_e_diam: str, rtj_f_diam: str,
+                    engineering: str, customer: str, project: str, po_number: str,
+                    drawing_number: str, drawing_date: str, counter: int) -> io.BytesIO:
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+    """
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("Helvetica", "", 5.5)
+    pdf.set_text_color(255, 0, 0)
+
+    pdf.add_page()
+
+    # Equipment tag and principal dimensions
+    pdf.set_xy(195, 156)
+    with pdf.rotation(270):
+        pdf.cell(22, 5, str(tag), align='C')
+        pdf.cell(18, 5, "", align='C')
+        pdf.cell(18, 5, str(stages_number), align='C')
+        pdf.cell(9, 5, str(pipe_int_diam), align='C')
+        pdf.cell(18, 5, str(approx_length), align='C')
+        pdf.cell(11, 5, str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else '', align='C')
+
+    pdf.set_xy(196, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, str(size) + " " + str(rating) + " WN " + str(facing), align='C')
+    
+    pdf.set_xy(193, 178)
+    with pdf.rotation(270):
+        pdf.cell(18, 3, "SCH " + str(schedule), align='C')
+
+    # Equipment data
+    pdf.set_xy(58, 206)
+    with pdf.rotation(270):
+        pdf.cell(9, 5, str(stages_number), align='C')
+        pdf.cell(21, 5, '', align='C')
+        pdf.cell(26, 5, str(plate_material), align='C')
+    
+    pdf.set_xy(53, 206)
+    with pdf.rotation(270):
+        pdf.cell(9, 5, str(int(stages_number) - 1), align='C')
+        pdf.cell(21, 5, str(size) + " SCH " + str(schedule), align='C')
+        pdf.cell(26, 5, str(tube_material), align='C')
+
+    pdf.set_xy(48, 215)
+    with pdf.rotation(270):
+        pdf.cell(21, 5, str(size) + " " + str(rating) + " WN " + str(facing), align='C')
+        pdf.cell(26, 5, str(flange_material), align='C')
+
+    # Project data
+    pdf.set_xy(78, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 5, f"{engineering}", align='C')
+        pdf.cell(31, 5, f"{customer}", align='C')
+
+    pdf.set_xy(68, 222)
+    with pdf.rotation(270):
+        pdf.cell(38, 9, f"{project}", align='C')
+        pdf.cell(31, 9, f"{po_number}", align='C')
+
+    # Drawing information
+    pdf.set_xy(21, 177.75)
+    with pdf.rotation(270):
+        pdf.cell(10, 3, f"{drawing_date}", align='C')
+
+    pdf.set_xy(33, 256)
+    with pdf.rotation(270):
+        pdf.cell(37, 6, f"{num_order}", align='C')
+
+    pdf.set_xy(22, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 5, f"{num_order[2:] + "-" + str(drawing_number)}", align='C')
+
+    pdf.set_xy(16, 265)
+    with pdf.rotation(270):
+        pdf.cell(28, 6, f"{drawing_number}/{counter:02d}", align='C')
+
+    return io.BytesIO(pdf.output())
+
+
+
+
 
 
 def dwg_of_orifice_plate(num_order, connection, element_material, of_drawing, of_drawing_date, handle_height, handle_width, plate_c_dim, plate_ext_diam, item_data):
