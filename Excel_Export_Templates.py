@@ -145,7 +145,7 @@ class offer_flow:
                         "subposition",
                         "flange_type",
                         "plate_std",
-                        "tapping_orientation"
+                        "tapping_orientation",
                         "pipe_spec",
                         "aprox_weight"
                     ],
@@ -930,7 +930,7 @@ class offer_short_flow_spanish:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
-                        "tapping_orientation"
+                        "tapping_orientation",
                         "aprox_weight"
                     ],
                     axis=1,)
@@ -7875,7 +7875,7 @@ class offer_flow_temp_level:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
-                        "tapping_orientation"
+                        "tapping_orientation",
                         "aprox_weight"
                     ],
                     axis=1,)
