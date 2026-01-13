@@ -218,16 +218,16 @@ class Ui_ImportTAG_Window(object):
             'radioFlow': {
                 'table_name': 'tags_data.tags_flow',
                 'seq_id': 'tags_flow_id_tag_flow_seq',
-                'columns_range': (1, 34),
+                'columns_range': (1, 37),
                 'required_columns': ["tag", "tag_state", "num_offer", "item_type", "line_size",
                                 "rating", "facing", "schedule", "flange_material", "flange_type",
-                                "tube_material", "tapping_num_size", "element_material", "plate_type", 
-                                "plate_thk", "plate_std", "gasket_material", "bolts_nuts_material", "nace"],
+                                "tube_material", "tapping_number", "tapping_size", "tapping_orientation", "element_material", "plate_type", 
+                                "plate_thk", "plate_std", "gasket_material", "bolts_material", "nuts_material", "nace"],
                 'decimal_columns': ['amount', 'plate_thk'],
                 'null_columns': ['num_order', 'contractual_date'],
                 'validation_map': {'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'N':'F', 
-                                'O':'N', 'P':'Q', 'Q':'G', 'R':'H', 'S':'I', 'T':'J', 'U':'K', 
-                                'V':'L', 'W':'M', 'Z':'O'}
+                                'O':'N', 'P':'Q', 'Q':'G', 'T':'H', 'U':'I', 'V':'J', 'W':'M', 
+                                'X':'K', 'Y':'T', 'Z':'U', 'AG': 'O'}
             },
             'radioTemp': {
                 'table_name': 'tags_data.tags_temp',
@@ -315,7 +315,6 @@ class Ui_ImportTAG_Window(object):
         # Load workbook
             wb = load_workbook(self.fname)
             ws = wb["Import"]
-            
 
             with Database_Connection(config()) as conn:
                 with conn.cursor() as cursor:

@@ -1095,14 +1095,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             "SELECT flange_material FROM validation_data.flow_flange_material",
             "SELECT flange_type FROM validation_data.flow_flange_type",
             "SELECT tube_material FROM validation_data.flow_tube_material",
-            "SELECT tapping FROM validation_data.flow_tapping",
+            "SELECT tapping_size FROM validation_data.flow_tapping_size",
             "SELECT element_material FROM validation_data.flow_element_material",
             "SELECT plate_type FROM validation_data.flow_plate_type",
             "SELECT plate_thk FROM validation_data.flow_plate_thk",
             "SELECT plate_std FROM validation_data.flow_plate_std",
             "SELECT gasket_material FROM validation_data.flow_gasket_material",
-            "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
-            "SELECT nace FROM validation_data.flow_nace"
+            "SELECT bolts_material FROM validation_data.flow_bolts_material",
+            "SELECT nuts_material FROM validation_data.flow_nuts_material",
+            "SELECT nace FROM validation_data.flow_nace",
+            "SELECT extractor_material FROM validation_data.flow_extractor_material",
             ]
 
         commands_comboboxes_temp = [
@@ -1548,7 +1550,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_flow"
                         self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.initial_column2 = 39
                         self.column_difference = 160
                         self.column_difference2 = 170
@@ -1559,14 +1561,14 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_flow"
                         self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.initial_column2 = 40
                         self.column_difference = 160
                         self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.model.table_check = "tags_data.tags_flow"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.column_difference = 160
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
@@ -1715,7 +1717,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model2.setTable("tags_data.tags_temp")
                     self.model.table_check = "tags_data.tags_flow"
                     self.model2.table_check = "tags_data.tags_temp"
-                    self.initial_column = 34
+                    self.initial_column = 37
                     self.initial_column2 = 39
                     self.column_difference = 160
                     self.column_difference2 = 170
@@ -1726,14 +1728,14 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model2.setTable("tags_data.tags_level")
                     self.model.table_check = "tags_data.tags_flow"
                     self.model2.table_check = "tags_data.tags_level"
-                    self.initial_column = 34
+                    self.initial_column = 37
                     self.initial_column2 = 40
                     self.column_difference = 160
                     self.column_difference2 = 173
                 elif self.variable == 'Caudal':
                     self.model.setTable("tags_data.tags_flow")
                     self.model.table_check = "tags_data.tags_flow"
-                    self.initial_column = 34
+                    self.initial_column = 37
                     self.column_difference = 160
                 elif self.variable == 'Temperatura':
                     self.model.setTable("tags_data.tags_temp")
@@ -1895,7 +1897,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_flow"
                         self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.initial_column2 = 39
                         self.column_difference = 160
                         self.column_difference2 = 170
@@ -1906,14 +1908,14 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_flow"
                         self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.initial_column2 = 45
                         self.column_difference = 160
                         self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.model.table_check = "tags_data.tags_flow"
-                        self.initial_column = 34
+                        self.initial_column = 37
                         self.column_difference = 160
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
@@ -1950,28 +1952,32 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.model.column_range = range(self.initial_column,columns_number)
 
             if self.variable == 'Caudal':
-                for i in range(44,67):
+                for i in range(50,84):
                     self.tableEditTags.hideColumn(i)
-                for i in range(72,125):
+                for i in range(89,92):
                     self.tableEditTags.hideColumn(i)
-                for i in range(127,131):
+                for i in range(98,102):
                     self.tableEditTags.hideColumn(i)
-                for i in range(132,136):
+                for i in range(104,108):
                     self.tableEditTags.hideColumn(i)
-                for i in range(137,142):
+                for i in range(109,113):
                     self.tableEditTags.hideColumn(i)
-                for i in range(143,150):
+                for i in range(114,119):
                     self.tableEditTags.hideColumn(i)
-                for i in range(151,153):
+                for i in range(120,127):
                     self.tableEditTags.hideColumn(i)
-                for i in range(154,156):
+                for i in range(128,130):
                     self.tableEditTags.hideColumn(i)
-                for i in range(157,159):
+                for i in range(131,133):
                     self.tableEditTags.hideColumn(i)
-                for i in range(161,columns_number-2):
+                for i in range(140,142):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(143,148):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(149,columns_number):
                     self.tableEditTags.hideColumn(i)
                 if self.username in ['d.marquez', 'g.lopez']:
-                    for i in range(63,67):
+                    for i in range(40,47):
                         self.tableEditTags.showColumn(i)
 
             elif self.variable == 'Temperatura':
@@ -2056,38 +2062,38 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         # Change all column names
-            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
-                            "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                            "Material Tubo", "Tamaño Tomas (Nº x Brida)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                            "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
-                            "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
-                            "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                            "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
-                            "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                            "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
-                            "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
-                            "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
-                            "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
-                            "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
-                            "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
-                            "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
-                            "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
-                            "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
-                            "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
-                            "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
-                            "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
-                            "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
+            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Mat. Brida", "Tipo Brida",
+                            "Mat. Tubo", "Tamaño Tomas", "Nº Tomas", "Orient. Tomas", "Mat. Elemento", "Tipo Placa",
+                            "Esp. Placa", "Std Paca", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
+                            "Nº Saltos", "Pipe Spec.", "Peso (mm)", "Long. (mm)", "NACE", "Precio (€)", "Notas Oferta", "Cambios Com.",
+                            "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas", "Tamaño Torn.", "Cant. Torn", "Mat. Tapón",
+                            "Cant. Tapón", "Mat. Extractor", "Tamaño Extractor", "Cant. Extractor", "Mat. Porta RTJ", "Espesor RTJ", "Tipo RTJ",
+                            "Notas Brida", "Notas Tornillos", "Notas Tuercas", "Notas Placa", "Notas Junta", "Notas Tapones", "Notas Extractor",
+                            "øInt. Línea", "øExt. Placa", "Cota C Placa", "Alto Mango", "Ancho Mango", "Espesor Mango",
+                            "Cota P RTJ", "Cota E RTJ", "Cota F RTJ",
+                            "O Brida", "A Brida", "C Brida", "Y Brida", "X Brida", "R Brida", "D Brida", "T Brida", "øBore Torn.",
+                            "Mat. Conos Vent.", "A Venturi", "D Venturi", "E Venturi", "F Venturi", "G Venturi", "C Venturi", "H Venturi", "T Venturi",
+                            "Cambios Tec.", "Notas Tec.", "Notas Equipo", "Doc EIPSA Calc.", "Doc EIPSA Plano",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                            "Plano Dim.", "Rev. Plano Dim.", "Fecha Plano Dim.", "Plano OF", "Rev. Plano OF", "Fecha Plano OF",
+                            "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
+                            "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
+                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
+                            "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
+                            "Fotos", "Fotos 2", "Estado Fab.", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe Fact.", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact.", "% Fact.",
+                            "Ruta Dim.", "Ruta OF", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
+                            "Cod. Brida Orif.", "Cod. Brida Línea", "Cod. Junta", "Cod. Tornillería", "Cod. Tapones", "Cod. Extractor",
+                            "Cod. Placa", "Cod. Niplo", "Cod. Mango", "Cod. ChRing", "Cod. Tubo", "Cod. Wedge",
+                            "Cod Fab. Brida Orif.", "Cod Fab. Brida Línea", "Cod Fab. Junta", "Cod Fab. Tornillería", "Cod Fab. Tapones", "Cod Fab. Extractor",
+                            "Cod Fab. Placa", "Cod Fab. Niplo", "Cod Fab. Mango", "Cod Fab. ChRing", "Cod Fab. Tubo", "Cod Fab. Wedge",
+                            "Cant. Brida Orif.", "Cant. Brida Línea", "Cant. Junta", "Cant. Tornillería", "Cant. Tapones", "Cant. Extractor",
+                            "Cant. Placa", "Cant. Niplo", "Cant. Mango", "Cant. ChRing", "Cant. Tubo", "Cant. Wedge",
+                            "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
+                            "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -2202,11 +2208,15 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             if self.variable == 'Caudal':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
-                for i in range(15):
+                for i in range(9):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[15]]))
-                self.tableEditTags.setItemDelegateForColumn(29, self.combo_itemtype)
+                for i in range(7):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i+9]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+19, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[16]]))
+                self.tableEditTags.setItemDelegateForColumn(32, self.combo_itemtype)
+
             elif self.variable == 'Temperatura':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
@@ -2218,6 +2228,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 for i in range(6,24):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
+
             elif self.variable == 'Nivel':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
@@ -2227,6 +2238,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 for i in range(18):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
                     self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
+
             elif self.variable == 'Otros':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
@@ -2261,32 +2273,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 else:
                     self.model2.column_range = range(self.initial_column2,columns_number)
 
-                if self.variable2 == 'Caudal':
-                    for i in range(44,67):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(72,125):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(127,131):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(132,136):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(137,142):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(143,150):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(151,153):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(154,156):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(157,159):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(161,columns_number-1):
-                        self.tableEditTags.hideColumn(i)
-                    if self.username in ['d.marquez', 'g.lopez']:
-                        for i in range(63,67):
-                            self.tableEditTags2.showColumn(i)
-
-                elif self.variable2 == 'Temperatura':
+                if self.variable2 == 'Temperatura':
                     for i in range(54,75):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(80,132):
@@ -2368,9 +2355,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
             # Change all column names
-                if self.variable2 == 'Caudal':
-                    self.model2.setAllColumnHeaders(headers_flow)
-                elif self.variable2 == 'Temperatura':
+                if self.variable2 == 'Temperatura':
                     self.model2.setAllColumnHeaders(headers_temp)
                 elif self.variable2 == 'Nivel':
                     self.model2.setAllColumnHeaders(headers_level)
@@ -2394,13 +2379,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 # Setting cells with comboboxes
                 list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
-                if self.variable2 == 'Caudal':
-                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, list_tag_state)
-                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
-                    for i in range(16):
-                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_flow[i]]))
-                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                elif self.variable2 == 'Temperatura':
+                if self.variable2 == 'Temperatura':
                     self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, list_tag_state)
                     self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
                     for i in range(5):
@@ -2460,7 +2439,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
-        if ((variable == 'Caudal' and index.column() in [156, 166])
+        if ((variable == 'Caudal' and index.column() in [133, 134])
         or (variable == 'Temperatura' and index.column() in [166, 176])
         or (variable == 'Nivel' and index.column() in [169, 179])
         or (variable == 'Otros' and index.column() in [56, 66])):
@@ -3027,10 +3006,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             where_clause = f"id_tag_others = {id_value}"
 
                         # Creating string for columns names and values
-                        columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
+                        columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                         columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                        values = ', '.join([f"'{int(float(value))}'" if column in ['tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                             else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                             else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
                                             else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
@@ -3293,7 +3272,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 df_generated.columns = df_generated.iloc[0]
 
                 if self.variable == 'Caudal':
-                    df_generated = df_generated.iloc[1:,:34]
+                    df_generated = df_generated.iloc[1:,:37]
                 elif self.variable == 'Temperatura':
                     df_generated = df_generated.iloc[1:,:39]
                 elif self.variable == 'Nivel':
@@ -3319,7 +3298,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             # Read Excel file with original data
                 if self.variable == 'Caudal':
-                    df_original = pd.read_excel(comparison_file, usecols=range(34), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
+                    df_original = pd.read_excel(comparison_file, usecols=range(37), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
                 elif self.variable == 'Temperatura':
                     df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
                 elif self.variable == 'Nivel':

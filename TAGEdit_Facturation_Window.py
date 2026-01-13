@@ -671,7 +671,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         column = left.column()
 
         # Columns to order as integers
-        numeric_columns = [6, 7, 157, 158]
+        numeric_columns = [6, 7, 140, 141]
 
         if column in numeric_columns:
             try:
@@ -1021,7 +1021,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in range (0,37) or index.column() in self.column_range:
+        if index.column() in range (2,6) or index.column() in range(8,37) or index.column() in self.column_range or index.column() == 0:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -1596,13 +1596,13 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_flow"
                         self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 67
-                        self.initial_column2 = 72
+                        self.initial_column = 135
+                        self.initial_column2 = 150
                         self.initial_column_ = 75
                         self.initial_column2_ = 80
-                        self.column_position = 157
-                        self.column_subposition = 158
-                        self.column_difference = 160
+                        self.column_position = 140
+                        self.column_subposition = 141
+                        self.column_difference = 143
                         self.column_position2 = 167
                         self.column_subposition2 = 168
                         self.column_difference2 = 170
@@ -1611,23 +1611,23 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.variable2 = 'Nivel'
                         self.model.setTable("tags_data.tags_flow")
                         self.model2.setTable("tags_data.tags_level")
-                        self.initial_column = 67
-                        self.initial_column2 = 72
+                        self.initial_column = 135
+                        self.initial_column2 = 150
                         self.initial_column_ = 61
                         self.initial_column2_ = 66
-                        self.column_position = 157
-                        self.column_subposition = 158
-                        self.column_difference = 160
+                        self.column_position = 140
+                        self.column_subposition = 141
+                        self.column_difference = 143
                         self.column_position2 = 170
                         self.column_subposition2 = 171
                         self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 67
-                        self.initial_column2 = 72
-                        self.column_position = 157
-                        self.column_subposition = 158
-                        self.column_difference = 160
+                        self.initial_column = 135
+                        self.initial_column2 = 150
+                        self.column_position = 140
+                        self.column_subposition = 141
+                        self.column_difference = 143
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 75
@@ -1663,20 +1663,19 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 columns_number=self.model.columnCount()
                 for column in range(columns_number):
                     self.tableEditTags.setItemDelegateForColumn(column, None)
-                self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 9))
+                self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2, columns_number))
 
             # Hiding unnecesary columns depending on the variable type
                 if self.variable == 'Caudal':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(9,30):
+                    for i in range(9,33):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(31,68):
+                    for i in range(34,136):
                         self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(69)
-                    for i in range(72,157):
+                    for i in range(150,columns_number):
                         self.tableEditTags.hideColumn(i)
-                    self.tableEditTags.hideColumn(166)
 
                 elif self.variable == 'Temperatura':
                     for i in range(3,4):
@@ -1735,39 +1734,38 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
             # Change all column names
-                headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Pos.", "Subpos.", "Tipo", "Tamaño Línea",
-                                "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                                "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                                "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
-                                "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "F. Cont.", "Ø Orif. (mm)",
-                                "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                                "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
-                                "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
-                                "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                                "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
-                                "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                                "Cantidad Extractor", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo",
-                                "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
-                                "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
-                                "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
-                                "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
-                                "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
-                                "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
-                                "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
-                                "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
-                                "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
-                                "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
-                                "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
-                                "Factura", "Fotos 2", "% Factura"]
+                headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Mat. Brida", "Tipo Brida",
+                            "Mat. Tubo", "Tamaño Tomas", "Nº Tomas", "Orient. Tomas", "Mat. Elemento", "Tipo Placa",
+                            "Esp. Placa", "Std Paca", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
+                            "Nº Saltos", "Pipe Spec.", "Peso (mm)", "Long. (mm)", "NACE", "Precio (€)", "Notas Oferta", "Cambios Com.",
+                            "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas", "Tamaño Torn.", "Cant. Torn", "Mat. Tapón",
+                            "Cant. Tapón", "Mat. Extractor", "Tamaño Extractor", "Cant. Extractor", "Mat. Porta RTJ", "Espesor RTJ", "Tipo RTJ",
+                            "Notas Brida", "Notas Tornillos", "Notas Tuercas", "Notas Placa", "Notas Junta", "Notas Tapones", "Notas Extractor",
+                            "øInt. Línea", "øExt. Placa", "Cota C Placa", "Alto Mango", "Ancho Mango", "Espesor Mango",
+                            "Cota P RTJ", "Cota E RTJ", "Cota F RTJ",
+                            "O Brida", "A Brida", "C Brida", "Y Brida", "X Brida", "R Brida", "D Brida", "T Brida", "øBore Torn.",
+                            "Mat. Conos Vent.", "A Venturi", "D Venturi", "E Venturi", "F Venturi", "G Venturi", "C Venturi", "H Venturi", "T Venturi",
+                            "Cambios Tec.", "Notas Tec.", "Notas Equipo", "Doc EIPSA Calc.", "Doc EIPSA Plano",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                            "Plano Dim.", "Rev. Plano Dim.", "Fecha Plano Dim.", "Plano OF", "Rev. Plano OF", "Fecha Plano OF",
+                            "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
+                            "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
+                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
+                            "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
+                            "Fotos", "Fotos 2", "Estado Fab.", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe Fact.", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact.", "% Fact.",
+                            "Ruta Dim.", "Ruta OF", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
+                            "Cod. Brida Orif.", "Cod. Brida Línea", "Cod. Junta", "Cod. Tornillería", "Cod. Tapones", "Cod. Extractor",
+                            "Cod. Placa", "Cod. Niplo", "Cod. Mango", "Cod. ChRing", "Cod. Tubo", "Cod. Wedge",
+                            "Cod Fab. Brida Orif.", "Cod Fab. Brida Línea", "Cod Fab. Junta", "Cod Fab. Tornillería", "Cod Fab. Tapones", "Cod Fab. Extractor",
+                            "Cod Fab. Placa", "Cod Fab. Niplo", "Cod Fab. Mango", "Cod Fab. ChRing", "Cod Fab. Tubo", "Cod Fab. Wedge",
+                            "Cant. Brida Orif.", "Cant. Brida Línea", "Cant. Junta", "Cant. Tornillería", "Cant. Tapones", "Cant. Extractor",
+                            "Cant. Placa", "Cant. Niplo", "Cant. Mango", "Cant. ChRing", "Cant. Tubo", "Cant. Wedge",
+                            "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
+                            "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
@@ -1904,19 +1902,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 3)) + list(range(self.initial_column2_,columns_number - 8))
 
                 # Hiding unnecesary columns depending on the variable type
-                    if self.variable2 == 'Caudal':
-                        for i in range(3,4):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(9,30):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(31,68):
-                            self.tableEditTags2.hideColumn(i)
-                        self.tableEditTags2.hideColumn(69)
-                        for i in range(71,157):
-                            self.tableEditTags2.hideColumn(i)
-                        self.tableEditTags.hideColumn(166)
-
-                    elif self.variable2 == 'Temperatura':
+                    if self.variable2 == 'Temperatura':
                         for i in range(3,4):
                             self.tableEditTags2.hideColumn(i)
                         for i in range(9,35):
@@ -1971,9 +1957,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
                     self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-                    if self.variable2 == 'Caudal':
-                        self.model2.setAllColumnHeaders(headers_flow)
-                    elif self.variable2 == 'Temperatura':
+                    if self.variable2 == 'Temperatura':
                         self.model2.setAllColumnHeaders(headers_temp)
                     elif self.variable2 == 'Nivel':
                         self.model2.setAllColumnHeaders(headers_level)
@@ -2876,7 +2860,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                     description_item = self.model.data(self.model.index(target_row, 8)) + " - TAG: " + tag_item
                                 else:
                                     description_item = self.model.data(self.model.index(target_row, 8))
-                                price_item = str(self.model.data(self.model.index(target_row, 159)) if self.variable == 'Caudal' else (
+                                price_item = str(self.model.data(self.model.index(target_row, 142)) if self.variable == 'Caudal' else (
                                             self.model.data(self.model.index(target_row, 169)) if self.variable == 'Temperatura' else (
                                             self.model.data(self.model.index(target_row, 172)) if self.variable == 'Nivel' else (
                                             self.model.data(self.model.index(target_row, 59))))))
@@ -2934,7 +2918,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
-        if ((variable == 'Caudal' and index.column() == 156)
+        if ((variable == 'Caudal' and index.column() in [133, 134])
         or (variable == 'Temperatura' and index.column() == 166)
         or (variable == 'Nivel' and index.column() == 169)
         or (variable == 'Otros' and index.column() == 56)):

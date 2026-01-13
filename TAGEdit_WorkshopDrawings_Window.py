@@ -248,7 +248,16 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
 
-        if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
+        if index.column() == 148 and 'F' in str(value) and self.table_check == 'tags_data.tags_flow':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -462,7 +471,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
 
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
 
-        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
+        if index.column() == 148 and 'F' in str(value) and self.table_check == 'tags_data.tags_flow':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
@@ -684,7 +693,6 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
         self.tableEditTags.setSortingEnabled(True)
         # self.Button_Query.setText(_translate("EditTagsWorkshopDwg_Window", "Buscar"))
         # self.label_NumOrder.setText(_translate("EditTagsWorkshopDwg_Window", "Nº Pedido:"))
-
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -929,9 +937,9 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                 self.tableEditTags.hideColumn(i)
 
             if self.variable == 'Caudal':
-                for i in range(9,47):
+                for i in range(9,92):
                     self.tableEditTags.hideColumn(i)
-                for i in range(49,columns_number):
+                for i in range(98,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
@@ -970,38 +978,38 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         # Change all column names
-            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
-                            "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                            "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                            "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
-                            "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
-                            "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                            "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", 'P. Dim.', "P. OF", "Fecha OF",
-                            "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                            "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
-                            "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
-                            "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
-                            "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
-                            "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
-                            "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
-                            "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
-                            "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
-                            "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
-                            "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
-                            "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
-                            "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
-                            "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Mat. Brida", "Tipo Brida",
+                            "Mat. Tubo", "Tamaño Tomas", "Nº Tomas", "Orient. Tomas", "Mat. Elemento", "Tipo Placa",
+                            "Esp. Placa", "Std Paca", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
+                            "Nº Saltos", "Pipe Spec.", "Peso (mm)", "Long. (mm)", "NACE", "Precio (€)", "Notas Oferta", "Cambios Com.",
+                            "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas", "Tamaño Torn.", "Cant. Torn", "Mat. Tapón",
+                            "Cant. Tapón", "Mat. Extractor", "Tamaño Extractor", "Cant. Extractor", "Mat. Porta RTJ", "Espesor RTJ", "Tipo RTJ",
+                            "Notas Brida", "Notas Tornillos", "Notas Tuercas", "Notas Placa", "Notas Junta", "Notas Tapones", "Notas Extractor",
+                            "øInt. Línea", "øExt. Placa", "Cota C Placa", "Alto Mango", "Ancho Mango", "Espesor Mango",
+                            "Cota P RTJ", "Cota E RTJ", "Cota F RTJ",
+                            "O Brida", "A Brida", "C Brida", "Y Brida", "X Brida", "R Brida", "D Brida", "T Brida", "øBore Torn.",
+                            "Mat. Conos Vent.", "A Venturi", "D Venturi", "E Venturi", "F Venturi", "G Venturi", "C Venturi", "H Venturi", "T Venturi",
+                            "Cambios Tec.", "Notas Tec.", "Notas Equipo", "Doc EIPSA Calc.", "Doc EIPSA Plano",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                            "Plano Dim.", "Rev. Plano Dim.", "Fecha Plano Dim.", "Plano OF", "Rev. Plano OF", "Fecha Plano OF",
+                            "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
+                            "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
+                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
+                            "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
+                            "Fotos", "Fotos 2", "Estado Fab.", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe Fact.", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact.", "% Fact.",
+                            "Ruta Dim.", "Ruta OF", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
+                            "Cod. Brida Orif.", "Cod. Brida Línea", "Cod. Junta", "Cod. Tornillería", "Cod. Tapones", "Cod. Extractor",
+                            "Cod. Placa", "Cod. Niplo", "Cod. Mango", "Cod. ChRing", "Cod. Tubo", "Cod. Wedge",
+                            "Cod Fab. Brida Orif.", "Cod Fab. Brida Línea", "Cod Fab. Junta", "Cod Fab. Tornillería", "Cod Fab. Tapones", "Cod Fab. Extractor",
+                            "Cod Fab. Placa", "Cod Fab. Niplo", "Cod Fab. Mango", "Cod Fab. ChRing", "Cod Fab. Tubo", "Cod Fab. Wedge",
+                            "Cant. Brida Orif.", "Cant. Brida Línea", "Cant. Junta", "Cant. Tornillería", "Cant. Tapones", "Cant. Extractor",
+                            "Cant. Placa", "Cant. Niplo", "Cant. Mango", "Cant. ChRing", "Cant. Tubo", "Cant. Wedge",
+                            "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
+                            "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -1136,13 +1144,7 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
             for i in range(4,8):
                 self.tableEditTags2.hideColumn(i)
 
-            if self.variable2 == 'Caudal':
-                for i in range(9,47):
-                    self.tableEditTags2.hideColumn(i)
-                for i in range(49,columns_number):
-                    self.tableEditTags2.hideColumn(i)
-
-            elif self.variable2 == 'Temperatura':
+            if self.variable2 == 'Temperatura':
                 for i in range(9,57):
                     self.tableEditTags2.hideColumn(i)
                 for i in range(59,62):
@@ -1176,9 +1178,7 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
             self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-            if self.variable2 == 'Caudal':
-                self.model2.setAllColumnHeaders(headers_flow)
-            elif self.variable2 == 'Temperatura':
+            if self.variable2 == 'Temperatura':
                 self.model2.setAllColumnHeaders(headers_temp)
             elif self.variable2 == 'Nivel':
                 self.model2.setAllColumnHeaders(headers_level)

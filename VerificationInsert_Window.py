@@ -1542,8 +1542,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             if len(results) != 0:
                 commands_tags = (
                 f"""SELECT id_tag_flow, tag, num_order, item_type || ' ' || line_size || ' ' || rating || ' ' || facing || ' ' || schedule || ' ' || 
-                flange_material || ' ' || flange_type || ' ' || tube_material || ' ' || tapping_num_size || ' ' || element_material || ' ' || 
-                plate_type || ' ' || plate_thk || ' ' || plate_std || ' ' || gasket_material || ' ' || bolts_nuts_material as item_colum,
+                flange_material || ' ' || flange_type || ' ' || tube_material || ' ' || tapping_size  || ' (' || tapping_number || ') ' || element_material || ' ' || 
+                plate_type || ' ' || plate_thk || ' ' || plate_std || ' ' || gasket_material || ' ' || bolts_material || ' / ' || nuts_material as item_colum,
                 dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), inspection,
                 final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table, tag_images, tag_images2

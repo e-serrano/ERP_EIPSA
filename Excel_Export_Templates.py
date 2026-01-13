@@ -131,7 +131,7 @@ class offer_flow:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:32]
+                df = df.iloc[:, 1:35]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -145,6 +145,7 @@ class offer_flow:
                         "subposition",
                         "flange_type",
                         "plate_std",
+                        "tapping_orientation"
                         "pipe_spec",
                         "aprox_weight"
                     ],
@@ -239,7 +240,8 @@ class offer_flow:
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number"],
@@ -248,7 +250,8 @@ class offer_flow:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
@@ -259,9 +262,11 @@ class offer_flow:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number",
@@ -269,9 +274,11 @@ class offer_flow:
                             axis=1,)
                     elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body"],
                             axis=1,)
@@ -300,35 +307,35 @@ class offer_flow:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["X1"]._style
+                                cell._style = ws["Z1"]._style
                             else:
-                                cell._style = ws["S1"]._style
+                                cell._style = ws["U1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AD2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AD1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AD1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                ws[f"A{line}"]._style = ws["AD1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["Z1"]._style
+                            ws[f"A{line}"]._style = ws["AD1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -341,9 +348,9 @@ class offer_flow:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
 
                     row_amount += 2
 
@@ -358,24 +365,24 @@ class offer_flow:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["T1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["U1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["U1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -908,7 +915,7 @@ class offer_short_flow_spanish:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:32]
+                df = df.iloc[:, 1:35]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -923,6 +930,7 @@ class offer_short_flow_spanish:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
+                        "tapping_orientation"
                         "aprox_weight"
                     ],
                     axis=1,)
@@ -1016,7 +1024,8 @@ class offer_short_flow_spanish:
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number"],
@@ -1025,7 +1034,8 @@ class offer_short_flow_spanish:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
@@ -1036,9 +1046,11 @@ class offer_short_flow_spanish:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number",
@@ -1046,9 +1058,11 @@ class offer_short_flow_spanish:
                             axis=1,)
                     elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body"],
                             axis=1,)
@@ -1077,35 +1091,35 @@ class offer_short_flow_spanish:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["X1"]._style
+                                cell._style = ws["Z1"]._style
                             else:
-                                cell._style = ws["S1"]._style
+                                cell._style = ws["U1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "LOS PRECIOS INCLUYEN LA SECCIÓN CENTRAL INTEGRAL MECANIZADA Y TODAS LAS SOLDADURAS ESTRUCTURALES 100% RADIOGRAFIADAS"
-                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
                     ws[f"A{last_row+4}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
                     ws[f"A{last_row+5}"] = (
                         "PLAZO DE ENTREGA: "
                         + delivery_time
                         + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                ws[f"A{line}"]._style = ws["AB1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["Z1"]._style
+                            ws[f"A{line}"]._style = ws["AB1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1118,9 +1132,9 @@ class offer_short_flow_spanish:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
 
                     row_amount += 2
 
@@ -1135,24 +1149,24 @@ class offer_short_flow_spanish:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["T1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["U1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["U1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -1601,7 +1615,7 @@ class offer_short_flow_english:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:32]
+                df = df.iloc[:, 1:35]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -1616,6 +1630,7 @@ class offer_short_flow_english:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
+                        "tapping_orientation",
                         "aprox_weight"
                     ],
                     axis=1,)
@@ -1709,7 +1724,8 @@ class offer_short_flow_english:
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number"],
@@ -1718,7 +1734,8 @@ class offer_short_flow_english:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
@@ -1729,9 +1746,11 @@ class offer_short_flow_english:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number",
@@ -1739,9 +1758,11 @@ class offer_short_flow_english:
                             axis=1,)
                     elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body"],
                             axis=1,)
@@ -1770,35 +1791,35 @@ class offer_short_flow_english:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["X1"]._style
+                                cell._style = ws["Z1"]._style
                             else:
-                                cell._style = ws["S1"]._style
+                                cell._style = ws["U1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                ws[f"A{line}"]._style = ws["AB1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["Z1"]._style
+                            ws[f"A{line}"]._style = ws["AB1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1811,9 +1832,9 @@ class offer_short_flow_english:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
 
                     row_amount += 2
 
@@ -1828,24 +1849,24 @@ class offer_short_flow_english:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["T1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["U1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["U1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -6677,7 +6698,7 @@ class offer_flow_temp:
 
                 # Setting the dataframe with the equipment data
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:32]
+                df_flow = df_flow.iloc[:, 1:35]
                 df_flow["value_type"] = df_flow["item_type"].map(value_type_dict_flow)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(self.euros_to_float)
@@ -6692,6 +6713,7 @@ class offer_flow_temp:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
+                        "tapping_orientation",
                         "aprox_weight"
                     ],
                     axis=1,)
@@ -6821,7 +6843,8 @@ class offer_flow_temp:
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number"],
@@ -6830,7 +6853,8 @@ class offer_flow_temp:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
@@ -6841,9 +6865,11 @@ class offer_flow_temp:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number",
@@ -6851,9 +6877,11 @@ class offer_flow_temp:
                             axis=1,)
                     elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body"],
                             axis=1,)
@@ -6889,35 +6917,35 @@ class offer_flow_temp:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["X1"]._style
+                                cell._style = ws["Z1"]._style
                             else:
-                                cell._style = ws["S1"]._style
+                                cell._style = ws["U1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                ws[f"A{line}"]._style = ws["AB1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["Z1"]._style
+                            ws[f"A{line}"]._style = ws["AB1"]._style
 
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
@@ -7832,7 +7860,7 @@ class offer_flow_temp_level:
 
                 # Setting the dataframe with the equipment data
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:32]
+                df_flow = df_flow.iloc[:, 1:35]
                 df_flow["value_type"] = df_flow["item_type"].map(value_type_dict_flow)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(self.euros_to_float)
@@ -7847,6 +7875,7 @@ class offer_flow_temp_level:
                         "flange_type",
                         "plate_std",
                         "pipe_spec",
+                        "tapping_orientation"
                         "aprox_weight"
                     ],
                     axis=1,)
@@ -8004,7 +8033,8 @@ class offer_flow_temp_level:
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number"],
@@ -8013,7 +8043,8 @@ class offer_flow_temp_level:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "plate_type",
                                 "plate_thk",
                                 "gasket_material",
@@ -8024,9 +8055,11 @@ class offer_flow_temp_level:
                         df_toexport = df_toexport.drop([
                                 "flange_material",
                                 "tube_material",
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body",
                                 "stages_number",
@@ -8034,9 +8067,11 @@ class offer_flow_temp_level:
                             axis=1,)
                     elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "tapping_num_size",
+                                "tapping_number",
+                                "tapping_size",
                                 "gasket_material",
-                                "bolts_nuts_material",
+                                "bolts_material",
+                                "nuts_material",
                                 "valve_conn",
                                 "valve_material_body"],
                             axis=1,)
@@ -8072,35 +8107,35 @@ class offer_flow_temp_level:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["X1"]._style
+                                cell._style = ws["Z1"]._style
                             else:
-                                cell._style = ws["S1"]._style
+                                cell._style = ws["U1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                ws[f"A{line}"]._style = ws["AB1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["Z1"]._style
+                            ws[f"A{line}"]._style = ws["AB1"]._style
 
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]

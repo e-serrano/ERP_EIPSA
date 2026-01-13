@@ -4,14 +4,11 @@ from Excel_Export_Templates import material_order
 import pandas as pd
 from datetime import *
 import PySide6.QtCore
-from PySide6 import QtCore, QtGui, QtWidgets
-import os
 import openpyxl
 import re
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
     """
@@ -61,35 +58,35 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    # try:
-    #     with Database_Connection(config()) as conn:
-    #         with conn.cursor() as cur:
-    #             cur.execute(commands_numot)
-    #             results=cur.fetchall()
-    #             num_ot=results[-1][0]
+    try:
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(commands_numot)
+                results=cur.fetchall()
+                num_ot=results[-1][0]
 
-    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-    #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
-    #     worksheet = workbook.active
-    #     num_ot = worksheet['B2'].value
-    #     with Database_Connection(config()) as conn:
-    #         with conn.cursor() as cur:
-    #             cur.execute(check_otpedmat)
-    #             results=cur.fetchall()
+        excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
+        with Database_Connection(config()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(check_otpedmat)
+                results=cur.fetchall()
 
-    #     if len(results) == 0:
-    #         data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
-    #         with Database_Connection(config()) as conn:
-    #             with conn.cursor() as cur:
-    #                 cur.execute(commands_otpedmat, data)
-    #             conn.commit()
+        if len(results) == 0:
+            data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_otpedmat, data)
+                conn.commit()
 
-    #         worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-    #         workbook.save(excel_file_path)
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
+            workbook.save(excel_file_path)
 
-    # except (Exception, psycopg2.DatabaseError) as error:
-    #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-    #                 + str(error), "critical")
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
     for element in id_list:
         for row in range(model.rowCount()):
@@ -330,17 +327,17 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
             columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
 
-            values_equipments = [model.data(model.index(target_row, 72)), model.data(model.index(target_row, 73)), model.data(model.index(target_row, 74)), "Q-CAUD",
-                                model.data(model.index(target_row, 75)), model.data(model.index(target_row, 77)), model.data(model.index(target_row, 78)), model.data(model.index(target_row, 80)),
-                                model.data(model.index(target_row, 81)), model.data(model.index(target_row, 83)), model.data(model.index(target_row, 84)), model.data(model.index(target_row, 86)),
-                                model.data(model.index(target_row, 87)), model.data(model.index(target_row, 89)), model.data(model.index(target_row, 90)), model.data(model.index(target_row, 92)),
-                                model.data(model.index(target_row, 96)), model.data(model.index(target_row, 95)), model.data(model.index(target_row, 96)), model.data(model.index(target_row, 98)),
-                                model.data(model.index(target_row, 99)), model.data(model.index(target_row, 101)), model.data(model.index(target_row, 102)), model.data(model.index(target_row, 104)),
-                                model.data(model.index(target_row, 105)), model.data(model.index(target_row, 107)), model.data(model.index(target_row, 108)), model.data(model.index(target_row, 110))]
+            values_equipments = [model.data(model.index(target_row, 153)), model.data(model.index(target_row, 154)), model.data(model.index(target_row, 155)), "Q-CAUD",
+                                model.data(model.index(target_row, 156)), model.data(model.index(target_row, 180)), model.data(model.index(target_row, 157)), model.data(model.index(target_row, 181)),
+                                model.data(model.index(target_row, 158)), model.data(model.index(target_row, 182)), model.data(model.index(target_row, 159)), model.data(model.index(target_row, 183)),
+                                model.data(model.index(target_row, 160)), model.data(model.index(target_row, 184)), model.data(model.index(target_row, 161)), model.data(model.index(target_row, 185)),
+                                model.data(model.index(target_row, 162)), model.data(model.index(target_row, 186)), model.data(model.index(target_row, 163)), model.data(model.index(target_row, 187)),
+                                model.data(model.index(target_row, 164)), model.data(model.index(target_row, 188)), model.data(model.index(target_row, 165)), model.data(model.index(target_row, 189)),
+                                model.data(model.index(target_row, 166)), model.data(model.index(target_row, 190)), model.data(model.index(target_row, 167)), model.data(model.index(target_row, 191))]
 
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
-                            model.data(model.index(target_row, 72)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 44)),
-                            model.data(model.index(target_row, 33)), model.data(model.index(target_row, 68))]
+                            model.data(model.index(target_row, 153)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 89)),
+                            model.data(model.index(target_row, 36)), model.data(model.index(target_row, 136))]
 
             columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
@@ -355,62 +352,62 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
 
-            # try:
-            #     with Database_Connection(config()) as conn:
-            #         with conn.cursor() as cur:
-            #             cur.execute(check_equipments)
-            #             results=cur.fetchall()
+            try:
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(check_equipments)
+                        results=cur.fetchall()
 
-            #     if len(results) == 0:
-            #         with Database_Connection(config()) as conn:
-            #             with conn.cursor() as cur:
-            #                 cur.execute(commands_equipments)
-            #             conn.commit()
+                if len(results) == 0:
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_equipments)
+                        conn.commit()
 
-            #     else:
-            #         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-            #         update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
-            #         with Database_Connection(config()) as conn:
-            #             with conn.cursor() as cur:
-            #                 cur.execute(update_equipments)
-            #             conn.commit()
+                else:
+                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 72))}'"
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(update_equipments)
+                        conn.commit()
 
-            #     for list_part in all_list_parts:
-            #         check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-            #         with Database_Connection(config()) as conn:
-            #             with conn.cursor() as cur:
-            #                 cur.execute(check_parts)
-            #                 results=cur.fetchall()
+                for list_part in all_list_parts:
+                    check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
+                    with Database_Connection(config()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(check_parts)
+                            results=cur.fetchall()
 
-            #         if len(results) == 0:
-            #             list_part_modified = list_part[0].copy()
-            #             list_part_modified[-1] = 'Q-CAUD'
-            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-            #             commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-            #             with Database_Connection(config()) as conn:
-            #                 with conn.cursor() as cur:
-            #                     cur.execute(commands_parts)
-            #                 conn.commit()
+                    if len(results) == 0:
+                        list_part_modified = list_part[0].copy()
+                        list_part_modified[-1] = 'Q-CAUD'
+                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+                        commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_parts)
+                            conn.commit()
 
-            #         else:
-            #             list_part_modified = list_part[0].copy()
-            #             list_part_modified[-1] = 'Q-CAUD'
-            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-            #             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
-            #             update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-            #             with Database_Connection(config()) as conn:
-            #                 with conn.cursor() as cur:
-            #                     cur.execute(update_parts)
-            #                 conn.commit()
+                    else:
+                        list_part_modified = list_part[0].copy()
+                        list_part_modified[-1] = 'Q-CAUD'
+                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
+                        update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
+                        with Database_Connection(config()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(update_parts)
+                            conn.commit()
 
-            #     with Database_Connection(config()) as conn:
-            #         with conn.cursor() as cur:
-            #             cur.execute(commands_tags)
-            #         conn.commit()
+                with Database_Connection(config()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_tags)
+                    conn.commit()
 
-            # except (Exception, psycopg2.DatabaseError) as error:
-            #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-            #                 + str(error), "critical")
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -457,7 +454,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                     + str(error), "critical")
 
-    excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,'123455')
+    excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable, num_ot)
     excel_mat_order.save_excel()
 
 
