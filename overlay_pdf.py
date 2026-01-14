@@ -1718,7 +1718,7 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
 
     pdf = PDF()
     pdf.set_font("Helvetica", "", 6)
-    pdf.set_text_color(255, 0, 0)
+    pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
 
@@ -1879,7 +1879,7 @@ def dwg_dim_plate(num_order: str, tag: str,
 
     pdf = FPDF(unit='mm')
     pdf.set_font("Helvetica", "", 6)
-    pdf.set_text_color(255, 0, 0)
+    pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
 
@@ -1960,7 +1960,7 @@ def dwg_dim_ro(num_order: str, tag: str,
 
     pdf = FPDF(unit='mm')
     pdf.set_font("Helvetica", "", 5.5)
-    pdf.set_text_color(255, 0, 0)
+    pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
 
@@ -2039,7 +2039,7 @@ def dwg_dim_ms_ro(num_order: str, tag: str,
 
     pdf = FPDF(unit='mm')
     pdf.set_font("Helvetica", "", 5.5)
-    pdf.set_text_color(255, 0, 0)
+    pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
 
@@ -2121,7 +2121,7 @@ def dwg_of_orifice_plate(num_order, connection, element_material, of_drawing, of
 
     pdf = FPDF(unit='mm')
     pdf.set_font("Helvetica", "", 6)
-    pdf.set_text_color(255, 0, 0)
+    pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
 
