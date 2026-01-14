@@ -1,5 +1,5 @@
 import requests
-from config_keys import MONEY_CHANGE_API_KEY
+from config.config_keys import MONEY_CHANGE_API_KEY
 
 def obtain_money_change():
     """

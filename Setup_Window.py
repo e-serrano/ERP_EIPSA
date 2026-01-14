@@ -8,13 +8,12 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
-import ctypes
 import sys
-import psycopg2
 import os
-from config import config
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config import config, get_path
+from config.config_keys import INI_PATH, INI_FILE_PATH
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
 
 class Ui_SetupWindow(object):
@@ -33,14 +32,10 @@ class Ui_SetupWindow(object):
         SetupWindow.setMinimumSize(QtCore.QSize(270, 490))
         SetupWindow.setMaximumSize(QtCore.QSize(270, 490))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         SetupWindow.setWindowIcon(icon)
-        SetupWindow.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
+        SetupWindow.setStyleSheet(".QFrame {\n"
+"    border: 2px solid;\n"
 "}\n"
 "\n"
 "QPushButton {\n"
@@ -241,10 +236,7 @@ class Ui_SetupWindow(object):
         """
         username=self.username_regdb.text()
         password=self.password_regdb.text()
-    # Execute the function to create the .ini file
-        if not is_admin():
-            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
-            sys.exit()
+
         self.create_ini_file(username, password)
 
 
@@ -252,118 +244,69 @@ class Ui_SetupWindow(object):
         """
         Creates a configuration file (.ini) for the database connection and sets up a new database user.
         """
-        # Obtaining the full path to set the file
-        base_dir = r"C:\Program Files\ERP EIPSA"
 
-        # Full path of .ini file
-        ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini"))
+        INI_PATH.mkdir(parents=True, exist_ok=True)       
 
-        # Check if path exists. If not, create it
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)
-
-        if os.path.exists(ini_file_path):
+        if INI_FILE_PATH.exists():
             try:
-                os.remove(ini_file_path)
+                INI_FILE_PATH.unlink()
             except Exception as e:
-                print(f'Error : {e}')
+                print(f"Error: {e}")
 
         # Create the content of .ini file
         ini_content = "[postgresql]\n"
-        ini_content += "host = 10.1.20.252\n"
-        ini_content += "database = ERP_EIPSA\n"
         ini_content += f"user = {username}\n"
         ini_content += f"password = {password}\n"
 
         # Create the .ini file
-        with open(ini_file_path, 'w') as ini_file:
+        with open(INI_FILE_PATH, 'w') as ini_file:
             ini_file.write(ini_content)
 
         # Setting the file as hidden
         try:
-            # Getting file attributes
-            file_attributes = ctypes.windll.kernel32.GetFileAttributesW(ini_file_path)
+            with Database_Connection(config()) as conn:
+                with conn.cursor() as cur:
+                    command_create_user = f"CREATE USER \"{username}\" WITH PASSWORD '{password}'"
 
-            # Setting the "hidden" attribute
-            ctypes.windll.kernel32.SetFileAttributesW(ini_file_path, file_attributes + 2)
+                    commands_privileges = """
+                                        DO
+                                        $$
+                                        DECLARE
+                                            schema_name TEXT;
+                                        BEGIN
+                                            FOR schema_name IN (SELECT nspname FROM pg_catalog.pg_namespace)
+                                            LOOP
+                                                EXECUTE format('GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                                EXECUTE format('GRANT TRUNCATE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                                EXECUTE format('GRANT REFERENCES ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                                EXECUTE format('GRANT TRIGGER ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                                EXECUTE format('GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA %I TO "{}";', schema_name);
+                                            END LOOP;
+                                        END;
+                                        $$;
+                                        """.format(username, username, username, username, username, username, username, username, username, username)
 
-            params = config()
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+                    commands_superuser=f"ALTER ROLE \"{username}\" WITH SUPERUSER"
 
-            command_create_user = f"CREATE USER \"{username}\" WITH PASSWORD '{password}'"
+                    command_database_update =("""INSERT INTO users_data.database_passwords ("username","password")
+                                    VALUES (%s,%s)""") 
 
-            commands_privileges = """
-                                DO
-                                $$
-                                DECLARE
-                                    schema_name TEXT;
-                                BEGIN
-                                    FOR schema_name IN (SELECT nspname FROM pg_catalog.pg_namespace)
-                                    LOOP
-                                        EXECUTE format('GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
-                                        EXECUTE format('GRANT TRUNCATE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
-                                        EXECUTE format('GRANT REFERENCES ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
-                                        EXECUTE format('GRANT TRIGGER ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
-                                        EXECUTE format('GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA %I TO "{}";', schema_name);
-                                    END LOOP;
-                                END;
-                                $$;
-                                """.format(username, username, username, username, username, username, username, username, username, username)
+                    cur.execute(command_create_user) # Create user
+                    cur.execute(commands_privileges) # Grant privileges
+                    cur.execute(commands_superuser) # Superuser privileges
 
-            commands_superuser=f"ALTER ROLE \"{username}\" WITH SUPERUSER"
+                    cur.execute(command_database_update,(username,password,))
+                conn.commit()
 
-            command_database_update =("""INSERT INTO users_data.database_passwords ("username","password")
-                            VALUES (%s,%s)""") 
-
-            # Create user
-            cur.execute(command_create_user)
-
-            # Grant privileges
-            cur.execute(commands_privileges)
-
-            # Superuser privileges
-            cur.execute(commands_superuser)
-
-            cur.execute(command_database_update,(username,password,))
-            conn.commit()
-
-            # Close connection
-            cur.close()
-            conn.close()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Instalación completada con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Instalación completada con éxito", "information")
 
             sys.exit(app.exec())
 
         except Exception as e:
             print(f"Error: {str(e)}")
 
-
-#Function to execute the script as admin
-def is_admin():
-    """
-    Check if user has admin privileges
-    """
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
-
-
 if __name__ == "__main__":
     import sys
-    if not is_admin():
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
-        sys.exit()
 
     app = QtWidgets.QApplication(sys.argv)
     SetupWindow = QtWidgets.QMainWindow()

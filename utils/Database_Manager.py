@@ -1,7 +1,7 @@
 import psycopg2
 import pyodbc
 from PySide6 import QtSql
-from config_keys import HOST_DATABASE, NAME_DATABASE
+from config.config_keys import HOST_DATABASE, NAME_DATABASE
 
 class Access_Connection():
     def __init__(self, access_file, access_pwd):

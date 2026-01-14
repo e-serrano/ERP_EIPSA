@@ -7,8 +7,8 @@ from PIL import Image
 from io import BytesIO
 from jinja2 import Environment, FileSystemLoader
 from datetime import date
-from config import config, get_path
-from config_keys import SMTP_SERVER, SMTP_PORT
+from config.config import config, get_path
+from config.config_keys import SMTP_SERVER, SMTP_PORT
 from utils.Database_Manager import Database_Connection
 from utils.Helpers import decrypt_password
 from utils.Show_Message import MessageHelper
