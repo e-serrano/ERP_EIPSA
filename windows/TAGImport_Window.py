@@ -223,6 +223,7 @@ class Ui_ImportTAG_Window(object):
                                 "rating", "facing", "schedule", "flange_material", "flange_type",
                                 "tube_material", "tapping_size", "element_material", "plate_type", 
                                 "plate_thk", "plate_std", "gasket_material", "bolts_material", "nuts_material", "nace"],
+                'int_columns': ['tapping_number'],
                 'decimal_columns': ['amount', 'plate_thk'],
                 'null_columns': ['num_order', 'contractual_date'],
                 'validation_map': {'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'N':'F', 
@@ -345,8 +346,13 @@ class Ui_ImportTAG_Window(object):
                             formatted_values = []
                             for column, value in columns_values:
                                 # Replace float to integer
-                                if config_tags.get('int_columns') and column in config_tags['int_columns'] and value.endswith('.0'):
-                                    formatted_values.append(f"'{int(float(value))}'")
+                                if config_tags.get('int_columns') and column in config_tags['int_columns']:
+                                    if value == '':
+                                        formatted_values.append('NULL')
+                                    if value.endswith('.0'):
+                                        formatted_values.append(f"'{int(float(value))}'")
+                                    else:
+                                        formatted_values.append(f"'{int(value)}'")
                                 # Replace decimal point
                                 elif config_tags.get('decimal_columns') and column in config_tags['decimal_columns']:
                                     formatted_values.append(f"'{value.replace('.', ',')}'")
