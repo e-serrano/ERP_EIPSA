@@ -347,9 +347,9 @@ class Ui_ImportTAG_Window(object):
                             for column, value in columns_values:
                                 # Replace float to integer
                                 if config_tags.get('int_columns') and column in config_tags['int_columns']:
-                                    if value == '':
+                                    if value in ('', 'None') or value is None:
                                         formatted_values.append('NULL')
-                                    if value.endswith('.0'):
+                                    elif value.endswith('.0'):
                                         formatted_values.append(f"'{int(float(value))}'")
                                     else:
                                         formatted_values.append(f"'{int(value)}'")
