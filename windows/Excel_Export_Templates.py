@@ -10355,6 +10355,83 @@ class order_reports:
             return output_path
 
 
+class workshop_hours:
+    """Class for creating and saving an Excel order for raw materials.
+
+    Attributes:
+        wb (Workbook): The loaded Excel workbook.
+    """
+    def __init__(self, df_p, df_o, df_al):
+        """Initializes the material order by loading a template and filling it with data.
+
+        Args:
+            df_p (DataFrame): DataFrame containing the offers data.
+            df_o (DataFrame): DataFrame containing the orders data.
+            df_al (DataFrame): DataFrame containing the AL orders data.
+        """
+        # Loading Excel Template
+        self.wb = load_workbook(str(get_path("Plantillas Exportación", "RESUMEN HORAS TALLER.xlsx")))
+
+        date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+        start_row = 6  # Obtaining last row used
+        sheet_name = "P-"  # Selecting template sheet
+        ws = self.wb[sheet_name]
+
+        for index, row in df_p.iterrows():
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=start_row + index, column=col_num)
+                if value is not None:
+                    if isinstance(value, datetime):
+                        cell.value = value
+                        cell.style = date_style
+                    else:
+                        cell.value = value
+                else:
+                    cell.value = value
+
+        start_row = 5
+        sheet_name = "O-"  # Selecting template sheet
+        ws = self.wb[sheet_name]
+
+        for index, row in df_o.iterrows():
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=start_row + index, column=col_num)
+                if value is not None:
+                    if isinstance(value, datetime):
+                        cell.value = value
+                        cell.style = date_style
+                    else:
+                        cell.value = value
+                else:
+                    cell.value = value
+
+        sheet_name = "AL-NUEVO"  # Selecting template sheet
+        ws = self.wb[sheet_name]
+
+        for index, row in df_al.iterrows():
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=start_row + index, column=col_num)
+                if value is not None:
+                    if isinstance(value, datetime):
+                        cell.value = value
+                        cell.style = date_style
+                    else:
+                        cell.value = value
+                else:
+                    cell.value = value
+
+    def save_excel(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        #Dialog window to select folder and file name; if path is selected, excel file is saved
+        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Resumen horas", "", "Archivos de Excel (*.xlsx)")
+        if output_path :
+            if not output_path .lower().endswith(".xlsx"):
+                output_path += ".xlsx"
+            self.wb.save(output_path)
+
+
 # offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
 # offer_short_temp('O-23/001', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
 # offer_short_level('OE-23/114', 'l.bravo', '0', '-', 'FCA (our facilities on truck)', '12-16', '90', '50_50', '100', '', '')

@@ -11,6 +11,7 @@ import sys
 from config.config import config, get_path
 import locale
 import pandas as pd
+from windows.Excel_Export_Templates import workshop_hours
 
 
 
@@ -2406,14 +2407,17 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         df_AL.columns = df_AL.iloc[0]
         df_AL = df_AL[1:]
 
-        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
-        if output_path:
-            if not output_path.lower().endswith(".xlsx"):
-                output_path += ".xlsx"
-            with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
-                df_P.to_excel(writer, sheet_name='P-', index=False)
-                df_O.to_excel(writer, sheet_name='O-', index=False)
-                df_AL.to_excel(writer, sheet_name='AL-', index=False)
+        excel_file = workshop_hours(df_P, df_O, df_AL)
+        excel_file.save_excel()
+
+        # output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+        # if output_path:
+        #     if not output_path.lower().endswith(".xlsx"):
+        #         output_path += ".xlsx"
+        #     with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
+        #         df_P.to_excel(writer, sheet_name='P-', index=False)
+        #         df_O.to_excel(writer, sheet_name='O-', index=False)
+        #         df_AL.to_excel(writer, sheet_name='AL-', index=False)
 
 # Function to count selected cell and sum its values if possible
     def countSelectedCells_P(self):
