@@ -789,7 +789,7 @@ class Ui_CreateTAGFlow_Window(object):
         flangetype=self.Flangetype_CreatetagQ.currentText()
         tubemat=self.Tubemat_CreatetagQ.currentText()
         tapping=self.TappingSize_CreatetagQ.currentText()
-        tapping_num=self.TappingNumber_CreatetagQ.text()
+        tapping_num=self.TappingNumber_CreatetagQ.text() if self.TappingNumber_CreatetagQ.text() != '' else None
         tapping_orient=self.TappingOrientation_CreatetagQ.text()
         elementmat=self.ElementMat_CreatetagQ.currentText()
         platetype=self.PlateType_CreatetagQ.currentText()
