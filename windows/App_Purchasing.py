@@ -1021,7 +1021,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Order_Control.clicked.connect(self.order_control)
 
-        self.backup_data()
+        # self.backup_data()
         self.warning_calibration()
         self.visual_certificate_check()
         self.load_notifications()
