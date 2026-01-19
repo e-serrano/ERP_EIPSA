@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PySide6.QtCore import Qt
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import os
 

@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import os
 from windows.Email_Styles import email_order_activation, email_order_activation_manager
 from datetime import *

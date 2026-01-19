@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 from PySide6.QtWidgets import QAbstractItemView
 import os

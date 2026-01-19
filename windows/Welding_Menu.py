@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QUrl
 from datetime import *
 import os
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer

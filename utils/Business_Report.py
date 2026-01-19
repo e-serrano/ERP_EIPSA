@@ -7,7 +7,7 @@ from io import BytesIO
 import numpy as np
 from windows.Excel_Export_Templates import future_projects, order_reports
 from config.config_keys import DATA_PATH
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from datetime import *

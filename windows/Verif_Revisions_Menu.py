@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from config.config import config
+from config.config_functions import config
 from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"

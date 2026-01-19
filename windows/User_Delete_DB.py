@@ -1,5 +1,5 @@
 import psycopg2
-from config.config import config
+from config.config_functions import config
 
 def delete_user_database(email):
     """

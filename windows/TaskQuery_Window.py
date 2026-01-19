@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config import config
+from config.config_functions import config
 import psycopg2
 from windows.TaskEdit_Window import Ui_EditTask_Window
 from windows.TaskHistory_Window import Ui_HistoryTask_Window

@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection, Database_Connection
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 import re
 import locale
@@ -1221,7 +1221,7 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
             elif self.state == 'Budgetary':
                 self.model.setFilter(f"num_offer LIKE '%B-%' AND (EXTRACT(YEAR FROM register_date) = EXTRACT(YEAR FROM CURRENT_DATE))")
             elif self.state == 'Semanal':
-                self.model.setFilter(f"register_date >= CURRENT_DATE - INTERVAL '6 days' AND register_date <= CURRENT_DATE")
+                self.model.setFilter(f"recep_date >= CURRENT_DATE - INTERVAL '6 days' AND recep_date <= CURRENT_DATE")
             else:
                 self.model.setFilter(f"state = '{self.state}'")
             self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)

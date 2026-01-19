@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config
+from config.config_functions import config
 import os
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"

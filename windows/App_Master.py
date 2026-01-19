@@ -13,7 +13,7 @@ from datetime import *
 from windows.UserEdit_Menu import Ui_EditUser_Menu
 from windows.QueryTableChanges_Window import Ui_QueryTableChanges_Window
 from windows.PasswordEdit_Window import Ui_EditPasswordWindow
-from config.config import get_path
+from config.config_functions import get_path
 
 
 

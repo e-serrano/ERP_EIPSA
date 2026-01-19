@@ -1,4 +1,4 @@
-from config.config import get_path
+from config.config_functions import get_path
 
 def decrypt_password(password):
 	from cryptography.fernet import Fernet

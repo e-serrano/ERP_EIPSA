@@ -9,7 +9,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from windows.PasswordEdit_Window import Ui_EditPasswordWindow
 from PySide6.QtWidgets import QMenu
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 from utils.Database_Manager import Create_DBconnection
 from utils.Business_Report import report_offers, report_orders

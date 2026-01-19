@@ -10,7 +10,7 @@ import psycopg2
 from PySide6 import QtCore, QtGui, QtWidgets
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import hashlib
 import traceback
 

@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import configparser
 from utils.Database_Manager import Create_DBconnection

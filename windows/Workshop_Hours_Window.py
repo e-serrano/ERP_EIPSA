@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QMimeData, QDate
 from PySide6.QtGui import QKeySequence
 import sys
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import locale
 import pandas as pd
 from windows.Excel_Export_Templates import workshop_hours

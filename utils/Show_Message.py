@@ -1,5 +1,5 @@
 from PySide6 import QtGui, QtWidgets
-from config.config import get_path
+from config.config_functions import get_path
 
 class MessageHelper:
     DEFAULT_TITLE = "EIPSA ERP"

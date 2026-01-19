@@ -11,7 +11,7 @@ import psycopg2
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
-from config.config import config
+from config.config_functions import config
 from datetime import *
 import numpy as np
 import os

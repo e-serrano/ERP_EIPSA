@@ -1,4 +1,4 @@
-from config.config import config
+from config.config_functions import config
 import os
 from PySide6 import QtGui, QtWidgets
 import psycopg2

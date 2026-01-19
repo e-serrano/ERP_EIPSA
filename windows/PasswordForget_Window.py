@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config
+from config.config_functions import config
 from windows.Email_Styles import email_password
 import os
 import string

@@ -14,7 +14,7 @@ import configparser
 from utils.Database_Manager import Create_DBconnection, Database_Connection, Access_Connection
 from utils.Show_Message import MessageHelper
 import os
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 from psycopg2.extras import execute_values
 import pandas as pd

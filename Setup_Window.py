@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import sys
 import os
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from config.config_keys import INI_PATH, INI_FILE_PATH
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection

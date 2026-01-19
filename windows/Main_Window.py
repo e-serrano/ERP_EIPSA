@@ -4,7 +4,7 @@ from windows.Login_Window import Ui_Login_Window
 import os
 import psutil
 from utils.Show_Message import MessageHelper
-from config.config import get_path
+from config.config_functions import get_path
 from config.config_keys import INI_FILE_PATH
 from pathlib import Path
 

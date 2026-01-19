@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QMenu
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from datetime import *
 import psycopg2
 import sys

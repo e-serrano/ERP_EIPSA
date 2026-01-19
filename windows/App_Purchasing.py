@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QMenu
 from datetime import *
 import os
 from pathlib import Path
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer

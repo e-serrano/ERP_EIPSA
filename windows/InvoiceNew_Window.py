@@ -11,7 +11,7 @@ from PySide6.QtCore import QUrl
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 import re
-from config.config import config
+from config.config_functions import config
 from utils.Database_Manager import Create_DBconnection
 import psycopg2
 import os

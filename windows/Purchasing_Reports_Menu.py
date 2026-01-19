@@ -12,7 +12,7 @@ from windows.ReportArtMov_Window import Ui_ArtMov_Window
 from windows.ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
 from windows.ReportStockVal_Window import Ui_StockVal_Window
 import os
-from config.config import config
+from config.config_functions import config
 import pandas as pd
 import psycopg2
 from windows.PDF_Styles import pending_orders

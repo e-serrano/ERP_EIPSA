@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import pandas as pd
 from windows.OTFabOrder_Window import Ui_OTFabOrder_Window
 import os
-from config.config import get_path
+from config.config_functions import get_path
 from utils.Show_Message import MessageHelper
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):

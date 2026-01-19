@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 import psycopg2
 import sys
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from utils.Database_Manager import Create_DBconnection
 from datetime import *
 

@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import pandas as pd
 from PySide6.QtWidgets import QFileDialog
 import os

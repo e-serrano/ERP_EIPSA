@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import os, io
 import pandas as pd
 from windows.PDF_Styles import calibration_certificate, calibration_certificate_spanish

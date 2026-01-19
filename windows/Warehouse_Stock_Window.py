@@ -13,7 +13,7 @@ import re
 import configparser
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 import locale
 import os

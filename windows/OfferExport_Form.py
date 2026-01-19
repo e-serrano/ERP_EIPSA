@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from windows.Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, offer_flow_temp_level, \
     offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, \
     offer_short_flow_english, offer_short_temp_english, offer_short_level_english

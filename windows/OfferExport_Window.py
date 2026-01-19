@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config, get_path  
+from config.config_functions import config, get_path  
 from windows.OfferExport_Form import Ui_ExportOffer_Form
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection

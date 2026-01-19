@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import locale
 import os

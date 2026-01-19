@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QUrl
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import locale
 from windows.PDF_Styles import supplier_order

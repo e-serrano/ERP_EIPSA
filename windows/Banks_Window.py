@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
-from config.config import config
+from config.config_functions import config
 import psycopg2
 import configparser
 from datetime import *

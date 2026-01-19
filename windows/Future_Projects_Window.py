@@ -16,7 +16,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PySide6.QtWidgets import QApplication
 import os
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import pandas as pd
 import psycopg2
 from utils.Show_Message import MessageHelper

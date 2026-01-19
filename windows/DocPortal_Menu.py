@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import psycopg2
-from config.config import config
+from config.config_functions import config
 import re
 import pandas as pd
 

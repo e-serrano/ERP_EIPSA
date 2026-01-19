@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 import psycopg2
 import sys
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from utils.Business_Report import report_offers, report_orders, report_projects

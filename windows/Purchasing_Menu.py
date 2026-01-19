@@ -16,7 +16,7 @@ from windows.Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
-from config.config import config
+from config.config_functions import config
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 

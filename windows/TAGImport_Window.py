@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import pandas as pd
 import psycopg2
-from config.config import config
+from config.config_functions import config
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation

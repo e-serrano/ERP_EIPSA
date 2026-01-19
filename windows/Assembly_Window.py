@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QMimeData, QDate
 from PySide6.QtGui import QKeySequence
 import sys
-from config.config import config, get_path
+from config.config_functions import config, get_path
 import psycopg2
 import pandas as pd
 from utils.Database_Manager import Database_Connection

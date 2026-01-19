@@ -8,7 +8,7 @@
 import re
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config import config
+from config.config_functions import config
 import locale
 import pandas as pd
 import os

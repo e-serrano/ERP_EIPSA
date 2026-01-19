@@ -11,7 +11,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.OfferExport_Window import Ui_ExportOffer_Window
 from windows.OrderAccept_Window import Ui_OrderAccept_Window
 import os
-from config.config import config
+from config.config_functions import config
 import psycopg2
 from windows.Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
 

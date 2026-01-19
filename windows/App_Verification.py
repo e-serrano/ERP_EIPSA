@@ -14,7 +14,7 @@ from utils.Database_Manager import Create_DBconnection
 import datetime
 import locale
 import psycopg2
-from config.config import config, get_path
+from config.config_functions import config, get_path
 
 
 

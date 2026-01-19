@@ -7,7 +7,7 @@
 
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config import config, get_path
+from config.config_functions import config, get_path
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 import psycopg2

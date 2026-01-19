@@ -11,7 +11,7 @@ import random
 import string
 import re
 import psycopg2
-from config.config import config
+from config.config_functions import config
 import os
 import hashlib 
 from windows.Email_Styles import email_new_user
