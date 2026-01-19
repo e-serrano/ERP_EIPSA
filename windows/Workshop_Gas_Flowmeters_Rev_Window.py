@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import locale
 import os
@@ -1359,7 +1359,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1420,7 +1420,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -1463,7 +1463,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1534,7 +1534,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
                 conn = None
                 try:
                 # read the connection parameters
-                    params = config()
+                    params = config_database()
                 # connect to the PostgreSQL server
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
@@ -1589,7 +1589,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1638,7 +1638,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -2154,7 +2154,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

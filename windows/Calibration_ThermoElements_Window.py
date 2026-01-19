@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate, QMimeData
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -878,7 +878,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         #Reading each row and inserting data in table
                             for name_folder in list_folders:
                                 sql_check = f"SELECT * FROM verification.calibration_thermoelements WHERE folder_data = '{name_folder}'"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(sql_check)
                                         results = cur.fetchall()
@@ -896,7 +896,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
                                     # Creating insertion query and executing it
                                         sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(sql_insertion)
                                             conn.commit()
@@ -1627,7 +1627,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                                             WHERE id = %s""")
                         for id_value in id_values:
                             data = (id_value,)
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_delete, data)
                                 conn.commit()
@@ -1689,7 +1689,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                             """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_data,(tuple(id_values),))
                         results=cur.fetchall()
@@ -1736,7 +1736,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     int(final_df.loc[0, "ID"])
                 )
 
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(update_data, (values_to_update))
                     conn.commit()
@@ -1751,7 +1751,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 ids_to_delete.remove(id_to_keep)
 
                 if ids_to_delete:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(delete_query, (tuple(ids_to_delete),))
                         conn.commit()
@@ -1767,7 +1767,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 # if __name__ == "__main__":
 #     import sys
 #     app = QtWidgets.QApplication(sys.argv)
-#     dbparam = config()
+#     dbparam = config_database()
 #     user_database = dbparam["user"]
 #     password_database = dbparam["password"]
 

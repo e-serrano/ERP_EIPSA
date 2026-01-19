@@ -14,7 +14,7 @@ from utils.Database_Manager import Create_DBconnection
 import datetime
 import locale
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 
 
 
@@ -604,7 +604,7 @@ class Ui_App_Verification(object):
         Open the database editing window.
         """
         from windows.DBEditRegVerif_Window import Ui_DBEditRegVerif_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -621,7 +621,7 @@ class Ui_App_Verification(object):
         Open a new window for querying tags.
         """
         from windows.TAGEdit_Verification_Window import Ui_EditTags_Verification_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -661,7 +661,7 @@ class Ui_App_Verification(object):
         Open a new window for calibrating thermo elements.
         """
         from windows.Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -729,7 +729,7 @@ class Ui_App_Verification(object):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from windows.WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -781,7 +781,7 @@ class Ui_App_Verification(object):
         Establishes a database connection and opens the NC report window for the current user.
         """
         from windows.NC_Report_Window import Ui_NC_Report_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -837,7 +837,7 @@ class Ui_App_Verification(object):
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -913,7 +913,7 @@ class Ui_App_Verification(object):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

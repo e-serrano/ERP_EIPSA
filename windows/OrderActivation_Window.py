@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import os
 from windows.Email_Styles import email_order_activation, email_order_activation_manager
 from datetime import *
@@ -347,7 +347,7 @@ class Ui_OrderActivation_Window(object):
                                         SET order_extras = %s
                                         WHERE num_order = %s""")
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
                             cur.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
@@ -370,7 +370,7 @@ class Ui_OrderActivation_Window(object):
                         delivery_time = results_queryorder[0][6]
                         order_amount = results_queryorder[0][7]
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_responsible, (username_responsible,))
                                 results_responsible=cur.fetchall()

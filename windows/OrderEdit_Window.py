@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import os
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
@@ -362,7 +362,7 @@ class Ui_Edit_Order_Window(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_checkorder,(self.original_numorder,))
                     results=cur.fetchall()
@@ -387,7 +387,7 @@ class Ui_Edit_Order_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         data=(numorder,numoffer,numref,expectdate,notes,amount,num_items,self.original_numorder,)
                         cur.execute(commands_editorder,data)
@@ -423,7 +423,7 @@ class Ui_Edit_Order_Window(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_loaddataorder,(self.original_numorder,))
                     results=cur.fetchall()
@@ -485,7 +485,7 @@ class Ui_Edit_Order_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(self.regularisation, num_order,)
                     cur.execute(commands_update_regularisation, data)

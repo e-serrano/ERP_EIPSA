@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QMimeData, QDate
 from PySide6.QtGui import QKeySequence
 import sys
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import pandas as pd
 from utils.Database_Manager import Database_Connection
@@ -60,7 +60,7 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         colors_dict = {}
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
                     cur.execute(commands_colors)
@@ -2134,7 +2134,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         if item.column() == 0:
             num_order = item.data()
             from windows.WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-            dbparam = config()
+            dbparam = config_database()
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
@@ -2181,7 +2181,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             value = str(state_column_index.data())
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         for index in selected_indexes:
                             state_column_index = index.sibling(index.row(), 0)
@@ -2662,7 +2662,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         conn = None
                         try:
                         # read the connection parameters
-                            params = config()
+                            params = config_database()
                         # connect to the PostgreSQL server
                             conn = psycopg2.connect(**params)
                             cur = conn.cursor()
@@ -2722,7 +2722,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

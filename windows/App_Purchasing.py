@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QMenu
 from datetime import *
 import os
 from pathlib import Path
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer
@@ -1080,7 +1080,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         """
         Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
         """
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1179,7 +1179,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             commands_suppliers = (""" SELECT * FROM purch_fact.suppliers """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_supplies)
                         results_supplies = cur.fetchall()
@@ -1573,7 +1573,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_tables_notifications)
                     results=cur.fetchall()
@@ -1643,7 +1643,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_check_dates)
                     results_dates = cur.fetchall()
@@ -1672,13 +1672,13 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                             f"Próxima Revisión: {row.iloc[3]}")
 
                     for username in usernames:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_check_notifications, (username,message,state,))
                                 results_notifications = cur.fetchall()
 
                         if len(results_notifications) == 0:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_notification, (username,message,state,))
                                 conn.commit()
@@ -1693,7 +1693,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         Opens a new window for liquid visual certificate.
         """
         from windows.Workshop_Staff_Certificates_Window import Ui_Workshop_Staff_Certificates_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1744,35 +1744,35 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         conn = None
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_check_snt)
                     results_snt = cur.fetchall()
 
             if date.today() >= results_snt[0][0] - timedelta(days=30):
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_notify_snt)
                     conn.commit()
 
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_check_iso)
                     results_iso = cur.fetchall()
 
             if date.today() >= results_iso[0][0] - timedelta(days=60):
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_notify_iso)
                     conn.commit()
 
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_check_visual)
                     results_visual = cur.fetchall()
 
             if date.today() >= results_visual[0][0] - timedelta(days=40):
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_notify_visual)
                     conn.commit()
@@ -1827,7 +1827,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     query = commands_offers_1
                                     data = (date_1,)
 
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(query, data)
                                         results_offers = cur.fetchall()
@@ -1883,7 +1883,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         Opens the order window for managing order operations.
         """
         from windows.Order_Control_Purchasing_Window import Ui_Purchasing_Order_Control_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

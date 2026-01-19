@@ -9,7 +9,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import locale
 import os
@@ -797,7 +797,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -956,7 +956,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1051,7 +1051,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1256,7 +1256,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection, Database_Connection
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import re
 import locale
@@ -1057,7 +1057,7 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
                         order by username ASC""")
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     for query in commands_comboboxes:
                         cur.execute(query)
@@ -1805,7 +1805,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

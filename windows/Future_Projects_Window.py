@@ -16,7 +16,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PySide6.QtWidgets import QApplication
 import os
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import pandas as pd
 import psycopg2
 from utils.Show_Message import MessageHelper
@@ -1304,7 +1304,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
             df_table = df_table.where(pd.notnull(df_table), None)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         placeholders = ', '.join(['%s'] * len(columns))
                         colnames_str = ', '.join(columns)
@@ -1350,7 +1350,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=('',)
                     cur.execute(commands_new, data)
@@ -1374,7 +1374,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

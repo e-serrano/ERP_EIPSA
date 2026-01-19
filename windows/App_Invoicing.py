@@ -14,7 +14,7 @@ import configparser
 from utils.Database_Manager import Create_DBconnection, Database_Connection, Access_Connection
 from utils.Show_Message import MessageHelper
 import os
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 from psycopg2.extras import execute_values
 import pandas as pd
@@ -635,7 +635,7 @@ class Ui_App_Invoicing(object):
         Opens the New Invoice window, where users can create new invoices.
         """
         from windows.InvoiceNew_Window import Ui_InvoiceNew_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -685,7 +685,7 @@ class Ui_App_Invoicing(object):
         Opens the Countries Management window, allowing users to manage country information.
         """
         from windows.Countries_Window import Ui_Countries_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -740,7 +740,7 @@ class Ui_App_Invoicing(object):
                                 conn = None
                                 try:
                                 # read the connection parameters
-                                    params = config()
+                                    params = config_database()
                                 # connect to the PostgreSQL server
                                     conn = psycopg2.connect(**params)
                                     cur = conn.cursor()
@@ -893,7 +893,7 @@ class Ui_App_Invoicing(object):
                                 conn = None
                                 try:
                                 # read the connection parameters
-                                    params = config()
+                                    params = config_database()
                                 # connect to the PostgreSQL server
                                     conn = psycopg2.connect(**params)
                                     cur = conn.cursor()
@@ -1255,7 +1255,7 @@ class Ui_App_Invoicing(object):
         Opens a window for editing tags in the facturation system.
         """
         from windows.TAGEdit_Facturation_Window import Ui_EditTags_Facturation_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1285,7 +1285,7 @@ class Ui_App_Invoicing(object):
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_tables_notifications)
                     results=cur.fetchall()
@@ -1294,7 +1294,7 @@ class Ui_App_Invoicing(object):
             notifications = []
 
             for table in tables_names:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
                         cur.execute(commands_notifications)
@@ -1426,7 +1426,7 @@ class Ui_App_Invoicing(object):
             EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
         from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1443,7 +1443,7 @@ class Ui_App_Invoicing(object):
         Opens the order window for managing order operations.
         """
         from windows.Order_Control_Invoicing_Window import Ui_Invoicing_Order_Control_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1523,7 +1523,7 @@ class Ui_App_Invoicing(object):
                 access_ids = list(access_dict.keys())
 
     # Connection to PostgreSQL
-        with Database_Connection(config()) as conn_pg:
+        with Database_Connection(config_database()) as conn_pg:
             with conn_pg.cursor() as cur_pg:
         # Read existing data from PostgreSQL
                 # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
@@ -1609,7 +1609,7 @@ class Ui_App_Invoicing(object):
                 access_ids = list(access_dict.keys())
 
     # Connection to PostgreSQL
-        with Database_Connection(config()) as conn_pg:
+        with Database_Connection(config_database()) as conn_pg:
             with conn_pg.cursor() as cur_pg:
         # Read existing data from PostgreSQL
                 # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
@@ -1697,7 +1697,7 @@ class Ui_App_Invoicing(object):
                 access_ids = list(access_dict.keys())
 
     # Connection to PostgreSQL
-        with Database_Connection(config()) as conn_pg:
+        with Database_Connection(config_database()) as conn_pg:
             with conn_pg.cursor() as cur_pg:
         # Read existing data from PostgreSQL
                 # pg_field_list = ', '.join(f'"{f}"' for f in PG_FIELDS)
@@ -1776,7 +1776,7 @@ class Ui_App_Invoicing(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_responsible)

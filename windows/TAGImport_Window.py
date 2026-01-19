@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import pandas as pd
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -317,7 +317,7 @@ class Ui_ImportTAG_Window(object):
             wb = load_workbook(self.fname)
             ws = wb["Import"]
 
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cursor:
                     # Obtain next ID
                     sql_query_id = (

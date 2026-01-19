@@ -10,7 +10,7 @@ import psycopg2
 from PySide6 import QtCore, QtGui, QtWidgets
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import hashlib
 import traceback
 
@@ -299,7 +299,7 @@ class Ui_Login_Window(object):
         login_password = self.password_login.text()
 
         try:
-            db_config = config()
+            db_config = config_database()
         except Exception as e:
             print(e)
             error_msg = traceback.format_exc()

@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from windows.Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, offer_flow_temp_level, \
     offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, \
     offer_short_flow_english, offer_short_temp_english, offer_short_level_english
@@ -507,7 +507,7 @@ class Ui_ExportOffer_Form(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         data=(validity, delivery_time, delivery_term, project, pay_term, rev, actual_date, numoffer,)
                         cur.execute(commands_updateofferdata,data)
@@ -626,7 +626,7 @@ class Ui_ExportOffer_Form(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_loaddataoffer,(numoffer,))
                     results=cur.fetchall()

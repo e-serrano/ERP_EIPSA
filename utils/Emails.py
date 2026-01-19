@@ -7,7 +7,7 @@ from PIL import Image
 from io import BytesIO
 from jinja2 import Environment, FileSystemLoader
 from datetime import date
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from config.config_keys import SMTP_SERVER, SMTP_PORT
 from utils.Database_Manager import Database_Connection
 from utils.Helpers import decrypt_password
@@ -29,7 +29,7 @@ class BaseEmail:
 
         original_password = None
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_usermail, (self.smtp_username,))
                     results = cur.fetchall()

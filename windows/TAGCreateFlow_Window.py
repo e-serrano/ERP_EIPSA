@@ -7,7 +7,7 @@
 
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 import psycopg2
@@ -691,7 +691,7 @@ class Ui_CreateTAGFlow_Window(object):
         all_results = []
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     for query in commands_comboboxes:
                         cur.execute(query)
@@ -831,7 +831,7 @@ class Ui_CreateTAGFlow_Window(object):
                             """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         data = (tag,tag_state,numoffer,numorder,num_po,
                                 pos,subpos,typeF,linesize,rating,
@@ -866,7 +866,7 @@ class Ui_CreateTAGFlow_Window(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_loadofferorder,(numorder,))
                     results=cur.fetchall()

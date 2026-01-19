@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
@@ -628,7 +628,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -738,7 +738,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -860,7 +860,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         df["temperature"] = df["temperature"].str.replace(",", ".").astype(float)
         df["humidity"] = df["humidity"].str.replace(",", ".").astype(float)
 
-        params = config()
+        params = config_database()
         conn = psycopg2.connect(**params)
         cursor = conn.cursor()
 

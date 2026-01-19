@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import os
 import re
@@ -67,7 +67,7 @@ class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
         colors_dict = {}
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     # execution of commands
                     commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
@@ -144,7 +144,7 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
         colors_dict = {}
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     # execution of commands
                     commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
@@ -1326,7 +1326,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Deverify.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Deverify.setObjectName("Button_Deverify")
         self.gridLayout_2.addWidget(self.Button_Deverify, 5, 0, 1, 1)
-        params = config()
+        params = config_database()
     # connect to the PostgreSQL server
         conn = psycopg2.connect(**params)
         self.tableTags = CustomTableWidgetTags(db_conn=conn)
@@ -1529,7 +1529,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                     # execution of commands
                         cur.execute(query_material,(self.num_order_value,))
@@ -1584,7 +1584,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Equipo', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'NOI', 'E_dim', 'E_of', 'E_of_sensor', 'E_ph1', 'E_ph2', 'E_lp', 'id_column', 'db_table', 'Fotos', 'Fotos2']
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_tags)
                             results=cur.fetchall()
@@ -1666,7 +1666,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         ORDER BY drawing_number
                         """)
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_others, (self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value,))
@@ -1722,7 +1722,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_warehouse, (self.num_order_value,))
@@ -1827,7 +1827,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if date_dim == '':
                                     commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = '{test_date}', final_verif_dim_state = '{state}', final_verif_dim_obs = '{notes}', fab_state = 'FABRICADO' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_verification)
                                         conn.commit()
@@ -1835,7 +1835,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos dimensionales\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = '{test_date}', final_verif_dim_state = '{state}', final_verif_dim_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
@@ -1845,7 +1845,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 date_eq = item_date_eq.text() if item_date_eq is not None else ''
                                 if date_eq == '':
                                     commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = '{test_date}', final_verif_of_eq_state = '{state}', final_verif_of_eq_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_verification)
                                         conn.commit()
@@ -1853,7 +1853,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de equipo\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = '{test_date}', final_verif_of_eq_state = '{state}', final_verif_of_eq_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
@@ -1863,7 +1863,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 date_sensor = item_date_sensor.text() if item_date_sensor is not None else ''
                                 if date_sensor == '':
                                     commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = '{test_date}', final_verif_of_sensor_state = '{state}', final_verif_of_sensor_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_verification)
                                         conn.commit()
@@ -1871,7 +1871,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de sensor\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = '{test_date}', final_verif_of_sensor_state = '{state}', final_verif_of_sensor_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_verification)
                                             conn.commit()
@@ -1882,7 +1882,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if date_ph1 == '':
                                     commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_hydrotest)
                                         conn.commit()
@@ -1890,7 +1890,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_hydrotest)
                                             conn.commit()
@@ -1901,7 +1901,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if date_ph2 == '':
                                     commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_hydrotest)
                                         conn.commit()
@@ -1909,14 +1909,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_hydrotest)
                                             conn.commit()
 
                             if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
                                 # query_hn_liq = ("""SELECT liquid, heat_number FROM verification.liquid_heat_number""")
-                                # with Database_Connection(config()) as conn:
+                                # with Database_Connection(config_database()) as conn:
                                 #     with conn.cursor() as cur:
                                 #         cur.execute(query_hn_liq)
                                 #         results_hn=cur.fetchall()
@@ -1934,7 +1934,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if date_lp == '':
                                     commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_liquidtest)
                                         conn.commit()
@@ -1942,7 +1942,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 else:
                                     if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                         commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_liquidtest)
                                             conn.commit()
@@ -2007,21 +2007,21 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             WHERE "id" = %s
                             """)
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_select_ppi, (id_value, ))
                                     results = cur.fetchall()
 
                             if len(results) != 0:
                                 if results[0][0] is None:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_ppi, (verif_date, verif_state, verif_notes, id_value, ))
                                         conn.commit()
 
                                 else:
                                     if MessageHelper.ask_yes_no("Ya ha datos existentes en el PPI\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                     cur.execute(commands_insert_ppi, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
@@ -2042,21 +2042,21 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             WHERE "id" = %s
                             """)
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_select_exp, (id_value, ))
                                     results = cur.fetchall()
 
                             if len(results) != 0:
                                 if results[0][0] is None:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_exp, (verif_date, verif_state, verif_notes, id_value, ))
                                         conn.commit()
 
                                 else:
                                     if MessageHelper.ask_yes_no("Ya ha datos existentes en el EXP\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_exp, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
@@ -2077,21 +2077,21 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             WHERE "id" = %s
                             """)
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_select_m_drawing, (id_value, ))
                                     results = cur.fetchall()
 
                             if len(results) != 0:
                                 if results[0][0] is None:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_m_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                         conn.commit()
 
                                 else:
                                     if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_m_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
@@ -2112,21 +2112,21 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             WHERE "id" = %s
                             """)
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_select_of_drawing, (id_value, ))
                                     results = cur.fetchall()
 
                             if len(results) != 0:
                                 if results[0][0] is None:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_of_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                         conn.commit()
 
                                 else:
                                     if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_of_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
@@ -2147,21 +2147,21 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             WHERE "id" = %s
                             """)
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_select_dim_drawing, (id_value, ))
                                     results = cur.fetchall()
 
                             if len(results) != 0:
                                 if results[0][0] is None:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_dim_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                         conn.commit()
 
                                 else:
                                     if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(commands_insert_dim_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             conn.commit()
@@ -2215,7 +2215,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_al_drawing, (id_value,))
@@ -2223,7 +2223,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                         if len(results) != 0:
                             if results[0][0] is None:
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_al_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                 # commit the changes
@@ -2231,7 +2231,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             else:
                                 if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_al_drawing, (verif_date, verif_state, verif_notes, id_value, ))
                                             self.obs_test.setText('')
@@ -2278,7 +2278,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 try:
                                 # execution of commands
                                     commands_image_al = ("""UPDATE verification.al_drawing_verification SET image = %s WHERE id = %s""")
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_image_al, (self.fname_image, id_value))
 
@@ -2300,7 +2300,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 try:
                                 # execution of commands
                                     commands_image_al = ("""UPDATE verification.al_drawing_verification SET document = %s WHERE id = %s""")
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_image_al, (self.fname_doc, id_value))
                                     # commit the changes
@@ -2340,7 +2340,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                 elif index.column() == 23:
                                                     commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_image}' WHERE {id_column} = {id_value}"
                                                 
-                                                with Database_Connection(config()) as conn:
+                                                with Database_Connection(config_database()) as conn:
                                                     with conn.cursor() as cur:
                                                         cur.execute(commands_image_tag)
                                                 # commit the changes
@@ -2378,7 +2378,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                     elif selected_indexes[i].column() == 23:
                                                         commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
 
-                                                    with Database_Connection(config()) as conn:
+                                                    with Database_Connection(config_database()) as conn:
                                                         with conn.cursor() as cur:
                                                             cur.execute(commands_image_tag)
                                                     # commit the changes
@@ -2412,7 +2412,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                 elif selected_indexes[i].column() == 23:
                                                     commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
 
-                                                with Database_Connection(config()) as conn:
+                                                with Database_Connection(config_database()) as conn:
                                                     with conn.cursor() as cur:
                                                         cur.execute(commands_image_tag)
                                                 # commit the changes
@@ -2485,7 +2485,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     ORDER BY product, expiration_date ASC""")
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_states)
@@ -2537,7 +2537,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         colors_dict = {}
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
                     cur.execute(commands_colors)
@@ -2625,7 +2625,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         query_path =f"""SELECT document FROM verification."al_drawing_verification" WHERE id = {item_id}"""
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query_path)
@@ -2650,7 +2650,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_obs FROM {table_name} WHERE {id_column} = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2671,7 +2671,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                     conn = None
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2692,7 +2692,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), final_verif_of_sensor_obs FROM {table_name} WHERE {id_column} = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2713,7 +2713,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {id_column} = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2736,7 +2736,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {id_column} = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2759,7 +2759,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {table_name} WHERE {id_column} = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2781,7 +2781,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2801,7 +2801,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query =f"SELECT TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'), verif_al_drawing_state, verif_al_drawing_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query)
@@ -2828,7 +2828,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
@@ -2856,7 +2856,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
@@ -2882,7 +2882,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query_path = "SELECT image FROM verification.al_drawing_verification WHERE id = %s"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query_path, (item_id,))
@@ -2901,7 +2901,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     query_path = "SELECT document FROM verification.al_drawing_verification WHERE id = %s"
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(query_path, (item_id,))
@@ -2965,7 +2965,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
@@ -2993,7 +2993,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_of_drawing, (num_order, of_drawing,))
@@ -3021,7 +3021,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
@@ -3050,7 +3050,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         selected_indexes = self.tableTags.selectedIndexes()
         if self.fname_image is not None and len(selected_indexes) > 0:
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                 # execution of commands
                         for index in selected_indexes:
@@ -3139,7 +3139,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos dimensionales\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = {test_date}, final_verif_dim_state = {state}, final_verif_dim_obs = {notes}, fab_state = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
@@ -3149,7 +3149,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de equipo\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = {test_date}, final_verif_of_eq_state = {state}, final_verif_of_eq_obs = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
@@ -3159,7 +3159,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos de sensor\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = {test_date}, final_verif_of_sensor_state = {state}, final_verif_of_sensor_obs = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_verification)
                                     conn.commit()
@@ -3167,7 +3167,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         if column_index == 10 and self.tableTags.item(row_index, column_index).text() != '':
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph1_date = {test_date}, ph1_manometer = {manometer1}, ph1_pressure = {pressure1}, ph1_state = {state}, ph1_obs = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_hydrotest)
                                     conn.commit()
@@ -3175,7 +3175,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         if column_index == 11 and self.tableTags.item(row_index, column_index).text() != '':
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph2_date = {test_date}, ph2_manometer = {manometer2}, ph2_pressure = {pressure2}, ph2_state = {state}, ph2_obs = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_hydrotest)
                                     conn.commit()
@@ -3187,7 +3187,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_liquidtest = f"UPDATE {table_name} SET lp_date = {test_date}, lp_hn_liq1 = {hn_liq1}, lp_hn_liq2 = {hn_liq2}, lp_hn_liq3 = {hn_liq3}, lp_state = {state}, lp_obs = {notes} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_liquidtest)
                                     conn.commit()
@@ -3197,7 +3197,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene fotos\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_images = f"UPDATE {table_name} SET tag_images = {images} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_images)
                                     conn.commit()
@@ -3207,7 +3207,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene fotos\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_images = f"UPDATE {table_name} SET tag_images2 = {images} WHERE {id_column} = {id_value}"
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_images)
                                     conn.commit()
@@ -3255,7 +3255,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 try:
                 # execution of commands
                     if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas desverificar?\n", "ERP EIPSA"):
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_al_drawing, (None, None, None, id_value, ))
                                 self.obs_test.setText('')
@@ -3292,7 +3292,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
                         if MessageHelper.ask_yes_no("Ya ha datos existentes en el PPI\n¿Deseas desverificar?", "ERP EIPSA"):
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_ppi, (None, None, None, id_value, ))
                                 conn.commit()
@@ -3305,7 +3305,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
                         if MessageHelper.ask_yes_no("Ya ha datos existentes en el EXP\n¿Deseas desverificar?\n", "ERP EIPSA"):
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_exp, (None, None, None, id_value, ))
                                 conn.commit()
@@ -3318,7 +3318,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
                         if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_m_drawing, (None, None, None, id_value, ))
                                 conn.commit()
@@ -3331,7 +3331,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
                         if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_of_drawing, (None, None, None, id_value, ))
                                 conn.commit()
@@ -3344,7 +3344,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         """)
 
                         if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {drawing_number}\n¿Deseas desverificar?\n", "ERP EIPSA"):
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_dim_drawing, (None, None, None, id_value, ))
                                 conn.commit()

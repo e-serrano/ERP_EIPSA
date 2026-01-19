@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import locale
 import os
@@ -895,7 +895,7 @@ class Ui_FabTimes_Window(object):
         self.reference_value.setText(reference_query)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_querytable,(reference_query,))
                     results=cur.fetchall()

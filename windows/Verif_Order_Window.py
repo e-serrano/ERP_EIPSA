@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from datetime import *
@@ -1738,7 +1738,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
@@ -1962,7 +1962,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             """)
                 conn = None
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(commands_select_exp, (num_order, ))
@@ -1970,14 +1970,14 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_exp, (verif_date, verif_state, "Expedido", results[0][1], ))
                                 conn.commit()
 
                         else:
                             if MessageHelper.ask_yes_no("Ya ha datos existentes en el aviso de expedición\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
                                     conn.commit()
@@ -2027,7 +2027,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 query_path =f"SELECT tag_images FROM {table_name} WHERE {column_id} = {item_id}"
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(query_path)
@@ -2048,7 +2048,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 query =f"SELECT tag, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(query)
@@ -2080,7 +2080,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 query =f"SELECT tag, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(query)
@@ -2113,7 +2113,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                 conn = None
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(query)
@@ -2176,7 +2176,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
                                             "username","message","state","date_creation"

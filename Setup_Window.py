@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import sys
 import os
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from config.config_keys import INI_PATH, INI_FILE_PATH
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
@@ -264,7 +264,7 @@ class Ui_SetupWindow(object):
 
         # Setting the file as hidden
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     command_create_user = f"CREATE USER \"{username}\" WITH PASSWORD '{password}'"
 

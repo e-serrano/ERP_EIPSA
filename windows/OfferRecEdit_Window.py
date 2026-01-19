@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
 
@@ -406,7 +406,7 @@ class Ui_Edit_OfferRec_Window(object):
                         order by username ASC""")
         conn = None
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(query_producttype)
@@ -472,7 +472,7 @@ class Ui_Edit_OfferRec_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_clients)
@@ -520,7 +520,7 @@ class Ui_Edit_OfferRec_Window(object):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands one by one
                             data=(responsible, client, finalclient, numref, state,
@@ -561,7 +561,7 @@ class Ui_Edit_OfferRec_Window(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_loaddataoffer,(self.id_offer,))

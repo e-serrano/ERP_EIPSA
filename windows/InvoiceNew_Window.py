@@ -11,7 +11,7 @@ from PySide6.QtCore import QUrl
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 import re
-from config.config_functions import config
+from config.config_functions import config_database
 from utils.Database_Manager import Create_DBconnection
 import psycopg2
 import os
@@ -3082,7 +3082,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -3219,7 +3219,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -3477,7 +3477,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -3538,7 +3538,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -3642,7 +3642,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 conn = None
                 try:
                 # read the connection parameters
-                    params = config()
+                    params = config_database()
                 # connect to the PostgreSQL server
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
@@ -3991,7 +3991,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -4349,7 +4349,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -4426,7 +4426,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -4918,7 +4918,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -5036,7 +5036,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         conn = None
                         try:
                         # read the connection parameters
-                            params = config()
+                            params = config_database()
                         # connect to the PostgreSQL server
                             conn = psycopg2.connect(**params)
                             cur = conn.cursor()
@@ -5154,7 +5154,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -5217,7 +5217,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -5394,7 +5394,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         else:
             fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
             if fname:
-                params = config()
+                params = config_database()
                 conn = psycopg2.connect(**params)
                 cursor = conn.cursor()
 
@@ -5484,7 +5484,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 conn = None
                 try:
                 # read the connection parameters
-                    params = config()
+                    params = config_database()
                 # connect to the PostgreSQL server
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
@@ -5647,7 +5647,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             df_invoice = pd.read_excel(import_file, na_values=['N/A'], keep_default_na=False)
 
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cursor = conn.cursor()
@@ -5732,7 +5732,7 @@ if __name__ == "__main__":
         sys.path.insert(0, ROOT)
 
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

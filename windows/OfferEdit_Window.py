@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
@@ -674,7 +674,7 @@ class Ui_Edit_Offer_Window(object):
                         order by username ASC""")
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(query_producttype)
@@ -802,7 +802,7 @@ class Ui_Edit_Offer_Window(object):
             #SQL Query for checking if offer number exists in database
                 exists = None
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands one by one
                             cur.execute("SELECT 1 FROM offers WHERE num_offer = %s LIMIT 1", (numoffer,))
@@ -832,7 +832,7 @@ class Ui_Edit_Offer_Window(object):
                                 WHERE "num_offer" = %s
                                 """)
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                         # execution of commands one by one
                                 data=(numoffer, responsible, client, finalclient, numref, state, nacext, buyer,
@@ -892,7 +892,7 @@ class Ui_Edit_Offer_Window(object):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_loaddataoffer,(self.original_numoffer,))
@@ -974,7 +974,7 @@ class Ui_Edit_Offer_Window(object):
                         LIMIT 1""")
         
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_next_o)
                     results_o = cur.fetchone()
@@ -1015,7 +1015,7 @@ class Ui_Edit_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_clients)
                     results_clients=cur.fetchall()
@@ -1149,7 +1149,7 @@ class Ui_Edit_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(self.notes, num_offer,)
                     cur.execute(commands_update_notes, data)
@@ -1173,7 +1173,7 @@ class Ui_Edit_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(self.important, num_offer,)
                     cur.execute(commands_update_important, data)
@@ -1197,7 +1197,7 @@ class Ui_Edit_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(self.tracking, num_offer,)
                     cur.execute(commands_update_tracking, data)
@@ -1221,7 +1221,7 @@ class Ui_Edit_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(self.actions, num_offer,)
                     cur.execute(commands_update_actions, data)

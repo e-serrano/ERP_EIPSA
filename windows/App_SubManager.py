@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 import psycopg2
 import sys
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from utils.Business_Report import report_offers, report_orders, report_projects
@@ -1014,7 +1014,7 @@ class Ui_App_SubManager(object):
                     ORDER BY "num_offer"
                     """)
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_appcomercial)
                     results=cur.fetchall()
@@ -1119,7 +1119,7 @@ class Ui_App_SubManager(object):
         Opens a window for editing tags.
         """
         from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1314,7 +1314,7 @@ class Ui_App_SubManager(object):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1405,7 +1405,7 @@ class Ui_App_SubManager(object):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

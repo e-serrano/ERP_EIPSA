@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import os
 import re
 from utils.MoneyChange import obtain_money_change
@@ -266,7 +266,7 @@ class Ui_SubmitOffer_Window(object):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -319,7 +319,7 @@ class Ui_SubmitOffer_Window(object):
                 conn = None
                 try:
                 # read the connection parameters
-                    params = config()
+                    params = config_database()
                 # connect to the PostgreSQL server
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()

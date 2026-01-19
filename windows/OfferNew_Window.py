@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import os
 import re
 from windows.OfferClientAdd_Window import Ui_OfferClientAdd_Window
@@ -518,7 +518,7 @@ class Ui_New_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_productype)
                     results_producttype=cur.fetchall()
@@ -585,7 +585,7 @@ class Ui_New_Offer_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_clients)
                     results_clients=cur.fetchall()
@@ -634,7 +634,7 @@ class Ui_New_Offer_Window(object):
                         LIMIT 1""")
         
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_next_o)
                     results_o = cur.fetchone()
@@ -705,7 +705,7 @@ class Ui_New_Offer_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_checkoffer,(numoffer,))
                         results=cur.fetchall()
@@ -735,7 +735,7 @@ class Ui_New_Offer_Window(object):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             data=(numoffer, state, self.username, client, finalclient,
                                 numref, actual_date, nacext, buyer, material,

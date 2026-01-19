@@ -16,7 +16,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PySide6.QtWidgets import QApplication
 import os
-from config.config_functions import config
+from config.config_functions import config_database
 import pandas as pd
 import psycopg2
 
@@ -1513,7 +1513,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if fname:
 
-            params = config()
+            params = config_database()
             conn = psycopg2.connect(**params)
             cursor = conn.cursor()
             table_name = 'public.documentation'
@@ -1596,7 +1596,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

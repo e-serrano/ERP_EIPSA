@@ -8,7 +8,7 @@
 import re
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
@@ -640,7 +640,7 @@ class Ui_TransactionsInvoice_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

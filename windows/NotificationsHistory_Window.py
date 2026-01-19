@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import os
 import configparser
@@ -201,7 +201,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -285,7 +285,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -333,7 +333,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         Opens a new window for editing existing tags. 
         """
         from windows.TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -352,7 +352,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -419,7 +419,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

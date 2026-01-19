@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from datetime import *
@@ -44,7 +44,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         colors_dict = {}
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
                     cur.execute(commands_colors)
@@ -1000,7 +1000,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_material)
                     results=cur.fetchall()
@@ -1063,7 +1063,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
         else:
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         commands_insert = ("""INSERT INTO verification.warehouse_added_pieces
                                             (date_addition, num_ot, description, material, quantity, notes, image, document, state, num_order, heat_number) 
@@ -1123,7 +1123,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_edit, (date_record, num_ot, description, material, quantity, notes, image, document, state, num_order, heat_number, id_record,))
                     conn.commit()
@@ -1159,7 +1159,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                                 """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_path, (item_id,))
                             results=cur.fetchall()
@@ -1202,7 +1202,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_image_doc, (data_order[0],))
                     results=cur.fetchall()
@@ -1251,7 +1251,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                 description_piece = dlg.textValue()
                 if description_piece != '':
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 commands_insertdescription = ("INSERT INTO verification.warehouse_pieces (pieces_description) VALUES (%s)")
                                 cur.execute(commands_insertdescription, (description_piece,))
@@ -1301,7 +1301,7 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
                             """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_description)
                     results_description=cur.fetchall()

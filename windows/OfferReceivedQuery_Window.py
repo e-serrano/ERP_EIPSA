@@ -8,7 +8,7 @@
 import re
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import pandas as pd
 import os
 from utils.Database_Manager import Database_Connection
@@ -644,7 +644,7 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_queryoffer)
                     results=cur.fetchall()

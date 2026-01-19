@@ -11,7 +11,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.OfferExport_Window import Ui_ExportOffer_Window
 from windows.OrderAccept_Window import Ui_OrderAccept_Window
 import os
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 from windows.Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
 
@@ -217,7 +217,7 @@ class Ui_ExportDocs_Menu(object):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -298,7 +298,7 @@ class Ui_ExportDocs_Menu(object):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -409,7 +409,7 @@ class Ui_ExportDocs_Menu(object):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -519,7 +519,7 @@ class Ui_ExportDocs_Menu(object):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()

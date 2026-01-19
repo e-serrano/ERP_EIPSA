@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import os, io
 import pandas as pd
 from windows.PDF_Styles import calibration_certificate, calibration_certificate_spanish
@@ -248,7 +248,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_checkorder,(numorder_check,))
                         results=cur.fetchall()
@@ -280,7 +280,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                         """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_calib_data, (numorder, cert_date, sensor_type,))
                             results = cur.fetchall()
@@ -557,7 +557,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_querydates,(numorder,))
                         results_dates=cur.fetchall()
@@ -594,7 +594,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_querysensor, (numorder, date_test,))
                             results_dates=cur.fetchall()
@@ -630,7 +630,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_intavalues)
                             results = cur.fetchall()
@@ -657,7 +657,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_intavalues)
                             results = cur.fetchall()
@@ -698,7 +698,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                     """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_stdvalues)
                             results = cur.fetchall()
@@ -753,7 +753,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_stdvalues)
                             results = cur.fetchall()

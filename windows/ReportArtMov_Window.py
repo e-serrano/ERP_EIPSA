@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import locale
 import os
@@ -723,7 +723,7 @@ class Ui_ArtMov_Window(object):
 
         commands_supplies = "SELECT * FROM purch_fact.supplies ORDER BY purch_fact.supplies.reference ASC"
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_supplies)
@@ -822,7 +822,7 @@ class Ui_ArtMov_Window(object):
             return
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_supplies)

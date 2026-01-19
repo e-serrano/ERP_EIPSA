@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 import psycopg2
 import sys
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Create_DBconnection
 from datetime import *
 
@@ -435,7 +435,7 @@ class Ui_App_Manager(object):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -549,7 +549,7 @@ class Ui_App_Manager(object):
         Opens a window for querying tags.
         """
         from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

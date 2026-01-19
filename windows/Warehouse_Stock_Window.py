@@ -13,7 +13,7 @@ import re
 import configparser
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -1045,7 +1045,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of principal command
                     data=('',)
@@ -1136,7 +1136,7 @@ class Ui_Warehouse_Stock_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor as cur:
                         # execution of commands
                             commands_delete = ("""DELETE FROM verification.welding_equipment_masters
@@ -1199,7 +1199,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

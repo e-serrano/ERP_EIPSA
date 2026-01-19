@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
@@ -197,7 +197,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         Opens a window for viewing NC reports from the database.
         """
         from windows.NC_Report_Window import Ui_NC_Report_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -455,7 +455,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         Opens the database manufacturing editing window.
         """
         from windows.DBManufEditReg_Window import Ui_DBEditRegManuf_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

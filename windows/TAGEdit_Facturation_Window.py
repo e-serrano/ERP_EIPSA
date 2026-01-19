@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection, Database_Connection
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import re
 import locale
@@ -1522,7 +1522,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query,(self.numorder,))
                             results_variable=cur.fetchone()
@@ -1558,7 +1558,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         ''')
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_flow,(self.numorder,))
                                 results_flow=cur.fetchall()
@@ -2524,7 +2524,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 raise ValueError(f"No se reconoce el ID {id_column} para ninguna tabla")
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cursor:
                         for _, row in df_final.iterrows():
                             id_value = row[id_column]
@@ -2813,7 +2813,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             conn = None
             try:
             # read the connection parameters
-                params = config()
+                params = config_database()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
@@ -2946,7 +2946,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 table_name = "tags_data.tags_others"
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                     # Creating the update query and executing it after checking existing tags and id
                     # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
@@ -3014,7 +3014,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 SET invoice_number = %s, percent_invoiced = 100, amount_fact = amount
                 WHERE num_order = %s""")
             
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_update_flow, (num_invoice, num_order))
                     cur.execute(query_update_temp, (num_invoice, num_order))
@@ -3035,7 +3035,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

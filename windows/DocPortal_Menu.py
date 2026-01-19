@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import re
 import pandas as pd
 
@@ -183,7 +183,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -233,7 +233,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     conn = None
                                     try:
                                     # read the connection parameters
-                                        params = config()
+                                        params = config_database()
                                     # connect to the PostgreSQL server
                                         conn = psycopg2.connect(**params)
                                         cur = conn.cursor()
@@ -325,7 +325,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -375,7 +375,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     conn = None
                                     try:
                                     # read the connection parameters
-                                        params = config()
+                                        params = config_database()
                                     # connect to the PostgreSQL server
                                         conn = psycopg2.connect(**params)
                                         cur = conn.cursor()
@@ -450,7 +450,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                 if selection != '':
                     excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
                     if excel_file:
-                        params = config()
+                        params = config_database()
                         conn = psycopg2.connect(**params)
                         cursor = conn.cursor()
 

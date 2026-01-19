@@ -2,7 +2,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 import configparser
 from datetime import *
 import os
@@ -801,7 +801,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

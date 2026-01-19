@@ -1,5 +1,5 @@
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 
 def delete_user_database(email):
     """
@@ -8,7 +8,7 @@ def delete_user_database(email):
     Args:
         email (str): The email of the user to be deleted.
     """
-    params = config()
+    params = config_database()
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
 

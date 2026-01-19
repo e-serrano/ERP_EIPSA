@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 import os, io
 import datetime
 from fpdf import FPDF
@@ -365,7 +365,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -407,7 +407,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     conn = None
                                     try:
                                     # read the connection parameters
-                                        params = config()
+                                        params = config_database()
                                     # connect to the PostgreSQL server
                                         conn = psycopg2.connect(**params)
                                         cur = conn.cursor()
@@ -508,7 +508,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     conn = None
                     try:
                     # read the connection parameters
-                        params = config()
+                        params = config_database()
                     # connect to the PostgreSQL server
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
@@ -550,7 +550,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     conn = None
                                     try:
                                     # read the connection parameters
-                                        params = config()
+                                        params = config_database()
                                     # connect to the PostgreSQL server
                                         conn = psycopg2.connect(**params)
                                         cur = conn.cursor()
@@ -668,7 +668,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

@@ -9,7 +9,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from windows.PasswordEdit_Window import Ui_EditPasswordWindow
 from PySide6.QtWidgets import QMenu
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 from utils.Database_Manager import Create_DBconnection
 from utils.Business_Report import report_offers, report_orders
@@ -657,7 +657,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Opens a window for querying tags.
         """
         from windows.TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -682,7 +682,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             return
 
         from windows.Workshop_Window import Ui_Workshop_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -710,7 +710,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             return
 
         from windows.Assembly_Window import Ui_Assembly_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -735,7 +735,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             return
 
         from windows.Dispatch_Window import Ui_Dispatch_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -866,7 +866,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -919,7 +919,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from windows.WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1006,7 +1006,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Open a new window for calibrating thermo elements.
         """
         from windows.Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1055,7 +1055,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             return
 
         from windows.Workshop_Hours_Window import Ui_Workshop_Hours_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

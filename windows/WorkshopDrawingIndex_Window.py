@@ -15,7 +15,7 @@ import re
 from config.config_keys import ORDERS_PATH
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -2605,7 +2605,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 """
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         data = (self.num_order,)
                         cur.execute(commands_queryorder, data)
@@ -3553,7 +3553,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_checkorder,(num_order,))
                             results=cur.fetchall()
@@ -3588,7 +3588,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 qty = dlg3.textValue()
                                                 if qty != '' and (qty.isdigit() and int(qty) > 0):
                                                     try:
-                                                        with Database_Connection(config()) as conn:
+                                                        with Database_Connection(config_database()) as conn:
                                                             with conn.cursor() as cur:
                                                                 for i in range(int(qty)):
                                                                     commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
@@ -3607,7 +3607,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         break
                                     else:
                                         from windows.TAGEdit_WorkshopDrawings_Window import Ui_EditTags_WorkshopDrawings_Window
-                                        dbparam = config()
+                                        dbparam = config_database()
                                         user_database = dbparam["user"]
                                         password_database = dbparam["password"]
 
@@ -3634,7 +3634,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             qty = dlg3.textValue()
                                             if qty != '' and (qty.isdigit() and int(qty) > 0):
                                                 try:
-                                                    with Database_Connection(config()) as conn:
+                                                    with Database_Connection(config_database()) as conn:
                                                         with conn.cursor() as cur:
                                                             for i in range(int(qty)):
                                                                 commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
@@ -3708,7 +3708,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             for id_value in id_values:
                                 commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
@@ -3733,7 +3733,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     commands_insert = f"""INSERT INTO {name} (num_order)
@@ -3779,7 +3779,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             ''')
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query,(self.numorder,))
                                 results_variable=cur.fetchone()
@@ -3818,7 +3818,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             ''')
 
                         try:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(query_flow,(self.numorder,))
                                     results_flow=cur.fetchall()
@@ -3875,7 +3875,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_flow,(self.numorder, num_dim_drawing,))
                             results_flow=cur.fetchall()
@@ -3892,7 +3892,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                 results_description=cur.fetchall()
@@ -3904,7 +3904,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         LIMIT 1;
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(check_query, (self.num_order, num_dim_drawing))
                                 exists = cur.fetchone() is not None
@@ -3940,7 +3940,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
                             
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
                                 conn.commit()
@@ -3960,7 +3960,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_flow,(self.numorder, num_of_drawing.split('/')[0],))
                             results_flow=cur.fetchall()
@@ -3976,7 +3976,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE ('%%'||%s||'%%')
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, num_of_drawing.split('/')[0],))
                                 results_description=cur.fetchall()
@@ -4006,7 +4006,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         LIMIT 1;
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(check_query, (self.num_order, num_of_drawing))
                                 exists = cur.fetchone() is not None
@@ -4025,7 +4025,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
                                             ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
                                 conn.commit()
@@ -4033,7 +4033,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             if item_type in ['MULTISTAGE RO']:
                                 first_value = int(num_of_drawing.split('/')[0].split('-')[1])
 
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(query_check_materials, (results_description[0][5], results_description[0][8], results_description[0][12],))
                                         results_materials=cur.fetchall()
@@ -4052,7 +4052,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     description_3 = (str(len(results_flow)) + " x 1 PLACA Ø = " + str(float(results_description[0][14]) + 2) +
                                     " " + results_description[0][5])
 
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_drawing, (description_1, self.numorder, num_of_drawing_1,))
                                             cur.execute(commands_insert_drawing, (description_2, self.numorder, num_of_drawing_2,))
@@ -4073,7 +4073,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     description_3 = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13]))) + " PLACAS Ø = " + str(float(results_description[0][14]) + 2) +
                                     " " + results_description[0][5])
 
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(commands_insert_drawing, (description_1, self.numorder, num_of_drawing_1,))
                                             cur.execute(commands_insert_drawing, (description_2, self.numorder, num_of_drawing_2,))
@@ -4111,7 +4111,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_temp,(self.numorder, num_dim_drawing,))
                             results_temp=cur.fetchall()
@@ -4127,7 +4127,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                 results_description=cur.fetchall()
@@ -4139,7 +4139,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         LIMIT 1;
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(check_query, (self.num_order, num_dim_drawing))
                                 exists = cur.fetchone() is not None
@@ -4171,7 +4171,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
                             
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
                                 conn.commit()
@@ -4191,7 +4191,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_temp,(self.numorder, of_drawing,))
                             results_temp=cur.fetchall()
@@ -4206,7 +4206,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, of_drawing,))
                                 results_description=cur.fetchall()
@@ -4218,7 +4218,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         LIMIT 1;
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(check_query, (self.num_order, of_drawing))
                                 exists = cur.fetchone() is not None
@@ -4237,7 +4237,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
                             
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
                                 conn.commit()
@@ -4253,7 +4253,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_temp,(self.numorder, of_drawing,))
                             results_temp=cur.fetchall()
@@ -4268,7 +4268,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_sensor_drawing) = %s
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, of_drawing,))
                                 results_description=cur.fetchall()
@@ -4290,7 +4290,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
                             
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
                             conn.commit()
@@ -4312,7 +4312,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
                             results_level=cur.fetchall()
@@ -4327,7 +4327,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                 results_description=cur.fetchall()
@@ -4339,7 +4339,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         LIMIT 1;
                         ''')
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(check_query, (self.num_order, num_dim_drawing))
                                 exists = cur.fetchone() is not None
@@ -4362,7 +4362,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
 
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
                                 conn.cursor()
@@ -4384,7 +4384,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query_data_others,(self.numorder, num_dim_drawing,))
                             results_others=cur.fetchall()
@@ -4396,7 +4396,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     SET "drawing_description" = '{description}'
                                                     WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
 
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
                             conn.commit()
@@ -4455,7 +4455,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
                                                     WHERE (id) = {id_value}"""
                         
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
                             conn.commit()
@@ -4480,7 +4480,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
                                                     WHERE (id) = {id_value}"""
                         
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
                             conn.commit()
@@ -4505,7 +4505,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
                                                     WHERE (id) = {id_value}"""
                         
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
                             conn.commit()
@@ -4586,7 +4586,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             ''')
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query,(self.numorder,))
                                 results_variable=cur.fetchone()
@@ -4626,7 +4626,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             ''')
 
                         try:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(query_flow,(self.numorder,))
                                     results_flow=cur.fetchall()
@@ -4692,7 +4692,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             """)
 
                         try:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:  
                                     cur.execute(commands_select_m_drawing,(self.numorder,))
                                     results_drawings_m=cur.fetchall()
@@ -4718,7 +4718,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     ''')
 
                                 try:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
@@ -4834,7 +4834,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         """)
 
                                     try:
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
                                             conn.commit()
@@ -4852,7 +4852,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     ''')
 
                                 try:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
@@ -5052,7 +5052,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         """)
 
                                     try:
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
                                             conn.commit()
@@ -5073,7 +5073,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     ''')
 
                                 try:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
@@ -5170,7 +5170,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 """)
 
                                             try:
-                                                with Database_Connection(config()) as conn:
+                                                with Database_Connection(config_database()) as conn:
                                                     with conn.cursor() as cur:
                                                         cur.execute(query_update_drawing,(description_dim, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, '01/01'))
                                                     conn.commit()
@@ -5240,7 +5240,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             """)
 
                                         try:
-                                            with Database_Connection(config()) as conn:
+                                            with Database_Connection(config_database()) as conn:
                                                 with conn.cursor() as cur:
                                                     cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
                                                 conn.commit()
@@ -5309,7 +5309,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             """)
 
                                         try:
-                                            with Database_Connection(config()) as conn:
+                                            with Database_Connection(config_database()) as conn:
                                                 with conn.cursor() as cur:
                                                     cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
                                                 conn.commit()
@@ -5358,7 +5358,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         """)
 
                                     try:
-                                        with Database_Connection(config()) as conn:
+                                        with Database_Connection(config_database()) as conn:
                                             with conn.cursor() as cur:
                                                 cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
                                             conn.commit()
@@ -5584,7 +5584,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         FROM verification.flanges_verification""")
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_flanges_rf)
                     results_flanges_rf=cur.fetchall()
@@ -5705,7 +5705,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_mruns)
                     results_mrun=cur.fetchall()
@@ -5750,7 +5750,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_inner_in_diam)
                     df_diam = pd.DataFrame(cur.fetchall(), columns=['line_size', 'sch', 'in_diam'])
@@ -5859,7 +5859,7 @@ if __name__ == "__main__":
         sys.path.insert(0, ROOT)
 
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

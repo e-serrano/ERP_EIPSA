@@ -16,7 +16,7 @@ from windows.Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
@@ -227,7 +227,7 @@ class Ui_Purchasing_Menu(object):
             self.supplies_window.raise_()
             return
 
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

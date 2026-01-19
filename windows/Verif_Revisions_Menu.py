@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from config.config_functions import config
+from config.config_functions import config_database
 from utils.Database_Manager import Create_DBconnection
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
@@ -245,7 +245,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Machines" window, establishes a database connection.
         """
         from windows.Workshop_Machines_Window import Ui_Workshop_Machines_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -262,7 +262,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Handtools" window, establishes a database connection.
         """
         from windows.Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -279,7 +279,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibers" window, establishes a database connection.
         """
         from windows.Workshop_Calibers_Window import Ui_Workshop_Calibers_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -296,7 +296,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibrated Masters" window, establishes a database connection.
         """
         from windows.Workshop_Calibrated_Masters_Window import Ui_Workshop_Calibrated_Masters_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -313,7 +313,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Calibers" window, establishes a database connection.
         """
         from windows.Workshop_Thread_Masters_Window import Ui_Workshop_Thread_Masters_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -330,7 +330,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Weld Equipment" window, establishes a database connection.
         """
         from windows.Workshop_WeldEq_Masters_Window import Ui_Workshop_WeldEq_Masters_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -347,7 +347,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
         """
         from windows.Workshop_Manometers_Thermoelements_Window import Ui_Workshop_Manometers_Thermoelements_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -364,7 +364,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Gas_Flowmeters" window, establishes a database connection.
         """
         from windows.Workshop_Gas_Flowmeters_Window import Ui_Workshop_Gas_Flowmeters_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -387,7 +387,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
         """
         from windows.Workshop_Chemical_Products_Window import Ui_Workshop_Chemical_Products_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

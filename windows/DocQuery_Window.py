@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import pandas as pd
 from PySide6.QtWidgets import QFileDialog
 import os
@@ -635,7 +635,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_queryalldoc)
                     results=cur.fetchall()

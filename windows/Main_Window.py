@@ -49,7 +49,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def check_shutdown_signal(self):
         """Check if the shutdown signal file indicates a closure."""
         # try:
-        #     with Database_Connection(config()) as conn:
+        #     with Database_Connection(config_database()) as conn:
         #         cur = conn.cursor()
         #         cur.execute("SELECT action FROM logging.erp_control WHERE id = TRUE")
         #         row = cur.fetchone()

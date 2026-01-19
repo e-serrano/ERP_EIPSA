@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import re
 from windows.OfferClientAdd_Window import Ui_OfferClientAdd_Window
 from utils.Database_Manager import Database_Connection
@@ -343,7 +343,7 @@ class Ui_New_OfferReceived_Window(object):
                         """)
         conn = None
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_productype)
@@ -395,7 +395,7 @@ class Ui_New_OfferReceived_Window(object):
                         """)
         conn = None
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_clients)
@@ -452,7 +452,7 @@ class Ui_New_OfferReceived_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_last_id)
                         last_id = cur.fetchone()

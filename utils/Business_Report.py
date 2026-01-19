@@ -7,7 +7,7 @@ from io import BytesIO
 import numpy as np
 from windows.Excel_Export_Templates import future_projects, order_reports
 from config.config_keys import DATA_PATH
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from datetime import *
@@ -71,7 +71,7 @@ def report_offers():
                             ORDER BY state
                             """)
 
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
 
                 cur.execute(query_graph_commercial_1)
@@ -392,7 +392,7 @@ def report_orders():
 
     columns_2 = ['VARIABLE', 'Nº PEDIDOS', 'IMPORTE TOTAL', '% FACT.', '% COBRADO', 'PTE FACTURAR']
 
-    with Database_Connection(config()) as conn:
+    with Database_Connection(config_database()) as conn:
         with conn.cursor() as cur:
             cur.execute(final_query_1)
             results_1 = cur.fetchall()
@@ -484,7 +484,7 @@ def report_projects():
                 "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
                 "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions", "Contacto EPC", "Datos Contacto"]
     
-    with Database_Connection(config()) as conn:
+    with Database_Connection(config_database()) as conn:
         with conn.cursor() as cur:
             cur.execute(query_projects)
             results = cur.fetchall()

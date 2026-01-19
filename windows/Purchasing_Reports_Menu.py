@@ -12,7 +12,7 @@ from windows.ReportArtMov_Window import Ui_ArtMov_Window
 from windows.ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
 from windows.ReportStockVal_Window import Ui_StockVal_Window
 import os
-from config.config_functions import config
+from config.config_functions import config_database
 import pandas as pd
 import psycopg2
 from windows.PDF_Styles import pending_orders
@@ -265,7 +265,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         """
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -340,7 +340,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         """
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()

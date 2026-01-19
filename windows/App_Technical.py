@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QMenu
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from datetime import *
 import psycopg2
 import sys
@@ -916,7 +916,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             column_headers = ['Nº Doc Eipsa', 'Nº Pedido', 'Título', 'Estado', 'Rev.', 'Fecha', ' Seguimiento']
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_documentation)
                         results=cur.fetchall()
@@ -1006,7 +1006,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 ORDER BY "ot_num" DESC
                                 """
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_OTothers)
                         results1=cur.fetchall()
@@ -1839,7 +1839,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Loads and displays the workshop drawing index window after establishing a database connection.
         """
         from windows.WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1856,7 +1856,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window for editing the database records.
         """
         from windows.DBEditReg_Window import Ui_DBEditReg_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1873,7 +1873,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window displaying the deliveries table.
         """
         from windows.Deliveries_Window import Ui_Deliveries_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1910,7 +1910,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window displaying the orders table for technical office data.
         """
         from windows.TechOffice_Window import Ui_TechOffice_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1958,7 +1958,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
         from windows.TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2024,7 +2024,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             try:
                 df = pd.read_excel(excel_file)
 
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         for index, row in df.iterrows():
                         # Creating SQL sentence
@@ -2066,7 +2066,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens a window for editing existing documents in the database.
         """
         from windows.DocEdit_Window import Ui_EditDoc_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2134,7 +2134,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     ORDER BY "num_doc_eipsa"
                     """)
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_documentation)
                     results=cur.fetchall()
@@ -2182,7 +2182,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_tables_notifications)
                     results=cur.fetchall()
@@ -2233,7 +2233,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             final_df['number_ot'] = final_df['number_ot'].str.replace(' ', '')
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         for index, row in final_df.iterrows():
                         # Create a list of pairs (column_name, column_value) for each column with value
@@ -2383,7 +2383,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
                                     ''')
                                 try:
-                                    with Database_Connection(config()) as conn:
+                                    with Database_Connection(config_database()) as conn:
                                         with conn.cursor() as cur:
                                             cur.execute(query_flow,(order_number,))
                                             results_flow=cur.fetchall()
@@ -2592,7 +2592,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens the database manufacturing editing window.
         """
         from windows.DBManufEditReg_Window import Ui_DBEditRegManuf_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2818,7 +2818,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
         from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -2857,7 +2857,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         column_headers = ['Nº Oferta', 'Estado', 'Cliente', 'Cl. Final', 'Fecha Pres.', 'Material', 'Importe', 'Prob. Adj.', 'Notas', 'Importante', 'Seguimiento']
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_responsible)
@@ -2945,7 +2945,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens the order window for managing order operations.
         """
         from windows.Order_Control_Technical_Window import Ui_Technical_Order_Control_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

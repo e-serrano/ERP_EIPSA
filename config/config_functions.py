@@ -16,7 +16,7 @@ def get_path(*subpaths):
 
 
 # Database configuration reader
-def config(section='postgresql'):
+def config_database(section='postgresql'):
     """
     Reads database configuration from an INI file and returns the configuration parameters as a dictionary.
 

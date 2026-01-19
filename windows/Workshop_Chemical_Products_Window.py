@@ -15,7 +15,7 @@ import re
 import os
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 from datetime import *
@@ -1159,7 +1159,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=('',)
                     cur.execute(commands_new, data)
@@ -1224,7 +1224,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             commands_delete = ("""DELETE FROM verification.Chemical_Products_workshop
@@ -1334,7 +1334,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                             """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert, (images_path, value_id,))
                             conn.commit()
@@ -1374,7 +1374,7 @@ class Ui_Workshop_Chemical_Products_Window(QtWidgets.QMainWindow):
                             """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert, (document_path, value_id,))
                             conn.commit()
@@ -1397,7 +1397,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

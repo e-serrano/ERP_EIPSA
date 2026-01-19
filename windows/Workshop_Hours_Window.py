@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QMimeData, QDate
 from PySide6.QtGui import QKeySequence
 import sys
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import locale
 import pandas as pd
 from windows.Excel_Export_Templates import workshop_hours
@@ -2552,7 +2552,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

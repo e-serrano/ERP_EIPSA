@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Database_Connection, Create_DBconnection
 import configparser
 import os
@@ -1888,7 +1888,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_queryorder)
@@ -1966,7 +1966,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             ORDER BY drawing_number""")
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                     # execution of commands
                         cur.execute(query_dim_dwg, (num_order,))
@@ -2018,7 +2018,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             ORDER BY drawing_number""")
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                     # execution of commands
                         cur.execute(query_al_dwg, (num_order,))
@@ -2160,7 +2160,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(commands_select_dim_drawing, (id_order,))
@@ -2168,14 +2168,14 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
                                 conn.commit()
 
                         else:
                             if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {dim_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
@@ -2222,7 +2222,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(commands_select_of_drawing, (id_order,))
@@ -2230,14 +2230,14 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
                                 conn.commit()
 
                         else:
                             if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {of_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
@@ -2284,7 +2284,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(commands_select_m_drawing, (id_order,))
@@ -2292,14 +2292,14 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
                                 conn.commit()
 
                         else:
                             if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {m_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
@@ -2346,7 +2346,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(commands_select_al_drawing, (id_order,))
@@ -2354,14 +2354,14 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
                                 conn.commit()
 
                         else:
                             if MessageHelper.ask_yes_no(f"Ya ha datos existentes para el plano {al_drawing}\n¿Deseas sobreescribirlos?\n", "ERP EIPSA"):
-                                with Database_Connection(config()) as conn:
+                                with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
                                         cur.execute(commands_insert_al_drawing, (date, state, notes, id_order, ))
                                     conn.commit()
@@ -2392,7 +2392,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 state = dlg.textValue()
                 if state != '':
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                             # execution of commands
                                 commands_insertstate = ("INSERT INTO verification.states_warehouse (state_warehouse) VALUES (%s)")
@@ -2434,7 +2434,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_states)
@@ -2467,7 +2467,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             Exception: If there is an issue with the database connection or query execution.
         """
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
         # execution of commands
                     commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
@@ -2544,7 +2544,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                             """)
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                         # execution of commands
                             cur.execute(query_delivnote,(str(df_client.iloc[row, 3]),))
@@ -2695,7 +2695,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         Opens the "Warehouse Stock" window, establishes a database connection.
         """
         from windows.Warehouse_Stock_Window import Ui_Warehouse_Stock_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 

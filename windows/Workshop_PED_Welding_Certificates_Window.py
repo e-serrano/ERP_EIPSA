@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config
+from config.config_functions import config_database
 import psycopg2
 import locale
 import os
@@ -1149,7 +1149,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         conn = None
         try:
         # read the connection parameters
-            params = config()
+            params = config_database()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1244,7 +1244,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
             if result == QtWidgets.QMessageBox.StandardButton.Yes:
                 conn = None
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             commands_delete = ("""DELETE FROM verification.PED_Welding_certificates
                                                 WHERE id = %s""")
@@ -1292,7 +1292,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
                             """)
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_1, (pdf_path, value_id,))
                             conn.commit()
@@ -1383,7 +1383,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_welding)
                     results = cur.fetchall()
@@ -1497,7 +1497,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 

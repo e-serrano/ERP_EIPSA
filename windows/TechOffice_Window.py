@@ -289,7 +289,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
 # if __name__ == "__main__":
 #     import sys
 #     app = QtWidgets.QApplication(sys.argv)
-#     dbparam = config()
+#     dbparam = config_database()
 #     user_database = dbparam["user"]
 #     password_database = dbparam["password"]
 

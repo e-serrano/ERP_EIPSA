@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 import psycopg2
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -1068,7 +1068,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Args:
             EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1251,7 +1251,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                     # execution of commands
                         cur.execute(commands_responsible)
@@ -1336,7 +1336,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_responsible)
@@ -1398,7 +1398,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ORDER BY "task_date"
                     """)
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_loaddatestasks,(self.name,))
@@ -1471,7 +1471,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_loaddatestasks,(self.name,))
@@ -1530,7 +1530,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ORDER BY "num_offer"
                     """)
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(commands_responsible)
@@ -1660,7 +1660,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands one by one
                     cur.execute(commands_responsible)
@@ -1702,7 +1702,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                 # execution of commands
                     cur.execute(query_tables_notifications)
@@ -1764,7 +1764,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         df_table.replace('nan', 'N/A', inplace=True)
 
                         try:
-                            with Database_Connection(config()) as conn:
+                            with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                     # Loop through each row of the DataFrame and insert the data into the table
                                     for index, row in df_table.iterrows():
@@ -1801,7 +1801,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Opens the "Future Projects" window, establishes a database connection and closes the current menu.
         """
         from windows.Future_Projects_Window import Ui_Future_Projects_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1825,7 +1825,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     if report == 'Ofertas':
                         report_offers()
                         from windows.Report_Offers_View import Ui_Report_Offers_View
-                        dbparam = config()
+                        dbparam = config_database()
                         user_database = dbparam["user"]
                         password_database = dbparam["password"]
 

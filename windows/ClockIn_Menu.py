@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import pandas as pd
 import psycopg2
-from config.config_functions import config
+from config.config_functions import config_database
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
@@ -181,7 +181,7 @@ class Ui_ClockIn_Menu(QtWidgets.QMainWindow):
                 df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
                 df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
 
-                params = config()
+                params = config_database()
                 conn = psycopg2.connect(**params)
                 cursor = conn.cursor()
 

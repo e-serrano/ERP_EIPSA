@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from utils.Database_Manager import Database_Connection, Create_DBconnection
@@ -1227,7 +1227,7 @@ class Ui_Clients_Window(object):
                         """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_checkclient,(name,))
                         results=cur.fetchall()
@@ -1251,7 +1251,7 @@ class Ui_Clients_Window(object):
                             """)
                 conn = None
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
                             cur.execute(query_bank, (bank,))
@@ -1317,7 +1317,7 @@ class Ui_Clients_Window(object):
                             """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
                         cur.execute(query_bank, (bank,))
@@ -1365,7 +1365,7 @@ class Ui_Clients_Window(object):
                             """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_deleteclient, (id,))
                     conn.commit()
@@ -1437,7 +1437,7 @@ class Ui_Clients_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_queryclients)
                     results_client=cur.fetchall()
@@ -1487,7 +1487,7 @@ class Ui_Clients_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_iva)
                     results_iva=cur.fetchall()
@@ -1526,7 +1526,7 @@ class Ui_Clients_Window(object):
         Opens the Banks Management window, allowing users to manage bank information.
         """
         from windows.Banks_Window import Ui_Banks_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
@@ -1545,7 +1545,7 @@ class Ui_Clients_Window(object):
         Opens the Payway Management window, allowing users to manage payment methods.
         """
         from windows.PayWay_Window import Ui_PayWay_Window
-        dbparam = config()
+        dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
