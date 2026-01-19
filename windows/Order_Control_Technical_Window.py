@@ -2,7 +2,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 from datetime import *
-from config.config_functions import get_path, config
+from config.config_functions import get_path, config_database
 import re
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QMimeData, QDate
