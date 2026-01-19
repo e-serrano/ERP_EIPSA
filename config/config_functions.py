@@ -54,3 +54,17 @@ def config_database(section='postgresql'):
     db['database'] = NAME_DATABASE
 
     return db
+
+
+def config_sql_engine():
+    """
+    Creates and returns a SQLAlchemy engine using the database configuration.
+
+    Returns:
+        sqlalchemy.engine.Engine: A SQLAlchemy engine instance.
+    """
+    from sqlalchemy import create_engine
+
+    database_params = config_database()
+    sql_engine = create_engine(f"postgresql+psycopg2://{database_params['user']}:{database_params['password']}@{HOST_DATABASE}/{NAME_DATABASE}")
+    return sql_engine
