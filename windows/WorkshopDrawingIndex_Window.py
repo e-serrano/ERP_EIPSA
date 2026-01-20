@@ -33,7 +33,7 @@ import fnmatch
 import math
 import numpy as np
 
-
+STANDARD_TW_DIAMS = [35, 38, 40, 42, 45, 48, 50]
 
 
 def imagen_to_base64(imagen):
@@ -5377,6 +5377,33 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         "Los planos no se han podido generar", "critical")
 
 
+    def calculate_tw_base_diam(row, is_repsol, is_cepsa_group):
+        root = float(str(row['root_diam']).replace(",", "."))
+        tip = float(str(row['tip_diam']).replace(",", "."))
+
+        if is_repsol:
+            if root < 33:
+                return 35
+            elif root < tip + 3:
+                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
+            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
+
+        if is_cepsa_group:
+            if root < 32:
+                return 32
+            elif root < tip + 3:
+                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
+            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
+
+        if root < 30:
+            return 30
+        if root < 32:
+            return 32
+        if root < 35:
+            return 35
+        return 38
+
+
 # Functions to create dataframes for items drawings
     def create_df_flanges_flanged_tw(self, dataframe):
         dataframe['drawing_code'] = dataframe.apply(
@@ -5393,20 +5420,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
         axis=1)
 
-        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: (35 if float(str(row['root_diam']).replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(str(row['root_diam']).replace(",",".")) + 3)))),
-            axis=1)
+        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
 
-        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(str(row['root_diam']).replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(str(row['root_diam']).replace(",",".")) + 3)))),
-            axis=1)
+        is_repsol = 'REPSOL' in client_upper
 
-        else:
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: 30 if float(str(row['root_diam']).replace(",",".")) < 30 else (32 if float(str(row['root_diam']).replace(",",".")) < 32 else 35),
-            axis=1)
+        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
+                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
+
+        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
         df_grouped = dataframe.groupby(['drawing_path','connection','base_diam','material']).size().reset_index(name='count')
@@ -5417,20 +5438,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     def create_df_bars_flanged_tw(self, dataframe):
         dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip(),axis=1)
 
-        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: (35 if float(str(row['root_diam']).replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(str(row['root_diam']).replace(",",".")) + 3)))),
-            axis=1)
+        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
 
-        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(str(row['root_diam']).replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(str(row['root_diam']).replace(",",".")) + 3)))),
-            axis=1)
+        is_repsol = 'REPSOL' in client_upper
 
-        else:
-            dataframe['base_diam'] = dataframe.apply(
-            lambda row: 30 if float(str(row['root_diam']).replace(",",".")) < 30 else (32 if float(str(row['root_diam']).replace(",",".")) < 32 else 35),
-            axis=1)
+        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
+                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
+
+        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
 
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
         dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['dim_tw'].split('//')[1].strip()) - 3,axis=1)
