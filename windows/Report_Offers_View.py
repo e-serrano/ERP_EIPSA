@@ -399,7 +399,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
 
-        if index.column() == 0:
+        if index.column() == 0 or self.username in ('d.marquez', 'j.zofio', 'j.sanz', 'j.martinez'):
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:

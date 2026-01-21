@@ -1032,7 +1032,33 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             if ok and report:
                 while True:
                     if report == 'Ofertas':
-                        report_offers()
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText("¿Quieres generar el PDF?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            report_offers()
+
+                        del dlg_yes_no, new_icon_yes_no
+
+                        from windows.Report_Offers_View import Ui_Report_Offers_View
+
+                        dbparam = config_database()
+                        user_database = dbparam["user"]
+                        password_database = dbparam["password"]
+
+                        db_offer_report = Create_DBconnection(user_database, password_database)
+                        if not db_offer_report:
+                            sys.exit()
+
+                        self.offer_report = Ui_Report_Offers_View(self.username, db_offer_report)
+                        self.offer_report.showMaximized()
+
                         break
                     elif report == 'Pedidos':
                         report_orders()
