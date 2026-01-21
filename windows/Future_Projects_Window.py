@@ -367,7 +367,7 @@ class EditableTableModel(QtSql.QSqlRelationalTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0]:
+        if index.column() in [0, 18]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -584,6 +584,16 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolImpExcel.setIcon(icon)
         self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer4)
+        self.toolDocs = QtWidgets.QToolButton(self.frame)
+        self.toolDocs.setObjectName("Docs_Button")
+        self.toolDocs.setToolTip("Añadir Documento")
+        self.hcab.addWidget(self.toolDocs)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Word.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolDocs.setIcon(icon)
+        self.toolDocs.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -640,6 +650,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolImpExcel.clicked.connect(self.import_data)
+        self.toolDocs.clicked.connect(self.add_docs)
 
         self.createContextMenu()
 
@@ -732,6 +743,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.model.clear()
         self.model.setTable("future_projects")
         self.tableProjects.setModel(None)
+        self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
@@ -755,7 +767,9 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         # Change all column names
         headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                     "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions"]
+                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions",
+                    "EPC Contact", "Info Contact", "Info Project"]
+
         self.model.setAllColumnHeaders(headers)
 
     # Getting the unique values for each column of the model
@@ -780,6 +794,8 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.tableProjects.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
         self.tableProjects.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
+        self.tableProjects.doubleClicked.connect(lambda index: self.open_file(index))
+
 # Function to query all projects data into table
     def query_all_projects(self):
         """
@@ -791,6 +807,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.model.clear()
         self.model.setTable("future_projects")
         self.tableProjects.setModel(None)
+        self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
@@ -814,7 +831,8 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         # Change all column names
         headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                     "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions"]
+                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions",
+                    "EPC Contact", "Info Contact", "Info Project"]
 
         self.model.setAllColumnHeaders(headers)
 
@@ -836,6 +854,8 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.connect(self.saveChanges)
         self.selection_model = self.tableProjects.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableProjects.doubleClicked.connect(lambda index: self.open_file(index))
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1362,8 +1382,66 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         self.query_projects()
 
+# Function to open files
+    def open_file(self, index):
+        """
+        Opens a file based on the provided index and variable.
 
+        Args:
+            index (QModelIndex): The index representing the selected cell in the table.
 
+        Raises:
+            Exception: If there is an error while trying to open the file, a message box displays the error details.
+        """
+        if index.column() == 18:
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
+# Function adding documents
+    def add_docs(self):
+        """
+        Adds docs paths to the selected record in the database.
+        """
+        selected_indexes = self.tableProjects.selectionModel().selectedIndexes()
+        if not selected_indexes:
+            return
+
+        if len(selected_indexes) == 1:
+            index = selected_indexes[0]
+            if index.column() == 18:
+                id_column_index = index.sibling(index.row(), 0)
+                value_id = str(id_column_index.data())
+
+                # docs_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con imágenes", "//ERP-EIPSA-DATOS/Comunes/Archivos Dpto Comercial/OPORTUNIDADES")
+
+                docs_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Word", "//ERP-EIPSA-DATOS/Comunes/Archivos Dpto Comercial/OPORTUNIDADES", "Archivos Word (*.docx)")
+
+                if docs_path:
+                    commands_insert = ("""
+                            UPDATE public."future_projects"
+                            SET "project_info" = %s
+                            WHERE "id" = %s
+                            """)
+
+                    try:
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_insert, (docs_path, value_id,))
+                            conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "error")
+
+                    self.model.select()
 
 
 if __name__ == "__main__":
