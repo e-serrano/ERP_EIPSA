@@ -241,8 +241,7 @@ class Ui_ImportTAG_Window(object):
                                 "nipple_ext_length", "head_case_material", "elec_conn_case_diam", 
                                 "tt_cerblock", "material_flange_lj", "gasket_material", "puntal", 
                                 "tube_t", "nace"],
-                'int_columns': ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 
-                            'temp_sup', 'root_diam', 'tip_diam'],
+                'int_columns': ['rating', 'sheath_stem_diam', 'nipple_ext_length'],
                 'decimal_columns': ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam'],
                 'null_columns': ['num_order', 'contractual_date'],
                 'na_null_columns': ['std_length', 'ins_length'],
@@ -347,7 +346,7 @@ class Ui_ImportTAG_Window(object):
                             for column, value in columns_values:
                                 # Replace float to integer
                                 if config_tags.get('int_columns') and column in config_tags['int_columns']:
-                                    if value in ('', 'None') or value is None:
+                                    if value in ('', 'None', 'N/A') or value is None:
                                         formatted_values.append('NULL')
                                     elif value.endswith('.0'):
                                         formatted_values.append(f"'{int(float(value))}'")
@@ -355,7 +354,12 @@ class Ui_ImportTAG_Window(object):
                                         formatted_values.append(f"'{int(value)}'")
                                 # Replace decimal point
                                 elif config_tags.get('decimal_columns') and column in config_tags['decimal_columns']:
-                                    formatted_values.append(f"'{value.replace('.', ',')}'")
+                                    if value in ('', 'None', 'N/A') or value is None:
+                                        formatted_values.append('NULL')
+                                    elif float(value).is_integer():
+                                        formatted_values.append(f"'{str(int(float(value)))}'")
+                                    else:
+                                        formatted_values.append(f"'{str(value).replace('.', ',')}'")
                                 # Replace nan to Null
                                 elif config_tags.get('na_null_columns') and column in config_tags['na_null_columns'] and value == 'N/A':
                                     formatted_values.append('NULL')
