@@ -13,7 +13,8 @@ from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
+from utils.Show_Message import MessageHelper
 import psycopg2
 import locale
 import os
@@ -21,6 +22,7 @@ from datetime import *
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
+from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
@@ -851,6 +853,18 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.tooladdItem.setIcon(icon)
         self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
+        if self.username == 'd.marquez':
+            self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.hcab.addItem(self.hcabspacer2)
+            self.toolMatOrder = QtWidgets.QToolButton(self.frame)
+            self.toolMatOrder.setObjectName("MatOrder_Button")
+            self.toolMatOrder.setToolTip("Pedido Materiales")
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.toolMatOrder.setIcon(icon)
+            self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
+            self.hcab.addWidget(self.toolMatOrder)
+            self.toolMatOrder.clicked.connect(self.materialorder)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -3408,6 +3422,104 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
+
+# Function to select which material order has to be created
+    def materialorder(self):
+        """
+        Initiates material order process based on the variable value.
+        """
+        if self.proxy.rowCount() == 0:
+            MessageHelper.show_message("No hay datos cargados", "warning")
+        else:
+            if self.variable == 'Caudal':
+                self.materialorder_flow()
+            elif self.variable == 'Temperatura':
+                self.materialorder_temp()
+            elif self.variable == 'Nivel':
+                self.materialorder_level()
+            elif self.variable == 'Otros':
+                self.materialorder_others()
+            elif self.variable == 'Caudal+Temp':
+                self.materialorder_flow()
+                self.materialorder_temp()
+            elif self.variable == 'Caudal+Nivel':
+                self.materialorder_flow()
+                self.materialorder_level()
+            elif self.variable =='Temp+Nivel':
+                self.materialorder_temp()
+                self.materialorder_level()
+
+# Function to create material order for flow elements
+    def materialorder_flow(self):
+        """
+        Prompts for a flow material order number and processes it.
+        """
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales Caudal')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
+
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+
+# Function to create material order for temperature elements
+    def materialorder_temp(self):
+        """
+        Prompts for a temperature material order number and processes it.
+        """
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales Temperatura')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
+
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+
+# Function to create material order for level elements
+    def materialorder_level(self):
+        """
+        Prompts for a level material order number and processes it.
+        """
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales Nivel')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
+
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+
+# Function to create material order for others elements
+    def materialorder_others(self):
+        """
+        Prompts for a material order number for other elements and processes it.
+        """
+        if self.username not in ['julian.martinez']:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales Otros')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
+
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
 
 
 if __name__ == "__main__":
