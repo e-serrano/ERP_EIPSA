@@ -482,7 +482,7 @@ def report_projects():
     
     columns = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
                 "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions", "Contacto EPC", "Datos Contacto"]
+                "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions", "Contacto EPC", "Datos Contacto", "Documento"]
     
     with Database_Connection(config_database()) as conn:
         with conn.cursor() as cur:
@@ -493,7 +493,7 @@ def report_projects():
         df = df.fillna('')
         df.replace('None', '')
 
-        final_df = df.iloc[:, 1:]
+        final_df = df.iloc[:, 1:-1]
 
     future_projects(final_df)
 
