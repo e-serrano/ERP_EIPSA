@@ -287,8 +287,8 @@ class PDF_Viewer(QMainWindow):
                 process_name = process.info['name'].lower()
                 if 'adobe' in process_name or 'acrobat' in process_name:
                     # print(f"Cerrando {process.info['name']} con PID {process.info['pid']}")
-                    process.terminate()  # Termina el proceso
-                    process.wait()  # Espera a que el proceso termine
+                    process.terminate()  # Finish process
+                    process.wait()  # Waiting for process to finish
                     # print(f"{process.info['name']} ha sido cerrado.")
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
