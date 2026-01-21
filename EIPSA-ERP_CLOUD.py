@@ -79,6 +79,13 @@ def import_all_py(folder, package_prefix=""):
                 spec.loader.exec_module(module)
                 sys.modules[module_name] = module
 
+def purge_everything(prefixes):
+    for mod in list(sys.modules):
+        for p in prefixes:
+            if mod == p or mod.startswith(p + "."):
+                del sys.modules[mod]
+
+
 # ---------------------
 # MAIN
 # ---------------------
@@ -88,12 +95,14 @@ if FUNCTIONS_DIR not in sys.path:
     sys.path.insert(0, FUNCTIONS_DIR)
 
 try:
-    # 1️⃣ Import .py files dynamically
+    purge_everything(["utils", "config", "windows"])
+
+    #  Import .py files dynamically
     import_all_py(os.path.join(FUNCTIONS_DIR, "windows"), package_prefix="windows")
     import_all_py(os.path.join(FUNCTIONS_DIR, "utils"), package_prefix="utils")
     import_all_py(os.path.join(FUNCTIONS_DIR, "config"), package_prefix="config")
 
-    # 2️⃣ Execute Main_Window
+    # Execute Main_Window
     from windows.Main_Window import start_app
     start_app()
 
