@@ -6,7 +6,7 @@ from openpyxl.cell.text import InlineFont
 from openpyxl.utils import get_column_letter
 from copy import deepcopy
 from datetime import *
-from config.config import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from PySide6 import QtGui, QtWidgets
@@ -81,7 +81,7 @@ class offer_flow:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -759,6 +759,8 @@ class offer_flow:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -865,7 +867,7 @@ class offer_short_flow_spanish:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -1459,6 +1461,8 @@ class offer_short_flow_spanish:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -1565,7 +1569,7 @@ class offer_short_flow_english:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -2243,6 +2247,8 @@ class offer_short_flow_english:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -2349,7 +2355,7 @@ class offer_temp:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -3072,6 +3078,8 @@ class offer_temp:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -3167,7 +3175,7 @@ class offer_short_temp_spanish:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -3809,6 +3817,8 @@ class offer_short_temp_spanish:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -3905,7 +3915,7 @@ class offer_short_temp_english:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -4628,6 +4638,8 @@ class offer_short_temp_english:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -4724,7 +4736,7 @@ class offer_level:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -5288,6 +5300,8 @@ class offer_level:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -5384,7 +5398,7 @@ class offer_short_level_spanish:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -5866,6 +5880,8 @@ class offer_short_level_spanish:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -5962,7 +5978,7 @@ class offer_short_level_english:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -6535,6 +6551,8 @@ class offer_short_level_english:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -6641,7 +6659,7 @@ class offer_flow_temp:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -7671,6 +7689,8 @@ class offer_flow_temp:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -7796,7 +7816,7 @@ class offer_flow_temp_level:
         conn = None
         try:
             # read the connection parameters
-            params = config()
+            params = config_database()
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
@@ -9012,6 +9032,8 @@ class offer_flow_temp_level:
         Returns:
             float: The numeric value of the amount in euros.
         """
+        if not value:
+            value = "0 €"
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
@@ -9111,7 +9133,7 @@ class order_ovr:
             ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_order_data,(self.num_order,))
                     results_orders=cur.fetchall()
@@ -9159,7 +9181,7 @@ class order_ovr:
         column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'PO DELIVERY DATE ', 'DRAWING APPROVAL DATE', 'INSPECTION NUMBER', 'INSPECTION DATE', 'DATE RN', 'NEW DELIVERY DATE']
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     if self.variable != '':
                         cur.execute(commands_tags)
@@ -9255,7 +9277,7 @@ class doc_situation:
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_queryalldoc,(self.num_ref,))
                     results_orders=cur.fetchall()
@@ -9373,7 +9395,7 @@ class vendor_progress_report:
             ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_flow,(num_ref,))
                     results_flow=cur.fetchall()
@@ -9444,7 +9466,7 @@ class vendor_progress_report:
                     """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_query_data,(self.num_ref,))
                     results_progress=cur.fetchall()
@@ -9534,7 +9556,7 @@ class spares_two_years:
             ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_order_data,(self.num_order,))
                     results_orders=cur.fetchall()
@@ -9616,7 +9638,7 @@ class spares_two_years:
 
         if variable in ['Caudal', 'Temperatura', 'Nivel']:
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(commands_tags)
                         results=cur.fetchall()
@@ -9757,7 +9779,7 @@ class nuclear_annexes:
                 """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_calib_data, (numorder,))
                     results = cur.fetchall()
@@ -9875,7 +9897,7 @@ class nuclear_annexes:
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_intavalues)
                             results = cur.fetchall()
@@ -9903,7 +9925,7 @@ class nuclear_annexes:
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_intavalues)
                             results = cur.fetchall()
@@ -9943,7 +9965,7 @@ class nuclear_annexes:
                                     ORDER BY variables
                                     """)
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_stdvalues)
                             results = cur.fetchall()
@@ -9998,7 +10020,7 @@ class nuclear_annexes:
                                     """
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_stdvalues)
                             results = cur.fetchall()
@@ -10078,6 +10100,8 @@ class material_order:
             if not output_path .lower().endswith(".xlsx"):
                 output_path += ".xlsx"
             self.wb.save(output_path)
+
+            MessageHelper.show_message("Orden de compra guardada correctamente.", "information")
 
 class future_projects:
     """
