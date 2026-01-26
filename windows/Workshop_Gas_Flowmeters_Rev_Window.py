@@ -1595,20 +1595,20 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         """
 
         commands_item=("""
-                        SELECT equipment, master, units FROM verification.gas_flowmeters_workshop
+                        SELECT equipment, master, units, TO_CHAR(last_check_date, 'DD/MM/YYYY'), TO_CHAR(next_check_date, 'DD/MM/YYYY') FROM verification.gas_flowmeters_workshop
                         WHERE id = %s
                         """)
-        
+
         commands_rev=("""
                         SELECT * FROM verification.gas_flowmeters_workshop_revisions
                         WHERE equipment_id = %s
                         """)
-        
+
         commands_master=("""
                         SELECT certificate_1 FROM verification.calibrated_masters
                         WHERE number_item = %s
                         """)
-        
+
         try:
             with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
@@ -1618,6 +1618,8 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
                     equipment_name = results[0][0]
                     master_name = results[0][1]
                     units = results[0][2]
+                    last_check = results [0][3]
+                    next_check = results [0][4]
 
                     cur.execute(commands_rev, data)
                     results_rev = cur.fetchall()
@@ -1665,6 +1667,19 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
 
         pdf.cell(18, 0.5, '')
         pdf.ln()
+
+        pdf.cell(12, 0.5, "", align='L')
+        pdf.cell(3, 0.5, "FECHA DE COMPROBACIÓN: ", align='R')
+        pdf.cell(3, 0.5, str(last_check), align='L')
+        pdf.ln()
+
+        pdf.cell(12, 0.5, "", align='L')
+        pdf.cell(3, 0.5, "PRÓXIMA COMPROBACIÓN: ", align='R')
+        pdf.cell(3, 0.5, str(next_check), align='L')
+        pdf.ln()
+
+
+
         y_position = pdf.get_y()
 
         if y_position > 25:
