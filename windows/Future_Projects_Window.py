@@ -751,12 +751,14 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         # self.tableProjects.verticalHeader().hide()
         self.tableProjects.setItemDelegate(AlignDelegate(self.tableProjects))
-        self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableProjects.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableProjects.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(18, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableProjects.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+        self.tableProjects.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.setStyleSheet("gridline-color: #CCCCCC")
         self.tableProjects.setObjectName("tableProjects")
         self.gridLayout_2.addWidget(self.tableProjects, 3, 0, 1, 1)
@@ -815,12 +817,14 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         # self.tableProjects.verticalHeader().hide()
         self.tableProjects.setItemDelegate(AlignDelegate(self.tableProjects))
-        self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableProjects.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableProjects.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableProjects.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableProjects.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableProjects.horizontalHeader().setSectionResizeMode(18, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableProjects.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+        self.tableProjects.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableProjects.setStyleSheet("gridline-color: #CCCCCC")
         self.tableProjects.setObjectName("tableProjects")
         self.gridLayout_2.addWidget(self.tableProjects, 3, 0, 1, 1)
@@ -1312,12 +1316,12 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
             df_table = df_table.astype(str)
             df_table.replace('nan', 'N/A', inplace=True)
 
-            df_table = df_table.iloc[:, :15]
+            df_table = df_table.iloc[:, :]
 
             columns = [
                 "award_date_quarter", "end_user", "contractor", "project_name", "scope",
                 "country", "contract_value", "company_portion", "contract_duration", "stage",
-                "award_date", "go", "get", "products", "actions"
+                "award_date", "go", "get", "products", "actions", "epc_contact", "contact_info", "project_info"
             ]
 
             df_table.columns = columns
