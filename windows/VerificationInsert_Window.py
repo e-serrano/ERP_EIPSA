@@ -2269,7 +2269,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                     else:
-                        self.fname_image, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", "Archivos JPG (*.jpg)")
+                        self.fname_image, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar imagen", str(DATA_PATH / "MARIO GIL/VERIFICACION/ALMACEN"), "Archivos JPG (*.jpg)")
 
                         if self.fname_image:
                             for index in selected_indexes:
@@ -2291,7 +2291,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                        self.fname_doc, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar PDF", DATA_PATH / r"MARIO GIL/VERIFICACION/ALMACEN", "Archivos PDF (*.pdf)")
+                        self.fname_doc, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar PDF", str(DATA_PATH / "MARIO GIL/VERIFICACION/ALMACEN"), "Archivos PDF (*.pdf)")
 
                         if self.fname_doc:
                             for index in selected_indexes:
