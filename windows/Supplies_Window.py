@@ -1395,6 +1395,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         for i in range(0,3):
             self.tableSupplies.hideColumn(i)
         self.tableSupplies.hideColumn(11)
+        self.tableSupplies.hideColumn(12)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
