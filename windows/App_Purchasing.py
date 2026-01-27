@@ -18,7 +18,7 @@ from windows.PDF_Viewer import PDF_Viewer
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
-import configparser
+from windows.Excel_Export_Templates import material_order
 from utils.Database_Manager import Create_DBconnection, Database_Connection
 from utils.Show_Message import MessageHelper
 from windows.TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
@@ -801,6 +801,41 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Order_Control.setIcon(icon1)
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_Purchase_Order = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Purchase_Order.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Purchase_Order.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Purchase_Order.setToolTip('Control Pedidos')
+        self.Button_Purchase_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Purchase_Order.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Purchase_Order.setText("")
+        self.Button_Purchase_Order.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Purchase_Order.setObjectName("Button_Purchase_Order")
+        self.Header.addWidget(self.Button_Purchase_Order)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Purchase_Order.setIcon(icon1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1020,6 +1055,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_OfferSummary.clicked.connect(self.offers_summary)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Order_Control.clicked.connect(self.order_control)
+        self.Button_Purchase_Order.clicked.connect(self.create_purchase_order)
 
         # self.backup_data()
         self.warning_calibration()
@@ -1894,7 +1930,121 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.order_control_window = Ui_Purchasing_Order_Control_Window(db_order_control, self.username)
         self.order_control_window.showMaximized()
 
+# Function to create final purchase order and client order form Excel file
+    def create_purchase_order(self):
+        self.fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
+        if not self.fname:
+            return
 
+        workbook = load_workbook(self.fname)
+        worksheet = workbook.active
+        client = worksheet['C5'].value
+        variable = worksheet['C6'].value
+        num_order = worksheet['L4'].value
+        order_date = worksheet['H9'].value
+
+        df_table = pd.read_excel(self.fname,
+                                names=["Workshop", "Description", "Model", "Design", "Process", "Material", "Quantity",
+                                        "Code", "Stock", "Stock_Available", "Stock_Pending", "Stock_Virtual"],
+                                na_values=['N/A'], keep_default_na=False, skiprows=10, usecols=range(2,14))
+
+        df_table['Not Purchase'] = df_table.apply(lambda row: 'X' if row['Workshop'].upper() != 'X' else '', axis=1)
+        df_table['Purchase'] = df_table.apply(lambda row: 'X' if row['Workshop'].upper() == 'X' else '', axis=1)
+
+        df_final = df_table[['Description', 'Model', 'Design', "Process", "Material", "Quantity", 'Not Purchase', 'Purchase', 'Code']].copy()
+
+        query_numot = ("""SELECT "ot_num"
+                        FROM fabrication.fab_order
+                        WHERE NOT "ot_num" LIKE '90%'
+                        ORDER BY "ot_num" ASC
+                        """)
+
+        check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{num_order + '-PEDMAT'}'"
+
+        query_otpedmat = ("""
+                            INSERT INTO fabrication.fab_order (
+                            "id","tag","element","qty_element",
+                            "ot_num","qty_ot","start_date")
+                            VALUES (%s,%s,%s,%s,%s,%s,%s)
+                            """)
+
+        query_client_id = ("""SELECT id FROM purch_fact.clients WHERE name = %s""")
+
+        query_client_order = ("""INSERT INTO purch_fact.client_ord_header (client_id, order_date, client_order_num)
+                                    VALUES (%s,%s,%s)
+                                    RETURNING id""")
+
+        query_supply_data = ("""SELECT id, available_stock FROM purch_fact.supplies WHERE reference = %s""")
+
+        query_client_order_detail = ("""INSERT INTO purch_fact.client_ord_detail (client_ord_header_id, supply_id, quantity)
+                                    VALUES (%s,%s,%s)""")
+
+        query_available_stock = ("""UPDATE purch_fact.supplies
+                                SET "available_stock" = %s 
+                                WHERE "id" = %s""")
+
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_client_id, (client,))
+                    results_client_id = cur.fetchone()
+                    client_id = results_client_id[0]
+
+                    cur.execute(query_client_order, (client_id, order_date, num_order,))
+                    results_client_order_id = cur.fetchone()
+                    client_order_id = results_client_order_id[0]
+
+                    for index, row in df_final.iterrows():
+                        supply_reference = row['Code']
+                        quantity = row['Quantity']
+
+                        cur.execute(query_supply_data, (supply_reference,))
+                        results_supply_data = cur.fetchone()
+                        if results_supply_data:
+                            supply_id = results_supply_data[0]
+                            available_stock = results_supply_data[1]
+                            new_available_stock = str(float(available_stock) - float(quantity))
+
+                            cur.execute(query_client_order_detail, (client_order_id, supply_id, quantity,))
+                            cur.execute(query_available_stock, (new_available_stock, supply_id,))
+
+                conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_numot)
+                    results=cur.fetchall()
+                    num_ot=results[-1][0]
+
+            excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            workbook = load_workbook(excel_file_path, keep_vba=True)
+            worksheet = workbook.active
+            num_ot = worksheet['B2'].value
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(check_otpedmat)
+                    results=cur.fetchall()
+
+            if len(results) == 0:
+                data=(num_order + '-PEDMAT', num_order, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(df_final), date.today().strftime("%d/%m/%Y"))
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_otpedmat, data)
+                    conn.commit()
+
+                worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
+                workbook.save(excel_file_path)
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
+        excel_mat_order = material_order(df_final.drop(columns=['Code']), num_order, client, variable, '123456')
+        excel_mat_order.save_excel()
 
 if __name__ == "__main__":
     import sys
