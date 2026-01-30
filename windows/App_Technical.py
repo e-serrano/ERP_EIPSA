@@ -2888,7 +2888,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 self.tableDocs.verticalHeader().hide()
                 self.tableDocs.setItemDelegate(AlignDelegate_Docs(self.tableDocs))
 
-                # self.tableDocs.itemDoubleClicked.connect(self.on_item_double_clicked)
+                self.tableDocs.itemDoubleClicked.connect(self.on_item_double_clicked)
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
