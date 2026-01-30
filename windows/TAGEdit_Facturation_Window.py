@@ -1599,7 +1599,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.initial_column = 135
                         self.initial_column2 = 150
                         self.initial_column_ = 75
-                        self.initial_column2_ = 80
+                        self.initial_column2_ = 179
                         self.column_position = 140
                         self.column_subposition = 141
                         self.column_difference = 143
@@ -1614,7 +1614,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.initial_column = 135
                         self.initial_column2 = 150
                         self.initial_column_ = 61
-                        self.initial_column2_ = 66
+                        self.initial_column2_ = 182
                         self.column_position = 140
                         self.column_subposition = 141
                         self.column_difference = 143
@@ -1631,21 +1631,21 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 75
-                        self.initial_column2 = 80
+                        self.initial_column2 = 179
                         self.column_position = 167
                         self.column_subposition = 168
                         self.column_difference = 170
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.initial_column = 61
-                        self.initial_column2 = 66
+                        self.initial_column2 = 182
                         self.column_position = 170
                         self.column_subposition = 171
                         self.column_difference = 173
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.initial_column = 20
-                        self.initial_column2 = 25
+                        self.initial_column2 = 69
                         self.column_position = 57
                         self.column_subposition = 58
                         self.column_difference = 60
@@ -1688,6 +1688,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     for i in range(80,167):
                         self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(176)
+                    for i in range(178,columns_number):
+                        self.tableEditTags.hideColumn(i)
 
                 elif self.variable == 'Nivel':
                     for i in range(3,4):
@@ -1700,6 +1702,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     for i in range(66,170):
                         self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(179)
+                    for i in range(181,columns_number):
+                        self.tableEditTags.hideColumn(i)
 
                 elif self.variable == 'Otros':
                     for i in range(3,4):
@@ -1712,6 +1716,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     for i in range(25,57):
                         self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(66)
+                    self.tableEditTags.hideColumn(columns_number-1)
 
             # Setting delegates, resizing modes and header stles
                 self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
