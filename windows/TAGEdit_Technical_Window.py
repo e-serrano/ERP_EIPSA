@@ -15,7 +15,7 @@ from windows.Create_FabOrder_Window import Ui_CreateFabOrder_Window
 from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
 from windows.Create_Inspection import inspection
 from utils.Database_Manager import Create_DBconnection, Database_Connection
-from config.config import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 import re
 import locale
@@ -27,10 +27,14 @@ from pypdf import PdfReader, PdfWriter
 import io
 from utils.Show_Message import MessageHelper
 from config.config_keys import ORDERS_PATH
-from windows.overlay_pdf import (dwg_dim_flange_plate, dwg_dim_plate,dwg_dim_ro, dwg_dim_ms_ro, drawing_number_landscape_x, drawing_number_x, flange_dwg_orifice, dwg_of_orifice_plate)
+from windows.overlay_pdf import (dwg_dim_flange_plate, dwg_dim_plate, dwg_dim_ro, dwg_dim_ms_ro, dwg_dim_mrun,
+                                dwg_of_op_ro_rf,
+                                drawing_number_landscape_x, drawing_number_x, flange_dwg_orifice)
 from psycopg2 import sql
 from psycopg2.extras import execute_batch
 from pathlib import Path
+
+STANDARD_TW_DIAMS = [35, 38, 40, 42, 45, 48, 50]
 
 
 def imagen_to_base64(imagen):
@@ -1122,7 +1126,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.all_results_others = []
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     for query in commands_comboboxes_flow:
                         cur.execute(query)
@@ -1305,7 +1309,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query,(self.numorder,))
                             results_variable=cur.fetchone()
@@ -1342,7 +1346,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         ''')
 
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_flow,(self.numorder,))
                                 results_flow=cur.fetchall()
@@ -1478,7 +1482,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(164,166):
                     self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number):
+                for i in range(167,columns_number-1):
                     self.tableEditTags.hideColumn(i)
                 if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(35)
@@ -1612,7 +1616,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2", "ØOrigen"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -2601,7 +2605,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     errors="ignore",)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         for index, row in df_table.iterrows():
                             if "id_tag_flow" in row:
@@ -3138,7 +3142,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query,(self.numorder,))
                             results_variable=cur.fetchone()
@@ -3193,10 +3197,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
                         break
 
-        # if not os.path.exists(output_path_Dim):
-        #     os.makedirs(output_path_Dim)
-
-        output_path_Dim = Path(r"M:\Comunes\EIPSA-ERP\4 PLANOS AUTOMATICOS\PRUEBA")
+        if not os.path.exists(output_path_Dim):
+            os.makedirs(output_path_Dim)
 
         try:
             query_select_drawings = ("""
@@ -3236,7 +3238,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             query_tags_flow = ("SELECT * FROM tags_data.tags_flow WHERE num_order ILIKE %s and tag_state = 'PURCHASED'")
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_select_drawings,(f"%{self.numorder}%", f"%{self.numorder}%", f"%{self.numorder}%", f"%{self.numorder}%",))
                         results_tags_drawings=cur.fetchall()
@@ -3262,7 +3264,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             df_final.loc[mask_new, "dim_drawing"] = [self.numorder[2:].replace("/", "-") + "-" + f"{i:0{num_width}d}" for i in range(start, start + qty_new)]
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         for table_name in df_final["table"].dropna().unique():
                             rows = df_final[df_final["table"] == table_name]
@@ -3289,7 +3291,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             for table_name in df_final["table"].unique():
                 if table_name == 'tags_data.tags_flow':
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_tags_flow,(f"%{self.numorder}%",))
                                 results_tags_flow=cur.fetchall()
@@ -3377,6 +3379,17 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                                                                 client, final_client, project, row["num_po"],
                                                                 row["dim_drawing"][-2:], row["dim_drawing_date"], total)
 
+                                elif row["item_type"] == "M.RUN":
+                                    pdf_buffer = dwg_dim_mrun(self.numorder, row["tag"],
+                                                                row["line_size"], row["schedule"], row["rating"], row["facing"],
+                                                                row["pipe_int_diam"], row["orif_diam"], row["nace"], row['tapping_size'],
+                                                                row["handle_height"], row["handle_width"], row["plate_c_dim"], row["plate_ext_diam"],
+                                                                row["rtj_thickness"], row["rtj_r_type"], row["rtj_p_diam"], row["rtj_e_dim"], row["rtj_f_dim"],
+                                                                client, final_client, project, row["num_po"],
+                                                                row["flange_material"], row["bolts_material"], row["nuts_material"], row["element_material"], row["gasket_material"], row["plug_quantity"], row["plug_material"], row["jack_screw_material"],
+                                                                row["notes_flange"], row["notes_stud"], row["notes_nut"], row["notes_plate"], row["notes_gasket"], row["notes_plugs"], row["notes_jack_screw"],
+                                                                row["dim_drawing"][-2:], row["dim_drawing_date"], total)
+
                                 page_overlay = PdfReader(pdf_buffer).pages[0]
                                 
                                 base_page.merge_page(page2=page_overlay)
@@ -3410,10 +3423,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         output_path_OF = path / folder / "3-Fabricacion" / "Planos OF"
                         break
 
-        # if not os.path.exists(output_path_OF):
-        #     os.makedirs(output_path_OF)
-
-        output_path_OF = Path(r"M:\Comunes\EIPSA-ERP\4 PLANOS AUTOMATICOS\PRUEBA")
+        if not os.path.exists(output_path_OF):
+            os.makedirs(output_path_OF)
 
         try:
             query_select_drawings = ("""
@@ -3429,7 +3440,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             query_tags_flow = ("SELECT * FROM tags_data.tags_flow WHERE num_order ILIKE %s and tag_state = 'PURCHASED'")
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(query_select_drawings,(f"%{self.numorder}%",))
                         results_tags_drawings=cur.fetchall()
@@ -3487,7 +3498,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         df_final.loc[mask_group, "of_drawing"] = drawing
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             for table_name in df_final["table"].unique():
                                 rows = df_final[
@@ -3519,7 +3530,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             for table_name in df_final["table"].unique():
                 if table_name == 'tags_data.tags_flow':
                     try:
-                        with Database_Connection(config()) as conn:
+                        with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query_tags_flow,(f"%{self.numorder}%",))
                                 results_tags_flow=cur.fetchall()
@@ -3557,8 +3568,10 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                     df_flow['of_drawing_date'] = pd.to_datetime(df_flow['of_drawing_date']).dt.strftime('%d/%m/%Y').fillna('')
 
+                    count_of_drawings = len(df_flow['of_drawing'].unique().tolist())
+
                     for item_type in df_flow["item_type"].unique():
-                        if item_type in ['F+P', 'P']:
+                        if item_type in ['F+P', 'P', 'RO', 'M.RUN']:
                             df_selected = df_flow.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 19, 21, 32, 37, 38, 57, 58, 59, 60, 61, 95, 97, 151]].copy()
 
                             df_selected = df_selected[df_selected['item_type'] == item_type].copy()
@@ -3581,10 +3594,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                                         reader = PdfReader(f)
                                         base_page = reader.pages[0]
 
-                                        pdf_buffer = dwg_of_orifice_plate(self.numorder, row["connection"], row["element_material"], row["of_drawing"], row["of_drawing_date"],
-                                                                        row["handle_height"], row["handle_width"], row["plate_c_dim"], row["plate_ext_diam"],
-                                                                        zip(row["tag"], row["line_size"], row["rating"], row["facing"], row["schedule"], row["element_material"], row["pipe_int_diam"],
-                                                                        row["orif_diam"], row["plate_thk"], row["dv_diam"], row["w_diam"], row["nace"], row["count"]))
+                                        if 'RF' in row['connection']:
+                                            pdf_buffer = dwg_of_op_ro_rf(item_type, self.numorder, count_of_drawings, row["connection"], row["element_material"], row["of_drawing"], row["of_drawing_date"],
+                                                                            row["handle_height"], row["handle_width"], row["plate_c_dim"], row["plate_ext_diam"],
+                                                                            zip(row["tag"], row["line_size"], row["rating"], row["facing"], row["schedule"], row["element_material"], row["pipe_int_diam"],
+                                                                            row["orif_diam"], row["plate_thk"], row["dv_diam"], row["w_diam"], row["nace"], row["count"]))
 
                                         page_overlay = PdfReader(pdf_buffer).pages[0]
                                         
@@ -3628,7 +3642,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_flow,(self.numorder,))
                     results_flow=cur.fetchall()
@@ -3680,11 +3694,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     if self.numorder.replace("/", "-") in folder:
                         output_path_M = path / folder / "3-Fabricacion" / "Planos M"
                         break
-        
-        # if not os.path.exists(output_path_M):
-        #     os.makedirs(output_path_M)
 
-        output_path_M = Path(r"M:\Comunes\EIPSA-ERP\4 PLANOS AUTOMATICOS\PRUEBA")
+        if not os.path.exists(output_path_M):
+            os.makedirs(output_path_M)
 
         commands_select_m_drawing = ("""
             SELECT drawing_number
@@ -3694,7 +3706,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:  
                     cur.execute(commands_select_m_drawing,(self.numorder,))
                     results_drawings_m=cur.fetchall()
@@ -3720,7 +3732,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #         ''')
 
             #     try:
-            #         with Database_Connection(config()) as conn:
+            #         with Database_Connection(config_database()) as conn:
             #             with conn.cursor() as cur:
             #                 cur.execute(query,(self.numorder,))
             #                 results_tags=cur.fetchall()
@@ -3836,7 +3848,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #             """)
 
             #         try:
-            #             with Database_Connection(config()) as conn:
+            #             with Database_Connection(config_database()) as conn:
             #                 with conn.cursor() as cur:
             #                     cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
             #                 conn.commit()
@@ -3854,7 +3866,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     ''')
 
                 try:
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(query,(self.numorder,))
                             results_tags=cur.fetchall()
@@ -4049,7 +4061,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     #     """)
 
                     # try:
-                    #     with Database_Connection(config()) as conn:
+                    #     with Database_Connection(config_database()) as conn:
                     #         with conn.cursor() as cur:
                     #             cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
                     #         conn.commit()
@@ -4070,7 +4082,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #         ''')
 
             #     try:
-            #         with Database_Connection(config()) as conn:
+            #         with Database_Connection(config_database()) as conn:
             #             with conn.cursor() as cur:
             #                 cur.execute(query,(self.numorder,))
             #                 results_tags=cur.fetchall()
@@ -4167,7 +4179,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #                     """)
 
             #                 try:
-            #                     with Database_Connection(config()) as conn:
+            #                     with Database_Connection(config_database()) as conn:
             #                         with conn.cursor() as cur:
             #                             cur.execute(query_update_drawing,(description_dim, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, '01/01'))
             #                         conn.commit()
@@ -4237,7 +4249,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #                 """)
 
             #             try:
-            #                 with Database_Connection(config()) as conn:
+            #                 with Database_Connection(config_database()) as conn:
             #                     with conn.cursor() as cur:
             #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
             #                     conn.commit()
@@ -4306,7 +4318,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #                 """)
 
             #             try:
-            #                 with Database_Connection(config()) as conn:
+            #                 with Database_Connection(config_database()) as conn:
             #                     with conn.cursor() as cur:
             #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
             #                     conn.commit()
@@ -4355,7 +4367,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             #             """)
 
             #         try:
-            #             with Database_Connection(config()) as conn:
+            #             with Database_Connection(config_database()) as conn:
             #                 with conn.cursor() as cur:
             #                     cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
             #                 conn.commit()
@@ -4421,6 +4433,135 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         return grouped_plates
 
 
+
+    def calculate_tw_base_diam(row, is_repsol, is_cepsa_group):
+        root = float(str(row['root_diam']).replace(",", "."))
+        tip = float(str(row['tip_diam']).replace(",", "."))
+
+        if is_repsol:
+            if root < 33:
+                return 35
+            elif root < tip + 3:
+                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
+            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
+
+        if is_cepsa_group:
+            if root < 32:
+                return 32
+            elif root < tip + 3:
+                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
+            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
+
+        if root < 30:
+            return 30
+        if root < 32:
+            return 32
+        if root < 35:
+            return 35
+        return 38
+
+# Functions to create dataframes for items drawings
+    def create_df_flanges_flanged_tw(self, dataframe):
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TBPC' + ('RF' if str(row['facing']) == 'FF' else str(row['facing'])) +
+                    '-0' + str(row['size'])[0] + ('.5' if '1/2' in str(row['size']) else '.0') +
+                    ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
+        axis=1)
+
+        dataframe['connection'] = dataframe.apply(
+        lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
+        axis=1)
+        
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
+        axis=1)
+
+        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
+
+        is_repsol = 'REPSOL' in client_upper
+
+        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
+                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
+
+        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
+
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(['drawing_path','connection','base_diam','material']).size().reset_index(name='count')
+        grouped_flanges = df_grouped.groupby(['drawing_path','connection','base_diam','material']).agg({"count": list}).reset_index()
+
+        return grouped_flanges
+
+    def create_df_bars_flanged_tw(self, dataframe):
+        dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip(),axis=1)
+
+        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
+
+        is_repsol = 'REPSOL' in client_upper
+
+        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
+                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
+
+        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
+
+        # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['dim_tw'].split('//')[1].strip()) - 3,axis=1)
+
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TVSCP-Ø' + str(int(row['base_diam'])) + ' Corte-Taladro',
+        axis=1)
+
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        axis=1)
+
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length","p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
+
+        return grouped_bars
+
+    def create_df_not_flanged_tw(self, dataframe, item):
+        dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip(),axis=1)
+
+        map_repsol = {
+            '3/4"': 35,
+            '1"': 35,
+            '1-1/4"': 45,
+            '1-1/2"': 50
+        }
+        map_default = {
+            '3/4"': 30,
+            '1"': 35,
+            '1-1/4"': 45,
+            '1-1/2"': 50
+        }
+
+        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
+            dataframe['base_diam'] = dataframe['size'].map(map_repsol).fillna(65)
+        else:
+            dataframe['base_diam'] = dataframe['size'].map(map_default).fillna(65)
+
+        # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['dim_tw'].split('//')[1].strip()) - 1,axis=1)
+
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro' if float(row['base_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
+        axis=1)
+
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        axis=1)
+
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length", "p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
+
+        return grouped_bars
+
+
+
+
+
 if __name__ == "__main__":
     import sys
     import os
@@ -4429,7 +4570,7 @@ if __name__ == "__main__":
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
-    dbparam = config()
+    dbparam = config_database()
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
@@ -4440,3 +4581,21 @@ if __name__ == "__main__":
     EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
+
+
+
+
+    # try:
+    #     writer = PdfWriter()
+    #     with open(r'M:\Comunes\EIPSA-ERP\4 PLANOS AUTOMATICOS\DIMENSIONALES\F+P\RF\2 TOMAS\BIDIRECCIONAL\F+P-RF-2-8 bidireccional sin dibujo placa.pdf', 'rb') as f:
+    #         reader = PdfReader(f)
+    #         base_page = reader.pages[0]
+
+    #         page_overlay = PdfReader(r'M:\Comunes\EIPSA-ERP\4 PLANOS AUTOMATICOS\DIMENSIONALES\F+P\RF\2 TOMAS\BIDIRECCIONAL\F+P-RF-2-8 bidireccional corte 2.pdf').pages[0]
+            
+    #         base_page.merge_page(page2=page_overlay)
+    #         writer.add_page(base_page)
+
+    #         writer.write("M:/Comunes/EIPSA-ERP/4 PLANOS AUTOMATICOS/DIMENSIONALES/F+P/RF/2 TOMAS/BIDIRECCIONAL/output.pdf")
+    # except Exception as e:
+    #     print(e)
