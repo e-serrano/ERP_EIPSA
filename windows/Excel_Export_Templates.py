@@ -15,6 +15,7 @@ import re
 import numpy as np
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 
 # Templates for orders
@@ -9806,11 +9807,11 @@ class nuclear_annexes:
         df['sensor'] = df['sensor'].map(dict_sensor_types)
 
         if self.annex == 'Anexo A':
-            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO A Termopar con union a masa.xlsx")))
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO A Termopar con union a masa.xlsx")))
         elif self.annex == 'Anexo B':
-            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO B Termopar aislado de masa.xlsx")))
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO B Termopar aislado de masa.xlsx")))
         elif self.annex == 'Anexo C':
-            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO C RTD.xlsx")))
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "FORMATOS ANEXOS", "ANEXO C RTD.xlsx")))
 
         ws_initial = self.wb["Hoja1"]
 
@@ -10065,29 +10066,116 @@ class material_order:
             num_ot (str): The order task number.
         """
         # Loading Excel Template
-        self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima.xlsx")))
+        if num_ot == '0':
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima Preliminar.xlsx")))
+        else:
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima.xlsx")))
+
         sheet_name = "Hoja1"  # Selecting template sheet
         ws = self.wb[sheet_name]
+
         start_row = 12  # Obtaining last row used
         row_11_style = {}
         for col_num in range(1, 15):
             cell_11 = ws.cell(row=12, column=col_num)
             row_11_style[col_num] = deepcopy(cell_11._style)
 
-        for index, row in df.iterrows():
-            for col_num, value in enumerate(row, start=4):
-                cell = ws.cell(row=start_row + index, column=col_num)
-                cell.value = value
-                for num in range(1, 15):
-                    cell = ws.cell(row=start_row + index, column=num)
-                    cell._style = deepcopy(row_11_style[num])
+        if num_ot == '0':
+            cf = ws.conditional_formatting
+            old_range = "$L$12:$L$12"
+
+            rules = cf._cf_rules.get(old_range)
+            for cf_obj, rules in list(cf._cf_rules.items()):
+                if hasattr(cf_obj, "sqref") and str(cf_obj.sqref) == "L12":
+                    del cf._cf_rules[cf_obj]
+            for index, row in df.iterrows():
+                for col_num, value in enumerate(row, start=4):
+                    cell = ws.cell(row=start_row + index, column=col_num)
+                    if num_ot == '0':
+                        if col_num == 9:
+                            cell.value = float(value)
+                        elif col_num == 11:
+                            cell.value = f"=IFERROR(VLOOKUP({get_column_letter(col_num-1)}{start_row + index},'Suministros'!D:Z,6,FALSE),\"CODIGO NO EXISTE\")" #(NOT(ISERROR(VLOOKUP({get_column_letter(col_num-1)}{start_row + index},'Suministros'!D:Z,6,FALSE))),VLOOKUP({get_column_letter(col_num-1)}{start_row + index},'Suministros'!D:Z,6,FALSE),\"\")"
+                        elif col_num == 12:
+                            cell.value = f"=IFERROR(VLOOKUP({get_column_letter(col_num-2)}{start_row + index},'Suministros'!D:Z,7,FALSE),\"CODIGO NO EXISTE\")" #VLOOKUP({get_column_letter(col_num-2)}{start_row + index},'Suministros'!D:Z,7,FALSE)"
+                        elif col_num == 13:
+                            cell.value = f"=IFERROR(VLOOKUP({get_column_letter(col_num-3)}{start_row + index},'Suministros'!D:Z,8,FALSE),\"CODIGO NO EXISTE\")" #VLOOKUP({get_column_letter(col_num-3)}{start_row + index},'Suministros'!D:Z,8,FALSE)"
+                        elif col_num == 14:
+                            cell.value = f"=IFERROR(VLOOKUP({get_column_letter(col_num-4)}{start_row + index},'Suministros'!D:Z,10,FALSE),\"CODIGO NO EXISTE\")" #VLOOKUP({get_column_letter(col_num-4)}{start_row + index},'Suministros'!D:Z,10,FALSE)"
+                        else:
+                            cell.value = value
+                    else:
+                        cell.value = value
+                    for num in range(1, 15):
+                        cell = ws.cell(row=start_row + index, column=num)
+                        cell._style = deepcopy(row_11_style[num])
+
+            new_range = "L12:L" + str(start_row+index)
+
+            for rule in rules:
+                cf.add(new_range, deepcopy(rule))
+        else:
+            for index, row in df.iterrows():
+                for col_num, value in enumerate(row, start=4):
+                    cell = ws.cell(row=start_row + index, column=col_num)
+                    cell.value = value
+                    for num in range(1, 15):
+                        cell = ws.cell(row=start_row + index, column=num)
+                        cell._style = deepcopy(row_11_style[num])
 
         # Adding text in cell L4, C5, C6, H1 and H9
         ws["L4"] = num_order
-        ws["C5"] = client
+        if num_ot == '0':
+            ws["D6"] = client
+        else:
+            ws["C5"] = client
         ws["C6"] = variable
         ws["H1"] = int(int(num_ot)+1)
         ws["H9"] = date.today().strftime("%d/%m/%Y")
+
+    # Insert supplies and client data if preliminary order
+        if num_ot == '0':
+            commands_supplies = (""" SELECT * FROM purch_fact.supplies """)
+            commands_clients = (""" SELECT * FROM purch_fact.clients """)
+
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_supplies)
+                        results_supplies = cur.fetchall()
+
+                        cur.execute(commands_clients)
+                        results_clients = cur.fetchall()
+
+                df_supplies = pd.DataFrame(results_supplies, columns=["ID", "ID Destino", "ID Clase", "Referencia", "Descripción", "Un. Med",
+                                                            "Val. Unit.", "Notas", "Stock", "Stock Disponible", "Pendiente", "Ubicación", "Virtual"])
+                
+                df_clients = pd.DataFrame(results_clients, columns=["ID", "Código", "Nombre", "CIF", "Dirección", "Teléfono", "Fax",
+                                                                    "Ciudad", "Provincia", "País", "Código Postal", "Forma Pago ID", "Vto1", "Vto2",
+                                                                    "IVA ID", "Notas", "Banco ID", "Agente", "Porc. Agente", "Grupo2"])
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
+
+            ws = self.wb["Suministros"]
+
+            # Add data to Excel
+            for r_idx, row in enumerate(dataframe_to_rows(df_supplies, index=False, header=True), 1):
+                ws.append(row)
+
+            # Currency Style
+            currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+            # Apply Currency Style
+            for cell in ws['G']:
+                cell.style = currency_style
+
+            ws = self.wb["Clientes"]
+
+            # Add data to Excel
+            for r_idx, row in enumerate(dataframe_to_rows(df_clients, index=False, header=True), 1):
+                ws.append(row)
 
 
     def save_excel(self):
