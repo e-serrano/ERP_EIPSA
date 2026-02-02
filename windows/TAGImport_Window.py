@@ -296,7 +296,7 @@ class Ui_ImportTAG_Window(object):
                 na_values=['N/A'], 
                 keep_default_na=False, 
                 skiprows=7, 
-                dtype={'plate_thk': str}
+                dtype={'plate_thk': str, 'schedule': str}
             )
             df_table = df_table.astype(str).replace('nan', 'N/A')
             df_final = df_table.iloc[:, config_tags['columns_range'][0]:config_tags['columns_range'][1]]
