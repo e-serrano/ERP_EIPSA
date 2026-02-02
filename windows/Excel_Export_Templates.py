@@ -156,9 +156,7 @@ class offer_flow:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA CAUDAL.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -942,9 +940,7 @@ class offer_short_flow_spanish:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA CAUDAL.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -1644,9 +1640,7 @@ class offer_short_flow_english:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -2419,9 +2413,7 @@ class offer_temp:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA TEMPERATURA.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA TEMPERATURA.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -3239,9 +3231,7 @@ class offer_short_temp_spanish:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA TEMPERATURA.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -3979,9 +3969,7 @@ class offer_short_temp_english:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA TEMPERATURA - ingles.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA TEMPERATURA - ingles.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -4791,9 +4779,7 @@ class offer_level:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA NIVEL.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA NIVEL.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -5453,9 +5439,7 @@ class offer_short_level_spanish:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA NIVEL.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -6033,9 +6017,7 @@ class offer_short_level_english:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -6775,9 +6757,7 @@ class offer_flow_temp:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA CAUDAL-TEMPERATURA.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
@@ -7964,9 +7944,7 @@ class offer_flow_temp_level:
                 documentation = number_items * 70
 
                 # Loading Excel Template
-                self.wb_commercial = load_workbook(
-                    r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OFERTA CAUDAL-TEMPERATURA-NIVEL.xlsx"
-                )
+                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA CAUDAL-TEMPERATURA-NIVEL.xlsx")))
 
                 # Editing sheet COVER
                 sheet_name = "COVER"
