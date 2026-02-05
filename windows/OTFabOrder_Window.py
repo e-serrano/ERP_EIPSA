@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config import config
+from config.config_functions import config_database
 import psycopg2
 from datetime import *
 import os
@@ -140,16 +140,16 @@ class Ui_OTFabOrder_Window(object):
         spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem4, 2, 0, 1, 2)
         headers_labels = ["Id OT", "Pedido Tipo Tag", "Elemento", "Cantidad", "OT",
-                            "Fecha", "CantxOT", "Trad", "Plano Fabricación"]
+                            "Fecha", "CantxOT", "Trad", "Plano Fabricación", 'Orientación', 'Material']
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
         self.hLayout2.setSpacing(0)
         self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 4)
         self.tableOT = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOT.setObjectName("tableWidget")
-        self.tableOT.setColumnCount(9)
+        self.tableOT.setColumnCount(11)
         self.tableOT.setRowCount(0)
-        for i in range(9):
+        for i in range(11):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -219,7 +219,7 @@ class Ui_OTFabOrder_Window(object):
                         """)
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(commands_numot)
                     results=cur.fetchall()
@@ -294,34 +294,34 @@ class Ui_OTFabOrder_Window(object):
             if target_row is not None:
                 ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 8)) + '-' + self.model.data(self.model.index(target_row, 1))
                 if self.variable == 'Caudal':
-                    dim_dwg = self.model.data(self.model.index(target_row, 47))
-                    num_of_plate = self.model.data(self.model.index(target_row, 48)) 
-                    codefab_eq = self.model.data(self.model.index(target_row, 73))
-                    trad_eq = self.model.data(self.model.index(target_row, 74))
-                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 76))
-                    trad_orifice_flange = self.model.data(self.model.index(target_row, 113))
-                    codefab_line_flange = self.model.data(self.model.index(target_row, 79))
-                    trad_line_flange = self.model.data(self.model.index(target_row, 114))
-                    codefab_gasket = self.model.data(self.model.index(target_row, 82))
-                    trad_gasket = self.model.data(self.model.index(target_row, 115))
-                    codefab_bolts = self.model.data(self.model.index(target_row, 85))
-                    trad_bolts = self.model.data(self.model.index(target_row, 116))
-                    codefab_plugs = self.model.data(self.model.index(target_row, 88))
-                    trad_plugs = self.model.data(self.model.index(target_row, 117))
-                    codefab_extractor = self.model.data(self.model.index(target_row, 91))
-                    trad_extractor = self.model.data(self.model.index(target_row, 118))
-                    codefab_plate = self.model.data(self.model.index(target_row, 94))
-                    trad_plate = self.model.data(self.model.index(target_row, 119))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 97))
-                    trad_nipple = self.model.data(self.model.index(target_row, 120))
-                    codefab_handle = self.model.data(self.model.index(target_row, 100))
-                    trad_handle = self.model.data(self.model.index(target_row, 121))
-                    codefab_chring = self.model.data(self.model.index(target_row, 104))
-                    trad_chring = self.model.data(self.model.index(target_row, 122))
-                    codefab_tube = self.model.data(self.model.index(target_row, 106))
-                    trad_tube = self.model.data(self.model.index(target_row, 123))
-                    codefab_piece2 = self.model.data(self.model.index(target_row, 109))
-                    trad_piece2 = self.model.data(self.model.index(target_row, 124))
+                    dim_dwg = self.model.data(self.model.index(target_row, 92))
+                    num_of_plate = self.model.data(self.model.index(target_row, 95)) 
+                    codefab_eq = self.model.data(self.model.index(target_row, 154))
+                    trad_eq = self.model.data(self.model.index(target_row, 155))
+                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 168))
+                    trad_orifice_flange = self.model.data(self.model.index(target_row, 192))
+                    codefab_line_flange = self.model.data(self.model.index(target_row, 169))
+                    trad_line_flange = self.model.data(self.model.index(target_row, 193))
+                    codefab_gasket = self.model.data(self.model.index(target_row, 170))
+                    trad_gasket = self.model.data(self.model.index(target_row, 194))
+                    codefab_bolts = self.model.data(self.model.index(target_row, 171))
+                    trad_bolts = self.model.data(self.model.index(target_row, 195))
+                    codefab_plugs = self.model.data(self.model.index(target_row, 172))
+                    trad_plugs = self.model.data(self.model.index(target_row, 196))
+                    codefab_extractor = self.model.data(self.model.index(target_row, 173))
+                    trad_extractor = self.model.data(self.model.index(target_row, 197))
+                    codefab_plate = self.model.data(self.model.index(target_row, 174))
+                    trad_plate = self.model.data(self.model.index(target_row, 198))
+                    codefab_nipple = self.model.data(self.model.index(target_row, 175))
+                    trad_nipple = self.model.data(self.model.index(target_row, 199))
+                    codefab_handle = self.model.data(self.model.index(target_row, 176))
+                    trad_handle = self.model.data(self.model.index(target_row, 200))
+                    codefab_chring = self.model.data(self.model.index(target_row, 177))
+                    trad_chring = self.model.data(self.model.index(target_row, 201))
+                    codefab_tube = self.model.data(self.model.index(target_row, 178))
+                    trad_tube = self.model.data(self.model.index(target_row, 202))
+                    codefab_piece2 = self.model.data(self.model.index(target_row, 179))
+                    trad_piece2 = self.model.data(self.model.index(target_row, 203))
                     list_dim = [dim_dwg]
                     list_of = [num_of_plate]
                     list_trad = [codefab_eq, trad_eq, codefab_orifice_flange, trad_orifice_flange, codefab_line_flange,
@@ -424,6 +424,7 @@ class Ui_OTFabOrder_Window(object):
                 list_trad.insert(0, ped_type_tag)
                 data_trad.append(list_trad)
 
+    # Setting trad data in the table
         df_trad = pd.DataFrame(data_trad)
         for row in range (self.tableOT.rowCount()):
             rows_pedtypetag = df_trad[df_trad.iloc[:, 0] == self.tableOT.item(row, 1).text()]
@@ -437,6 +438,7 @@ class Ui_OTFabOrder_Window(object):
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableOT.setItem(row, 7, it)
 
+    # Setting dimensional and OF drawings data in the table
         df_dim = pd.DataFrame(data_dim)
         df_of = pd.DataFrame(data_of)
         for row in range (self.tableOT.rowCount()):
@@ -452,6 +454,7 @@ class Ui_OTFabOrder_Window(object):
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 8, it)
 
+    # Executing queries to create or update OT records in database
         for row in range (self.tableOT.rowCount()):
             check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{self.tableOT.item(row, 0).text()}'"
 
@@ -470,7 +473,7 @@ class Ui_OTFabOrder_Window(object):
                                 """)
 
             try:
-                with Database_Connection(config()) as conn:
+                with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         cur.execute(check_ot)
                         results=cur.fetchall()
@@ -479,7 +482,7 @@ class Ui_OTFabOrder_Window(object):
                     data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
                         self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
 
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_newot, data)
                         conn.commit()
@@ -487,7 +490,7 @@ class Ui_OTFabOrder_Window(object):
                     data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
                         self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
 
-                    with Database_Connection(config()) as conn:
+                    with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(commands_updateot, data)
                         conn.commit()
@@ -496,6 +499,7 @@ class Ui_OTFabOrder_Window(object):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
+    # Generating dataframe and exporting to Excel
         table_data = []
 
         for row in range(self.tableOT.rowCount()):
@@ -506,7 +510,7 @@ class Ui_OTFabOrder_Window(object):
 
             table_data.append(row_data)
 
-        df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO'])
+        df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO','ORIENTACION','MATERIAL'])
 
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
