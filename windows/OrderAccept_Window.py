@@ -8,13 +8,13 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config_database  
+from config.config_functions import config_database, get_path
+from utils.Database_Manager import Database_Connection  
 import os
 from docxtpl import DocxTemplate
 from datetime import *
+from utils.Show_Message import MessageHelper
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
@@ -44,7 +44,7 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
         OrderAccept_Window.setMinimumSize(QtCore.QSize(350, 650))
         OrderAccept_Window.setMaximumSize(QtCore.QSize(350, 650))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderAccept_Window.setWindowIcon(icon)
         OrderAccept_Window.setAutoFillBackground(False)
         OrderAccept_Window.setStyleSheet(
@@ -346,7 +346,6 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
         self.longformat.setText(_translate("TAGOfferToOrder_Window", "Formato Largo"))
         self.shortformat.setText(_translate("TAGOfferToOrder_Window", "Formato Corto"))
 
-
 # Function to generate the final document
     def generate_document(self):
         """
@@ -369,57 +368,23 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                         FROM orders
                         WHERE "num_order" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checkorder,(numorder,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numorder in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkorder,(numorder,))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:numorder in x, results))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if numorder=="" or (numorder==" " or len(match)==0):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Generar Acuse Pedido")
-                dlg.setText("El número de pedido no se encuentra registrado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El número de pedido no se encuentra registrado", "warning")
 
             elif address_client =="" or (zipcode_client =="" or (city_client =="" or (country_client =="" or client_responsible ==""))):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Generar Acuse Pedido")
-                dlg.setText("Por favor, rellena todos los campos")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Por favor, rellena todos los campos", "warning")
 
             else:
                 commands_queryorder = ("""
@@ -429,34 +394,16 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                                     WHERE orders."num_order" = %s
                                     ORDER BY orders."num_order"
                                     """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur=conn.cursor()
-                    cur.execute(commands_queryorder,(numorder,))
-                    results_queryorder=cur.fetchall()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_queryorder,(numorder,))
+                            results_queryorder=cur.fetchall()
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 num_order = results_queryorder[0][0]
                 num_offer = results_queryorder[0][1]
@@ -504,18 +451,10 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                     note_bond_english = "Note that for purchase orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
                     note_bond_spanish = "Les hacemos notar que para pedidos con importe inferior a 30.000,00 € no se emiten avales bancarios de garantía"
                 else:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Generar Acuse")
-                    dlg.setText("Elige una opción para el aval")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Elige una opción para el aval", "warning")
 
                 if self.longformat.isChecked() == True:
-                    doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
+                    doc = DocxTemplate(str(get_path("Plantillas Exportación", "Plantilla Acuse Pedido.docx")))
                     context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
@@ -540,25 +479,17 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                     doc.render(context)
                     self.save_document(doc)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Generar Acuse")
-                    dlg.setText("Acuse generado con éxito\n\n"
-                                "Revise los apartados de plazo de entrega, incoterms y aval")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Acuse generado con éxito\n\n"
+                                "Revise los apartados de plazo de entrega, incoterms y aval", "info")
 
                 elif self.shortformat.isChecked() == True:
                     while True:
                         answer, ok = QtWidgets.QInputDialog.getItem(self, "Acuse Pedido", "¿En inglés?:", ['Sí', 'No'], 0, False)
                         if ok and answer:
                             if answer == 'Sí':
-                                doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido - Inglés.docx")
+                                doc = DocxTemplate(str(get_path("Plantillas Exportación", "Plantilla Acuse Corto Pedido - Inglés.docx")))
                             else:
-                                doc = DocxTemplate(r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
+                                doc = DocxTemplate(str(get_path("Plantillas Exportación", "Plantilla Acuse Corto Pedido.docx")))
                             context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
@@ -583,48 +514,19 @@ class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
                             doc.render(context)
                             self.save_document(doc)
 
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Generar Acuse")
-                            dlg.setText("Acuse generado con éxito\n\n"
-                                        "Revise los apartados de plazo de entrega, incoterms y aval")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg, new_icon
+                            MessageHelper.show_message("Acuse generado con éxito\n\n"
+                                        "Revise los apartados de plazo de entrega, incoterms y aval", "info")
 
                             break
                         else:
                             break
 
                 else:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Generar Acuse")
-                    dlg.setText("Elige un formato")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-
+                    MessageHelper.show_message("Elige un formato", "warning")
 
         except Exception as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to save the final document
     def save_document(self, document):
