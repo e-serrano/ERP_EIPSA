@@ -1632,7 +1632,7 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
                             equipment.result, equipment.notes,
                             master.certificate_1, master.certificate_2, master.instrument, master.model, master.precision, master.uncertainty, master.operative_correction
                             FROM verification.manometers_thermoelements_workshop AS equipment
-                            LEFT JOIN verification.calibrated_masters AS master ON equipment.master = master.number_item
+                            LEFT JOIN verification.calibrated_masters AS master ON equipment.master = master.number
                             WHERE id = %s""")
         query_equipment_revision = ("""SELECT * FROM verification.manometers_thermoelements_workshop_revisions WHERE equipment_id = %s ORDER BY id ASC""")
 

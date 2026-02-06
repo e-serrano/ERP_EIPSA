@@ -1606,7 +1606,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
 
         commands_master=("""
                         SELECT certificate_1 FROM verification.calibrated_masters
-                        WHERE number_item = %s
+                        WHERE number = %s
                         """)
 
         try:

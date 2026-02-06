@@ -1387,7 +1387,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         else:
 
             commands_certificate = ("""
-                            SELECT certificate_1 FROM verification."calibrated_masters" WHERE "number_item" = %s
+                            SELECT certificate_1 FROM verification."calibrated_masters" WHERE "number" = %s
                             """)
 
             conn = None

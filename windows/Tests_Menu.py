@@ -654,7 +654,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         query_calibers= ("""SELECT calibers.equipment_number, calibers.type_caliber, calibers.range_caliber || ' mm' as range, TO_CHAR(calibers.next_check_date, 'DD/MM/YYYY'),
                             'CP-40' as master, masters.certificate_1
                             FROM verification.calibers_workshop as calibers
-                            LEFT JOIN verification.calibrated_masters as masters ON 'EIPSA-CP-40' = masters.number_item
+                            LEFT JOIN verification.calibrated_masters as masters ON 'EIPSA-CP-40' = masters.number
                             WHERE calibers.notes = 'PRINCIPAL'
 
                             UNION
@@ -662,7 +662,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                             SELECT manometers.number, manometers.instrument, manometers.range|| ' ' || manometers.scale as range, TO_CHAR(manometers.next_revision, 'DD/MM/YYYY'),
                             manometers.master, masters.certificate_1
                             FROM verification.manometers_thermoelements_workshop as manometers
-                            LEFT JOIN verification.calibrated_masters as masters ON manometers.master = masters.number_item
+                            LEFT JOIN verification.calibrated_masters as masters ON manometers.master = masters.number
                             WHERE manometers.instrument = 'MANOMETRO'""")
 
         conn = None

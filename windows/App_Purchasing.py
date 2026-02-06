@@ -1652,7 +1652,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         Set a notification if the calibration date of an equipment is close.
         """
         commands_check_dates = ("""
-                        SELECT number_item, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
+                        SELECT number, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
                         FROM verification.calibrated_masters
                         WHERE notes = ''
 

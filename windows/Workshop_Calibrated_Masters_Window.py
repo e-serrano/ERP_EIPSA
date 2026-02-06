@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -392,7 +392,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         """
         if self.model:
             self.model.clear()
-        self.closeConnection()
+        # self.closeConnection()
 
     def closeConnection(self):
         """
@@ -418,7 +418,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         Workshop_Calibrated_Masters_Window.resize(790, 595)
         Workshop_Calibrated_Masters_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Calibrated_Masters_Window.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Calibrated_Masters_Window)
         self.centralwidget.setObjectName("centralwidget")
@@ -438,7 +438,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setToolTip("Borrar filtros")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -447,7 +447,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolExpData.setObjectName("ExpData_Button")
         self.toolExpData.setToolTip("Exportar Datos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpData.setIcon(icon)
         self.toolExpData.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpData)
@@ -457,7 +457,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolAdd.setObjectName("Add_Button")
         self.toolAdd.setToolTip("Crear Nueva")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolAdd.setIcon(icon)
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
@@ -467,7 +467,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolPDF.setObjectName("PDF_Button")
         self.toolPDF.setToolTip("Añadir PDF")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
@@ -674,7 +674,9 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.tableCalibratedMasters.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
         self.tableCalibratedMasters.doubleClicked.connect(lambda index: self.item_double_clicked(index))
-        
+
+        self.model.dataChanged.connect(self.saveChanges)
+
         self.adjust_table()
 
 # Function when header is clicked
@@ -795,7 +797,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
 
@@ -811,7 +813,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -839,7 +841,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -910,7 +912,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -925,7 +927,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1075,6 +1077,8 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
+        self.context_menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
@@ -1104,6 +1108,9 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
 
         self.context_menu.close()
 
+
+
+
 # Function to add a new line
     def add_new(self):
         """
@@ -1111,7 +1118,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.calibrated_masters (number_item)
+                        INSERT INTO verification.calibrated_masters (number)
                         VALUES(%s)
                         """)
         conn = None
@@ -1132,7 +1139,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1145,23 +1152,6 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                 conn.close()
 
         self.query_masters()
-
-# Function to adjust table size
-    def adjust_table(self):
-        """
-        Adjusts column visibility and resize behavior in the tableCalibratedMasters widget.
-        """
-        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(7,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableCalibratedMasters.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableCalibratedMasters.verticalHeader().setVisible(False)
-        self.tableCalibratedMasters.hideColumn(8)
-        self.tableCalibratedMasters.hideColumn(9)
-        self.tableCalibratedMasters.hideColumn(10)
-        self.tableCalibratedMasters.hideColumn(11)
-        self.tableCalibratedMasters.hideColumn(12)
 
 # Function when item is double clicked
     def item_double_clicked(self,index):
@@ -1179,7 +1169,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1212,7 +1202,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_yes_no.setWindowIcon(new_icon_yes_no)
             dlg_yes_no.setWindowTitle("ERP EIPSA")
             dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
@@ -1229,7 +1219,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                     cur = conn.cursor()
                 # execution of commands
                     commands_delete = ("""DELETE FROM verification.calibrated_masters
-                                        WHERE number_item = %s""")
+                                        WHERE number = %s""")
                     for id_value in id_values:
                         data = (id_value,)
                         cur.execute(commands_delete, data)
@@ -1241,7 +1231,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Calibres")
                     dlg.setText("Registros eliminados con éxito")
@@ -1254,7 +1244,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1292,13 +1282,13 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                     commands_insert_1 = ("""
                             UPDATE verification."calibrated_masters"
                             SET "certificate_1" = %s
-                            WHERE "number_item" = %s
+                            WHERE "number" = %s
                             """)
 
                     commands_insert_2 = ("""
                             UPDATE verification."calibrated_masters"
                             SET "certificate_2" = %s
-                            WHERE "number_item" = %s
+                            WHERE "number" = %s
                             """)
 
                     conn = None
@@ -1322,7 +1312,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Verificación EXP")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1345,7 +1335,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar")
             dlg.setText("No hay datos cargados")
@@ -1411,15 +1401,15 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
 
         pdf = CustomPDF('P', 'cm', 'A4')
 
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
         pdf.set_auto_page_break(auto=True)
         pdf.set_margins(1.5, 1.5)
 
         pdf.add_page()
 
-        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
+        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 0, 0, 10, 2)
         pdf.ln(1)
         pdf.set_font('Helvetica', 'B', 18)
         pdf.multi_cell(18, 1, "RELACION DE PATRONES DE REFERENCIA CALIBRADOS Y FRECUENCIA DE CALIBRACION", align='C')
@@ -1477,13 +1467,34 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "CERT.pdf"))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
 
         self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
+
+# Function to adjust table size
+    def adjust_table(self):
+        """
+        Adjusts column visibility and resize behavior in the tableCalibratedMasters widget.
+        """
+        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableCalibratedMasters.horizontalHeader().setSectionResizeMode(7,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableCalibratedMasters.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableCalibratedMasters.verticalHeader().setVisible(False)
+        self.tableCalibratedMasters.hideColumn(8)
+        self.tableCalibratedMasters.hideColumn(9)
+        self.tableCalibratedMasters.hideColumn(10)
+        self.tableCalibratedMasters.hideColumn(11)
+        self.tableCalibratedMasters.hideColumn(12)
+
+        self.model.dataChanged.connect(self.saveChanges)
+
+
 
 
 if __name__ == "__main__":
@@ -1498,10 +1509,10 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = Create_DBconnection(user_database, password_database)
-    if not db:
+    db_calibers = Create_DBconnection(user_database, password_database)
+    if not db_calibers:
         sys.exit()
 
-    Workshop_Calibrated_Masters_Window = Ui_Workshop_Calibrated_Masters_Window(db, 'm.gil')
+    Workshop_Calibrated_Masters_Window = Ui_Workshop_Calibrated_Masters_Window(db_calibers, 'm.gil')
     Workshop_Calibrated_Masters_Window.showMaximized()
     sys.exit(app.exec())
