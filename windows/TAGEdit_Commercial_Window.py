@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from config.config_functions import config_database, get_path
 from utils.Show_Message import MessageHelper
 import psycopg2
@@ -24,7 +24,6 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -780,7 +779,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         EditTagsCommercial_Window.resize(790, 595)
         EditTagsCommercial_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTagsCommercial_Window.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(parent=EditTagsCommercial_Window)
         self.centralwidget.setObjectName("centralwidget")
@@ -801,7 +800,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
@@ -810,7 +809,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -819,7 +818,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpExcel)
@@ -830,7 +829,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolImpExcel.setToolTip("Importar Excel")
         self.hcab.addWidget(self.toolImpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolImpExcel.setIcon(icon)
         self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -839,7 +838,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolCompare.setObjectName("toolCompare")
         self.toolCompare.setToolTip("Comparar con pedido inicial")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Comparison.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Comparison.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolCompare.setIcon(icon)
         self.toolCompare.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolCompare)
@@ -850,7 +849,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.tooladdItem.setToolTip("Añadir Item")
         self.hcab.addWidget(self.tooladdItem)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.tooladdItem.setIcon(icon)
         self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
         if self.username == 'd.marquez':
@@ -1086,16 +1085,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         try:
             self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         except Exception as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -1187,48 +1179,29 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.all_results_level = []
         self.all_results_others = []
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            for query in commands_comboboxes_flow:
-                cur.execute(query)
-                results_flow=cur.fetchall()
-                self.all_results_flow.append(results_flow)
-            for query in commands_comboboxes_temp:
-                cur.execute(query)
-                results_temp=cur.fetchall()
-                self.all_results_temp.append(results_temp)
-            for query in commands_comboboxes_level:
-                cur.execute(query)
-                results_level=cur.fetchall()
-                self.all_results_level.append(results_level)
-            for query in commands_comboboxes_others:
-                cur.execute(query)
-                results_others=cur.fetchall()
-                self.all_results_others.append(results_others)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    for query in commands_comboboxes_flow:
+                        cur.execute(query)
+                        results_flow=cur.fetchall()
+                        self.all_results_flow.append(results_flow)
+                    for query in commands_comboboxes_temp:
+                        cur.execute(query)
+                        results_temp=cur.fetchall()
+                        self.all_results_temp.append(results_temp)
+                    for query in commands_comboboxes_level:
+                        cur.execute(query)
+                        results_level=cur.fetchall()
+                        self.all_results_level.append(results_level)
+                    for query in commands_comboboxes_others:
+                        cur.execute(query)
+                        results_others=cur.fetchall()
+                        self.all_results_others.append(results_others)
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditTagsCommercial_Window):
@@ -1407,31 +1380,15 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
     
         self.model.dataChanged.disconnect(self.saveChanges)
         self.numorder = self.Numorder_EditTags.text()
-        numoffer = self.Numoffer_EditTags.text()
+        self.numoffer = self.Numoffer_EditTags.text()
 
-        if numoffer=="" and self.numorder=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena alguno de los campos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+        if self.numoffer=="" and self.numorder=="":
+            MessageHelper.show_message("Rellena alguno de los campos", "warning")
             self.model.dataChanged.connect(self.saveChanges)
 
-        elif numoffer=="":
+        elif self.numoffer=="":
             if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
@@ -1443,46 +1400,20 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         WHERE
                         UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(self.numorder,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query,(self.numorder,))
+                            results_variable=cur.fetchone()
+                            self.variable = results_variable[1] if results_variable != None else ''
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("El número de pedido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("El número de pedido no existe", "warning")
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
@@ -1506,56 +1437,37 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         FROM tags_data.tags_others
                         WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_flow,(self.numorder,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(self.numorder,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(self.numorder,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(self.numorder,))
-                        results_others=cur.fetchall()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(query_flow,(self.numorder,))
+                                results_flow=cur.fetchall()
+                                cur.execute(query_temp,(self.numorder,))
+                                results_temp=cur.fetchall()
+                                cur.execute(query_level,(self.numorder,))
+                                results_level=cur.fetchall()
+                                cur.execute(query_others,(self.numorder,))
+                                results_others=cur.fetchall()
 
-                        if len(results_flow) != 0 and len(results_temp) != 0:
-                            self.variable = 'Caudal+Temp'
-                        elif len(results_flow) != 0 and len(results_level) != 0:
-                            self.variable = 'Caudal+Nivel'
-                        elif len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
+                                if len(results_flow) != 0 and len(results_temp) != 0:
+                                    self.variable = 'Caudal+Temp'
+                                elif len(results_flow) != 0 and len(results_level) != 0:
+                                    self.variable = 'Caudal+Nivel'
+                                elif len(results_flow) != 0:
+                                    self.variable = 'Caudal'
+                                elif len(results_temp) != 0:
+                                    self.variable = 'Temperatura'
+                                elif len(results_level) != 0:
+                                    self.variable = 'Nivel'
+                                elif len(results_others) != 0:
+                                    self.variable = 'Otros'
+                                else:
+                                    self.variable = ''
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     if self.variable == 'Caudal+Temp':
                         self.variable = 'Caudal'
@@ -1610,46 +1522,20 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     WHERE
                     UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
                     ''')
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query,(numoffer,))
-                results_variable=cur.fetchone()
-                self.variable = results_variable[1] if results_variable != None else ''
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query,(self.numoffer,))
+                        results_variable=cur.fetchone()
+                        self.variable = results_variable[1] if results_variable != None else ''
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if results_variable == None:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de oferta no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El número de oferta no existe", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
@@ -1673,56 +1559,37 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     FROM tags_data.tags_others
                     WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
                     ''')
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_flow,(numoffer,))
-                    results_flow=cur.fetchall()
-                    cur.execute(query_temp,(numoffer,))
-                    results_temp=cur.fetchall()
-                    cur.execute(query_level,(numoffer,))
-                    results_level=cur.fetchall()
-                    cur.execute(query_others,(numoffer,))
-                    results_others=cur.fetchall()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query_flow,(self.numoffer,))
+                            results_flow=cur.fetchall()
+                            cur.execute(query_temp,(self.numoffer,))
+                            results_temp=cur.fetchall()
+                            cur.execute(query_level,(self.numoffer,))
+                            results_level=cur.fetchall()
+                            cur.execute(query_others,(self.numoffer,))
+                            results_others=cur.fetchall()
 
-                    if len(results_flow) != 0 and len(results_temp) != 0:
-                        self.variable = 'Caudal+Temp'
-                    elif len(results_flow) != 0 and len(results_level) != 0:
-                        self.variable = 'Caudal+Nivel'
-                    elif len(results_flow) != 0:
-                        self.variable = 'Caudal'
-                    elif len(results_temp) != 0:
-                        self.variable = 'Temperatura'
-                    elif len(results_level) != 0:
-                        self.variable = 'Nivel'
-                    elif len(results_others) != 0:
-                        self.variable = 'Otros'
-                    else:
-                        self.variable = ''
+                            if len(results_flow) != 0 and len(results_temp) != 0:
+                                self.variable = 'Caudal+Temp'
+                            elif len(results_flow) != 0 and len(results_level) != 0:
+                                self.variable = 'Caudal+Nivel'
+                            elif len(results_flow) != 0:
+                                self.variable = 'Caudal'
+                            elif len(results_temp) != 0:
+                                self.variable = 'Temperatura'
+                            elif len(results_level) != 0:
+                                self.variable = 'Nivel'
+                            elif len(results_others) != 0:
+                                self.variable = 'Otros'
+                            else:
+                                self.variable = ''
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if self.variable == 'Caudal+Temp':
                     self.variable = 'Caudal'
@@ -1766,20 +1633,12 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model.table_check = "tags_data.tags_others"
                     self.initial_column = 15
                     self.column_difference = 60
-                self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
-                self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
+                self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
 
         else:
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder.upper()):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
@@ -1790,46 +1649,20 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         WHERE
                         UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(numoffer,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query,(self.numoffer,))
+                            results_variable=cur.fetchone()
+                            self.variable = results_variable[1] if results_variable != None else ''
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de oferta no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("EL número de oferta no existe", "warning")
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
@@ -1853,56 +1686,37 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         FROM tags_data.tags_others
                         WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
                         ''')
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_flow,(numoffer,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(numoffer,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(numoffer,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(numoffer,))
-                        results_others=cur.fetchall()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(query_flow,(self.numoffer,))
+                                results_flow=cur.fetchall()
+                                cur.execute(query_temp,(self.numoffer,))
+                                results_temp=cur.fetchall()
+                                cur.execute(query_level,(self.numoffer,))
+                                results_level=cur.fetchall()
+                                cur.execute(query_others,(self.numoffer,))
+                                results_others=cur.fetchall()
 
-                        if len(results_flow) != 0 and len(results_temp) != 0:
-                            self.variable = 'Caudal+Temp'
-                        elif len(results_flow) != 0 and len(results_level) != 0:
-                            self.variable = 'Caudal+Nivel'
-                        elif len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
+                                if len(results_flow) != 0 and len(results_temp) != 0:
+                                    self.variable = 'Caudal+Temp'
+                                elif len(results_flow) != 0 and len(results_level) != 0:
+                                    self.variable = 'Caudal+Nivel'
+                                elif len(results_flow) != 0:
+                                    self.variable = 'Caudal'
+                                elif len(results_temp) != 0:
+                                    self.variable = 'Temperatura'
+                                elif len(results_level) != 0:
+                                    self.variable = 'Nivel'
+                                elif len(results_others) != 0:
+                                    self.variable = 'Otros'
+                                else:
+                                    self.variable = ''
 
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     if self.variable == 'Caudal+Temp':
                         self.variable = 'Caudal'
@@ -1946,8 +1760,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
                         self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -2429,15 +2243,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         else:
             self.model.dataChanged.connect(self.saveChanges)
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("No hay TAGS introducidos para este pedido u oferta")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("No hay TAGS introducidos para este pedido u oferta", "warning")
 
         self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
 
@@ -2465,16 +2271,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -2720,7 +2518,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2765,7 +2563,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -2886,7 +2684,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("Buscar")
         clickedButton = dlg.exec()
@@ -2901,7 +2699,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
@@ -2931,15 +2729,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos cargados", "warning")
         else:
             final_data = []
 
@@ -2973,9 +2763,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             input_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
             if input_file:
-                params = config_database()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
 
             #Importing excel file into dataframe
                 df_table = pd.read_excel(input_file, keep_default_na=False, na_values=[], skiprows=1, dtype={'image': str, 'document':str})
@@ -2998,74 +2785,52 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         errors="ignore",)
 
                 try:
-                    for index, row in df_table.iterrows():
-                        if "id_tag_flow" in row:
-                            id_value = row["id_tag_flow"]
-                            table_name = 'tags_data.tags_flow'
-                            where_clause = f"id_tag_flow = {id_value}"
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            for index, row in df_table.iterrows():
+                                if "id_tag_flow" in row:
+                                    id_value = row["id_tag_flow"]
+                                    table_name = 'tags_data.tags_flow'
+                                    where_clause = f"id_tag_flow = {id_value}"
 
-                        elif "id_tag_temp" in row:
-                            id_value = row["id_tag_temp"]
-                            table_name = 'tags_data.tags_temp'
-                            where_clause = f"id_tag_temp = {id_value}"
+                                elif "id_tag_temp" in row:
+                                    id_value = row["id_tag_temp"]
+                                    table_name = 'tags_data.tags_temp'
+                                    where_clause = f"id_tag_temp = {id_value}"
 
-                        elif "id_tag_level" in row:
-                            id_value = row["id_tag_level"]
-                            table_name = 'tags_data.tags_level'
-                            where_clause = f"id_tag_level = {id_value}"
+                                elif "id_tag_level" in row:
+                                    id_value = row["id_tag_level"]
+                                    table_name = 'tags_data.tags_level'
+                                    where_clause = f"id_tag_level = {id_value}"
 
-                        elif "id_tag_others" in row:
-                            id_value = row["id_tag_others"]
-                            table_name = 'tags_data.tags_others'
-                            where_clause = f"id_tag_others = {id_value}"
+                                elif "id_tag_others" in row:
+                                    id_value = row["id_tag_others"]
+                                    table_name = 'tags_data.tags_others'
+                                    where_clause = f"id_tag_others = {id_value}"
 
-                        # Creating string for columns names and values
-                        columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                                # Creating string for columns names and values
+                                columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
-                        columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{int(float(value))}'" if column in ['tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
-                                            else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
-                                            else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
-                                            else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
-                                            else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
+                                columns = ', '.join([column for column, _ in columns_values])
+                                values = ', '.join([f"'{int(float(value))}'" if column in ['tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                                                    else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
+                                                    else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
+                                                    else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
+                                                    else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
-                    # Creating the SET  and WHERE clause with proper formatting
-                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                            # Creating the SET  and WHERE clause with proper formatting
+                                set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
 
-                    # Creating the update query and executing it after checking existing tags and id
-                        sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                        cursor.execute(sql_update)
+                            # Creating the update query and executing it after checking existing tags and id
+                                sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                                cur.execute(sql_update)
                         conn.commit()
 
-                # Closing cursor and database connection
-                    conn.commit()
-                    cursor.close()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos actualizados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Datos actualizados con éxito", "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
@@ -3258,15 +3023,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         if self.username not in ['d.marquez','g.lopez']:
             if self.proxy.rowCount() == 0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Exportar")
-                dlg.setText("No hay datos cargados")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
+                MessageHelper.show_message("No hay datos cargados", "warning")
             else:
                 final_data = []
 
@@ -3363,15 +3120,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             # Save file with differences filled
                 workbook.save(output_path)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Excel comparativo generado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Excel comparativo generado", "info")
 
 # Function to insert new item
     def add_item(self):
@@ -3385,42 +3134,18 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             elif self.variable == 'Otros':
                 table_name = "tags_data.tags_others"
 
-            params = config_database()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-            
             try:
-                # Creating the update query and executing it after checking existing tags and id
-                # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
-                # cursor.execute(sql_offer)
-                # results_offer = cursor.fetchall()
-                # num_offer = results_offer[0][0]
-
-                sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
-                cursor.execute(sql_insert)
-                conn.commit()
-
-            # Closing cursor and database connection
-                conn.commit()
-                cursor.close()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
+                        cur.execute(sql_insert)
+                    conn.commit()
 
                 self.query_tags()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 # Function to select which material order has to be created
@@ -3465,7 +3190,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+                flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
 
 # Function to create material order for temperature elements
     def materialorder_temp(self):
@@ -3483,7 +3208,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+                temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
 
 # Function to create material order for level elements
     def materialorder_level(self):
@@ -3501,7 +3226,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+                level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
 
 # Function to create material order for others elements
     def materialorder_others(self):
@@ -3519,7 +3244,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'preliminary')
+                others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
 
 
 if __name__ == "__main__":
