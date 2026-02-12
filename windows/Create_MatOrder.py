@@ -501,7 +501,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
-                if not state:
+                if numorder[0] == 'P':
                     cur.execute(commands_client_order,(numorder,))
                     results=cur.fetchone()
                     client=results[2]
