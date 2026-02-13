@@ -2043,8 +2043,22 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
-        excel_mat_order = material_order(df_final.drop(columns=['Code']), num_order, client, variable, '123456')
-        excel_mat_order.save_excel()
+        excel_mat_order = material_order(df_final.drop(columns=['Code']), num_order, client, variable, num_ot)
+
+        order_year = str(datetime.now().year)[:2] + num_order[num_order.rfind("/") - 2:num_order.rfind("/")]
+
+        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+        for folder in sorted(os.listdir(path)):
+            if 'S00' in num_order:
+                if num_order[:8].replace("/", "-") in folder:
+                    path_file = path / folder / "3-Fabricacion" / "Orden de compra"
+                    break
+            else:
+                if num_order.replace("/", "-") in folder:
+                    path_file = path / folder / "3-Fabricacion" / "Orden de compra"
+                    break
+
+        excel_mat_order.save_excel(path_file)
 
 if __name__ == "__main__":
     import sys
