@@ -10155,19 +10155,21 @@ class material_order:
             for r_idx, row in enumerate(dataframe_to_rows(df_clients, index=False, header=True), 1):
                 ws.append(row)
 
-
-    def save_excel(self):
+    def save_excel(self, final_path = None):
         """Saves the populated Excel workbook to a specified location.
         Opens a dialog window for the user to select the file path and name.
         """
         #Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Orden de Compra", "", "Archivos de Excel (*.xlsx)")
-        if output_path :
-            if not output_path .lower().endswith(".xlsx"):
-                output_path += ".xlsx"
-            self.wb.save(output_path)
+        if not final_path:
+            output_path , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Orden de Compra", "", "Archivos de Excel (*.xlsx)")
+            if output_path :
+                if not output_path .lower().endswith(".xlsx"):
+                    output_path += ".xlsx"
+        else:
+            output_path = final_path / "Orden de compra final.xlsx"
+        self.wb.save(output_path)
 
-            MessageHelper.show_message("Orden de compra guardada correctamente.", "information")
+        MessageHelper.show_message("Orden de compra guardada correctamente.", "information")
 
 class future_projects:
     """
