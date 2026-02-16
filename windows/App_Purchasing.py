@@ -12,6 +12,7 @@ from datetime import *
 import os
 from pathlib import Path
 from config.config_functions import config_database, get_path
+from config.config_keys import ORDERS_PATH
 import psycopg2
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer
@@ -443,7 +444,6 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.username=username
         self.pdf_viewer = PDF_Viewer()
         self.setupUi(self)
-
 
     def setupUi(self, App_Purchasing):
         """
@@ -2009,7 +2009,6 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                             cur.execute(query_available_stock, (new_available_stock, supply_id,))
 
                 conn.commit()
-
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
@@ -2047,7 +2046,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         order_year = str(datetime.now().year)[:2] + num_order[num_order.rfind("/") - 2:num_order.rfind("/")]
 
-        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+        path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if num_order[:2] == 'PA' else f"{order_year} Pedidos")
         for folder in sorted(os.listdir(path)):
             if 'S00' in num_order:
                 if num_order[:8].replace("/", "-") in folder:
