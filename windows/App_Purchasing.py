@@ -1939,34 +1939,19 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         workbook = load_workbook(self.fname)
         worksheet = workbook.active
         client = worksheet['C5'].value
-        variable = worksheet['C6'].value
         num_order = worksheet['L4'].value
         order_date = worksheet['H9'].value
 
-        df_table = pd.read_excel(self.fname,
-                                names=["Workshop", "Description", "Model", "Design", "Process", "Material", "Quantity",
-                                        "Code", "Stock", "Stock_Available", "Stock_Pending", "Stock_Virtual"],
-                                na_values=['N/A'], keep_default_na=False, skiprows=10, usecols=range(2,14))
+        df_table = pd.read_excel(self.fname, engine='openpyxl',
+                                names=["Workshop", "Description", "Model", "Design", "Process", "Material", "Quantity", "Warehouse_Yes", "Warehouse_No",
+                                        "Code", "Supplier", "Order_Date", "Delivery_Date",
+                                        "Stock", "Stock_Available", "Stock_Pending", "Stock_Virtual"],
+                                na_values=['N/A'], keep_default_na=False, skiprows=10, usecols=range(2,19))
 
         df_table['Not Purchase'] = df_table.apply(lambda row: 'X' if row['Workshop'].upper() != 'X' else '', axis=1)
         df_table['Purchase'] = df_table.apply(lambda row: 'X' if row['Workshop'].upper() == 'X' else '', axis=1)
 
         df_final = df_table[['Description', 'Model', 'Design', "Process", "Material", "Quantity", 'Not Purchase', 'Purchase', 'Code']].copy()
-
-        query_numot = ("""SELECT "ot_num"
-                        FROM fabrication.fab_order
-                        WHERE NOT "ot_num" LIKE '90%'
-                        ORDER BY "ot_num" ASC
-                        """)
-
-        check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{num_order + '-PEDMAT'}'"
-
-        query_otpedmat = ("""
-                            INSERT INTO fabrication.fab_order (
-                            "id","tag","element","qty_element",
-                            "ot_num","qty_ot","start_date")
-                            VALUES (%s,%s,%s,%s,%s,%s,%s)
-                            """)
 
         query_client_id = ("""SELECT id FROM purch_fact.clients WHERE name = %s""")
 
@@ -1980,8 +1965,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     VALUES (%s,%s,%s)""")
 
         query_available_stock = ("""UPDATE purch_fact.supplies
-                                SET "available_stock" = %s 
-                                WHERE "id" = %s""")
+        #                         SET "available_stock" = %s 
+        #                         WHERE "id" = %s""")
 
         try:
             with Database_Connection(config_database()) as conn:
@@ -2009,55 +1994,10 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                             cur.execute(query_available_stock, (new_available_stock, supply_id,))
 
                 conn.commit()
+                MessageHelper.show_message("Pedido creado con éxito", "info")
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_numot)
-                    results=cur.fetchall()
-                    num_ot=results[-1][0]
-
-            excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-            workbook = load_workbook(excel_file_path, keep_vba=True)
-            worksheet = workbook.active
-            num_ot = worksheet['B2'].value
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(check_otpedmat)
-                    results=cur.fetchall()
-
-            if len(results) == 0:
-                data=(num_order + '-PEDMAT', num_order, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(df_final), date.today().strftime("%d/%m/%Y"))
-                with Database_Connection(config_database()) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(query_otpedmat, data)
-                    conn.commit()
-
-                worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-                workbook.save(excel_file_path)
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), "critical")
-
-        excel_mat_order = material_order(df_final.drop(columns=['Code']), num_order, client, variable, num_ot)
-
-        order_year = str(datetime.now().year)[:2] + num_order[num_order.rfind("/") - 2:num_order.rfind("/")]
-
-        path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if num_order[:2] == 'PA' else f"{order_year} Pedidos")
-        for folder in sorted(os.listdir(path)):
-            if 'S00' in num_order:
-                if num_order[:8].replace("/", "-") in folder:
-                    path_file = path / folder / "3-Fabricacion" / "Orden de compra"
-                    break
-            else:
-                if num_order.replace("/", "-") in folder:
-                    path_file = path / folder / "3-Fabricacion" / "Orden de compra"
-                    break
-
-        excel_mat_order.save_excel(path_file)
 
 if __name__ == "__main__":
     import sys

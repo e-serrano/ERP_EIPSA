@@ -16,6 +16,7 @@ import numpy as np
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.worksheet.datavalidation import DataValidation
 
 
 # Templates for orders
@@ -10060,7 +10061,7 @@ class material_order:
 
         rules = cf._cf_rules.get(old_range)
         for cf_obj, rules in list(cf._cf_rules.items()):
-            if hasattr(cf_obj, "sqref") and str(cf_obj.sqref) == "L12":
+            if hasattr(cf_obj, "sqref") and str(cf_obj.sqref) == "Q12":
                 del cf._cf_rules[cf_obj]
         for index, row in df.iterrows():
             for col_num, value in enumerate(row, start=4):
@@ -10088,16 +10089,35 @@ class material_order:
         for rule in rules:
             cf.add(new_range, deepcopy(rule))
 
+        dv_client = DataValidation(
+        type="list",
+        formula1="OFFSET(Clientes!$C$1,1,0,COUNTA(Clientes!$C:$C)-1,1)",
+        allow_blank=True
+        )
+
+        dv_supply = DataValidation(
+        type="list",
+        formula1="OFFSET(Suministros!$D$1,1,0,COUNTA(Suministros!$D:$D)-1,1)",
+        allow_blank=True
+        )
+
+        ws.add_data_validation(dv_client)
+        ws.add_data_validation(dv_supply)
+
+        dv_client.add("C5")
+        dv_supply.add("L12:L" + str(start_row+index))
+
         # Adding text in cell L4, C5, C6, H1 and H9
         ws["L4"] = num_order
         ws["C5"] = client
         ws["C6"] = variable
         ws["H1"] = int(int(num_ot)+1)
+        ws["F9"] = date.today().strftime("%d/%m/%Y")
         ws["H9"] = date.today().strftime("%d/%m/%Y")
 
     # Insert supplies and client data if preliminary order
-        commands_supplies = (""" SELECT * FROM purch_fact.supplies """)
-        commands_clients = (""" SELECT * FROM purch_fact.clients """)
+        commands_supplies = ("SELECT * FROM purch_fact.supplies ORDER BY reference ASC")
+        commands_clients = ("SELECT * FROM purch_fact.clients ORDER BY name ASC")
 
         try:
             with Database_Connection(config_database()) as conn:
