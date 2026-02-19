@@ -10,7 +10,7 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
 
-def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = None):
+def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     """
     Processes material raw orders for flow items by inserting new entries into the fabrication orders database.
 
@@ -59,7 +59,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    if state:
+    if state == 'Offer':
         num_ot = '0'
     else:
         try:
@@ -379,7 +379,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 153))}'"
 
-            if not state:
+            if state == 'Order':
                 try:
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
@@ -458,32 +458,40 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     for data_list, df_name in data_lists:
         if data_list:
             sublists = [sublist[2:] for sublist in data_list]
-            if not state:
-                df = pd.DataFrame(sublists)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-            else:
-                df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
-                df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
+            df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
+            df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
             data_frames_with_data.append(df)
 
     if data_frames_with_data:
         df_final = pd.concat(data_frames_with_data, ignore_index=True)
 
-        if state:
-            values_supplies = df_final['suministro'].dropna().unique().tolist()
+        values_supplies = df_final['suministro'].dropna().unique().tolist()
 
-            query = """
-            SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
-            FROM purch_fact.supplies
-            WHERE reference IN %(values)s
-            """
+        query = """
+        SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
+        FROM purch_fact.supplies
+        WHERE reference IN %(values)s
+        """
 
-            with Database_Connection(config_database()) as conn:
-                df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
+        with Database_Connection(config_database()) as conn:
+            df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
 
-            df_final = (df_final.merge(df_supplies, on='suministro', how='left')
-                        [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
-                            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+        df_final = (df_final.merge(df_supplies, on='suministro', how='left')
+                    [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
+                        'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+
+        df_final['almacen_si'] = ''
+        df_final['almacen_no'] = ''
+        df_final['proveedor'] = ''
+        df_final['fecha_pedido'] = ''
+        df_final['fecha_prevista'] = ''
+
+        df_final = df_final[
+            ['descripción', 'modelo', 'diseño', 'proceso', 'material',
+            'cantidad', 'almacen_si', 'almacen_no', 'suministro',
+            'proveedor', 'fecha_pedido', 'fecha_prevista',
+            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']
+        ]
 
     commands_client_order = ("""
                 SELECT orders."num_order",orders."num_offer",offers."client"
@@ -501,7 +509,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
-                if numorder[0] == 'P':
+                if state == 'Order':
                     cur.execute(commands_client_order,(numorder,))
                     results=cur.fetchone()
                     client=results[2]
@@ -518,7 +526,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     excel_mat_order.save_excel()
 
 
-def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = None):
+def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     """
     Processes material raw orders for temp items by inserting new entries into the fabrication orders database.
 
@@ -566,7 +574,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    if state:
+    if state == 'Offer':
         num_ot = '0'
     else:
         try:
@@ -813,7 +821,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 80))}'"
 
-            if not state:
+            if state == 'Order':
                 try:
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
@@ -890,32 +898,40 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     for data_list, df_name in data_lists:
         if data_list:
             sublists = [sublist[2:] for sublist in data_list]
-            if not state:
-                df = pd.DataFrame(sublists)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-            else:
-                df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
-                df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
+            df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
+            df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
             data_frames_with_data.append(df)
 
     if data_frames_with_data:
         df_final = pd.concat(data_frames_with_data, ignore_index=True)
 
-        if state:
-            values_supplies = df_final['suministro'].dropna().unique().tolist()
+        values_supplies = df_final['suministro'].dropna().unique().tolist()
 
-            query = """
-            SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
-            FROM purch_fact.supplies
-            WHERE reference IN %(values)s
-            """
+        query = """
+        SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
+        FROM purch_fact.supplies
+        WHERE reference IN %(values)s
+        """
 
-            with Database_Connection(config_database()) as conn:
-                df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
+        with Database_Connection(config_database()) as conn:
+            df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
 
-            df_final = (df_final.merge(df_supplies, on='suministro', how='left')
-                        [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
-                            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+        df_final = (df_final.merge(df_supplies, on='suministro', how='left')
+                    [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
+                        'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+
+        df_final['almacen_si'] = ''
+        df_final['almacen_no'] = ''
+        df_final['proveedor'] = ''
+        df_final['fecha_pedido'] = ''
+        df_final['fecha_prevista'] = ''
+
+        df_final = df_final[
+            ['descripción', 'modelo', 'diseño', 'proceso', 'material',
+            'cantidad', 'almacen_si', 'almacen_no', 'suministro',
+            'proveedor', 'fecha_pedido', 'fecha_prevista',
+            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']
+        ]
 
     commands_client_order = ("""
                 SELECT orders."num_order",orders."num_offer",offers."client"
@@ -933,7 +949,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
-                if not state:
+                if state == 'Order':
                     cur.execute(commands_client_order,(numorder,))
                     results=cur.fetchone()
                     client=results[2]
@@ -950,7 +966,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state = Non
     excel_mat_order.save_excel()
 
 
-def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = None):
+def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     """
     Processes material raw orders for level items by inserting new entries into the fabrication orders database.
 
@@ -1000,7 +1016,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = No
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    if state:
+    if state == 'Offer':
         num_ot = '0'
     else:
         try:
@@ -1295,7 +1311,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = No
 
             check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
 
-            if not state:
+            if state == 'Order':
                 try:
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
@@ -1396,32 +1412,40 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = No
     for data_list, df_name in data_lists:
         if data_list:
             sublists = [sublist[2:] for sublist in data_list]
-            if not state:
-                df = pd.DataFrame(sublists)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-            else:
-                df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
-                df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
+            df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
+            df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
             data_frames_with_data.append(df)
 
     if data_frames_with_data:
         df_final = pd.concat(data_frames_with_data, ignore_index=True)
 
-        if state:
-            values_supplies = df_final['suministro'].dropna().unique().tolist()
+        values_supplies = df_final['suministro'].dropna().unique().tolist()
 
-            query = """
-            SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
-            FROM purch_fact.supplies
-            WHERE reference IN %(values)s
-            """
+        query = """
+        SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
+        FROM purch_fact.supplies
+        WHERE reference IN %(values)s
+        """
 
-            with Database_Connection(config_database()) as conn:
-                df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
+        with Database_Connection(config_database()) as conn:
+            df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
 
-            df_final = (df_final.merge(df_supplies, on='suministro', how='left')
-                        [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
-                            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+        df_final = (df_final.merge(df_supplies, on='suministro', how='left')
+                    [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
+                        'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+
+        df_final['almacen_si'] = ''
+        df_final['almacen_no'] = ''
+        df_final['proveedor'] = ''
+        df_final['fecha_pedido'] = ''
+        df_final['fecha_prevista'] = ''
+
+        df_final = df_final[
+            ['descripción', 'modelo', 'diseño', 'proceso', 'material',
+            'cantidad', 'almacen_si', 'almacen_no', 'suministro',
+            'proveedor', 'fecha_pedido', 'fecha_prevista',
+            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']
+        ]
 
     commands_client_order = ("""
                 SELECT orders."num_order",orders."num_offer",offers."client"
@@ -1439,7 +1463,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = No
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
-                if not state:
+                if state == 'Order':
                     cur.execute(commands_client_order,(numorder,))
                     results=cur.fetchone()
                     client=results[2]
@@ -1456,7 +1480,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state = No
     excel_mat_order.save_excel()
 
 
-def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state = None):
+def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     """
     Processes material raw orders for others items by inserting new entries into the fabrication orders database.
 
@@ -1496,7 +1520,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state = N
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
 
-    if state:
+    if state == 'Offer':
         num_ot = '0'
     else:
         try:
@@ -1653,53 +1677,72 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state = N
         for data_list, df_name in data_lists:
             if data_list:
                 sublists = [sublist[2:] for sublist in data_list]
-                if not state:
-                    df = pd.DataFrame(sublists)
-                    df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-                else:
-                    df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
-                    df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
+                df = pd.DataFrame(sublists, columns=['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro'])
+                df = df.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
                 data_frames_with_data.append(df)
 
         if data_frames_with_data:
             df_final = pd.concat(data_frames_with_data, ignore_index=True)
 
-            if state:
-                values_supplies = df_final['suministro'].dropna().unique().tolist()
+            values_supplies = df_final['suministro'].dropna().unique().tolist()
 
-                query = """
-                SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
-                FROM purch_fact.supplies
-                WHERE reference IN %(values)s
-                """
+            query = """
+            SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
+            FROM purch_fact.supplies
+            WHERE reference IN %(values)s
+            """
 
-                with Database_Connection(config_database()) as conn:
-                    df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
-
-                df_final = (df_final.merge(df_supplies, on='suministro', how='left')
-                            [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
-                                'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
-
-        commands_client = ("""
-                    SELECT orders."num_order",orders."num_offer",offers."client"
-                    FROM offers
-                    INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                    WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                    """)
-
-        try:
             with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(commands_client,(numorder,))
+                df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
+
+            df_final = (df_final.merge(df_supplies, on='suministro', how='left')
+                        [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
+                            'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+
+            df_final['almacen_si'] = ''
+            df_final['almacen_no'] = ''
+            df_final['proveedor'] = ''
+            df_final['fecha_pedido'] = ''
+            df_final['fecha_prevista'] = ''
+
+            df_final = df_final[
+                ['descripción', 'modelo', 'diseño', 'proceso', 'material',
+                'cantidad', 'almacen_si', 'almacen_no', 'suministro',
+                'proveedor', 'fecha_pedido', 'fecha_prevista',
+                'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']
+            ]
+
+    commands_client_order = ("""
+                SELECT orders."num_order",orders."num_offer",offers."client"
+                FROM offers
+                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                """)
+
+    commands_client_offer = ("""
+                SELECT offers."num_offer",offers."client"
+                FROM offers
+                WHERE UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                """)
+
+    try:
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                if state == 'Order':
+                    cur.execute(commands_client_order,(numorder,))
                     results=cur.fetchone()
                     client=results[2]
+                else:
+                    cur.execute(commands_client_offer,(numorder,))
+                    results=cur.fetchone()
+                    client=results[1]
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), "critical")
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
 
-        excel_mat_order = material_order(df_final, numorder_pedmat, client, variable, num_ot)
-        excel_mat_order.save_excel()
+    excel_mat_order = material_order(df_final, numorder_pedmat, client, variable, num_ot)
+    excel_mat_order.save_excel()
 
 
 def get_number_before_mm(text):

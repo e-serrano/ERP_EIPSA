@@ -3190,7 +3190,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
+                flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
 
 # Function to create material order for temperature elements
     def materialorder_temp(self):
@@ -3208,7 +3208,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
+                temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
 
 # Function to create material order for level elements
     def materialorder_level(self):
@@ -3226,7 +3226,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
+                level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
 
 # Function to create material order for others elements
     def materialorder_others(self):
@@ -3244,7 +3244,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'preliminary')
+                others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
 
 
 if __name__ == "__main__":

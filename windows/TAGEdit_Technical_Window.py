@@ -2884,7 +2884,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+                flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
 
 # Function to create material order for temperature elements
     def materialorder_temp(self):
@@ -2902,7 +2902,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+                temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
 
 # Function to create material order for level elements
     def materialorder_level(self):
@@ -2920,7 +2920,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+                level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
 
 # Function to create material order for others elements
     def materialorder_others(self):
@@ -2938,7 +2938,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             if clickedButton == 1:
                 numorder_pedmat = dlg.textValue()
-                others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
+                others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
 
 
 # Function to insert components OF drawings
