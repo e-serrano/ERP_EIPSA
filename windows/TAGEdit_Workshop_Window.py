@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import re
 import locale
@@ -2474,6 +2474,61 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                         output_path += ".xlsx"
                     self.wb.save(output_path)
 
+        elif self.variable == 'Otros':
+            id_list=[]
+            data = []
+
+            for row in range(self.proxy.rowCount()):
+                first_column_value = self.proxy.data(self.proxy.index(row, 0))
+                id_list.append(first_column_value)
+
+            if len(id_list) != 0:
+                for element in id_list:
+                    for row in range(self.model.rowCount()):
+                        if self.model.data(self.model.index(row, 0)) == element:
+                            target_row = row
+                            break
+                    if target_row is not None:
+                        tag = self.model.data(self.model.index(target_row, 1))
+                        num_order = self.model.data(self.model.index(target_row, 4))
+                        description = self.model.data(self.model.index(target_row, 8))
+                        eipsa = ''
+
+                        data.append({
+                            'tag': tag,
+                            'num_order': num_order,
+                            'description': description,
+                            'eipsa': eipsa
+                        })
+
+                df = pd.concat([pd.DataFrame([item]) for item in data], ignore_index=True)
+                groups = [df.iloc[i:i + 4] for i in range(0, len(df), 4)]
+
+                self.wb = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA PEGATINAS.xlsx")))
+                sheet_name = "Hoja1"  # Selecting template sheet
+                ws = self.wb[sheet_name]
+
+                start_row = 1
+                for idx, group in enumerate(groups):
+                    group_transposed = group.T
+                    # for r_idx, row in enumerate(group_transposed.iterrows(), start=start_row + idx * 4):
+                    #     for c_idx, value in enumerate(row[1], 1):
+                    #         ws.cell(row=r_idx, column=c_idx, value=value)
+
+                    block_start = start_row + idx * 5
+                    for offset, (_, row) in enumerate(group_transposed.iterrows()):
+                        for c_idx, value in enumerate(row, start=1):
+                            ws.cell(row=block_start + offset, column=c_idx, value=value)
+
+                    blank_row = block_start + 4
+                    for c_idx in range(1, len(group_transposed.columns) + 1):
+                        ws.cell(row=blank_row, column=c_idx, value=None)
+
+                output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+                if output_path:
+                    if not output_path.lower().endswith(".xlsx"):
+                        output_path += ".xlsx"
+                    self.wb.save(output_path)
 
 if __name__ == "__main__":
     import sys
