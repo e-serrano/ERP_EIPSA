@@ -221,7 +221,7 @@ class Ui_Purchasing_Menu(object):
 
         if hasattr(self, "supplies_window") and self.supplies_window.isVisible():
             if self.supplies_window.isMinimized():
-                self.supplies_window.showNormal()
+                self.supplies_window.showMaximized()
 
             self.supplies_window.activateWindow()
             self.supplies_window.raise_()
@@ -243,6 +243,14 @@ class Ui_Purchasing_Menu(object):
         """
         Opens the 'clientorder' window. Sets up UI for the user.
         """
+        if hasattr(self, "ui_clientorder") and self.ui_clientorder.isVisible():
+            if self.ui_clientorder.isMinimized():
+                self.ui_clientorder.showMaximized()
+
+            self.ui_clientorder.activateWindow()
+            self.ui_clientorder.raise_()
+            return
+
         self.ui_clientorder=Ui_ClientOrder_Window(self.username)
         self.ui_clientorder.showMaximized()
 
@@ -251,6 +259,14 @@ class Ui_Purchasing_Menu(object):
         """
         Opens the 'supplierorder' window. Sets up UI for the user.
         """
+        if hasattr(self, "ui_supplierorder") and self.ui_supplierorder.isVisible():
+            if self.ui_supplierorder.isMinimized():
+                self.ui_supplierorder.showMaximized()
+
+            self.ui_supplierorder.activateWindow()
+            self.ui_supplierorder.raise_()
+            return
+
         self.ui_supplierorder=Ui_SupplierOrder_Window(self.username)
         self.ui_supplierorder.showMaximized()
 
@@ -259,6 +275,14 @@ class Ui_Purchasing_Menu(object):
         """
         Opens the 'quotation' window. Sets up UI for the user.
         """
+        if hasattr(self, "ui_quotation") and self.ui_quotation.isVisible():
+            if self.ui_quotation.isMinimized():
+                self.ui_quotation.showMaximized()
+
+            self.ui_quotation.activateWindow()
+            self.ui_quotation.raise_()
+            return
+
         self.ui_quotation=Ui_Quotation_Window(self.username)
         self.ui_quotation.showMaximized()
 
