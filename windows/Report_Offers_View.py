@@ -307,10 +307,17 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 
         # Columns to order as integers
         numeric_columns = [6, 7]
+        amount_columns = [31]
 
         if column in numeric_columns:
             try:
                 return int(leftData) < int(rightData)
+            except (ValueError, TypeError):
+                pass  # If fail, order as string
+
+        elif column in amount_columns:
+            try:
+                return float(leftData.replace(" €","").replace(".", "").replace(",", ".")) < float(rightData.replace(" €","").replace(".", "").replace(",", "."))
             except (ValueError, TypeError):
                 pass  # If fail, order as string
 
