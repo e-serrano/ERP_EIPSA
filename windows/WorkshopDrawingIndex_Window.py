@@ -3971,7 +3971,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         query_description = ('''
                         SELECT item_type, line_size, rating, facing, schedule, element_material,
                         plate_type, plate_thk, flange_material, flange_type, tapping_size || ' (' || tapping_number || ')' as tapping_num_size,
-                        gasket_material, tube_material, stages_number, internal_diameter
+                        gasket_material, tube_material, stages_number, pipe_int_diam
                         FROM tags_data.tags_flow
                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE ('%%'||%s||'%%')
                         ''')
@@ -4365,7 +4365,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
-                                conn.cursor()
+                                conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -4729,11 +4729,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 43, 64]].copy()
+                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 50, 51]].copy()
                                 df_selected.rename(columns={
                                     0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                    12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam',
-                                    43: 'dim_tw', 64: 'notes_tw'
+                                    12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam', 18: 'tip_diam',
+                                    19: 'bore_diam', 20: 'tip_thk', 50: 'base_tw_diam', 51: 'notes_tw'
                                 }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
@@ -4754,16 +4754,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 reader = PdfReader(drawing_path)
                                                 page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, row["material"], row["count"][0])).pages[0]
 
-                                                if row["base_diam"] == 32:
+                                                if row["base_tw_diam"] == 32:
                                                     reader.pages[0].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[0])
-                                                elif row["base_diam"] == 35:
+                                                elif row["base_tw_diam"] == 35:
                                                     reader.pages[1].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[1])
-                                                elif row["base_diam"] == 30:
+                                                elif row["base_tw_diam"] == 30:
                                                     reader.pages[2].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[2])
-                                                elif row["base_diam"] == 38:
+                                                elif row["base_tw_diam"] == 38:
                                                     reader.pages[3].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[3])
 
@@ -4783,15 +4783,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             drawing_path = row["drawing_path"]
                                             if os.path.exists(drawing_path):
                                                 reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], row["base_diam"], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+                                                page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], row["base_tw_diam"], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
 
                                                 reader.pages[0].merge_page(page2=page_overlay)
                                                 writer.add_page(reader.pages[0])
 
                                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
                                             else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
 
                                     elif item in ['Buttweld TW', 'Socket TW']:
                                         df_selected = df_selected[df_selected['type'].isin(['Buttweld TW', 'Socket TW'])].copy()
@@ -4807,15 +4807,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             drawing_path = row["drawing_path"]
                                             if os.path.exists(drawing_path):
                                                 reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+                                                page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_tw_diam'], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
 
                                                 reader.pages[0].merge_page(page2=page_overlay)
                                                 writer.add_page(reader.pages[0])
 
                                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), total_count]
                                             else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), total_count]
 
                             # Loop to add the drawing number and insert into the database
                                 for key, value in dict_drawings.items():
@@ -5112,18 +5112,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 coded_connection = (('-0' + exterior_size.split(' ')[0].split('"')[0] if len(exterior_size.split(' ')[0]) == 2 else '-') + ('.5' if ' 1/2' in exterior_size.split(' ')[0] else ('0.75' if '3/4' in exterior_size.split(' ')[0] else '.0')) +
                                                                     ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-' + ' ' + str(exterior_size.split(' ')[2])))
 
-                                            if coded_connection in ['-0.75-0150', '-0.75-0300', '01-0150', '01-0300', '1.5-0150']:
+                                            if coded_connection in ['-0.75-0150', '-0.75-0300', '-01.0-0150', '-01.0-0300', '-1.5-0150']:
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
                                             else:
-                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B-{coded_connection}.pdf"
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B{coded_connection}.pdf"
                                             drawing_path_2 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
                                             drawing_path_3 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
                                             drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection}.pdf"
                                             if 'BP' in self.client:
-                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.3 TaponPrg 0.50-A105 forjado.pdf'}"
+                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\{'XTAP-0.5Inx TaponPrg 0.5NPT AISI304L.pdf' if material == '316' else 'XTAP-0.5F TaponPrg 0.5NPT A105 forjado.pdf'}"
                                             else:
-                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.4 TaponPrg 0.50-A105 de barra.pdf'}"
-                                            drawing_path_6 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-02 TornilloTaponPrg.pdf"
+                                                drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\{'XTAP-0.5Inx TaponPrg 0.5NPT AISI304L.pdf' if material == '316' else 'XTAP-0.5B TaponPrg 0.5NPT A105 de barra.pdf'}"
+                                            drawing_path_6 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\T-Tornillos\XTAPT-M8 TornilloTaponPrg.pdf"
                                             
                                             description_1 = 'Bridas de desgaste PC ' + exterior_size
                                             description_2 = 'Cuerpos Válvula 2V260 ' + material
@@ -5152,16 +5152,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             page_overlay = PdfReader(loose_valves_dwg_dim(self.numorder, material, connection_1, connection_2, exterior_size, zip(row["count"]))).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
-                                            writer.write(f"{output_path_M}DIM-{dim_drawing_number[:2]}.pdf")
+                                            writer.write(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
 
                                         # Write Drawing data
                                             writer = PdfWriter()
-                                            reader = PdfReader(f"{output_path_M}DIM-{dim_drawing_number[:2]}.pdf")
+                                            reader = PdfReader(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
                                             page_overlay = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
 
-                                            writer.write(f"{output_path_M}DIM-{dim_drawing_number[:2]}.pdf")
+                                            writer.write(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
 
                                             query_update_drawing = ("""
                                                 UPDATE verification.workshop_dim_drawings 
@@ -5377,33 +5377,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         "Los planos no se han podido generar", "critical")
 
 
-    def calculate_tw_base_diam(row, is_repsol, is_cepsa_group):
-        root = float(str(row['root_diam']).replace(",", "."))
-        tip = float(str(row['tip_diam']).replace(",", "."))
-
-        if is_repsol:
-            if root < 33:
-                return 35
-            elif root < tip + 3:
-                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
-            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
-
-        if is_cepsa_group:
-            if root < 32:
-                return 32
-            elif root < tip + 3:
-                return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (tip + 3)))
-            return min(STANDARD_TW_DIAMS, key=lambda x: abs(x - (root)))
-
-        if root < 30:
-            return 30
-        if root < 32:
-            return 32
-        if root < 35:
-            return 35
-        return 38
-
-
 # Functions to create dataframes for items drawings
     def create_df_flanges_flanged_tw(self, dataframe):
         dataframe['drawing_code'] = dataframe.apply(
@@ -5420,35 +5393,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
         axis=1)
 
-        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
-
-        is_repsol = 'REPSOL' in client_upper
-
-        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
-                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
-
-        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
-
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-        df_grouped = dataframe.groupby(['drawing_path','connection','base_diam','material']).size().reset_index(name='count')
-        grouped_flanges = df_grouped.groupby(['drawing_path','connection','base_diam','material']).agg({"count": list}).reset_index()
+        df_grouped = dataframe.groupby(['drawing_path','connection','base_tw_diam','material']).size().reset_index(name='count')
+        grouped_flanges = df_grouped.groupby(['drawing_path','connection','base_tw_diam','material']).agg({"count": list}).reset_index()
 
         return grouped_flanges
 
     def create_df_bars_flanged_tw(self, dataframe):
-        dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip(),axis=1)
-
-        client_upper = ' '.join(c.upper() for c in [self.client, self.final_client] if c)
-
-        is_repsol = 'REPSOL' in client_upper
-
-        is_cepsa_group = (any(term in client_upper for term in ['CEPSA', 'MOEVE', 'BP OIL ESPAÑA'])
-                            or dataframe['std_tw'].str.upper().str.contains('CEPSA').any())
-
-        dataframe['base_diam'] = dataframe.apply(self.calculate_tw_base_diam, axis=1, args=(is_repsol, is_cepsa_group))
-
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
-        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['dim_tw'].split('//')[1].strip()) - 3,axis=1)
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 3,axis=1)
 
         dataframe['drawing_code'] = dataframe.apply(
         lambda row: 'TVSCP-Ø' + str(int(row['base_diam'])) + ' Corte-Taladro',
@@ -5459,37 +5412,17 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length","p_length"]).size().reset_index(name="count")
-        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
+        df_grouped = dataframe.groupby(["drawing_path",'base_tw_diam','material', "bore_diam", "std_length","p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_tw_diam','material']).agg({"bore_diam":list, "std_length": list, "p_length": list, "count": list}).reset_index()
 
         return grouped_bars
 
     def create_df_not_flanged_tw(self, dataframe, item):
-        dataframe['bore_diameter'] = dataframe.apply(lambda row: row['dim_tw'].split('//')[0].strip(),axis=1)
-
-        map_repsol = {
-            '3/4"': 35,
-            '1"': 35,
-            '1-1/4"': 45,
-            '1-1/2"': 50
-        }
-        map_default = {
-            '3/4"': 30,
-            '1"': 35,
-            '1-1/4"': 45,
-            '1-1/2"': 50
-        }
-
-        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
-            dataframe['base_diam'] = dataframe['size'].map(map_repsol).fillna(65)
-        else:
-            dataframe['base_diam'] = dataframe['size'].map(map_default).fillna(65)
-
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
-        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['dim_tw'].split('//')[1].strip()) - 1,axis=1)
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 1,axis=1)
 
         dataframe['drawing_code'] = dataframe.apply(
-        lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro' if float(row['base_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
+        lambda row: 'TVSCP-Ø' + str(row['base_tw_diam']) + ' Corte-Taladro' if float(row['base_tw_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
         axis=1)
 
         dataframe['drawing_path'] = dataframe.apply(
@@ -5497,8 +5430,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length", "p_length"]).size().reset_index(name="count")
-        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
+        df_grouped = dataframe.groupby(["drawing_path",'base_tw_diam','material', "bore_diam", "std_length", "p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_tw_diam','material']).agg({"bore_diam":list, "std_length": list, "p_length": list, "count": list}).reset_index()
 
         return grouped_bars
 
@@ -5578,12 +5511,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         dataframe['size_orifice_flange'] = dataframe['size'].apply(lambda x: str(x).split('"/')[1] if '"/' in str(x) else x)
         dataframe['rating_orifice_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
         dataframe['type_orifice_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
-        dataframe['sch_orifice_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[1] if '/' in str(x) else x)
+        dataframe['sch_orifice_flange'] = dataframe['schedule'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
 
         dataframe['size_line_flange'] = dataframe['size'].apply(lambda x: str(x).split('"/', 1)[0] + '"' if '"/' in str(x) else x)
         dataframe['rating_line_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[0])
         dataframe['type_line_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[0])
-        dataframe['sch_line_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[0])
+        dataframe['sch_line_flange'] = dataframe['schedule'].apply(lambda x: str(x).split('/')[0])
 
         dataframe['welding_type_orifice'] = dataframe['flange_type'].map({'WN': 'A', 'SW/SO': 'B', 'SW/WN': 'A'})
         dataframe['welding_type_line'] = dataframe['flange_type'].map({'WN': 'A', 'SW/SO': 'C', 'SW/WN': 'C'})

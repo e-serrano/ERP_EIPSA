@@ -1426,27 +1426,38 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 
             if self.variable == 'Caudal':
                 self.tableEditTags.hideColumn(33)
+                for i in range(104,108):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(109,113):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(114,119):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(120,127):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(128,130):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(131,133):
+                    self.tableEditTags.hideColumn(i)
                 for i in range(140,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
-                for i in range(80,132):
+                self.tableEditTags.hideColumn(40)
+                for i in range(84,88):
                     self.tableEditTags.hideColumn(i)
-                for i in range(134,138):
+                for i in range(89,93):
                     self.tableEditTags.hideColumn(i)
-                for i in range(139,143):
+                for i in range(94,99):
                     self.tableEditTags.hideColumn(i)
-                for i in range(144,149):
+                for i in range(100,107):
                     self.tableEditTags.hideColumn(i)
-                for i in range(150,157):
+                for i in range(108,110):
                     self.tableEditTags.hideColumn(i)
-                for i in range(158,160):
+                for i in range(111,113):
                     self.tableEditTags.hideColumn(i)
-                for i in range(161,163):
+                for i in range(114,116):
                     self.tableEditTags.hideColumn(i)
-                for i in range(164,166):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number-1):
+                for i in range(125, columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1530,40 +1541,37 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
                             "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
 
-            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                            "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
-                            "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
-                            "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
-                            "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
-                            "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
-                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
-                            "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                            "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                            "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
-                            "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                            "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
-                            "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
-                            "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
-                            "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
-                            "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
-                            "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
-                            "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
-                            "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
-                            "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
-                            "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
-                            "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
-                            "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
-                            "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
-                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
-                            "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
-                            "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
-                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
+            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
+                            "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
+                            "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
+                            "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
+                            "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
+                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
+                            "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
+                            "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
+                            "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
+                            "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
+                            "Cod. Extension", "Cod. Muelle", "Cod. Puntal", "Cod. Tapon", "Cod. Vaina", "Cod. Cable Ext.",
+                            "Cod Fab. Barra", "Cod Fab. Tubo", "Cod Fab. Brida", "Cod Fab. Sensor", "Cod Fab. Cabeza", "Cod Fab. Transmisor",
+                            "Cod Fab. Extension", "Cod Fab. Muelle", "Cod Fab. Puntal", "Cod Fab. Tapon", "Cod Fab. Vaina", "Cod Fab. Cable Ext.",
+                            "Cant. Barra", "Cant. Tubo", "Cant. Brida", "Cant. Sensor", "Cant. Cabeza", "Cant. Transmisor",
+                            "Cant. Extension", "Cant. Muelle", "Cant. Puntal", "Cant. Tapon", "Cant. Vaina", "Cant. Cable Ext.",
+                            "Trad. Barra", "Trad. Tubo", "Trad. Brida", "Trad. Sensor", "Trad. Cabeza", "Trad. Transmisor",
+                            "Trad. Extension", "Trad. Muelle", "Trad. Puntal", "Trad. Tapon", "Trad. Vaina", "Trad. Cable Ext.",
+                            "Cod. Compra Barra", "Cod. Compra Tubo", "Cod. Compra Brida", "Cod. Compra Sensor", "Cod. Compra Cabeza", "Cod. Compra Transmisor",
+                            "Cod. Compra Extension", "Cod. Compra Muelle", "Cod. Compra Puntal", "Cod. Compra Tapon", "Cod. Compra Vaina", "Cod. Compra Cable Ext."]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -1660,23 +1668,22 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 self.model2.column_range = self.variable_cells2
 
                 if self.variable2 == 'Temperatura':
-                    for i in range(80,132):
+                    self.tableEditTags2.hideColumn(40)
+                    for i in range(84,88):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(134,138):
+                    for i in range(89,93):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(139,143):
+                    for i in range(94,99):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(144,149):
+                    for i in range(100,107):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(150,157):
+                    for i in range(108,110):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(158,160):
+                    for i in range(111,113):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(161,163):
+                    for i in range(114,116):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(164,166):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(167,columns_number):
+                    for i in range(125, columns_number):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Nivel':

@@ -614,173 +614,173 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 target_row = row
                 break
         if target_row is not None:
-            code_bar = model.data(model.index(target_row, 83))
-            codefab_bar = model.data(model.index(target_row, 84))
-            code_tube = model.data(model.index(target_row, 86))
-            codefab_tube = model.data(model.index(target_row, 87))
-            code_flange = model.data(model.index(target_row, 89))
-            codefab_flange = model.data(model.index(target_row, 90))
-            code_sensor = model.data(model.index(target_row, 92))
-            codefab_sensor = model.data(model.index(target_row, 93))
-            code_head = model.data(model.index(target_row, 95))
-            codefab_head = model.data(model.index(target_row, 96))
-            code_btb = model.data(model.index(target_row, 98))
-            codefab_btb = model.data(model.index(target_row, 99))
-            code_nipple = model.data(model.index(target_row, 101))
-            codefab_nipple = model.data(model.index(target_row, 102))
-            code_spring = model.data(model.index(target_row, 104))
-            codefab_spring = model.data(model.index(target_row, 105))
-            code_puntal = model.data(model.index(target_row, 107))
-            codefab_puntal = model.data(model.index(target_row, 108))
-            code_plug = model.data(model.index(target_row, 110))
-            codefab_plug = model.data(model.index(target_row, 111))
-            code_tw = model.data(model.index(target_row, 113))
-            codefab_tw = model.data(model.index(target_row, 114))
-            code_extcable = model.data(model.index(target_row, 116))
-            codefab_extcable = model.data(model.index(target_row, 117))
+            code_bar = model.data(model.index(target_row, 142))
+            codefab_bar = model.data(model.index(target_row, 154))
+            code_tube = model.data(model.index(target_row, 143))
+            codefab_tube = model.data(model.index(target_row, 155))
+            code_flange = model.data(model.index(target_row, 144))
+            codefab_flange = model.data(model.index(target_row, 156))
+            code_sensor = model.data(model.index(target_row, 145))
+            codefab_sensor = model.data(model.index(target_row, 157))
+            code_head = model.data(model.index(target_row, 146))
+            codefab_head = model.data(model.index(target_row, 158))
+            code_btb = model.data(model.index(target_row, 147))
+            codefab_btb = model.data(model.index(target_row, 159))
+            code_nipple = model.data(model.index(target_row, 148))
+            codefab_nipple = model.data(model.index(target_row, 160))
+            code_spring = model.data(model.index(target_row, 149))
+            codefab_spring = model.data(model.index(target_row, 161))
+            code_puntal = model.data(model.index(target_row, 150))
+            codefab_puntal = model.data(model.index(target_row, 162))
+            code_plug = model.data(model.index(target_row, 151))
+            codefab_plug = model.data(model.index(target_row, 163))
+            code_tw = model.data(model.index(target_row, 152))
+            codefab_tw = model.data(model.index(target_row, 164))
+            code_extcable = model.data(model.index(target_row, 153))
+            codefab_extcable = model.data(model.index(target_row, 165))
             all_list_parts =[]
 
             if code_bar != '':
-                tradcodbar = model.data(model.index(target_row, 120)) if 'Helical' not in model.data(model.index(target_row, 9)) else 'VAINA HELICOIDAL' + (' BRIDADA ' + model.data(model.index(target_row, 10)) + ' ' + model.data(model.index(target_row, 11)) + ' ' + model.data(model.index(target_row, 12)) if model.data(model.index(target_row, 9)) == 'Flanged Helical' else '')
+                tradcodbar = model.data(model.index(target_row, 178)) if 'Helical' not in model.data(model.index(target_row, 9)) else 'VAINA HELICOIDAL' + (' BRIDADA ' + model.data(model.index(target_row, 10)) + ' ' + model.data(model.index(target_row, 11)) + ' ' + model.data(model.index(target_row, 12)) if model.data(model.index(target_row, 9)) == 'Flanged Helical' else '')
                 modelbar = ('U=' + model.data(model.index(target_row, 16)) + ' /L=' + model.data(model.index(target_row, 15)) if 'Stone' in model.data(model.index(target_row, 9)) or 'Helical' in model.data(model.index(target_row, 9))
                             else 'Barra ø=' + ('35' if float(model.data(model.index(target_row, 17)).replace(',','.'))<=33.5 else model.data(model.index(target_row, 17))))
                 notesbar = ('RAÍZ ø=' + model.data(model.index(target_row, 17)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
                             else '')
                 processbar = ''
                 materialbar = model.data(model.index(target_row, 14))
-                qtybar = model.data(model.index(target_row, 85)) if 'Helical' not in model.data(model.index(target_row, 9)) else 1
-                codepurchbar = model.data(model.index(target_row, 178))
+                qtybar = model.data(model.index(target_row, 166)) if 'Helical' not in model.data(model.index(target_row, 9)) else 1
+                codepurchbar = model.data(model.index(target_row, 190))
                 bar_list.append([code_bar, codefab_bar, tradcodbar, modelbar, notesbar, processbar, materialbar, qtybar, codepurchbar])
                 all_list_parts.append(bar_list)
 
             if code_tube != '':
-                tradcodtube = model.data(model.index(target_row, 121))
-                schtube = model.data(model.index(target_row, 33))
+                tradcodtube = model.data(model.index(target_row, 179))
+                schtube = model.data(model.index(target_row, 38))
                 notestube = ''
                 processtube = ''
                 materialtube = model.data(model.index(target_row, 14))
-                qtytube = model.data(model.index(target_row, 88))
-                codepurchtube = model.data(model.index(target_row, 179))
+                qtytube = model.data(model.index(target_row, 167))
+                codepurchtube = model.data(model.index(target_row, 191))
                 tube_list.append([code_tube, codefab_tube, tradcodtube, schtube, notestube, processtube, materialtube, qtytube, codepurchtube])
                 all_list_parts.append(tube_list)
 
             if code_flange != '':
-                tradcodflange = model.data(model.index(target_row, 122)) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
+                tradcodflange = model.data(model.index(target_row, 180)) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
                 modelflange = ''
                 notesflange = ''
                 processflange = ''
                 materialflange = (model.data(model.index(target_row, 30)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
                                     else model.data(model.index(target_row, 14))) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
                 qtyflange = 1 if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
-                codepurchflange = model.data(model.index(target_row, 180))
+                codepurchflange = model.data(model.index(target_row, 192))
                 flange_list.append([code_flange, codefab_flange, tradcodflange, modelflange, notesflange, processflange, materialflange, qtyflange, codepurchflange])
                 all_list_parts.append(flange_list)
 
             if code_sensor != '':
-                tradcodsensor = model.data(model.index(target_row, 123))
-                modelsensor = (model.data(model.index(target_row, 28)) + '-' + model.data(model.index(target_row, 27)) if code_sensor[:4] == 'Bime'
+                tradcodsensor = model.data(model.index(target_row, 181))
+                modelsensor = (model.data(model.index(target_row, 33)) + '-' + model.data(model.index(target_row, 32)) if code_sensor[:4] == 'Bime'
                                 else '')
-                notesensor = (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_sensor[:4] == 'Bime'
+                notesensor = (model.data(model.index(target_row, 27)) + '-' + model.data(model.index(target_row, 28)) if code_sensor[:4] == 'Bime'
                                 else '')
                 processsensor = ''
                 materialsensor = ('PLATINO' if tradcodsensor[:5] == 'PT100'
                                 else ('AC. INOX.' if model.data(model.index(target_row, 20)) == 'St.Steel' else model.data(model.index(target_row, 20))))
                 qtysensor = (1 if tradcodsensor[:5] == 'PT100' or code_sensor[:4] == 'Bime'
-                                else (float(model.data(model.index(target_row, 73)))/1000) if model.data(model.index(target_row, 73)) != '' else '')
-                codepurchsensor = model.data(model.index(target_row, 181))
+                                else (float(model.data(model.index(target_row, 56)))/1000) if model.data(model.index(target_row, 56)) != '' else '')
+                codepurchsensor = model.data(model.index(target_row, 193))
                 sensor_list.append([code_sensor, codefab_sensor, tradcodsensor, modelsensor, notesensor, processsensor, materialsensor, qtysensor, codepurchsensor])
                 all_list_parts.append(sensor_list)
 
             if code_head != '':
-                tradcodhead = model.data(model.index(target_row, 124))
-                modelhead = model.data(model.index(target_row, 27))
+                tradcodhead = model.data(model.index(target_row, 182))
+                modelhead = model.data(model.index(target_row, 32))
                 noteshead = ''
-                processhead = model.data(model.index(target_row, 28))
+                processhead = model.data(model.index(target_row, 33))
                 materialhead = ('ALUMINIO' if modelhead[-2:] == 'AL' 
                                 else ('AC.CARBONO' if modelhead[-2:] == 'CS' 
                                 else ('AC.INOXIDABLE' if modelhead[-2:] == 'SS' 
                                 else 'MATERIAL CABEZA NO DEFINIDO')))
                 qtyhead = 1
-                codepurchhead = model.data(model.index(target_row, 182))
+                codepurchhead = model.data(model.index(target_row, 194))
                 head_list.append([code_head, codefab_head, tradcodhead, modelhead, noteshead, processhead, materialhead, qtyhead, codepurchhead])
                 all_list_parts.append(head_list)
 
             if code_btb != '':
-                tradcodbtb = model.data(model.index(target_row, 125))
-                modelbtb = "RANGO " + (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_btb[:2] == 'BI' 
+                tradcodbtb = model.data(model.index(target_row, 183))
+                modelbtb = "RANGO " + (model.data(model.index(target_row, 27)) + '-' + model.data(model.index(target_row, 28)) if code_btb[:2] == 'BI' 
                             else '')
                 notesbtb = ''
                 processbtb = ''
-                materialbtb = (model.data(model.index(target_row, 20)) if code_btb[:2] == 'BI' 
+                materialbtb = (model.data(model.index(target_row, 24)) if code_btb[:2] == 'BI' 
                             else ('CERÁMICO' if code_btb[:2] == 'CE' else ''))
-                qtybtb = model.data(model.index(target_row, 100))
-                codepurchbtb = model.data(model.index(target_row, 183))
+                qtybtb = model.data(model.index(target_row, 171))
+                codepurchbtb = model.data(model.index(target_row, 195))
                 btb_list.append([code_btb, codefab_btb, tradcodbtb, modelbtb, notesbtb, processbtb, materialbtb, qtybtb, codepurchbtb])
                 all_list_parts.append(btb_list)
 
             if code_nipple != '':
-                tradcodnipple = model.data(model.index(target_row, 126))
-                modelnipple = ('' if model.data(model.index(target_row, 26)) == 'N/A' or model.data(model.index(target_row, 26))=='' else model.data(model.index(target_row, 26)))
+                tradcodnipple = model.data(model.index(target_row, 184))
+                modelnipple = ('' if model.data(model.index(target_row, 30)) == 'N/A' or model.data(model.index(target_row, 30))=='' else model.data(model.index(target_row, 30)))
                 notesnipple = ''
                 processnipple = ''
                 materialnipple = 'A-105/A106' if tradcodnipple[tradcodnipple.find('('):tradcodnipple.find('(')+9] == '(CS)' else 'AISI-316'
                 qtynipple = 1
-                codepurchnipple = model.data(model.index(target_row, 184))
+                codepurchnipple = model.data(model.index(target_row, 196))
                 nipple_list.append([code_nipple, codefab_nipple, tradcodnipple, modelnipple, notesnipple, processnipple, materialnipple, qtynipple, codepurchnipple])
                 all_list_parts.append(nipple_list)
 
             if code_spring != '':
-                tradcodspring = model.data(model.index(target_row, 127))
+                tradcodspring = model.data(model.index(target_row, 185))
                 modelspring = ''
                 notesspring = ''
                 processspring = ''
                 materialspring = 'AC.INOX'
                 qtyspring = 1
-                codepurchspring = model.data(model.index(target_row, 185))
+                codepurchspring = model.data(model.index(target_row, 197))
                 spring_list.append([code_spring, codefab_spring, tradcodspring, modelspring, notesspring, processspring, materialspring, qtyspring, codepurchspring])
                 all_list_parts.append(spring_list)
 
             if code_plug != '':
-                tradcodplug = model.data(model.index(target_row, 129))
+                tradcodplug = model.data(model.index(target_row, 187))
                 modelplug = ''
                 notesplug = ''
                 processplug = ''
                 materialplug = tradcodplug[tradcodplug.find('('):tradcodplug.find('(')+9]
                 qtyplug = 1
-                codepurchplug = model.data(model.index(target_row, 187))
+                codepurchplug = model.data(model.index(target_row, 199))
                 plug_list.append([code_plug, codefab_plug, tradcodplug, modelplug, notesplug, processplug, materialplug, qtyplug, codepurchplug])
                 all_list_parts.append(plug_list)
 
             if code_puntal != '':
-                tradcodpuntal = model.data(model.index(target_row, 128))
+                tradcodpuntal = model.data(model.index(target_row, 186))
                 modelpuntal = ''
                 notespuntal = ''
                 processpuntal = ''
                 materialpuntal = model.data(model.index(target_row, 14))
                 qtypuntal = float(code_puntal[1:8])/1000
-                codepurchpuntal = model.data(model.index(target_row, 186))
+                codepurchpuntal = model.data(model.index(target_row, 198))
                 puntal_list.append([code_puntal, codefab_puntal, tradcodpuntal, modelpuntal, notespuntal, processpuntal, materialpuntal, qtypuntal, codepurchpuntal])
                 all_list_parts.append(puntal_list)
 
             if code_tw != '' and ('VC' in code_tw or 'FORGED' in model.data(model.index(target_row, 9))):
-                tradcodtw = model.data(model.index(target_row, 130))
+                tradcodtw = model.data(model.index(target_row, 188))
                 modeltw = 'U=' + model.data(model.index(target_row, 16)) + ' / L=' + model.data(model.index(target_row, 15))
                 notestw = ''
                 processtw = ''
                 materialtw = model.data(model.index(target_row, 14))
-                qtytw = model.data(model.index(target_row, 115))
-                codepurchtw = model.data(model.index(target_row, 188))
+                qtytw = model.data(model.index(target_row, 176))
+                codepurchtw = model.data(model.index(target_row, 200))
                 tw_list.append([code_tw, codefab_tw, tradcodtw, modeltw, notestw, processtw, materialtw, qtytw, codepurchtw])
                 all_list_parts.append(tw_list)
 
             if code_extcable != '':
-                tradcodextcable = model.data(model.index(target_row, 131))
+                tradcodextcable = model.data(model.index(target_row, 189))
                 modelextcable = ''
                 notesextcable = ''
                 processextcable = ''
                 materialextcable = 'AC. INOX.' if model.data(model.index(target_row, 20)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else model.data(model.index(target_row, 20))
-                qtyextcable = float(model.data(model.index(target_row, 73)))/1000 if model.data(model.index(target_row, 73)) != '' else 0
-                codepurchextcable = model.data(model.index(target_row, 189))
+                qtyextcable = float(model.data(model.index(target_row, 177)))/1000 if model.data(model.index(target_row, 177)) != '' else 0
+                codepurchextcable = model.data(model.index(target_row, 201))
                 extcable_list.append([code_extcable, codefab_extcable, tradcodextcable, modelextcable, notesextcable, processextcable, materialextcable, qtyextcable, codepurchextcable])
                 all_list_parts.append(extcable_list)
 
@@ -796,17 +796,17 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
             columns_tags = ["code", "equipment", "num_order", "order_material", "contractual_date", "inspection"]
 
-            values_equipments = [model.data(model.index(target_row, 80)), model.data(model.index(target_row, 81)), model.data(model.index(target_row, 82)), "T-TEMP",
-                                model.data(model.index(target_row, 83)), model.data(model.index(target_row, 85)), model.data(model.index(target_row, 86)), model.data(model.index(target_row, 88)),
-                                model.data(model.index(target_row, 89)), model.data(model.index(target_row, 91)), model.data(model.index(target_row, 92)), model.data(model.index(target_row, 94)),
-                                model.data(model.index(target_row, 95)), model.data(model.index(target_row, 97)), model.data(model.index(target_row, 98)), model.data(model.index(target_row, 100)),
-                                model.data(model.index(target_row, 101)), model.data(model.index(target_row, 103)), model.data(model.index(target_row, 104)), model.data(model.index(target_row, 106)),
-                                model.data(model.index(target_row, 107)), model.data(model.index(target_row, 109)), model.data(model.index(target_row, 110)), model.data(model.index(target_row, 112)),
-                                model.data(model.index(target_row, 113)), model.data(model.index(target_row, 115)), model.data(model.index(target_row, 116)), model.data(model.index(target_row, 118))]
+            values_equipments = [model.data(model.index(target_row, 139)), model.data(model.index(target_row, 140)), model.data(model.index(target_row, 141)), "T-TEMP",
+                                model.data(model.index(target_row, 142)), model.data(model.index(target_row, 166)), model.data(model.index(target_row, 143)), model.data(model.index(target_row, 167)),
+                                model.data(model.index(target_row, 144)), model.data(model.index(target_row, 168)), model.data(model.index(target_row, 145)), model.data(model.index(target_row, 169)),
+                                model.data(model.index(target_row, 146)), model.data(model.index(target_row, 170)), model.data(model.index(target_row, 147)), model.data(model.index(target_row, 171)),
+                                model.data(model.index(target_row, 148)), model.data(model.index(target_row, 172)), model.data(model.index(target_row, 149)), model.data(model.index(target_row, 173)),
+                                model.data(model.index(target_row, 150)), model.data(model.index(target_row, 174)), model.data(model.index(target_row, 151)), model.data(model.index(target_row, 175)),
+                                model.data(model.index(target_row, 152)), model.data(model.index(target_row, 176)), model.data(model.index(target_row, 153)), model.data(model.index(target_row, 177))]
 
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
-                            model.data(model.index(target_row, 80)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 54)),
-                            model.data(model.index(target_row, 38)), model.data(model.index(target_row, 76))]
+                            model.data(model.index(target_row, 139)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 66)),
+                            model.data(model.index(target_row, 43)), model.data(model.index(target_row, 121))]
 
             columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
@@ -819,7 +819,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
             commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 80))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 139))}'"
 
             if state == 'Order':
                 try:

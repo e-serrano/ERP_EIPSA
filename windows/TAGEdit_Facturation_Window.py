@@ -178,10 +178,10 @@ class FreezeTableWidget(QtWidgets.QTableView):
         Raises:
             Exception: If there is an error while trying to open the file, it displays an error message.
         """
-        if ((self.variable_table == 'Caudal' and index.column() == 156)
-        or (self.variable_table == 'Temperatura' and index.column() == 166)
-        or (self.variable_table == 'Nivel' and index.column() == 169)
-        or (self.variable_table == 'Otros' and index.column() == 56)):
+        if ((self.variable == 'Caudal' and index.column() in [133, 134])
+        or (self.variable == 'Temperatura' and index.column() in [116, 117])
+        or (self.variable == 'Nivel' and index.column() in [169, 179])
+        or (self.variable == 'Otros' and index.column() in [56, 66])):
             value = index.data()
 
             if value != '':
@@ -760,7 +760,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in range (2,6) or index.column() in range(8,37) or index.column() in self.column_range or index.column() == 0:
+        if index.column() in range (2,6) or index.column() in range(8,44) or index.column() in self.column_range or index.column() == 0:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -1598,14 +1598,14 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_temp"
                         self.initial_column = 135
                         self.initial_column2 = 150
-                        self.initial_column_ = 75
-                        self.initial_column2_ = 179
+                        self.initial_column_ = 120
+                        self.initial_column2_ = 135
                         self.column_position = 140
                         self.column_subposition = 141
                         self.column_difference = 143
-                        self.column_position2 = 167
-                        self.column_subposition2 = 168
-                        self.column_difference2 = 170
+                        self.column_position2 = 125
+                        self.column_subposition2 = 126
+                        self.column_difference2 = 128
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1630,8 +1630,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.column_difference = 143
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
-                        self.initial_column = 75
-                        self.initial_column2 = 179
+                        self.initial_column = 120
+                        self.initial_column2 = 135
                         self.column_position = 167
                         self.column_subposition = 168
                         self.column_difference = 170
@@ -1673,22 +1673,17 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.tableEditTags.hideColumn(i)
                     for i in range(34,136):
                         self.tableEditTags.hideColumn(i)
-                    self.tableEditTags.hideColumn(69)
                     for i in range(150,columns_number):
                         self.tableEditTags.hideColumn(i)
 
                 elif self.variable == 'Temperatura':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(9,35):
+                    for i in range(9,40):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(36,76):
+                    for i in range(41,121):
                         self.tableEditTags.hideColumn(i)
-                    self.tableEditTags.hideColumn(77)
-                    for i in range(80,167):
-                        self.tableEditTags.hideColumn(i)
-                    self.tableEditTags.hideColumn(176)
-                    for i in range(178,columns_number):
+                    for i in range(135,columns_number):
                         self.tableEditTags.hideColumn(i)
 
                 elif self.variable == 'Nivel':
@@ -1910,14 +1905,12 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     if self.variable2 == 'Temperatura':
                         for i in range(3,4):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(9,35):
+                        for i in range(9,40):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(36,76):
+                        for i in range(41,121):
                             self.tableEditTags2.hideColumn(i)
-                        self.tableEditTags2.hideColumn(77)
-                        for i in range(79,167):
+                        for i in range(135,columns_number):
                             self.tableEditTags2.hideColumn(i)
-                        self.tableEditTags.hideColumn(176)
 
                     elif self.variable2 == 'Nivel':
                         for i in range(3,4):
@@ -2866,7 +2859,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 else:
                                     description_item = self.model.data(self.model.index(target_row, 8))
                                 price_item = str(self.model.data(self.model.index(target_row, 142)) if self.variable == 'Caudal' else (
-                                            self.model.data(self.model.index(target_row, 169)) if self.variable == 'Temperatura' else (
+                                            self.model.data(self.model.index(target_row, 127)) if self.variable == 'Temperatura' else (
                                             self.model.data(self.model.index(target_row, 172)) if self.variable == 'Nivel' else (
                                             self.model.data(self.model.index(target_row, 59))))))
                                 price_item = 0 if price_item in ['None',''] else float(price_item.replace(' €','').replace('.','').replace(',','.'))
@@ -2924,9 +2917,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
         if ((variable == 'Caudal' and index.column() in [133, 134])
-        or (variable == 'Temperatura' and index.column() == 166)
-        or (variable == 'Nivel' and index.column() == 169)
-        or (variable == 'Otros' and index.column() == 56)):
+        or (variable == 'Temperatura' and index.column() in [116, 117])
+        or (variable == 'Nivel' and index.column() in [169, 179])
+        or (variable == 'Otros' and index.column() in [56, 66])):
             value = index.data()
 
             if value != '':

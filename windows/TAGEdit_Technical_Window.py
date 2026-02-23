@@ -1079,6 +1079,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             "SELECT nipple_ext_material FROM validation_data.temp_nipple_ext_material",
             "SELECT nipple_ext_length FROM validation_data.temp_nipple_ext_length",
             "SELECT head_case_material FROM validation_data.temp_head_case_material",
+            "SELECT certification FROM validation_data.temp_head_certification",
             "SELECT head_conn_case_diam FROM validation_data.temp_head_conn_case_diam",
             "SELECT tttb FROM validation_data.temp_tttb",
             "SELECT flange_material_lapjoint FROM validation_data.temp_flange_material_lapjoint",
@@ -1325,24 +1326,24 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 else:
                     query_flow = ('''
-                        SELECT tags_data.tags_flow."num_order"
+                        SELECT num_order
                         FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
                         ''')
                     query_temp = ('''
-                        SELECT tags_data.tags_temp."num_order"
+                        SELECT num_order
                         FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
                         ''')
                     query_level = ('''
-                        SELECT tags_data.tags_level."num_order"
+                        SELECT num_order
                         FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
                         ''')
                     query_others = ('''
-                        SELECT tags_data.tags_others."num_order"
+                        SELECT num_order
                         FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
                         ''')
 
                     try:
@@ -1387,9 +1388,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_temp"
                         self.initial_column = 33
                         self.initial_column2 = 102
-                        self.initial_column3 = 138
-                        self.initial_column_ = 35
-                        self.initial_column2_ = 80
+                        self.initial_column_ = 40
+                        self.initial_column2_ = 82
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1399,7 +1399,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_level"
                         self.initial_column = 33
                         self.initial_column2 = 102
-                        self.initial_column3 = 138
                         self.initial_column_ = 36
                         self.initial_column2_ = 66
                     elif self.variable =='Temp+Nivel':
@@ -1409,8 +1408,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_temp"
                         self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 35
-                        self.initial_column2 = 80
+                        self.initial_column = 40
+                        self.initial_column2 = 82
                         self.initial_column_ = 36
                         self.initial_column2_ = 66
                     elif self.variable == 'Caudal':
@@ -1418,12 +1417,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_flow"
                         self.initial_column = 33
                         self.initial_column2 = 102
-                        self.initial_column3 = 138
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_temp"
-                        self.initial_column = 35
-                        self.initial_column2 = 80
+                        self.initial_column = 40
+                        self.initial_column2 = 82
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_level"
@@ -1457,35 +1455,46 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             if self.variable == 'Caudal':
                 self.model.column_range = list(range(self.initial_column, self.initial_column + 4)) + \
                                             list(range(self.initial_column2, self.initial_column2 + 33)) + \
-                                            list(range(self.initial_column3, columns_number))
+                                            list(range(152, columns_number))
+            elif self.variable == 'Temperatura':
+                self.model.column_range = list(range(self.initial_column, self.initial_column + 4)) + \
+                                            list(range(self.initial_column2, self.initial_column2 + 36)) + \
+                                            list(range(138, columns_number))
             else:
                 self.model.column_range = list(range(self.initial_column,self.initial_column + 4)) + list(range(self.initial_column2,columns_number))
 
+        # Hidding columns depending on variable
             if self.variable == 'Caudal':
+                for i in range(104, 108):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(109, 113):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(114, 119):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(120, 127):
+                    self.tableEditTags.hideColumn(i)
                 for i in range(140,columns_number):
                     self.tableEditTags.hideColumn(i)
 
+                self.tableEditTags.showColumn(150) # Dim drawing path column
+                self.tableEditTags.showColumn(151) # OF drawing path column
+
             elif self.variable == 'Temperatura':
-                for i in range(80,132):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(134,138):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(139,143):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(144,149):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(150,157):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(158,160):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(161,163):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(164,166):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number-1):
-                    self.tableEditTags.hideColumn(i)
                 if self.username not in ['j.martinez','julian.martinez']:
-                    self.tableEditTags.showColumn(35)
+                    for i in range(84,88):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(89,93):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(94,99):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(100,107):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(125,columns_number):
+                        self.tableEditTags.hideColumn(i)
+
+                    self.tableEditTags.showColumn(135) # Dim drawing path column
+                    self.tableEditTags.showColumn(136) # OF drawing path column
+                    self.tableEditTags.showColumn(137) # OF sensor drawing path column
 
             elif self.variable == 'Nivel':
                 for i in range(66,138):
@@ -1525,11 +1534,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 if self.username not in ['j.martinez','julian.martinez']:
                     self.tableEditTags.showColumn(11)
 
+        # Hidding amount column
             if self.username not in ['j.martinez','julian.martinez']:
                 if self.variable == 'Caudal':
                     self.tableEditTags.hideColumn(33)
                 elif self.variable == 'Temperatura':
-                    self.tableEditTags.hideColumn(35)
+                    self.tableEditTags.hideColumn(40)
                 elif self.variable == 'Nivel':
                     self.tableEditTags.hideColumn(36)
                 elif self.variable == 'Otros':
@@ -1583,40 +1593,37 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
                             "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
 
-            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                            "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
-                            "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
-                            "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
-                            "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
-                            "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
-                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
-                            "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
-                            "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                            "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                            "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
-                            "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                            "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
-                            "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
-                            "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
-                            "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
-                            "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
-                            "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
-                            "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
-                            "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
-                            "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
-                            "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
-                            "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
-                            "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
-                            "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
-                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
-                            "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
-                            "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
-                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2", "ØOrigen"]
+            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
+                            "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
+                            "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
+                            "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
+                            "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
+                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
+                            "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
+                            "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
+                            "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
+                            "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
+                            "Cod. Extension", "Cod. Muelle", "Cod. Puntal", "Cod. Tapon", "Cod. Vaina", "Cod. Cable Ext.",
+                            "Cod Fab. Barra", "Cod Fab. Tubo", "Cod Fab. Brida", "Cod Fab. Sensor", "Cod Fab. Cabeza", "Cod Fab. Transmisor",
+                            "Cod Fab. Extension", "Cod Fab. Muelle", "Cod Fab. Puntal", "Cod Fab. Tapon", "Cod Fab. Vaina", "Cod Fab. Cable Ext.",
+                            "Cant. Barra", "Cant. Tubo", "Cant. Brida", "Cant. Sensor", "Cant. Cabeza", "Cant. Transmisor",
+                            "Cant. Extension", "Cant. Muelle", "Cant. Puntal", "Cant. Tapon", "Cant. Vaina", "Cant. Cable Ext.",
+                            "Trad. Barra", "Trad. Tubo", "Trad. Brida", "Trad. Sensor", "Trad. Cabeza", "Trad. Transmisor",
+                            "Trad. Extension", "Trad. Muelle", "Trad. Puntal", "Trad. Tapon", "Trad. Vaina", "Trad. Cable Ext.",
+                            "Cod. Compra Barra", "Cod. Compra Tubo", "Cod. Compra Brida", "Cod. Compra Sensor", "Cod. Compra Cabeza", "Cod. Compra Transmisor",
+                            "Cod. Compra Extension", "Cod. Compra Muelle", "Cod. Compra Puntal", "Cod. Compra Tapon", "Cod. Compra Vaina", "Cod. Compra Cable Ext."]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -1717,17 +1724,23 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
                 self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
-                for i in range(6,24):
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[6]]))
+                self.tableEditTags.setItemDelegateForColumn(17, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[7]]))
+                self.tableEditTags.setItemDelegateForColumn(18, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[8]]))
+                self.tableEditTags.setItemDelegateForColumn(22, self.combo_itemtype)
+                for i in range(9,25):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(61, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(65, self.combo_itemtype)
+                    self.tableEditTags.setItemDelegateForColumn(i+15, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                self.tableEditTags.setItemDelegateForColumn(74, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(49, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(75, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(118, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
+                self.tableEditTags.setItemDelegateForColumn(119, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
+                self.tableEditTags.setItemDelegateForColumn(120, self.combo_itemtype)
 
             elif self.variable == 'Nivel':
                 for i in range(8):
@@ -1774,25 +1787,23 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 else:
                     self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 4)) + list(range(self.initial_column2_,columns_number))
 
+            # Hidding columns depending on variable
                 if self.variable2 == 'Temperatura':
-                    for i in range(80,132):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(134,138):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(139,143):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(144,149):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(150,157):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(158,160):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(161,163):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(164,166):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(167,columns_number-1):
-                        self.tableEditTags2.hideColumn(i)
+                    if self.username not in ['j.martinez','julian.martinez']:
+                        for i in range(84,88):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(89,93):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(94,99):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(100,107):
+                            self.tableEditTags2.hideColumn(i)
+                        for i in range(125,columns_number):
+                            self.tableEditTags2.hideColumn(i)
+
+                        self.tableEditTags2.showColumn(135) # Dim drawing path column
+                        self.tableEditTags2.showColumn(136) # OF drawing path column
+                        self.tableEditTags2.showColumn(137) # OF sensor drawing path column
 
                 elif self.variable2 == 'Nivel':
                     for i in range(66,138):
@@ -1828,12 +1839,14 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     for i in range(57,columns_number-1):
                         self.tableEditTags2.hideColumn(i)
 
-                if self.variable2 == 'Temperatura':
-                    self.tableEditTags2.hideColumn(35)
-                elif self.variable2 == 'Nivel':
-                    self.tableEditTags2.hideColumn(36)
-                elif self.variable2 == 'Otros':
-                    self.tableEditTags2.hideColumn(11)
+            # Hidding amount column
+                if self.username not in ['julian.martinez', 'j.martinez']:
+                    if self.variable2 == 'Temperatura':
+                        self.tableEditTags2.hideColumn(40)
+                    elif self.variable2 == 'Nivel':
+                        self.tableEditTags2.hideColumn(36)
+                    elif self.variable2 == 'Otros':
+                        self.tableEditTags2.hideColumn(11)
 
                 self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
@@ -1874,21 +1887,27 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 list_fab_state = ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO']
                 if self.variable2 == 'Temperatura':
                     for i in range(5):
-                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
-                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[5]]))
-                    self.tableEditTags2.setItemDelegateForColumn(14, self.combo_itemtype)
-                    for i in range(6,24):
                         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
-                        self.tableEditTags2.setItemDelegateForColumn(i+11, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
-                    self.tableEditTags2.setItemDelegateForColumn(61, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
-                    self.tableEditTags2.setItemDelegateForColumn(65, self.combo_itemtype)
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[5]]))
+                    self.tableEditTags2.setItemDelegateForColumn(14, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[6]]))
+                    self.tableEditTags2.setItemDelegateForColumn(17, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[7]]))
+                    self.tableEditTags2.setItemDelegateForColumn(18, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[8]]))
+                    self.tableEditTags2.setItemDelegateForColumn(22, self.combo_itemtype)
+                    for i in range(9,25):
+                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+15, self.combo_itemtype)
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[24]]))
-                    self.tableEditTags2.setItemDelegateForColumn(74, self.combo_itemtype)
+                    self.tableEditTags2.setItemDelegateForColumn(49, self.combo_itemtype)
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
-                    self.tableEditTags2.setItemDelegateForColumn(75, self.combo_itemtype)
+                    self.tableEditTags2.setItemDelegateForColumn(118, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
+                    self.tableEditTags2.setItemDelegateForColumn(119, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
+                    self.tableEditTags2.setItemDelegateForColumn(120, self.combo_itemtype)
 
                 elif self.variable2 == 'Nivel':
                     for i in range(8):
@@ -2376,29 +2395,35 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
+    # Hidding columns depending on variable
         if self.variable == 'Caudal':
-            for i in range(140,self.model.columnCount()):
+            for i in range(104, 108):
+                    self.tableEditTags.hideColumn(i)
+            for i in range(109, 113):
+                self.tableEditTags.hideColumn(i)
+            for i in range(114, 119):
+                self.tableEditTags.hideColumn(i)
+            for i in range(120, 127):
+                self.tableEditTags.hideColumn(i)
+            for i in range(140, self.model.columnCount()):
                 self.tableEditTags.hideColumn(i)
 
         elif self.variable == 'Temperatura':
-            for i in range(80,132):
-                self.tableEditTags.hideColumn(i)
-            for i in range(134,138):
-                self.tableEditTags.hideColumn(i)
-            for i in range(139,143):
-                self.tableEditTags.hideColumn(i)
-            for i in range(144,149):
-                self.tableEditTags.hideColumn(i)
-            for i in range(150,157):
-                self.tableEditTags.hideColumn(i)
-            for i in range(158,160):
-                self.tableEditTags.hideColumn(i)
-            for i in range(161,163):
-                self.tableEditTags.hideColumn(i)
-            for i in range(164,166):
-                self.tableEditTags.hideColumn(i)
-            for i in range(167,self.model.columnCount()):
-                self.tableEditTags.hideColumn(i)
+            if self.username not in ['j.martinez','julian.martinez']:
+                for i in range(84,88):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(89,93):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(94,99):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(100,107):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(125, self.model.columnCount()):
+                    self.tableEditTags.hideColumn(i)
+
+                self.tableEditTags.showColumn(135) # Dim drawing path column
+                self.tableEditTags.showColumn(136) # OF drawing path column
+                self.tableEditTags.showColumn(137) # OF sensor drawing path column
 
         elif self.variable == 'Nivel':
             for i in range(66,138):
@@ -2434,42 +2459,38 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             for i in range(57,self.model.columnCount()):
                 self.tableEditTags.hideColumn(i)
 
-        if self.variable == 'Caudal':
-            self.tableEditTags.hideColumn(33)
-        elif self.variable == 'Temperatura':
-            self.tableEditTags.hideColumn(35)
-        elif self.variable == 'Nivel':
-            self.tableEditTags.hideColumn(36)
-        elif self.variable == 'Otros':
-            self.tableEditTags.hideColumn(11)
+    # Hidding amount columns
+        if self.username not in ['julian.martinez', 'j.martinez']:
+            if self.variable == 'Caudal':
+                self.tableEditTags.hideColumn(33)
+            elif self.variable == 'Temperatura':
+                self.tableEditTags.hideColumn(40)
+            elif self.variable == 'Nivel':
+                self.tableEditTags.hideColumn(36)
+            elif self.variable == 'Otros':
+                self.tableEditTags.hideColumn(11)
 
         for column in self.hiddencolumns2:
             self.tableEditTags2.setColumnHidden(column, False)
         self.hiddencolumns2.clear()
 
-        if self.variable2 == 'Caudal':
-            for i in range(140,self.model2.columnCount()):
-                self.tableEditTags2.hideColumn(i)
+    # Hidding columns depending on variable
+        if self.variable2 == 'Temperatura':
+            if self.username not in ['j.martinez','julian.martinez']:
+                for i in range(84,88):
+                    self.tableEditTags2.hideColumn(i)
+                for i in range(89,93):
+                    self.tableEditTags2.hideColumn(i)
+                for i in range(94,99):
+                    self.tableEditTags2.hideColumn(i)
+                for i in range(100,107):
+                    self.tableEditTags2.hideColumn(i)
+                for i in range(125, self.model2.columnCount()):
+                    self.tableEditTags2.hideColumn(i)
 
-        elif self.variable2 == 'Temperatura':
-            for i in range(80,132):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(134,138):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(139,143):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(144,149):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(150,157):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(158,160):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(161,163):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(164,166):
-                self.tableEditTags2.hideColumn(i)
-            for i in range(167,self.model2.columnCount()):
-                self.tableEditTags2.hideColumn(i)
+                self.tableEditTags2.showColumn(135) # Dim drawing path column
+                self.tableEditTags2.showColumn(136) # OF drawing path column
+                self.tableEditTags2.showColumn(137) # OF sensor drawing path column
 
         elif self.variable2 == 'Nivel':
             for i in range(66,138):
@@ -2505,14 +2526,14 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             for i in range(57,self.model2.columnCount()):
                 self.tableEditTags2.hideColumn(i)
 
-        if self.variable2 == 'Caudal':
-            self.tableEditTags2.hideColumn(33)
-        elif self.variable2 == 'Temperatura':
-            self.tableEditTags2.hideColumn(35)
-        elif self.variable2 == 'Nivel':
-            self.tableEditTags2.hideColumn(36)
-        elif self.variable2 == 'Otros':
-            self.tableEditTags2.hideColumn(11)
+    # Hidding amount columns
+        if self.username not in ['julian.martinez', 'j.martinez']:
+            if self.variable2 == 'Temperatura':
+                self.tableEditTags2.hideColumn(40)
+            elif self.variable2 == 'Nivel':
+                self.tableEditTags2.hideColumn(36)
+            elif self.variable2 == 'Otros':
+                self.tableEditTags2.hideColumn(11)
 
 # Function to create fabrication order
     def faborder(self):

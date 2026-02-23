@@ -2406,7 +2406,12 @@ class offer_temp:
                         "position",
                         "subposition",
                         "std_tw",
-                        "insulation"
+                        "insulation",
+                        "bore_diam",
+                        "tip_thk",
+                        "radius_dim",
+                        "wire_size",
+                        "head_certification"
                     ],
                     axis=1,)
 
@@ -3224,7 +3229,12 @@ class offer_short_temp_spanish:
                         "position",
                         "subposition",
                         "std_tw",
-                        "insulation"
+                        "insulation",
+                        "bore_diam",
+                        "tip_thk",
+                        "radius_dim",
+                        "wire_size",
+                        "head_certification"
                     ],
                     axis=1,)
 
@@ -3962,7 +3972,12 @@ class offer_short_temp_english:
                         "position",
                         "subposition",
                         "std_tw",
-                        "insulation"
+                        "insulation",
+                        "bore_diam",
+                        "tip_thk",
+                        "radius_dim",
+                        "wire_size",
+                        "head_certification"
                     ],
                     axis=1,)
 
@@ -6750,7 +6765,12 @@ class offer_flow_temp:
                         "position",
                         "subposition",
                         "std_tw",
-                        "insulation"
+                        "insulation",
+                        "bore_diam",
+                        "tip_thk",
+                        "radius_dim",
+                        "wire_size",
+                        "head_certification"
                     ],
                     axis=1,)
 
@@ -7912,7 +7932,12 @@ class offer_flow_temp_level:
                         "position",
                         "subposition",
                         "std_tw",
-                        "insulation"
+                        "insulation",
+                        "bore_diam",
+                        "tip_thk",
+                        "radius_dim",
+                        "wire_size",
+                        "head_certification"
                     ],
                     axis=1,)
 
