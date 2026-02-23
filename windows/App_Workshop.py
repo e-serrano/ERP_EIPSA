@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QMenu
 from config.config_functions import config_database, get_path
 import psycopg2
 from utils.Database_Manager import Create_DBconnection
-from utils.Business_Report import report_offers, report_orders
+from utils.Business_Report import report_offers, report_orders, report_projects
 import sys
 
 
@@ -1028,7 +1028,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         Generates a report based on chosen selection
         """
         while True:
-            report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos'], 0, False)
+            report, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona un informe:", ['Ofertas', 'Pedidos', 'Proyectos'], 0, False)
             if ok and report:
                 while True:
                     if report == 'Ofertas':
@@ -1062,6 +1062,9 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
                         break
                     elif report == 'Pedidos':
                         report_orders()
+                        break
+                    elif report == 'Proyectos':
+                        report_projects()
                         break
                 break
             else:
