@@ -2393,7 +2393,7 @@ class offer_temp:
                 df = pd.DataFrame(data=data_tags, columns=columns)
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["tag", "value_type"])
-                df = df.iloc[:, 1:37]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -3216,7 +3216,7 @@ class offer_short_temp_spanish:
                 df = pd.DataFrame(data=data_tags, columns=columns)
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["tag", "value_type"])
-                df = df.iloc[:, 1:37]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -3959,7 +3959,7 @@ class offer_short_temp_english:
                 df = pd.DataFrame(data=data_tags, columns=columns)
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["tag", "value_type"])
-                df = df.iloc[:, 1:37]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(value_type_dict)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(self.euros_to_float)
@@ -6752,7 +6752,7 @@ class offer_flow_temp:
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
                 df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
                 df_temp = df_temp.sort_values(by=["tag", "value_type"])
-                df_temp = df_temp.iloc[:, 1:37]
+                df_temp = df_temp.iloc[:, 1:42]
                 df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(self.euros_to_float)
@@ -7919,7 +7919,7 @@ class offer_flow_temp_level:
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
                 df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
                 df_temp = df_temp.sort_values(by=["tag", "value_type"])
-                df_temp = df_temp.iloc[:, 1:37]
+                df_temp = df_temp.iloc[:, 1:42]
                 df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(self.euros_to_float)
