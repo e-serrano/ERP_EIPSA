@@ -2406,19 +2406,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     df_data = pd.read_excel(excel_file)
 
                                     if df_data.shape[0] > 0:
-                                        original_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con PDFs")
+                                        # original_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con PDFs")
+                                        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo", "", "Archivos PDF (*.pdf)")
+                                        reader = PdfReader(file_path)
                                         for row in range(df_data.shape[0]):
-                                            file_path = original_path + "/" + str(df_data.iloc[row,0]) + ".pdf"
-                                            if not os.path.exists(file_path):
+                                            # file_path = original_path + "/" + str(df_data.iloc[row,0]) + ".pdf"
+                                            if not os.path.exists(str(file_path)):
                                                 print(f"Archivo no encontrado: {file_path}")
                                                 continue
-                                            reader = PdfReader(file_path)
                                             page_overlay = PdfReader(new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                                            reader.pages[0].merge_page(page2=page_overlay)
+                                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
 
-                                            writer = PdfWriter()
-                                            writer.append_pages_from_reader(reader)
-                                            writer.write(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
+                                        writer = PdfWriter()
+                                        writer.append_pages_from_reader(reader)
+                                        writer.write(str(file_path).replace(".pdf", "_edit.pdf"))
 
                                         MessageHelper.show_message("PDFs editados con éxito", "info")
 
@@ -3002,7 +3003,7 @@ if __name__ == "__main__":
         sys.path.insert(0, ROOT)
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','julian.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','e.carrillo')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())
