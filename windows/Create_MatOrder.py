@@ -130,7 +130,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designbror = str(model.data(model.index(target_row, 57))).replace('.',',')
                 processbror = "" #model.data(model.index(target_row, 37))
                 materialbror = model.data(model.index(target_row, 13))
-                qtybror = model.data(model.index(target_row, 180))
+                qtybror = int(model.data(model.index(target_row, 180))) #* int(model.data(model.index(target_row, 34)))
                 codepurchbror = model.data(model.index(target_row, 204))
                 orifice_flange_list.append([code_orifice_flange, codefab_orifice_flange, tradcodbror, schbror, designbror, processbror, materialbror, qtybror, codepurchbror])
                 all_list_parts.append(orifice_flange_list)
@@ -141,7 +141,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designbrline = str(model.data(model.index(target_row, 57))).replace('.',',')
                 processbrline = "" #model.data(model.index(target_row, 37))
                 materialbrline = model.data(model.index(target_row, 13))
-                qtybrline = model.data(model.index(target_row, 181))
+                qtybrline = int(model.data(model.index(target_row, 181))) #* int(model.data(model.index(target_row, 34)))
                 codepurchbrline = model.data(model.index(target_row, 205))
                 line_flange_list.append([code_line_flange, codefab_line_flange, tradcodbrline, schbrline, designbrline, processbrline, materialbrline, qtybrline, codepurchbrline])
                 all_list_parts.append(line_flange_list)
@@ -154,7 +154,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designgasket = ''
                 processgasket = ''
                 materialgasket = ''
-                qtygasket = model.data(model.index(target_row, 39))
+                qtygasket = int(model.data(model.index(target_row, 39))) #* int(model.data(model.index(target_row, 34)))
                 codepurchgasket = model.data(model.index(target_row, 206))
                 gasket_list.append([code_gasket, codefab_gasket, tradcodgasket, schgasket, designgasket, processgasket, materialgasket, qtygasket, codepurchgasket])
                 all_list_parts.append(gasket_list)
@@ -167,7 +167,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designbolts = ('esp. placa ' + model.data(model.index(target_row, 21)))
                 processbolts = ''
                 materialbolts = model.data(model.index(target_row, 24)) + " / " + model.data(model.index(target_row, 25))
-                qtybolts = int(model.data(model.index(target_row, 41)))
+                qtybolts = (int(model.data(model.index(target_row, 41))) if model.data(model.index(target_row, 41)) != '' else 0) #* int(model.data(model.index(target_row, 34)))
                 codepurchbolts = model.data(model.index(target_row, 207))
                 bolts_list.append([code_bolts, codefab_bolts, tradcodbolts, modelbolts, designbolts, processbolts, materialbolts, qtybolts, codepurchbolts])
                 all_list_parts.append(bolts_list)
@@ -180,7 +180,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designextractor = ('esp. placa ' + model.data(model.index(target_row, 21)))
                 processextractor = ''
                 materialextractor = model.data(model.index(target_row, 44))
-                qtyextractor = model.data(model.index(target_row, 46))
+                qtyextractor = int(model.data(model.index(target_row, 46))) #* int(model.data(model.index(target_row, 34)))
                 codepurchextractor = model.data(model.index(target_row, 209))
                 extractor_list.append([code_extractor, codefab_extractor, tradcodextractor, sizebrida, designextractor, processextractor, materialextractor, qtyextractor, codepurchextractor])
                 all_list_parts.append(extractor_list)
@@ -191,7 +191,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 diamextplate = model.data(model.index(target_row, 58))
                 processplate = 'ARAMCO' if model.data(model.index(target_row, 22)) =='ARA' else ''
                 materialplate = model.data(model.index(target_row, 19))
-                qtyplate = model.data(model.index(target_row, 28)) if model.data(model.index(target_row, 8)) == "MULTISTAGE RO" else 1
+                qtyplate = int(model.data(model.index(target_row, 28)) if model.data(model.index(target_row, 8)) == "MULTISTAGE RO" else 1) #* int(model.data(model.index(target_row, 34)))
                 codepurchplate = model.data(model.index(target_row, 210))
                 plate_list.append([code_plate, codefab_plate, tradcodplate, modelplate, diamextplate, processplate, materialplate, qtyplate, codepurchplate])
                 all_list_parts.append(plate_list)
@@ -202,7 +202,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designnipple = ''
                 processnipple = ''
                 materialnipple = model.data(model.index(target_row, 13))
-                qtynipple = model.data(model.index(target_row, 17))
+                qtynipple = int(model.data(model.index(target_row, 187))) #* int(model.data(model.index(target_row, 34)))
                 codepurchnipple = model.data(model.index(target_row, 211))
                 nipple_list.append([code_nipple, codefab_nipple, tradcodnipple, modelnipple, designnipple, processnipple, materialnipple, qtynipple, codepurchnipple])
                 all_list_parts.append(nipple_list)
@@ -213,7 +213,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designhandle = '' if model.data(model.index(target_row, 11)) == 'RTJ' else model.data(model.index(target_row, 22))
                 processhandle = ''
                 materialhandle = '316SS'
-                qtyhandle = 1
+                qtyhandle = 1 #* int(model.data(model.index(target_row, 34)))
                 codepurchhandle = model.data(model.index(target_row, 212))
                 handle_list.append([code_handle, codefab_handle, tradcodhandle, modelhandle, designhandle, processhandle, materialhandle, qtyhandle, codepurchhandle])
                 all_list_parts.append(handle_list)
@@ -224,7 +224,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designbarhandle = ''
                 processbarhandle = ''
                 materialbarhandle = '316SS'
-                qtybarhandle = int(model.data(model.index(target_row, 60))) - 30
+                qtybarhandle = ((int(float(model.data(model.index(target_row, 60)))) - 30) if 'datos' not in model.data(model.index(target_row, 60)) else 0) #* int(model.data(model.index(target_row, 34)))
                 codepurchbarhandle = ''
                 bar_handle_list.append(['Barra Mango RTJ', 'Barra Mango RTJ', tradcodbarhandle, modelbarhandle, designbarhandle, processbarhandle, materialbarhandle, qtybarhandle, codepurchbarhandle])
                 all_list_parts.append(bar_handle_list)
@@ -235,7 +235,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designchring = "ø" + str(model.data(model.index(target_row, 58)))
                 processchring = "" #model.data(model.index(target_row, 37))
                 materialchring = model.data(model.index(target_row, 19))
-                qtychring = 1
+                qtychring = 1 #* int(model.data(model.index(target_row, 34)))
                 codepurchchring = model.data(model.index(target_row, 213))
                 chring_list.append([code_chring, codefab_chring, tradcodchring, schchring, designchring, processchring, materialchring, qtychring, codepurchchring])
                 all_list_parts.append(chring_list)
@@ -246,7 +246,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 designplug = ''
                 processplug = ''
                 materialplug = 'ASTM A105' if model.data(model.index(target_row, 171))[-2:] == 'C1' else model.data(model.index(target_row, 13))
-                qtyplug = int(model.data(model.index(target_row, 43))) if model.data(model.index(target_row, 62)) != '' else 0
+                qtyplug = (int(model.data(model.index(target_row, 43))) if model.data(model.index(target_row, 62)) != '' else 0) #* int(model.data(model.index(target_row, 34)))
                 codepurchplugs = model.data(model.index(target_row, 208))
                 plugs_list.append([code_plugs, codefab_plugs, tradcodplug, modelplug, designplug, processplug, materialplug, qtyplug, codepurchplugs])
                 all_list_parts.append(plugs_list)
