@@ -793,7 +793,6 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                                             "t_tw", "qty_t_tw", "t_extcable", "qty_t_extcable"]
 
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
-
             columns_tags = ["code", "equipment", "num_order", "order_material", "contractual_date", "inspection"]
 
             values_equipments = [model.data(model.index(target_row, 139)), model.data(model.index(target_row, 140)), model.data(model.index(target_row, 141)), "T-TEMP",
@@ -850,7 +849,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                                 results=cur.fetchall()
 
                         if len(results) == 0:
-                            list_part_modified = list_part[0].copy()
+                            list_part_modified = list_part[0][:8].copy()
                             list_part_modified[-1] = 'T-TEMP'
                             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                             commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
@@ -859,7 +858,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                                     cur.execute(commands_parts)
                                 conn.commit()
                         else:
-                            list_part_modified = list_part[0].copy()
+                            list_part_modified = list_part[0][:8].copy()
                             list_part_modified[-1] = 'T-TEMP'
                             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
