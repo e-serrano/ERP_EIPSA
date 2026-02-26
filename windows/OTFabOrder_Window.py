@@ -512,6 +512,13 @@ class Ui_OTFabOrder_Window(object):
 
         df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO','ORIENTACION','MATERIAL'])
 
+        if self.variable == 'Caudal':
+            df_toexport['ORIENTACION'] = 'Horizontal'
+        elif self.variable == 'Temperatura':
+            df_toexport['ORIENTACION'] = df_toexport['ID'].astype(str).apply(lambda x: 'Horizontal' if 'Dimensional' in x else 'Vertical')
+        else:
+            df_toexport['ORIENTACION'] = ''
+
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
             if not output_path.lower().endswith(".xlsx"):
