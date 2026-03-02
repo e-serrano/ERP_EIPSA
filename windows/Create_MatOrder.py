@@ -643,7 +643,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             if code_bar != '':
                 tradcodbar = model.data(model.index(target_row, 178)) if 'Helical' not in model.data(model.index(target_row, 9)) else 'VAINA HELICOIDAL' + (' BRIDADA ' + model.data(model.index(target_row, 10)) + ' ' + model.data(model.index(target_row, 11)) + ' ' + model.data(model.index(target_row, 12)) if model.data(model.index(target_row, 9)) == 'Flanged Helical' else '')
                 modelbar = ('U=' + model.data(model.index(target_row, 16)) + ' /L=' + model.data(model.index(target_row, 15)) if 'Stone' in model.data(model.index(target_row, 9)) or 'Helical' in model.data(model.index(target_row, 9))
-                            else 'Barra ø=' + ('35' if float(model.data(model.index(target_row, 17)).replace(',','.'))<=33.5 else model.data(model.index(target_row, 17))))
+                            else 'Barra ø=' + (model.data(model.index(target_row, 50))))
                 notesbar = ('RAÍZ ø=' + model.data(model.index(target_row, 17)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
                             else '')
                 processbar = ''
@@ -684,7 +684,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                                 else '')
                 processsensor = ''
                 materialsensor = ('PLATINO' if tradcodsensor[:5] == 'PT100'
-                                else ('AC. INOX.' if model.data(model.index(target_row, 20)) == 'St.Steel' else model.data(model.index(target_row, 20))))
+                                else ('AC. INOX.' if model.data(model.index(target_row, 24)) == 'St.Steel' else model.data(model.index(target_row, 24))))
                 qtysensor = (1 if tradcodsensor[:5] == 'PT100' or code_sensor[:4] == 'Bime'
                                 else (float(model.data(model.index(target_row, 56)))/1000) if model.data(model.index(target_row, 56)) != '' else '')
                 codepurchsensor = model.data(model.index(target_row, 193))
@@ -693,7 +693,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
             if code_head != '':
                 tradcodhead = model.data(model.index(target_row, 182))
-                modelhead = model.data(model.index(target_row, 32))
+                modelhead = model.data(model.index(target_row, 31))
                 noteshead = ''
                 processhead = model.data(model.index(target_row, 33))
                 materialhead = ('ALUMINIO' if modelhead[-2:] == 'AL' 
@@ -778,8 +778,8 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 modelextcable = ''
                 notesextcable = ''
                 processextcable = ''
-                materialextcable = 'AC. INOX.' if model.data(model.index(target_row, 20)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else model.data(model.index(target_row, 20))
-                qtyextcable = float(model.data(model.index(target_row, 177)))/1000 if model.data(model.index(target_row, 177)) != '' else 0
+                materialextcable = 'AC. INOX.' if model.data(model.index(target_row, 24)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else model.data(model.index(target_row, 24))
+                qtyextcable = float(model.data(model.index(target_row, 177))) if model.data(model.index(target_row, 177)) != '' else 0
                 codepurchextcable = model.data(model.index(target_row, 201))
                 extcable_list.append([code_extcable, codefab_extcable, tradcodextcable, modelextcable, notesextcable, processextcable, materialextcable, qtyextcable, codepurchextcable])
                 all_list_parts.append(extcable_list)
