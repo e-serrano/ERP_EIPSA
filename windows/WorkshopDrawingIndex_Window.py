@@ -5110,7 +5110,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                             if connection_3 == 'Flanged':
                                                 coded_connection = (('-0' + exterior_size.split(' ')[0].split('"')[0] if len(exterior_size.split(' ')[0]) == 2 else '-') + ('.5' if ' 1/2' in exterior_size.split(' ')[0] else ('0.75' if '3/4' in exterior_size.split(' ')[0] else '.0')) +
-                                                                    ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-' + ' ' + str(exterior_size.split(' ')[2])))
+                                                                    ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-') + ' ' + str(exterior_size.split(' ')[2]))
 
                                             if coded_connection in ['-0.75-0150', '-0.75-0300', '-01.0-0150', '-01.0-0300', '-1.5-0150']:
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
@@ -5118,7 +5118,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B{coded_connection}.pdf"
                                             drawing_path_2 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
                                             drawing_path_3 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
-                                            drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection}.pdf"
+                                            drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection.split(' ')[0]}.pdf"
                                             if 'BP' in self.client:
                                                 drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\{'XTAP-0.5Inx TaponPrg 0.5NPT AISI304L.pdf' if material == '316' else 'XTAP-0.5F TaponPrg 0.5NPT A105 forjado.pdf'}"
                                             else:
