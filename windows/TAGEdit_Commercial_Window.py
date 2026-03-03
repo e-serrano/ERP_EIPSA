@@ -2894,7 +2894,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
-
 # Function to select which material order has to be created
     def materialorder(self):
         """
@@ -2903,95 +2902,92 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             MessageHelper.show_message("No hay datos cargados", "warning")
         else:
-            if self.variable == 'Caudal':
-                self.materialorder_flow()
-            elif self.variable == 'Temperatura':
-                self.materialorder_temp()
-            elif self.variable == 'Nivel':
-                self.materialorder_level()
-            elif self.variable == 'Otros':
-                self.materialorder_others()
-            elif self.variable == 'Caudal+Temp':
-                self.materialorder_flow()
-                self.materialorder_temp()
-            elif self.variable == 'Caudal+Nivel':
-                self.materialorder_flow()
-                self.materialorder_level()
-            elif self.variable =='Temp+Nivel':
-                self.materialorder_temp()
-                self.materialorder_level()
+            if self.username not in ['julian.martinez']:
+                dlg = QtWidgets.QInputDialog()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle('Pedido Materiales')
+                dlg.setLabelText('Introduce el pedido:')
+                clickedButton=dlg.exec()
 
-# Function to create material order for flow elements
-    def materialorder_flow(self):
-        """
-        Prompts for a flow material order number and processes it.
-        """
-        if self.username not in ['julian.martinez']:
-            dlg = QtWidgets.QInputDialog()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales Caudal')
-            dlg.setLabelText('Introduce el pedido:')
-            clickedButton=dlg.exec()
+                if clickedButton == 1:
+                    numorder_pedmat = dlg.textValue()
+                    if self.variable == 'Caudal':
+                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable == 'Temperatura':
+                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable == 'Nivel':
+                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable == 'Otros':
+                        others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable == 'Caudal+Temp':
+                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable == 'Caudal+Nivel':
+                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                    elif self.variable =='Temp+Nivel':
+                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
 
-            if clickedButton == 1:
-                numorder_pedmat = dlg.textValue()
-                flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+# Function to open drawing generator selector
+    def generate_drawings(self):
+        self.numorder = self.Numorder_EditTags.text()
 
-# Function to create material order for temperature elements
-    def materialorder_temp(self):
-        """
-        Prompts for a temperature material order number and processes it.
-        """
-        if self.username not in ['julian.martinez']:
-            dlg = QtWidgets.QInputDialog()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales Temperatura')
-            dlg.setLabelText('Introduce el pedido:')
-            clickedButton=dlg.exec()
+        if self.numorder=="":
+            MessageHelper.show_message('Inserta el número de pedido', "warning")
 
-            if clickedButton == 1:
-                numorder_pedmat = dlg.textValue()
-                temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+        else:
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
+                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
 
-# Function to create material order for level elements
-    def materialorder_level(self):
-        """
-        Prompts for a level material order number and processes it.
-        """
-        if self.username not in ['julian.martinez']:
-            dlg = QtWidgets.QInputDialog()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales Nivel')
-            dlg.setLabelText('Introduce el pedido:')
-            clickedButton=dlg.exec()
+            else:
+                query = ('''
+                        SELECT num_order, product_type."variable", offers."client", offers."final_client", offers."project", num_ref_order
+                        FROM orders
+                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        WHERE
+                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
 
-            if clickedButton == 1:
-                numorder_pedmat = dlg.textValue()
-                level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query,(self.numorder,))
+                            results_variable=cur.fetchone()
+                            self.client = results_variable[2]
+                            self.final_client = results_variable[3]
+                            self.project = results_variable[4]
+                            self.num_po = results_variable[5]
 
-# Function to create material order for others elements
-    def materialorder_others(self):
-        """
-        Prompts for a material order number for other elements and processes it.
-        """
-        if self.username not in ['julian.martinez']:
-            dlg = QtWidgets.QInputDialog()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle('Pedido Materiales Otros')
-            dlg.setLabelText('Introduce el pedido:')
-            clickedButton=dlg.exec()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
-            if clickedButton == 1:
-                numorder_pedmat = dlg.textValue()
-                others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                if results_variable == None:
+                    MessageHelper.show_message("El número de pedido no existe", "warning")
+
+                else:
+                    while True:
+                        action, ok = QtWidgets.QInputDialog.getItem(None, "Generar Planos", "Elige el tipo de plano:",
+                                                                    ['Dimensional', 'OF', 'M'], 0, False)
+                        if ok and action:
+                            while True:
+                                if action == 'Dimensional':
+                                    generate_dim_drawings(self.numorder, self.client, self.final_client, self.project, self.num_po)
+                                    break
+                                elif action == 'OF':
+                                    generate_of_drawings(self.numorder)
+                                    break
+                                elif action == 'M':
+                                    generate_m_drawings(self.numorder)
+                                    break
+                            break
+                        else:
+                            break
+
 
 
 if __name__ == "__main__":
