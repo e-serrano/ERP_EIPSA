@@ -4303,6 +4303,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.tableInvoice.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableInvoice, self.model_invoice, self.proxy_invoices))
 
         self.tableInvoice.hideColumn(0)
+        self.tableInvoice.hideColumn(7)
         self.tableInvoice.hideColumn(8)
         self.tableInvoice.hideColumn(9)
         for i in range (12,38):
@@ -4311,6 +4312,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             self.tableInvoice.hideColumn(i)
         for i in range (52, self.model_invoice.columnCount()):
             self.tableInvoice.hideColumn(i)
+        self.tableInvoice.showColumn(46)
 
     # Getting the unique values for each column of the model
         for column in range(self.model_invoice.columnCount()):
@@ -4338,7 +4340,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
     def loadinvoicetable(self):
         commands_invoice = """SELECT fact.id, fact.num_invoice, fact.num_delivnote, TO_CHAR(fact.date_invoice,'DD/MM/YYYY'),
                             client.name, fact.our_ref, fact.their_ref,
-                            fact.invoice_comments, fact.application, country.name,
+                            fact.obs_delivnote, fact.application, country.name,
                             TO_CHAR(fact.date_delivnote,'DD/MM/YYYY'), fact.client_group, TO_CHAR(fact.pay_date,'DD/MM/YYYY'),
                             fact.weight_dispatch, fact.date_dispatch,  fact.transportation_dispatch
                             FROM purch_fact.invoice_header AS fact
