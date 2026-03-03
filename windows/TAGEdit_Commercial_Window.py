@@ -23,7 +23,18 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
+from utils.Generate_Dim_Dwg import generate_dim_drawings
+from utils.Generate_OF_Dwg import generate_of_drawings
+from utils.Generate_M_Dwg import generate_m_drawings
 
+VARIABLE_TABLES = {
+    "Caudal": ("tags_data.tags_flow", 37, 143, range(92, 98)), # table_check, initial_column, column_difference, excluded_range
+    "Temperatura": ("tags_data.tags_temp", 44, 128, range(70, 78)),
+    "Nivel": ("tags_data.tags_level", 40, 173, range(0,1)),
+    "Otros": ("tags_data.tags_others", 15, 60, range(0,1)),
+}
+
+ORDER_REGEX = re.compile(r'^(P|PA)-\d{2}/\d{3}.*$', re.IGNORECASE) # Regex to check order format
 
 
 def imagen_to_base64(imagen):
@@ -852,18 +863,29 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.tooladdItem.setIcon(icon)
         self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
-        if self.username == 'd.marquez':
-            self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.hcab.addItem(self.hcabspacer2)
-            self.toolMatOrder = QtWidgets.QToolButton(self.frame)
-            self.toolMatOrder.setObjectName("MatOrder_Button")
-            self.toolMatOrder.setToolTip("Pedido Materiales")
-            icon = QtGui.QIcon()
-            icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.toolMatOrder.setIcon(icon)
-            self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
-            self.hcab.addWidget(self.toolMatOrder)
-            self.toolMatOrder.clicked.connect(self.materialorder)
+
+        self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer2)
+        self.toolMatOrder = QtWidgets.QToolButton(self.frame)
+        self.toolMatOrder.setObjectName("MatOrder_Button")
+        self.toolMatOrder.setToolTip("Pedido Materiales")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolMatOrder.setIcon(icon)
+        self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolMatOrder)
+
+        self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer2)
+        self.generate_dwg = QtWidgets.QToolButton(self.frame)
+        self.generate_dwg.setObjectName("generate_dwg_Button")
+        self.generate_dwg.setToolTip("Generar planos")
+        self.hcab.addWidget(self.generate_dwg)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "M_Drawing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.generate_dwg.setIcon(icon)
+        self.generate_dwg.setIconSize(QtCore.QSize(25, 25))
+
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -1081,6 +1103,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolImpExcel.clicked.connect(self.importexcel)
         self.toolCompare.clicked.connect(self.data_comparison)
         self.tooladdItem.clicked.connect(self.add_item)
+
+        self.toolMatOrder.clicked.connect(self.materialorder)
+        self.generate_dwg.clicked.connect(self.generate_drawings)
 
         try:
             self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
@@ -1366,6 +1391,66 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         #                 self.checkbox_states2[column][value] = True
         #     self.dict_valuesuniques2[column] = list_valuesUnique2
 
+# Function to detect the variable of the order or offer based on field and value provided
+    def detect_variable(self, field, value):
+        queries = {
+            "Caudal":  f'SELECT 1 FROM tags_data.tags_flow WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Temperatura": f'SELECT 1 FROM tags_data.tags_temp WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Nivel": f'SELECT 1 FROM tags_data.tags_level WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Otros": f'SELECT 1 FROM tags_data.tags_others WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+        }
+
+        found = []
+
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                for var, q in queries.items():
+                    cur.execute(q, (f"%{value}%",))
+                    if cur.fetchone():
+                        found.append(var)
+
+        if "Caudal" in found and "Temperatura" in found:
+            return "Caudal+Temperatura"
+        if "Caudal" in found and "Nivel" in found:
+            return "Caudal+Nivel"
+        return found[0] if found else ""
+
+# Function to configure table models based on the detected variable
+    def configure_models(self, variable):
+        self.variable2 = None
+        self.excluded_range2 = None
+
+        if variable in ("Caudal+Temperatura", "Caudal+Nivel"):
+            v1, v2 = variable.split("+")
+            self.variable, self.variable2 = v1, v2
+
+            t1, c1, d1, e1 = VARIABLE_TABLES[v1]
+            t2, c2, d2, e2 = VARIABLE_TABLES[v2]
+
+            self.model.setTable(t1)
+            self.model2.setTable(t2)
+
+            self.model.table_check = t1
+            self.model2.table_check = t2
+
+            self.initial_column, self.column_difference, self.excluded_range = c1, d1, e1
+            self.initial_column2, self.column_difference2, self.excluded_range2 = c2, d2, e2
+
+        else:
+            self.variable = variable
+            t, c, d, e = VARIABLE_TABLES[variable]
+
+            self.model.setTable(t)
+            self.model.table_check = t
+
+            self.initial_column, self.column_difference, self.excluded_range = c, d, e
+
+# Function to apply filters to the table models
+    def apply_filters(self, field, value):
+        f = f"""{field} <> '' AND UPPER({field}) LIKE '%{value.upper()}%'"""
+        self.model.setFilter(f)
+        self.model2.setFilter(f)
+
 # Function to load table and setting in the window
     def query_tags(self):
         """
@@ -1383,386 +1468,28 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.numorder = self.Numorder_EditTags.text()
         self.numoffer = self.Numoffer_EditTags.text()
 
-        if self.numoffer=="" and self.numorder=="":
+        if not self.numoffer and not self.numorder:
             MessageHelper.show_message("Rellena alguno de los campos", "warning")
             self.model.dataChanged.connect(self.saveChanges)
+            return
 
-        elif self.numoffer=="":
-            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder):
-                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
-                self.model.dataChanged.connect(self.saveChanges)
+        if self.numorder and not ORDER_REGEX.match(self.numorder):
+            MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY(-SZZ) o PA-XX/YYY", "warning")
+            self.model.dataChanged.connect(self.saveChanges)
+            return
 
-            else:
-                query = ('''
-                        SELECT num_order, product_type."variable"
-                        FROM orders
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
+        field = "num_order" if self.numorder else "num_offer"
+        self.value_query = self.numorder or self.numoffer
 
-                try:
-                    with Database_Connection(config_database()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(query,(self.numorder,))
-                            results_variable=cur.fetchone()
-                            self.variable = results_variable[1] if results_variable != None else ''
+        variable = self.detect_variable(field, self.value_query)
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                + str(error), "critical")
+        if not variable:
+            MessageHelper.show_message(f"El número de {'pedido' if field=='num_order' else 'oferta'} no existe", "warning")
+            self.model.dataChanged.connect(self.saveChanges)
+            return
 
-                if results_variable == None:
-                    MessageHelper.show_message("El número de pedido no existe", "warning")
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    query_flow = ('''
-                        SELECT tags_data.tags_flow."num_order"
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT tags_data.tags_temp."num_order"
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_level = ('''
-                        SELECT tags_data.tags_level."num_order"
-                        FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_others = ('''
-                        SELECT tags_data.tags_others."num_order"
-                        FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                                cur.execute(query_flow,(self.numorder,))
-                                results_flow=cur.fetchall()
-                                cur.execute(query_temp,(self.numorder,))
-                                results_temp=cur.fetchall()
-                                cur.execute(query_level,(self.numorder,))
-                                results_level=cur.fetchall()
-                                cur.execute(query_others,(self.numorder,))
-                                results_others=cur.fetchall()
-
-                                if len(results_flow) != 0 and len(results_temp) != 0:
-                                    self.variable = 'Caudal+Temp'
-                                elif len(results_flow) != 0 and len(results_level) != 0:
-                                    self.variable = 'Caudal+Nivel'
-                                elif len(results_flow) != 0:
-                                    self.variable = 'Caudal'
-                                elif len(results_temp) != 0:
-                                    self.variable = 'Temperatura'
-                                elif len(results_level) != 0:
-                                    self.variable = 'Nivel'
-                                elif len(results_others) != 0:
-                                    self.variable = 'Otros'
-                                else:
-                                    self.variable = ''
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
-
-                    if self.variable == 'Caudal+Temp':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Temperatura'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 37
-                        self.initial_column2 = 44
-                        self.column_difference = 143
-                        self.column_difference2 = 128
-                    elif self.variable =='Caudal+Nivel':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Nivel'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 37
-                        self.initial_column2 = 40
-                        self.column_difference = 143
-                        self.column_difference2 = 173
-                    elif self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.initial_column = 37
-                        self.column_difference = 143
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_temp"
-                        self.initial_column = 44
-                        self.column_difference = 128
-                    elif self.variable == 'Nivel':
-                        self.model.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_level"
-                        self.initial_column = 40
-                        self.column_difference = 173
-                    elif self.variable == 'Otros':
-                        self.model.setTable("tags_data.tags_others")
-                        self.model.table_check = "tags_data.tags_others"
-                        self.initial_column = 15
-                        self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-
-        elif self.numorder=="":
-            query = ('''
-                    SELECT num_offer, product_type."variable"
-                    FROM offers
-                    INNER JOIN product_type ON (product_type."material" = offers."material")
-                    WHERE
-                    UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                    ''')
-
-            try:
-                with Database_Connection(config_database()) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(query,(self.numoffer,))
-                        results_variable=cur.fetchone()
-                        self.variable = results_variable[1] if results_variable != None else ''
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                            + str(error), "critical")
-
-            if results_variable == None:
-                MessageHelper.show_message("El número de oferta no existe", "warning")
-                self.model.dataChanged.connect(self.saveChanges)
-
-            else:
-                query_flow = ('''
-                    SELECT tags_data.tags_flow."num_offer"
-                    FROM tags_data.tags_flow
-                    WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
-                    ''')
-                query_temp = ('''
-                    SELECT tags_data.tags_temp."num_offer"
-                    FROM tags_data.tags_temp
-                    WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
-                    ''')
-                query_level = ('''
-                    SELECT tags_data.tags_level."num_offer"
-                    FROM tags_data.tags_level
-                    WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
-                    ''')
-                query_others = ('''
-                    SELECT tags_data.tags_others."num_offer"
-                    FROM tags_data.tags_others
-                    WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
-                    ''')
-
-                try:
-                    with Database_Connection(config_database()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(query_flow,(self.numoffer,))
-                            results_flow=cur.fetchall()
-                            cur.execute(query_temp,(self.numoffer,))
-                            results_temp=cur.fetchall()
-                            cur.execute(query_level,(self.numoffer,))
-                            results_level=cur.fetchall()
-                            cur.execute(query_others,(self.numoffer,))
-                            results_others=cur.fetchall()
-
-                            if len(results_flow) != 0 and len(results_temp) != 0:
-                                self.variable = 'Caudal+Temp'
-                            elif len(results_flow) != 0 and len(results_level) != 0:
-                                self.variable = 'Caudal+Nivel'
-                            elif len(results_flow) != 0:
-                                self.variable = 'Caudal'
-                            elif len(results_temp) != 0:
-                                self.variable = 'Temperatura'
-                            elif len(results_level) != 0:
-                                self.variable = 'Nivel'
-                            elif len(results_others) != 0:
-                                self.variable = 'Otros'
-                            else:
-                                self.variable = ''
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                + str(error), "critical")
-
-                if self.variable == 'Caudal+Temp':
-                    self.variable = 'Caudal'
-                    self.variable2 = 'Temperatura'
-                    self.model.setTable("tags_data.tags_flow")
-                    self.model2.setTable("tags_data.tags_temp")
-                    self.model.table_check = "tags_data.tags_flow"
-                    self.model2.table_check = "tags_data.tags_temp"
-                    self.initial_column = 37
-                    self.initial_column2 = 44
-                    self.column_difference = 143
-                    self.column_difference2 = 128
-                elif self.variable =='Caudal+Nivel':
-                    self.variable = 'Caudal'
-                    self.variable2 = 'Nivel'
-                    self.model.setTable("tags_data.tags_flow")
-                    self.model2.setTable("tags_data.tags_level")
-                    self.model.table_check = "tags_data.tags_flow"
-                    self.model2.table_check = "tags_data.tags_level"
-                    self.initial_column = 37
-                    self.initial_column2 = 40
-                    self.column_difference = 143
-                    self.column_difference2 = 173
-                elif self.variable == 'Caudal':
-                    self.model.setTable("tags_data.tags_flow")
-                    self.model.table_check = "tags_data.tags_flow"
-                    self.initial_column = 37
-                    self.column_difference = 143
-                elif self.variable == 'Temperatura':
-                    self.model.setTable("tags_data.tags_temp")
-                    self.model.table_check = "tags_data.tags_temp"
-                    self.initial_column = 44
-                    self.column_difference = 128
-                elif self.variable == 'Nivel':
-                    self.model.setTable("tags_data.tags_level")
-                    self.model.table_check = "tags_data.tags_level"
-                    self.initial_column = 40
-                    self.column_difference = 173
-                elif self.variable == 'Otros':
-                    self.model.setTable("tags_data.tags_others")
-                    self.model.table_check = "tags_data.tags_others"
-                    self.initial_column = 15
-                    self.column_difference = 60
-                self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
-                self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
-
-        else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder.upper()):
-                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
-                self.model.dataChanged.connect(self.saveChanges)
-
-            else:
-                query = ('''
-                        SELECT num_offer, product_type."variable"
-                        FROM offers
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-
-                try:
-                    with Database_Connection(config_database()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(query,(self.numoffer,))
-                            results_variable=cur.fetchone()
-                            self.variable = results_variable[1] if results_variable != None else ''
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                + str(error), "critical")
-
-                if results_variable == None:
-                    MessageHelper.show_message("EL número de oferta no existe", "warning")
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    query_flow = ('''
-                        SELECT tags_data.tags_flow."num_offer"
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT tags_data.tags_temp."num_offer"
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_level = ('''
-                        SELECT tags_data.tags_level."num_offer"
-                        FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_others = ('''
-                        SELECT tags_data.tags_others."num_offer"
-                        FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                                cur.execute(query_flow,(self.numoffer,))
-                                results_flow=cur.fetchall()
-                                cur.execute(query_temp,(self.numoffer,))
-                                results_temp=cur.fetchall()
-                                cur.execute(query_level,(self.numoffer,))
-                                results_level=cur.fetchall()
-                                cur.execute(query_others,(self.numoffer,))
-                                results_others=cur.fetchall()
-
-                                if len(results_flow) != 0 and len(results_temp) != 0:
-                                    self.variable = 'Caudal+Temp'
-                                elif len(results_flow) != 0 and len(results_level) != 0:
-                                    self.variable = 'Caudal+Nivel'
-                                elif len(results_flow) != 0:
-                                    self.variable = 'Caudal'
-                                elif len(results_temp) != 0:
-                                    self.variable = 'Temperatura'
-                                elif len(results_level) != 0:
-                                    self.variable = 'Nivel'
-                                elif len(results_others) != 0:
-                                    self.variable = 'Otros'
-                                else:
-                                    self.variable = ''
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
-
-                    if self.variable == 'Caudal+Temp':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Temperatura'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 37
-                        self.initial_column2 = 44
-                        self.column_difference = 143
-                        self.column_difference2 = 128
-                    elif self.variable =='Caudal+Nivel':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Nivel'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 37
-                        self.initial_column2 = 45
-                        self.column_difference = 143
-                        self.column_difference2 = 173
-                    elif self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.initial_column = 37
-                        self.column_difference = 143
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_temp"
-                        self.initial_column = 44
-                        self.column_difference = 128
-                    elif self.variable == 'Nivel':
-                        self.model.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_level"
-                        self.initial_column = 40
-                        self.column_difference = 173
-                    elif self.variable == 'Otros':
-                        self.model.setTable("tags_data.tags_others")
-                        self.model.table_check = "tags_data.tags_others"
-                        self.initial_column = 15
-                        self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{self.numoffer.upper()}%'")
+        self.configure_models(variable)
+        self.apply_filters(field, self.value_query)
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -1778,7 +1505,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             if self.username is not None:
                 self.model.column_range = range(0,columns_number)
             else:
-                self.model.column_range = range(self.initial_column,columns_number)
+                self.model.column_range = [c for c in range(self.initial_column, columns_number) if c not in self.excluded_range]
 
             if self.variable == 'Caudal':
                 for i in range(50,84):
@@ -1804,6 +1531,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 self.tableEditTags.showColumn(143) # Amount difference column
                 self.tableEditTags.showColumn(148) # Invoice number column
+                self.tableEditTags.showColumn(150) # Dim drawing path column
+                self.tableEditTags.showColumn(151) # OF drawing path column
 
                 if self.username in ['d.marquez', 'g.lopez']:
                     for i in range(40,47):
@@ -2106,7 +1835,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 if self.username is not None:
                     self.model2.column_range = range(0,columns_number)
                 else:
-                    self.model2.column_range = range(self.initial_column2,columns_number)
+                    self.model2.column_range = [c for c in range(self.initial_column2,columns_number) if c not in self.excluded_range2]
 
                 if self.variable2 == 'Temperatura':
                     for i in range(66,69):
