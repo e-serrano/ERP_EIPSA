@@ -9,7 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import pandas as pd
 import psycopg2
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -35,7 +35,7 @@ class Ui_ImportTAG_Window(object):
         ImportTAG_Window.setMinimumSize(QtCore.QSize(640, 330))
         ImportTAG_Window.setMaximumSize(QtCore.QSize(640, 330))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ImportTAG_Window.setWindowIcon(icon)
         ImportTAG_Window.setStyleSheet(
 "QPushButton {\n"
@@ -296,7 +296,8 @@ class Ui_ImportTAG_Window(object):
                 na_values=['N/A'], 
                 keep_default_na=False, 
                 skiprows=7, 
-                dtype={'plate_thk': str, 'schedule': str}
+                dtype={'plate_thk': str, 'schedule': str, 'rating': str,
+                        'std_length': str, 'ins_length': str}
             )
             df_table = df_table.astype(str).replace('nan', 'N/A')
             df_final = df_table.iloc[:, config_tags['columns_range'][0]:config_tags['columns_range'][1]]
@@ -378,7 +379,7 @@ class Ui_ImportTAG_Window(object):
                             # Update Excel file with new IDs
                             ws[f'A{index+9}'] = id_tag
                             id_tag += 1
-                    
+
                     # Apply data validation
                     for key, value in config_tags['validation_map'].items():
                         formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
