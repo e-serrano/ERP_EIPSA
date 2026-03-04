@@ -669,8 +669,8 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 modelflange = ''
                 notesflange = ''
                 processflange = ''
-                materialflange = (model.data(model.index(target_row, 30)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
-                                    else model.data(model.index(target_row, 14))) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
+                materialflange = (model.data(model.index(target_row, 35)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
+                                    else (model.data(model.index(target_row, 14)) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''))
                 qtyflange = 1 if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
                 codepurchflange = model.data(model.index(target_row, 192))
                 flange_list.append([code_flange, codefab_flange, tradcodflange, modelflange, notesflange, processflange, materialflange, qtyflange, codepurchflange])
@@ -762,7 +762,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 puntal_list.append([code_puntal, codefab_puntal, tradcodpuntal, modelpuntal, notespuntal, processpuntal, materialpuntal, qtypuntal, codepurchpuntal])
                 all_list_parts.append(puntal_list)
 
-            if code_tw != '' and ('VC' in code_tw or 'FORGED' in model.data(model.index(target_row, 9))):
+            if code_tw != '' and ('Van-Stone TW' in model.data(model.index(target_row, 9)) or 'Forged' in model.data(model.index(target_row, 9))):
                 tradcodtw = model.data(model.index(target_row, 188))
                 modeltw = 'U=' + model.data(model.index(target_row, 16)) + ' / L=' + model.data(model.index(target_row, 15))
                 notestw = ''
