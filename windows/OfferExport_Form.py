@@ -511,6 +511,7 @@ class Ui_ExportOffer_Form(object):
                     with conn.cursor() as cur:
                         data=(validity, delivery_time, delivery_term, project, pay_term, rev, actual_date, numoffer,)
                         cur.execute(commands_updateofferdata,data)
+                    conn.commit()
 
                 if format_offer == 'Long':
                     if self.variable == 'Caudal':
