@@ -3881,7 +3881,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             results_flow=cur.fetchall()
 
                     if len(results_flow) > 0:
-
                         item_type = results_flow[0][0]
 
                         query_description = ('''
@@ -3939,7 +3938,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                            
+
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
@@ -4166,11 +4165,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             else:
                                 description = 'escribir a mano'
-                            
+
                             commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                            
+
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
@@ -4236,7 +4235,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
                                                         SET "drawing_description" = '{description}'
                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                            
+
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     cur.execute(commands_insert_drawing)
@@ -4278,18 +4277,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         results_description[0][1] + " " + results_description[0][2] + " " + results_description[0][3] + " " + (" A Masa" if results_description[0][4] == 'Grounded' else (" No Masa" if results_description[0][4] == 'Ungrounded' else "")) + " " + 
                                         results_description[0][5] + " " + results_description[0][6] + " " + results_description[0][7])
 
-                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                    SET "drawing_description" = '{description}'
-                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-
                         elif item_type in ['TE']:
                             description = (str(len(results_temp)) + " " + results_description[0][1] + " " + results_description[0][2] + " " + 
                                         results_description[0][3] + " " + (" A Masa" if results_description[0][4] == 'Grounded' else (" No Masa" if results_description[0][4] == 'Ungrounded' else "")))
 
-                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                        SET "drawing_description" = '{description}'
-                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                            
+                        commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                    SET "drawing_description" = '{description}'
+                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+
                         with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(commands_insert_drawing)
@@ -4848,7 +4843,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 query = ('''
                                     SELECT *
                                     FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED' and position <> 'ZZZ'
                                     ''')
 
                                 try:
@@ -4895,7 +4890,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     reader = PdfReader(f)
                                                     base_page = reader.pages[0]
 
-                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping_size"], row["tapping_num"], row["tapping_orientation"], row["gasket"], row["flange_type"], zip(row["pipe_int_diam"], row["count"]))
+                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping_size"], row["tapping_number"], row["tapping_orientation"], row["gasket"], row["flange_type"], zip(row["pipe_int_diam"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
                                                     
@@ -4903,9 +4898,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     writer.add_page(base_page)
 
                                                     writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
                                             else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
                                     elif item == 'M.RUN':
                                         df_selected_mrun = df_selected[df_selected['type'] == 'M.RUN'].copy()
@@ -4926,7 +4921,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     reader = PdfReader(f)
                                                     base_page = reader.pages[0]
 
-                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping"], row["gasket"], row["type_orifice_flange"], zip(row["final_pipe_int_diam"], row["orifice_flange_height"], row["count"]))
+                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping_size"], row["tapping_number"], row["tapping_orientation"], row["gasket"], row["type_orifice_flange"], zip(row["final_pipe_int_diam"], row["orifice_flange_height"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
                                                     
@@ -4934,9 +4929,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     writer.add_page(base_page)
 
                                                     writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
                                             else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
                                         grouped_line_flanges = self.create_df_line_flanges_mrun(df_selected_transformed)
                                         total_count = grouped_line_flanges['count'].explode().sum()
@@ -5094,9 +5089,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     if '2V260' in item:
                                         df_selected_final = df_selected[df_selected['description'].str.contains('2V260')].copy()
 
-                                        df_grouped = df_selected_final.groupby(['description', 'dim_drawing']).size().reset_index(name="count")
-                                        grouped_valves = df_grouped.groupby(['description', 'dim_drawing']).agg({"count": list}).reset_index()
-                                        total_count = grouped_valves['count'].explode().sum()
+                                        grouped_valves = df_selected_final.groupby(['description', 'dim_drawing']).size().reset_index(name="count")
+                                        total_count = grouped_valves['count'].sum()
 
                                         drawings_dict = {}
 
@@ -5124,8 +5118,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             else:
                                                 drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\{'XTAP-0.5Inx TaponPrg 0.5NPT AISI304L.pdf' if material == '316' else 'XTAP-0.5B TaponPrg 0.5NPT A105 de barra.pdf'}"
                                             drawing_path_6 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\T-Tornillos\XTAPT-M8 TornilloTaponPrg.pdf"
-                                            
-                                            description_1 = 'Bridas de desgaste PC ' + exterior_size
+
+                                            description_1 = 'Bridas de desbaste PC ' + exterior_size
                                             description_2 = 'Cuerpos Válvula 2V260 ' + material
                                             description_3 = 'Mecanizado conjunto brida-cuerpo ' + material
                                             description_4 = 'Plano acabado brida ' + exterior_size + ' ' + material
@@ -5152,16 +5146,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             page_overlay = PdfReader(loose_valves_dwg_dim(self.numorder, material, connection_1, connection_2, exterior_size, zip(row["count"]))).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
-                                            writer.write(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
+                                            writer.write(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
 
                                         # Write Drawing data
                                             writer = PdfWriter()
-                                            reader = PdfReader(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
+                                            reader = PdfReader(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
                                             page_overlay = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
 
-                                            writer.write(f"{output_path_M}/DIM-{dim_drawing_number[:2]}.pdf")
+                                            writer.write(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
 
                                             query_update_drawing = ("""
                                                 UPDATE verification.workshop_dim_drawings 
@@ -5456,8 +5450,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         lambda row: rf"""\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
         axis=1)
 
-        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_num', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
-        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_num', 'tapping_orientation', 'gasket', 'flange_type']).agg({"pipe_int_diam": list, "count": list}).reset_index()
+        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
+        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"pipe_int_diam": list, "count": list}).reset_index()
 
         return grouped_flanges
 
@@ -5608,8 +5602,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if 'CORNER' not in str(row["notes_equipment"]) else rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\Q-CornerTaps\{str(row['drawing_code'])}.pdf",
         axis=1)
 
-        df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
-        grouped_orifice_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping', 'gasket', 'type_orifice_flange', "type"]).agg({"final_pipe_int_diam": list, "orifice_flange_height": list, "count": list}).reset_index()
+        df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
+        grouped_orifice_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'type_orifice_flange', "type"]).agg({"final_pipe_int_diam": list, "orifice_flange_height": list, "count": list}).reset_index()
 
         return grouped_orifice_flanges
 
