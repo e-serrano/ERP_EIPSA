@@ -22,7 +22,7 @@ from datetime import *
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
-from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder
+from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder, material_list
 from utils.Generate_Dim_Dwg import generate_dim_drawings
 from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
@@ -2899,37 +2899,52 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         Initiates material order process based on the variable value.
         """
-        if self.proxy.rowCount() == 0:
-            MessageHelper.show_message("No hay datos cargados", "warning")
-        else:
-            if self.username not in ['julian.martinez']:
-                dlg = QtWidgets.QInputDialog()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle('Pedido Materiales')
-                dlg.setLabelText('Introduce el pedido:')
-                clickedButton=dlg.exec()
+        self.numorder = self.Numorder_EditTags.text()
+        self.numoffer = self.Numoffer_EditTags.text()
 
-                if clickedButton == 1:
-                    numorder_pedmat = dlg.textValue()
-                    if self.variable == 'Caudal':
-                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable == 'Temperatura':
-                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable == 'Nivel':
-                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable == 'Otros':
-                        others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable == 'Caudal+Temp':
-                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable == 'Caudal+Nivel':
-                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                    elif self.variable =='Temp+Nivel':
-                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
-                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+        while True:
+            framework, ok = QtWidgets.QInputDialog.getItem(None, "Listado Materiales", "Selecciona que quieres generar:", ['Listado Materiales GL', 'Orden de Compra'], 0, False)
+            if ok and framework:
+                while True:
+                    if framework == 'Listado Materiales GL':
+                        material_list(self.proxy, self.model, self.variable, self.numorder if self.numorder else self.numoffer)
+                        break
+                    elif framework == 'Orden de Compra':
+                        if self.proxy.rowCount() == 0:
+                            MessageHelper.show_message("No hay datos cargados", "warning")
+                        else:
+                            if self.username not in ['julian.martinez']:
+                                dlg = QtWidgets.QInputDialog()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle('Pedido Materiales')
+                                dlg.setLabelText('Introduce el pedido:')
+                                clickedButton=dlg.exec()
+
+                                if clickedButton == 1:
+                                    numorder_pedmat = dlg.textValue()
+                                    if self.variable == 'Caudal':
+                                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable == 'Temperatura':
+                                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable == 'Nivel':
+                                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable == 'Otros':
+                                        others_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable == 'Caudal+Temp':
+                                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable == 'Caudal+Nivel':
+                                        flow_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                    elif self.variable =='Temp+Nivel':
+                                        temp_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                                        level_matorder(self.proxy, self.model, self.numorder if self.numoffer == '' else self.numoffer, numorder_pedmat, self.variable, 'Order' if self.numoffer == '' else 'Offer')
+                        break
+                break
+            else:
+                break
 
 # Function to open drawing generator selector
     def generate_drawings(self):
