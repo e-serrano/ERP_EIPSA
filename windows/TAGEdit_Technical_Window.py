@@ -2617,8 +2617,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         value = value.toString("dd/MM/yyyy")
                     elif column in [55] and self.variable == 'Caudal':
                         value = int(value) if value != '' else 0
-                    elif column in [15,16,46,47,53,54,55,56] and self.variable == 'Temperatura':
-                        value = int(value) if value != '' else 0
+                    elif column in [15,16,53,54,55,56] and self.variable == 'Temperatura':
+                        value = int(float(value)) if value != '' else 0
                     tag_data.append(value)
                 final_data.append(tag_data)
 
