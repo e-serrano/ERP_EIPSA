@@ -1068,6 +1068,14 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Args:
             EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
         """
+        if hasattr(self, "edit_tags_app") and self.edit_tags_app.isVisible():
+            if self.edit_tags_app.isMinimized():
+                self.edit_tags_app.showNormal()
+
+            self.edit_tags_app.activateWindow()
+            self.edit_tags_app.raise_()
+            return
+
         dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
