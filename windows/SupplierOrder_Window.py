@@ -4325,9 +4325,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                                 supply_id = self.tableRecords.item(i, 12).text()
                                 quantity = self.tableRecords.item(i, 4).text()
                                 currency_id = 1
-                                currency_value = self.tableRecords.item(i, 5).text()
+                                currency_value = str(self.tableRecords.item(i, 5).text())
 
-                                euro_value=currency_value.replace(",",".")
+                                euro_value=currency_value.replace(".","")
+                                euro_value=euro_value.replace(",",".")
                                 euro_value=euro_value[:euro_value.find(" €")]
 
                                 data = (idquotation, supply_id,quantity,currency_id,euro_value, euro_value)
