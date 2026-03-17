@@ -4733,8 +4733,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             # Loop through different types of equipment and create drawings accordingly
                                 for item in df_selected['type'].unique().tolist():
-                                    if item == 'Flanged TW':
-                                        df_selected = df_selected[df_selected['type'] == 'Flanged TW'].copy()
+                                    if item in ['Flanged TW', 'Flanged Helical']:
+                                        df_selected = df_selected[df_selected['type'].isin(['Flanged TW', 'Flanged Helical'])].copy()
 
                                         grouped_flanges = self.create_df_flanges_flanged_tw(df_selected)
                                         total_count = grouped_flanges['count'].explode().sum() 
@@ -4749,16 +4749,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 reader = PdfReader(drawing_path)
                                                 page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, row["material"], row["count"][0])).pages[0]
 
-                                                if row["base_tw_diam"] == 32:
+                                                if int(row["base_tw_diam"]) == 32:
                                                     reader.pages[0].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[0])
-                                                elif row["base_tw_diam"] == 35:
+                                                elif int(row["base_tw_diam"]) == 35:
                                                     reader.pages[1].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[1])
-                                                elif row["base_tw_diam"] == 30:
+                                                elif int(row["base_tw_diam"]) == 30:
                                                     reader.pages[2].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[2])
-                                                elif row["base_tw_diam"] == 38:
+                                                elif int(row["base_tw_diam"]) == 38:
                                                     reader.pages[3].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[3])
 
@@ -5382,7 +5382,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         dataframe['connection'] = dataframe.apply(
         lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
         axis=1)
-        
+
         dataframe['drawing_path'] = dataframe.apply(
         lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
         axis=1)
@@ -5398,7 +5398,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 3,axis=1)
 
         dataframe['drawing_code'] = dataframe.apply(
-        lambda row: 'TVSCP-Ø' + str(int(row['base_diam'])) + ' Corte-Taladro',
+        lambda row: 'TVSCP-Ø' + str(int(row['base_tw_diam'])) + ' Corte-Taladro',
         axis=1)
 
         dataframe['drawing_path'] = dataframe.apply(
