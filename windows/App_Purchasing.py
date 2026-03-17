@@ -1965,8 +1965,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     VALUES (%s,%s,%s)""")
 
         query_available_stock = ("""UPDATE purch_fact.supplies
-        #                         SET "available_stock" = %s 
-        #                         WHERE "id" = %s""")
+                                SET "available_stock" = %s 
+                                WHERE "id" = %s""")
 
         try:
             with Database_Connection(config_database()) as conn:
