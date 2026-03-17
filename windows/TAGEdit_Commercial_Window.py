@@ -1413,6 +1413,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             return "Caudal+Temperatura"
         if "Caudal" in found and "Nivel" in found:
             return "Caudal+Nivel"
+        if "Temperatura" in found and "Nivel" in found:
+            return "Temperatura+Nivel"
         return found[0] if found else ""
 
 # Function to configure table models based on the detected variable
@@ -1420,7 +1422,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.variable2 = None
         self.excluded_range2 = None
 
-        if variable in ("Caudal+Temperatura", "Caudal+Nivel"):
+        if variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
             v1, v2 = variable.split("+")
             self.variable, self.variable2 = v1, v2
 
