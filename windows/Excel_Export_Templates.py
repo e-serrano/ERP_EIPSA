@@ -9446,22 +9446,22 @@ class vendor_progress_report:
             self.table_query = "tags_data.tags_others"
 
         commands_query_data = (
-                    f"""SELECT orders."num_ref_order", '' as suppl, tags_data."position", tags_data."subposition", tags_data."tag", '' as empty_column, tags_data."item_type",
+                    f"""SELECT orders."num_ref_order", tags_data."num_order", tags_data."position", tags_data."subposition", tags_data."tag", '' as empty_column, tags_data."item_type",
                     '' as empty_column2, '' as empty_column3, 'FCA' as incoterm,
                     'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as delivery_place, 0 as item_ship_qty,
                     1 as qty_unit, 0 as irc_qty, TO_CHAR(tags_data."irc_date", 'DD/MM/YYYY'), 0 as rn_qty, tags_data."rn_delivery", TO_CHAR(tags_data."rn_date", 'DD/MM/YYYY'),
                     '' as osd_number, TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
                     CASE 
-                        WHEN tags_data."dwg_state_date" IS NULL THEN 'HOLD'
-                        ELSE TO_CHAR(tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer, 'DD/MM/YYYY')
+                        WHEN documentation."state_date" IS NULL THEN 'HOLD'
+                        ELSE TO_CHAR(documentation."state_date"::date + INTERVAL '7 days' * offers."delivery_time"::integer, 'DD/MM/YYYY')
                     END AS forecast_date,
                     CASE 
-                        WHEN tags_data."dwg_state_date" IS NULL THEN NULL
-                        ELSE EXTRACT(DAY FROM (tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer - orders."expected_date"))
+                        WHEN documentation."state_date" IS NULL THEN NULL
+                        ELSE EXTRACT(DAY FROM (documentation."state_date"::date + INTERVAL '7 days' * offers."delivery_time"::integer - orders."expected_date"))
                     END AS deviation_days
                     , 'EIPSA' as manufacturer,
                     'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks,
-                    documentation."state" as drawing_state, documentation."state_date" as drawing_state_date
+                    documentation."state" as drawing_state, TO_CHAR(documentation."state_date"::date, 'DD/MM/YYYY') as drawing_state_date
                     FROM {self.table_query} AS tags_data
                     LEFT JOIN orders ON (tags_data."num_order" = orders."num_order")
                     LEFT JOIN offers ON (orders."num_offer" = offers."num_offer")
@@ -10070,7 +10070,10 @@ class material_order:
             num_ot (str): The order task number.
         """
         # Loading Excel Template
-        self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima.xlsx")))
+        if num_order[0] == 'P':
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Pedido Materia Prima.xlsx")))
+        else:
+            self.wb = load_workbook(str(get_path("Plantillas Exportación", "Informe Materiales.xlsx")))
 
         sheet_name = "Hoja1"  # Selecting template sheet
         ws = self.wb[sheet_name]
@@ -10136,7 +10139,8 @@ class material_order:
         ws["L4"] = num_order
         ws["C5"] = client
         ws["C6"] = variable
-        ws["H1"] = int(int(num_ot)+1)
+        if num_order[0] == 'P':
+            ws["H1"] = int(int(num_ot)+1)
         ws["F9"] = date.today().strftime("%d/%m/%Y")
         ws["H9"] = date.today().strftime("%d/%m/%Y")
 
@@ -10197,7 +10201,7 @@ class material_order:
             output_path = final_path / "Orden de compra final.xlsx"
         self.wb.save(output_path)
 
-        MessageHelper.show_message("Orden de compra guardada correctamente.", "information")
+        MessageHelper.show_message("Excel guardado correctamente.", "information")
 
 class future_projects:
     """
