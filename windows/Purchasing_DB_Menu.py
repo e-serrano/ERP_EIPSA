@@ -36,10 +36,14 @@ class Ui_Purchasing_DB_Menu(object):
         Args:
             Purchasing_DB_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
         """
+        if self.username in ['d.marquez']:
+            self.scale = 1.5
+        else:
+            self.scale = 1.25
         Purchasing_DB_Menu.setObjectName("Purchasing_DB_Menu")
         Purchasing_DB_Menu.resize(300, 340)
-        Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(int(300//1.5), int(340//1.5)))
-        Purchasing_DB_Menu.setMaximumSize(QtCore.QSize(int(300//1.5), int(340//1.5)))
+        Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(int(300//self.scale), int(340//self.scale)))
+        Purchasing_DB_Menu.setMaximumSize(QtCore.QSize(int(300//self.scale), int(340//self.scale)))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_DB_Menu.setWindowIcon(icon)
@@ -77,8 +81,8 @@ class Ui_Purchasing_DB_Menu(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(int(275//1.5), int(275//1.5)))
-        self.frame.setMaximumSize(QtCore.QSize(int(275//1.5), int(275//1.5)))
+        self.frame.setMinimumSize(QtCore.QSize(int(275//self.scale), int(275//self.scale)))
+        self.frame.setMaximumSize(QtCore.QSize(int(275//self.scale), int(275//self.scale)))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -87,15 +91,15 @@ class Ui_Purchasing_DB_Menu(object):
         spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
         self.Button_Clients = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clients.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
-        self.Button_Clients.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Clients.setMinimumSize(QtCore.QSize(int(250//self.scale), int(35//self.scale)))
+        self.Button_Clients.setMaximumSize(QtCore.QSize(int(250//self.scale), int(35//self.scale)))
         self.Button_Clients.setObjectName("Button_Clients")
         self.gridLayout_2.addWidget(self.Button_Clients, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
         self.Button_Suppliers = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Suppliers.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
-        self.Button_Suppliers.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Suppliers.setMinimumSize(QtCore.QSize(int(250//self.scale), int(35//self.scale)))
+        self.Button_Suppliers.setMaximumSize(QtCore.QSize(int(250//self.scale), int(35//self.scale)))
         self.Button_Suppliers.setObjectName("Button_Suppliers")
         self.gridLayout_2.addWidget(self.Button_Suppliers, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -105,8 +109,8 @@ class Ui_Purchasing_DB_Menu(object):
         self.horizontalLayout.addItem(spacerItem2)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setEnabled(True)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.Button_Cancel.setMinimumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
+        self.Button_Cancel.setMaximumSize(QtCore.QSize(int(100//self.scale), int(35//self.scale)))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
         self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 1)

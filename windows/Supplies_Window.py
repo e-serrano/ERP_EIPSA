@@ -933,7 +933,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         if self.username in ['d.marquez']:
             self.scale = 1.5
         else:
-            self.scale=1
+            self.scale = 1.25
         Supplies_Window.setObjectName("Supplies_Window")
         Supplies_Window.resize(int(1174//self.scale), int(600//self.scale))
         icon = QtGui.QIcon()
@@ -1371,9 +1371,9 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         if self.username == 'd.marquez':
             self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
             self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-            self.tableSupplies.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            self.tableSupplies.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid;}")
         else:
-            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
 
         self.tableSupplies.setItemDelegate(NumericDelegate(self.tableSupplies))
         self.tableSupplies.setItemDelegateForColumn(7, AlignDelegate(self.tableSupplies))

@@ -452,6 +452,10 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         Args:
             App_Purchasing (QtWidgets.QMainWindow): The main window object to set up.
         """
+        if self.username in ['d.marquez']:
+            self.scale = 1.5
+        else:
+            self.scale = 1.25
         App_Purchasing.setObjectName("App_Purchasing")
         App_Purchasing.resize(945, 860)
         App_Purchasing.setMinimumSize(QtCore.QSize(945, 860))
@@ -482,8 +486,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Header.setContentsMargins(-1, 0, -1, -1)
         self.Header.setObjectName("Header")
         self.LogoIcon = QtWidgets.QLabel(parent=self.frame)
-        self.LogoIcon.setMinimumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
-        self.LogoIcon.setMaximumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
+        self.LogoIcon.setMinimumSize(QtCore.QSize(int(220//self.scale), int(52//self.scale)))
+        self.LogoIcon.setMaximumSize(QtCore.QSize(int(220//self.scale), int(52//self.scale)))
         self.LogoIcon.setText("")
         self.LogoIcon.setPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Logo Nobg.png"))))
         self.LogoIcon.setScaledContents(True)
@@ -492,8 +496,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
         self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Notification.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Notification.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Notification.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+        self.Button_Notification.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
         self.Button_Notification.setToolTip('Notificaciones')
         self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Notification.setStyleSheet("QPushButton{\n"
@@ -518,329 +522,345 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 "    border-radius: 10px;\n"
 "}")
         self.Button_Notification.setText("")
-        self.Button_Notification.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Notification.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_Notification.setObjectName("Button_Notification")
         self.Header.addWidget(self.Button_Notification)
-        spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem15)
-        self.Button_Welding = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Welding.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Welding.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Welding.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Welding.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Welding.setText("")
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Welding.setIcon(icon12)
-        self.Button_Welding.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Welding.setObjectName("Button_Welding")
-        self.Button_Welding.setToolTip("Homologación Soldadura")
-        self.Header.addWidget(self.Button_Welding)
-        spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem11)
-        self.Button_LiquidVisual = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_LiquidVisual.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_LiquidVisual.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_LiquidVisual.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_LiquidVisual.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Liquids_Visual.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_LiquidVisual.setIcon(icon2)
-        self.Button_LiquidVisual.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_LiquidVisual.setObjectName("Button_LiquidVisual")
-        self.Button_LiquidVisual.setToolTip("Certificados Líquidos")
-        self.Header.addWidget(self.Button_LiquidVisual)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_Warehouse = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Warehouse.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Warehouse.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Warehouse.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Warehouse.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Warehouse.setText("")
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Warehouse.setIcon(icon12)
-        self.Button_Warehouse.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Warehouse.setObjectName("Button_Warehouse")
-        self.Button_Warehouse.setToolTip("Almacén")
-        self.Header.addWidget(self.Button_Warehouse)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem6)
-        self.Button_ActiveOffer = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ActiveOffer.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_ActiveOffer.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_ActiveOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_ActiveOffer.setText("")
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_ActiveOffer.setIcon(icon12)
-        self.Button_ActiveOffer.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
-        self.Button_ActiveOffer.setToolTip("Ofertas Activas")
-        self.Header.addWidget(self.Button_ActiveOffer)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem6)
-        self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Revisions.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Revisions.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Revisions.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Revisions.setText("")
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Revisions.setIcon(icon12)
-        self.Button_Revisions.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Revisions.setObjectName("Button_Revisions")
-        self.Button_Revisions.setToolTip("Revisiones")
-        self.Header.addWidget(self.Button_Revisions)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem7)
-        self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Times.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Times.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Times.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Times.setText("")
-        icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Times.setIcon(icon13)
-        self.Button_Times.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Times.setObjectName("Button_Times")
-        self.Button_Times.setToolTip("Tiempos Fabricaión")
-        self.Header.addWidget(self.Button_Times)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_OfferSummary = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_OfferSummary.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_OfferSummary.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_OfferSummary.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_OfferSummary.setText("")
-        icon14 = QtGui.QIcon()
-        icon14.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Summary.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_OfferSummary.setIcon(icon14)
-        self.Button_OfferSummary.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_OfferSummary.setObjectName("Button_OfferSummary")
-        self.Button_OfferSummary.setToolTip("Resumen Ofertas")
-        self.Header.addWidget(self.Button_OfferSummary)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Order_Control.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Order_Control.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Order_Control.setToolTip('Control Pedidos')
-        self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Order_Control.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Order_Control.setText("")
-        self.Button_Order_Control.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Order_Control.setObjectName("Button_Order_Control")
-        self.Header.addWidget(self.Button_Order_Control)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Order_Control.setIcon(icon1)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_Purchase_Order = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Purchase_Order.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Purchase_Order.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Purchase_Order.setToolTip('Control Pedidos')
-        self.Button_Purchase_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Purchase_Order.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Purchase_Order.setText("")
-        self.Button_Purchase_Order.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-        self.Button_Purchase_Order.setObjectName("Button_Purchase_Order")
-        self.Header.addWidget(self.Button_Purchase_Order)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Purchase_Order.setIcon(icon1)
+        if self.username in ['d.marquez']:
+            spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem15)
+            self.Button_Welding = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Welding.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Welding.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Welding.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Welding.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Welding.setText("")
+            icon12 = QtGui.QIcon()
+            icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Welding.setIcon(icon12)
+            self.Button_Welding.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Welding.setObjectName("Button_Welding")
+            self.Button_Welding.setToolTip("Homologación Soldadura")
+            self.Header.addWidget(self.Button_Welding)
+            spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem11)
+            self.Button_LiquidVisual = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_LiquidVisual.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_LiquidVisual.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_LiquidVisual.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_LiquidVisual.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Liquids_Visual.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_LiquidVisual.setIcon(icon2)
+            self.Button_LiquidVisual.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_LiquidVisual.setObjectName("Button_LiquidVisual")
+            self.Button_LiquidVisual.setToolTip("Certificados Líquidos")
+            self.Header.addWidget(self.Button_LiquidVisual)
+            spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem8)
+            self.Button_Warehouse = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Warehouse.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Warehouse.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Warehouse.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Warehouse.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Warehouse.setText("")
+            icon12 = QtGui.QIcon()
+            icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Warehouse.setIcon(icon12)
+            self.Button_Warehouse.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Warehouse.setObjectName("Button_Warehouse")
+            self.Button_Warehouse.setToolTip("Almacén")
+            self.Header.addWidget(self.Button_Warehouse)
+            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem6)
+            self.Button_ActiveOffer = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ActiveOffer.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_ActiveOffer.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_ActiveOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_ActiveOffer.setText("")
+            icon12 = QtGui.QIcon()
+            icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ActiveOffer.setIcon(icon12)
+            self.Button_ActiveOffer.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
+            self.Button_ActiveOffer.setToolTip("Ofertas Activas")
+            self.Header.addWidget(self.Button_ActiveOffer)
+            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem6)
+            self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Revisions.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Revisions.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Revisions.setText("")
+            icon12 = QtGui.QIcon()
+            icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Revisions.setIcon(icon12)
+            self.Button_Revisions.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Revisions.setObjectName("Button_Revisions")
+            self.Button_Revisions.setToolTip("Revisiones")
+            self.Header.addWidget(self.Button_Revisions)
+            spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem7)
+            self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Times.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Times.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Times.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Times.setText("")
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Times.setIcon(icon13)
+            self.Button_Times.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Times.setObjectName("Button_Times")
+            self.Button_Times.setToolTip("Tiempos Fabricaión")
+            self.Header.addWidget(self.Button_Times)
+            spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem8)
+            self.Button_OfferSummary = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OfferSummary.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_OfferSummary.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_OfferSummary.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_OfferSummary.setText("")
+            icon14 = QtGui.QIcon()
+            icon14.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Summary.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OfferSummary.setIcon(icon14)
+            self.Button_OfferSummary.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_OfferSummary.setObjectName("Button_OfferSummary")
+            self.Button_OfferSummary.setToolTip("Resumen Ofertas")
+            self.Header.addWidget(self.Button_OfferSummary)
+            spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem8)
+            self.Button_Order_Control = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Order_Control.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Order_Control.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Order_Control.setToolTip('Control Pedidos')
+            self.Button_Order_Control.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Order_Control.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Order_Control.setText("")
+            self.Button_Order_Control.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Order_Control.setObjectName("Button_Order_Control")
+            self.Header.addWidget(self.Button_Order_Control)
+            icon1 = QtGui.QIcon()
+            icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Order_Control.setIcon(icon1)
+            spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem8)
+            self.Button_Purchase_Order = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Purchase_Order.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Purchase_Order.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+            self.Button_Purchase_Order.setToolTip('Control Pedidos')
+            self.Button_Purchase_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Purchase_Order.setStyleSheet("QPushButton{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(3, 174, 236);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(255, 255, 255);\n"
+        "    border-radius: 10px;\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed{\n"
+        "    border: 1px solid transparent;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "    color: rgb(0,0,0);\n"
+        "    background-color: rgb(200, 200, 200);\n"
+        "    border-radius: 10px;\n"
+        "}")
+            self.Button_Purchase_Order.setText("")
+            self.Button_Purchase_Order.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
+            self.Button_Purchase_Order.setObjectName("Button_Purchase_Order")
+            self.Header.addWidget(self.Button_Purchase_Order)
+            icon1 = QtGui.QIcon()
+            icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Purchase_Order.setIcon(icon1)
+
+            self.Button_Welding.clicked.connect(self.welding_data)
+            self.Button_LiquidVisual.clicked.connect(self.liquid_visual_certificate)
+            self.Button_Warehouse.clicked.connect(self.warehouse_app)
+            self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
+            self.Button_Revisions.clicked.connect(self.revisions)
+            self.Button_Times.clicked.connect(self.times)
+            self.Button_OfferSummary.clicked.connect(self.offers_summary)
+            self.Button_Notification.clicked.connect(self.notifications)
+            self.Button_Order_Control.clicked.connect(self.order_control)
+            self.Button_Purchase_Order.clicked.connect(self.create_purchase_order)
+
+            self.warning_calibration()
+            self.visual_certificate_check()
+
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.HeaderName.setFont(font)
         self.HeaderName.setStyleSheet("color:rgb(3, 174, 236)")
@@ -850,8 +870,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         spacerItem2 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Profile.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-        self.Button_Profile.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Profile.setMinimumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
+        self.Button_Profile.setMaximumSize(QtCore.QSize(int(50//self.scale), int(50//self.scale)))
         self.Button_Profile.setToolTip('Configuración')
         self.Button_Profile.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Profile.setStyleSheet("QPushButton{\n"
@@ -879,7 +899,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         icon13 = QtGui.QIcon()
         icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
-        self.Button_Profile.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Profile.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_Profile.setObjectName("Button_Profile")
         self.Header.addWidget(self.Button_Profile)
         self.FrameApp.addLayout(self.Header)
@@ -888,8 +908,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.PrincipalScreen = QtWidgets.QHBoxLayout()
         self.PrincipalScreen.setObjectName("PrincipalScreen")
         self.ButtonFrame = QtWidgets.QFrame(parent=self.frame)
-        self.ButtonFrame.setMinimumSize(QtCore.QSize(int(220//1.5), 0))
-        self.ButtonFrame.setMaximumSize(QtCore.QSize(int(220//1.5), 16777215))
+        self.ButtonFrame.setMinimumSize(QtCore.QSize(int(220//self.scale), 0))
+        self.ButtonFrame.setMaximumSize(QtCore.QSize(int(220//self.scale), 16777215))
         self.ButtonFrame.setAutoFillBackground(False)
         self.ButtonFrame.setStyleSheet("QFrame{\n"
     "    background-color: rgb(3, 174, 236);\n"
@@ -925,87 +945,87 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.verticalLayout_3.setSpacing(25)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.Button_Purchasing = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_Purchasing.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_Purchasing.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_Purchasing.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_Purchasing.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_Purchasing.setFont(font)
         self.Button_Purchasing.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Purchasing.setIcon(icon1)
-        self.Button_Purchasing.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Purchasing.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_Purchasing.setObjectName("Button_Purchasing")
         self.verticalLayout_3.addWidget(self.Button_Purchasing)
         self.Button_QueryOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryOffer.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_QueryOffer.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryOffer.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_QueryOffer.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_QueryOffer.setFont(font)
         self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOffer.setIcon(icon3)
-        self.Button_QueryOffer.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryOffer.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_QueryOffer.setObjectName("Button_QueryOffer")
         self.verticalLayout_3.addWidget(self.Button_QueryOffer)
         self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon4)
-        self.Button_QueryOrder.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryOrder.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
         self.verticalLayout_3.addWidget(self.Button_QueryOrder)
         self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryTag.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_QueryTag.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryTag.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_QueryTag.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon5)
-        self.Button_QueryTag.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryTag.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
         self.verticalLayout_3.addWidget(self.Button_QueryTag)
         self.Button_QueryTagPrices = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryTagPrices.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_QueryTagPrices.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryTagPrices.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_QueryTagPrices.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_QueryTagPrices.setFont(font)
         self.Button_QueryTagPrices.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTagPrices.setIcon(icon5)
-        self.Button_QueryTagPrices.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryTagPrices.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_QueryTagPrices.setObjectName("Button_QueryTagPrices")
         self.verticalLayout_3.addWidget(self.Button_QueryTagPrices)
         self.Button_QueryDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryDoc.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
-        self.Button_QueryDoc.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryDoc.setMinimumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
+        self.Button_QueryDoc.setMaximumSize(QtCore.QSize(int(200//self.scale), int(50//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(12//1.5))
+        font.setPointSize(int(12//self.scale))
         font.setBold(True)
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
-        self.Button_QueryDoc.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryDoc.setIconSize(QtCore.QSize(int(40//self.scale), int(40//self.scale)))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
         self.verticalLayout_3.addWidget(self.Button_QueryDoc)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
@@ -1046,20 +1066,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryTagPrices.clicked.connect(self.query_tag_prices)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
-        self.Button_Welding.clicked.connect(self.welding_data)
-        self.Button_LiquidVisual.clicked.connect(self.liquid_visual_certificate)
-        self.Button_Warehouse.clicked.connect(self.warehouse_app)
-        self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
-        self.Button_Revisions.clicked.connect(self.revisions)
-        self.Button_Times.clicked.connect(self.times)
-        self.Button_OfferSummary.clicked.connect(self.offers_summary)
-        self.Button_Notification.clicked.connect(self.notifications)
-        self.Button_Order_Control.clicked.connect(self.order_control)
-        self.Button_Purchase_Order.clicked.connect(self.create_purchase_order)
 
         # self.backup_data()
-        self.warning_calibration()
-        self.visual_certificate_check()
+        
         self.load_notifications()
 
 
