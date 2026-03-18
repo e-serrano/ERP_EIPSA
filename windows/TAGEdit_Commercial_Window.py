@@ -1661,7 +1661,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
-                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
                             "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
@@ -1866,6 +1866,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                     self.tableEditTags2.showColumn(128) # Amount difference column
                     self.tableEditTags2.showColumn(133) # Invoice number column
+                    self.tableEditTags2.showColumn(135) # Dim drawing path column
+                    self.tableEditTags2.showColumn(136) # OF drawing path column
+                    self.tableEditTags2.showColumn(137) # OF sensor drawing path column
 
                 elif self.variable2 == 'Nivel':
                     for i in range(48,61):
