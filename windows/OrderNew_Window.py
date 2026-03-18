@@ -429,12 +429,12 @@ class Ui_New_Order_Window(object):
                                 "milling_hours" = offers."milling_hours",
                                 "assembly_hours" = offers."assembly_hours",
                                 "pyrometry_hours" = offers."pyrometry_hours",
-                                "cme_hours" = offers."cem_hours",
+                                "cme_hours" = offers."cme_hours",
                                 "welding_hours" = offers."welding_hours",
                                 "cnc_drilling_hours" = offers."cnc_drilling_hours",
                                 "deep_drilling_hours" = offers."deep_drilling_hours",
-                                "lathing_hours" = offers."lathing_hours"
-                                "cnc_lathing_hours" = offers."cnc_lathing_hours"
+                                "lathing_hours" = offers."lathing_hours",
+                                "cnc_lathing_hours" = offers."cnc_lathing_hours",
                                 "notes_hours" = offers."notes_hours"
                             FROM offers
                             WHERE orders."num_offer" = %s
