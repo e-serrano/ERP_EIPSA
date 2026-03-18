@@ -28,8 +28,8 @@ from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
 
 VARIABLE_TABLES = {
-    "Caudal": ("tags_data.tags_flow", 37, 143, range(92, 98)), # table_check, initial_column, column_difference, excluded_range
-    "Temperatura": ("tags_data.tags_temp", 44, 128, range(70, 78)),
+    "Caudal": ("tags_data.tags_flow", 37, 143, list(range(92, 98)) + [150, 151]), # table_check, initial_column, column_difference, excluded_range
+    "Temperatura": ("tags_data.tags_temp", 44, 128, list(range(70, 78)) + [135, 136, 137]),
     "Nivel": ("tags_data.tags_level", 40, 173, range(0,1)),
     "Otros": ("tags_data.tags_others", 15, 60, range(0,1)),
 }
@@ -1564,6 +1564,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 self.tableEditTags.showColumn(128) # Amount difference column
                 self.tableEditTags.showColumn(133) # Invoice number column
+                self.tableEditTags.showColumn(135) # Dim drawing path column
+                self.tableEditTags.showColumn(136) # OF drawing path column
+                self.tableEditTags.showColumn(137) # OF sensor drawing path column
 
             elif self.variable == 'Nivel':
                 for i in range(48,61):
