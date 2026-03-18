@@ -14,9 +14,8 @@ from windows.Supplies_Window import Ui_Supplies_Window
 from windows.Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 from windows.Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
-import configparser
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 
 basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
@@ -53,7 +52,7 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setMinimumSize(QtCore.QSize(int(615//self.scale), int(400//self.scale)))
         Purchasing_Menu.setMaximumSize(QtCore.QSize(int(615//self.scale), int(400//self.scale)))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
         if self.username == 'd.marquez':
             Purchasing_Menu.setStyleSheet("QWidget {\n"

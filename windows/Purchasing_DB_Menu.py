@@ -10,8 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.Suppliers_Window import Ui_Suppliers_Window
 from windows.Clients_Window import Ui_Clients_Window
 import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_Purchasing_DB_Menu(object):
@@ -45,7 +44,7 @@ class Ui_Purchasing_DB_Menu(object):
         Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(int(300//self.scale), int(340//self.scale)))
         Purchasing_DB_Menu.setMaximumSize(QtCore.QSize(int(300//self.scale), int(340//self.scale)))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_DB_Menu.setWindowIcon(icon)
         Purchasing_DB_Menu.setStyleSheet(
     "QPushButton {\n"
