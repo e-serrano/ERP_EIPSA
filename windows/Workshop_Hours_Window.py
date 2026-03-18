@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from datetime import *
 import re
 from PySide6.QtWidgets import QApplication
@@ -12,6 +12,8 @@ from config.config_functions import config_database, get_path
 import locale
 import pandas as pd
 from windows.Excel_Export_Templates import workshop_hours
+from utils.Show_Message import MessageHelper
+import psycopg2
 
 
 
@@ -790,10 +792,20 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpExcel)
+        self.hcabspacer=QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer)
+        self.toolImpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolImpExcel.setObjectName("ImpExcel_Button")
+        self.toolImpExcel.setToolTip("Importar a Excel")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolImpExcel.setIcon(icon)
+        self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolImpExcel)
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -969,6 +981,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         self.query_data()
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolImpExcel.clicked.connect(self.importexcel)
         self.tableWorkshop_P.selectionModel().selectionChanged.connect(self.countSelectedCells_P)
         self.tableWorkshop_O.selectionModel().selectionChanged.connect(self.countSelectedCells_O)
         self.tableWorkshop_AL.selectionModel().selectionChanged.connect(self.countSelectedCells_AL)
@@ -1009,7 +1022,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_O.setModel(self.proxy_O)
 
         self.model_AL.setTable("orders_warehouse")
-        # self.model_AL.setFilter("EXTRACT (YEAR FROM order_date) = NOT IN ('Declinada', 'Perdida', 'Adjudicada', 'No Ofertada', 'Budgetary')")
+        self.model_AL.setFilter("notes_hours IS NULL OR UPPER(notes_hours) <> 'TERMINADO'")
         self.model_AL.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model_AL.select()
         self.proxy_AL.setSourceModel(self.model_AL)
@@ -1078,17 +1091,17 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC', 'Fabricable','Obs.']
 
         headers_O = ["Oferta", "Estado", "Resp.", "Calc.", "Cliente", "Cliente Final", "Nº Ref. Oferta",
                             "F. Reg.", "F. Rec.", "F. Pres.", "F. Vto.", "Probabilidad.", "Prior.", "Material", "Nº Eq.",
                             "Nac/Ext", "Comprador", "Portal", "Tarifa", "Mails", "Veces Rec.", "Ult. Rec.", "Tipo Rec.",
                             "Ult. Act.", "Validez", "Tiempo Entrega", "Forma Entrega", "Proyecto", "Forma Pago",
                             "Ult. Rev.", "F. Ult. Rev.", "Importe", "Importante", "Seguimiento", "Acciones", "Notas", "Año", "Mes",
-                            'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                            'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC','Obs.']
 
         headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC','Obs.']
 
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(self.model_P.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -1382,7 +1395,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', 'Nº Eqs', '', '', '', '','','Extras', 'Aval', 'Estado Aval', 'Fecha Vto. Aval',
                 '', 'Ordenes de Cambio', '', '', '', '% Env Fab', 'Notas Técnicas', '',
-                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC', 'Fabricable','Obs.']
 
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1722,7 +1735,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                     '','','','','',
                     '','','Nº Eqs','','Probabilidad',
                     '','', '',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC','Obs.']
 
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2048,7 +2061,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_AL.hideColumn(5)
 
         headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
-                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Taladro', 'Torno', 'Obs.']
+                    'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC','Obs.']
 
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2539,7 +2552,87 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             self.label_CountItems_AL.setText("Recuento:")
             self.label_CountValue_AL.setText(str(count_non_empty))
 
+# Function to import data from excel
+    def importexcel(self):
+        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
+        if input_file:
+            df_orders = pd.read_excel(input_file, sheet_name="P-", skiprows=6, header=None, dtype=str)
+            df_orders = df_orders.fillna('')
+            df_orders.columns = ['num_order', 'num_offer', 'num_ref_order', 'order_date', 'num_eqs',
+                                'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
+                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'manufacture', 'notes_hours',]
+
+            df_offers = pd.read_excel(input_file, sheet_name="O-", skiprows=6, header=None, dtype=str)
+            df_offers = df_offers.fillna('')
+            df_offers.columns = ['num_offer', 'state', 'responsible', 'client', 'final_client', 'material', 'num_eqs', 'probability',
+                                'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
+                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours',]
+
+            df_al = pd.read_excel(input_file, sheet_name="AL-", skiprows=6, header=None, dtype=str)
+            df_al = df_al.fillna('')
+            df_al.columns = ['num_order_al', 'num_offer', 'num_ref_order', 'order_date', 'num_eqs',
+                                'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
+                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours',]
+
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        for index, row in df_orders.iterrows():
+                            # Creating string for columns names and values
+                            id_value = row["num_order"]
+                            columns_values = [(column, row[column]) for column in df_orders.columns if not pd.isnull(row[column])]
+
+                            columns = ', '.join([column for column, _ in columns_values])
+                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+
+                        # Creating the SET  and WHERE clause with proper formatting
+                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                            where_clause = f"num_order = {id_value}"
+
+                        # Creating the update query and executing it after checking existing tags and id
+                            sql_update = f'UPDATE orders SET {set_clause} WHERE {where_clause}'
+                            cur.execute(sql_update)
+
+                        for index, row in df_offers.iterrows():
+                            # Creating string for columns names and values
+                            id_value = row["num_offer"]
+                            columns_values = [(column, row[column]) for column in df_offers.columns if not pd.isnull(row[column])]
+
+                            columns = ', '.join([column for column, _ in columns_values])
+                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+
+                        # Creating the SET  and WHERE clause with proper formatting
+                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                            where_clause = f"num_offer = {id_value}"
+
+                        # Creating the update query and executing it after checking existing tags and id
+                            sql_update = f'UPDATE offers SET {set_clause} WHERE {where_clause}'
+                            cur.execute(sql_update)
+
+                        for index, row in df_al.iterrows():
+                            # Creating string for columns names and values
+                            id_value = row["num_order_al"]
+                            columns_values = [(column, row[column]) for column in df_al.columns if not pd.isnull(row[column])]
+
+                            columns = ', '.join([column for column, _ in columns_values])
+                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+
+                        # Creating the SET  and WHERE clause with proper formatting
+                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                            where_clause = f"num_order_al = {id_value}"
+
+                        # Creating the update query and executing it after checking existing tags and id
+                            sql_update = f'UPDATE orders_warehouse SET {set_clause} WHERE {where_clause}'
+                            cur.execute(sql_update)
+
+                    conn.commit()
+
+                MessageHelper.show_message("Datos actualizados con éxito", "information")
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 
