@@ -8,6 +8,8 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from config.config_functions import config_database, get_path
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 import psycopg2
 from datetime import *
 import os
@@ -1908,36 +1910,17 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         FROM purch_fact.supplies
                         ORDER BY reference ASC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clients)
-            results_clients=cur.fetchall()
-            cur.execute(commands_supplies)
-            results_supplies=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
+                    cur.execute(commands_supplies)
+                    results_supplies=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_clients=[x[2] for x in results_clients]
         self.Client_ClientOrder.addItems([''] + list_clients)
@@ -2062,26 +2045,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         notes=self.Notes_ClientOrder.toPlainText()
 
         if date=="" or (date==" " or (num_client_order==" " or num_client_order=="")):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("Rellena la fecha y el número de pédido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena la fecha y el número de pédido", "warning")
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", "warning")
 
         else:
             commands_checkorder=("""SELECT id FROM purch_fact.client_ord_header WHERE client_order_num = %s""")
@@ -2091,104 +2058,47 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                             )
                             VALUES(%s,%s,%s,%s,%s)
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_checkorder, (num_client_order,))
-                results = cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkorder, (num_client_order,))
+                        results = cur.fetchall()
 
-                if len(results) == 0:
-                    query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
-                    cur.execute(query_client, (client_name,))
-                    result_client = cur.fetchone()
+                        if len(results) == 0:
+                            query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
+                            cur.execute(query_client, (client_name,))
+                            result_client = cur.fetchone()
 
-                # get id from table
-                    client_id = result_client[0] if result_client is not None else None
-                # execution of principal command
-                    data=(client_id,date,deliv_term,num_client_order,notes,)
-                    cur.execute(commands_neworder, data)
+                        # get id from table
+                            client_id = result_client[0] if result_client is not None else None
+                        # execution of principal command
+                            data=(client_id,date,deliv_term,num_client_order,notes,)
+                            cur.execute(commands_neworder, data)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido Cliente")
-                    dlg.setText("Pedido creado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-
-                    del dlg,new_icon
-
-                else:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido Cliente")
-                    dlg.setText("El número de pedido ya existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg,new_icon
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                            MessageHelper.show_message("Pedido creado con éxito", "info")
+                        else:
+                            MessageHelper.show_message("El número de pedido ya existe", "warning")
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_idorder = "SELECT id FROM purch_fact.client_ord_header ORDER BY id"
-                cur.execute(query_idorder)
-                result_idorder = cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_idorder = "SELECT id FROM purch_fact.client_ord_header ORDER BY id"
+                        cur.execute(query_idorder)
+                        result_idorder = cur.fetchall()
 
-            # get id from table
-                idorder = result_idorder[-1][0]
-                self.label_IDOrder.setText(str(idorder))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    # get id from table
+                        idorder = result_idorder[-1][0]
+                        self.label_IDOrder.setText(str(idorder))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         self.tableRecord.setRowCount(0)
 
@@ -2205,26 +2115,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         notes=self.Notes_ClientOrder.toPlainText()
 
         if id_order=="" or (date==" " or date==""):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Pedido")
-            dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona un pedido existente e introduce una fecha válida", "warning")
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", "warning")
 
         else:
             #SQL Query for updating values in database
@@ -2235,66 +2129,32 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         "client_order_num" = %s, "notes" = %s
                         WHERE "id" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_checkorder, (id_order,))
-                results = cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkorder, (id_order,))
+                        results = cur.fetchall()
 
-                if str(results[0][0]) != str(id_order):
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido Cliente")
-                    dlg.setText("El número de pedido ya existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg,new_icon
-                else:
-                    query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
-                    cur.execute(query_client, (client_name,))
-                    result_client = cur.fetchone()
+                        if str(results[0][0]) != str(id_order):
+                            MessageHelper.show_message("El número de pedido ya existe", "warning")
+                        else:
+                            query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
+                            cur.execute(query_client, (client_name,))
+                            result_client = cur.fetchone()
 
-                # get id from table
-                    client_id = result_client[0] if result_client is not None else None
-                # execution of principal command
-                    data=(client_id,date,deliv_term,num_client_order,notes,id_order,)
-                    cur.execute(commands_updateorder, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
+                        # get id from table
+                            client_id = result_client[0] if result_client is not None else None
+                        # execution of principal command
+                            data=(client_id,date,deliv_term,num_client_order,notes,id_order,)
+                            cur.execute(commands_updateorder, data)
+
+                            MessageHelper.show_message("Pedido modificado con éxito", "info")
                     conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Modificar Pedido")
-                    dlg.setText("Pedido modificado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to create record
     def addrecord(self):
@@ -2312,26 +2172,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         notes_supply=self.ObsSupply_ClientOrder.toPlainText()
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Por favor, para añadir registros elige un pedido existente o crea uno nuevo")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Por favor, para añadir registros elige un pedido existente o crea uno nuevo", "warning")
 
         elif quantity == "" or (quantity == "" or quantity == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade una cantidad válida de elementos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Añade una cantidad válida de elementos", "warning")
 
         else:
             commands_newrecord = ("""
@@ -2340,48 +2184,31 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                                 )
                                 VALUES (%s,%s,%s,%s,%s,%s,%s)
                                 """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
-                cur.execute(query_supplyid, (supply_id,))
-                result_supplyid = cur.fetchone()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
+                        cur.execute(query_supplyid, (supply_id,))
+                        result_supplyid = cur.fetchone()
 
-            # get id from table
-                available_stock = result_supplyid[1]
-                new_available_stock = str(float(available_stock) - float(quantity))
+                    # get id from table
+                        available_stock = result_supplyid[1]
+                        new_available_stock = str(float(available_stock) - float(quantity))
 
-                query_available_stock = ("""UPDATE purch_fact.supplies
-                                        SET "available_stock" = %s 
-                                        WHERE "id" = %s""")
-                cur.execute(query_available_stock, (new_available_stock,supply_id,))
-            # execution of principal command
-                data=(order_id,supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,notes_supply)
-                cur.execute(commands_newrecord, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        query_available_stock = ("""UPDATE purch_fact.supplies
+                                                SET "available_stock" = %s 
+                                                WHERE "id" = %s""")
+                        cur.execute(query_available_stock, (new_available_stock,supply_id,))
+                    # execution of principal command
+                        data=(order_id,supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,notes_supply)
+                        cur.execute(commands_newrecord, data)
+
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.Supply_ClientOrder.setCurrentIndex(0)
             self.Quantity_ClientOrder.setText("")
@@ -2411,26 +2238,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         notes_supply=self.ObsSupply_ClientOrder.toPlainText()
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("No puedes hacer lo que estas intentando, flipao")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No puedes modificar registro sin seleccionar pedido", "warning")
 
         elif record_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Selecciona un registro existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un registro existente", "warning")
 
         else:
             commands_modifyrecord = ("""
@@ -2439,65 +2250,45 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         "deliv_quant_2" = %s, "deliv_quant_3" = %s, "notes" = %s
                         WHERE "id" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
-                                    FROM purch_fact.supplies WHERE id = %s""")
-                cur.execute(query_supplyid, (supply_id,))
-                result_supplyid = cur.fetchone()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_supplyid = ("""SELECT id, physical_stock, available_stock
+                                            FROM purch_fact.supplies WHERE id = %s""")
+                        cur.execute(query_supplyid, (supply_id,))
+                        result_supplyid = cur.fetchone()
 
-                query_quantitysupply = ("""SELECT quantity, deliv_quant_1, deliv_quant_2, deliv_quant_3, quantity
-                                        FROM purch_fact.client_ord_detail WHERE id = %s""")
-                cur.execute(query_quantitysupply, (record_id,))
-                result_quantity = cur.fetchone()
-            # get id from table
-                stock = result_supplyid[1]
-                pending_stock = result_supplyid[2]
-                available_stock = result_supplyid[3]
+                        query_quantitysupply = ("""SELECT quantity, deliv_quant_1, deliv_quant_2, deliv_quant_3, quantity
+                                                FROM purch_fact.client_ord_detail WHERE id = %s""")
+                        cur.execute(query_quantitysupply, (record_id,))
+                        result_quantity = cur.fetchone()
+                    # get id from table
+                        stock = result_supplyid[1]
+                        available_stock = result_supplyid[2]
 
-                old_quant = result_quantity[0]
-                old_quant_deliv_1 = result_quantity[1]
-                old_quant_deliv_2 = result_quantity[2]
-                old_quant_deliv_3 = result_quantity[3]
+                        old_quant = result_quantity[0]
+                        old_quant_deliv_1 = result_quantity[1]
+                        old_quant_deliv_2 = result_quantity[2]
+                        old_quant_deliv_3 = result_quantity[3]
 
-                new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
-                old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
+                        new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
+                        old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
 
-                new_stock= str(float(stock) + old_quant_deliv - new_quant_deliv)
-                new_available_stock= str(float(available_stock) + float(old_quant) - float(quantity))
-                query_available_stock = ("""UPDATE purch_fact.supplies
-                                        SET "physical_stock" = %s, "available_stock" = %s 
-                                        WHERE "id" = %s""")
-                cur.execute(query_available_stock, (new_stock,new_available_stock,supply_id,))
-            # execution of principal command
-                data=(supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,notes_supply,record_id,)
-                cur.execute(commands_modifyrecord, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        new_stock= str(float(stock) + old_quant_deliv - new_quant_deliv)
+                        new_available_stock= str(float(available_stock) + float(old_quant) - float(quantity))
+                        query_available_stock = ("""UPDATE purch_fact.supplies
+                                                SET "physical_stock" = %s, "available_stock" = %s 
+                                                WHERE "id" = %s""")
+                        cur.execute(query_available_stock, (new_stock,new_available_stock,supply_id,))
+                    # execution of principal command
+                        data=(supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,notes_supply,record_id,)
+                        cur.execute(commands_modifyrecord, data)
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.loadtablerecords()
             self.loadstocks()
@@ -2510,15 +2301,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         record_id=self.label_IDRecord.text()
 
         if record_id == "" or self.Supply_ClientOrder.currentText() == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Selecciona un registro existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un registro existente", "warning")
 
         else:
             supply_name=self.Supply_ClientOrder.currentText()
@@ -2529,49 +2312,32 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                                 DELETE FROM purch_fact.client_ord_detail
                                 WHERE purch_fact.client_ord_detail.id = %s
                                 """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
-                cur.execute(query_supplyid, (supply_id,))
-                result_supplyid = cur.fetchone()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
+                        cur.execute(query_supplyid, (supply_id,))
+                        result_supplyid = cur.fetchone()
 
-            # get id from table
-                supply_id = result_supplyid[0]
-                available_stock = result_supplyid[1]
-                new_available_stock = str(float(available_stock) + float(quantity))
+                    # get id from table
+                        supply_id = result_supplyid[0]
+                        available_stock = result_supplyid[1]
+                        new_available_stock = str(float(available_stock) + float(quantity))
 
-                query_available_stock = ("""UPDATE purch_fact.supplies
-                                        SET "available_stock" = %s 
-                                        WHERE "id" = %s""")
-                cur.execute(query_available_stock, (new_available_stock,supply_id,))
-            # execution of principal command
-                data=(record_id,)
-                cur.execute(commands_deleterecord, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        query_available_stock = ("""UPDATE purch_fact.supplies
+                                                SET "available_stock" = %s 
+                                                WHERE "id" = %s""")
+                        cur.execute(query_available_stock, (new_available_stock,supply_id,))
+                    # execution of principal command
+                        data=(record_id,)
+                        cur.execute(commands_deleterecord, data)
+
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.Supply_ClientOrder.setCurrentIndex(0)
             self.Quantity_ClientOrder.setText("")
@@ -2630,42 +2396,23 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                             WHERE purch_fact.client_ord_header.id = %s
                             ORDER BY purch_fact.client_ord_header.id
                             """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_querydeliveries,(data_order[0],))
-                results_deliveries=cur.fetchone()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
-                self.DelivDate1_ClientOrder.setText(results_deliveries[0])
-                self.DelivNote1_ClientOrder.setText(results_deliveries[1])
-                self.DelivDate2_ClientOrder.setText(results_deliveries[2])
-                self.DelivNote2_ClientOrder.setText(results_deliveries[3])
-                self.DelivDate3_ClientOrder.setText(results_deliveries[4])
-                self.DelivNote3_ClientOrder.setText(results_deliveries[5])
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_querydeliveries,(data_order[0],))
+                        results_deliveries=cur.fetchone()
+
+                        self.DelivDate1_ClientOrder.setText(results_deliveries[0])
+                        self.DelivNote1_ClientOrder.setText(results_deliveries[1])
+                        self.DelivDate2_ClientOrder.setText(results_deliveries[2])
+                        self.DelivNote2_ClientOrder.setText(results_deliveries[3])
+                        self.DelivDate3_ClientOrder.setText(results_deliveries[4])
+                        self.DelivNote3_ClientOrder.setText(results_deliveries[5])
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to load record form
     def loadformsupply(self,current_row):
@@ -2691,49 +2438,29 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.Deliv2_ClientOrder.setText(data_supply[8])
             self.Deliv3_ClientOrder.setText(data_supply[9])
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_stocks = "SELECT pending_stock FROM purch_fact.supplies WHERE id = %s"
-                cur.execute(query_stocks, (data_supply[10],))
-                result_stocks = cur.fetchone()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_stocks = "SELECT pending_stock FROM purch_fact.supplies WHERE id = %s"
+                        cur.execute(query_stocks, (data_supply[10],))
+                        result_stocks = cur.fetchone()
 
-                query_notes = "SELECT notes FROM purch_fact.client_ord_detail WHERE id = %s"
-                cur.execute(query_notes, (data_supply[0],))
-                result_notes = cur.fetchone()
+                        query_notes = "SELECT notes FROM purch_fact.client_ord_detail WHERE id = %s"
+                        cur.execute(query_notes, (data_supply[0],))
+                        result_notes = cur.fetchone()
 
-            # get id from table
-                pending = result_stocks[0]
-                notes_supply = result_notes[0]
+                    # get id from table
+                        pending = result_stocks[0]
+                        notes_supply = result_notes[0]
 
-                self.StockVrt_ClientOrder.setText(str(round(float(data_supply[4]) + float(pending),4)))
+                        self.StockVrt_ClientOrder.setText(str(round(float(data_supply[4]) + float(pending),4)))
 
-                self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(float(data_supply[3]),2)) + " | " + str(round(float(data_supply[4]),2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[10])
-                self.ObsSupply_ClientOrder.setText(notes_supply)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(float(data_supply[3]),2)) + " | " + str(round(float(data_supply[4]),2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[10])
+                        self.ObsSupply_ClientOrder.setText(notes_supply)
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to load table of orders
     def loadtableorders(self):
@@ -2765,37 +2492,19 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         WHERE purch_fact.client_ord_header.client_order_num LIKE 'PA-%'
                         ORDER BY purch_fact.client_ord_header.client_order_num DESC
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytableP)
-            results_ordersP=cur.fetchall()
 
-            cur.execute(commands_querytablePA)
-            results_ordersPA=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_querytableP)
+                    results_ordersP=cur.fetchall()
+
+                    cur.execute(commands_querytablePA)
+                    results_ordersPA=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableClientOrderP.setRowCount(len(results_ordersP))
         tablerow=0
@@ -2888,34 +2597,16 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         WHERE client_ord_header_id = %s
                         ORDER BY purch_fact.supplies.reference ASC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytablerecords,(order_id,))
-            results_records=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_querytablerecords,(order_id,))
+                    results_records=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableRecord.setRowCount(len(results_records))
         tablerow=0
@@ -2964,37 +2655,13 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrder.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", "warning")
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 1ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 1ª entrega", "warning")
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("La fecha de 1ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 1ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", "warning")
 
         else:
             commands_deliv1_check = ("""
@@ -3002,37 +2669,17 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         FROM purch_fact.client_ord_header
                         WHERE id = %s
                         """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of principal command
-                data=(order_id,)
-                cur.execute(commands_deliv1_check, data)
-                results_check=cur.fetchone()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(order_id,)
+                        cur.execute(commands_deliv1_check, data)
+                        results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
@@ -3049,91 +2696,54 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                                     SET "deliv_date_1" = %s, "deliv_note_1" = %s
                                     WHERE "client_ord_header_id" = %s
                                     """)
-                        conn = None
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of principal command
-                        data=(date,note,order_id,)
-                        cur.execute(commands_deliv1_header, data)
-                        cur.execute(commands_deliv1_detail, data)
 
-                        record_id = self.tableRecord.item(row_index, 0).text()
-                        supply_name = self.tableRecord.item(row_index, 1).text()
-                        supply_id = self.tableRecord.item(row_index, 10).text()
-                        supply_description = self.tableRecord.item(row_index, 2).text()
-                        # pending = self.tableRecord.item(row, 6).text()
-                        quant_1 = self.tableRecord.item(row_index, 6).text()
-                        stock_item = self.tableRecord.item(row_index, 3).text()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                data=(date,note,order_id,)
+                                cur.execute(commands_deliv1_header, data)
+                                cur.execute(commands_deliv1_detail, data)
 
-                        if float(quant_1) > float(stock_item):
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Añadir 1ª entrega")
-                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
-                                        "No se dará de baja")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg,new_icon
-                        else:
-                            commands_add_deliv_quant_1 = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_quant_1" = %s
-                                WHERE "id" = %s
-                                """)
-                            query_stock = ("""
-                                            SELECT physical_stock FROM purch_fact.supplies
-                                            WHERE "id" = %s
-                                            """)
-                            query_updatestock = ("""
-                                                UPDATE purch_fact.supplies 
-                                                SET "physical_stock" = %s
-                                                WHERE "id" = %s
-                                                """)
-                            cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
-                            cur.execute(query_stock, (supply_id,))
-                            results=cur.fetchone()
+                                record_id = self.tableRecord.item(row_index, 0).text()
+                                supply_name = self.tableRecord.item(row_index, 1).text()
+                                supply_id = self.tableRecord.item(row_index, 10).text()
+                                supply_description = self.tableRecord.item(row_index, 2).text()
+                                # pending = self.tableRecord.item(row, 6).text()
+                                quant_1 = self.tableRecord.item(row_index, 6).text()
+                                stock_item = self.tableRecord.item(row_index, 3).text()
 
-                            stock = results[0]
-                            new_stock = str(float(stock) - float(quant_1))
-                            cur.execute(query_updatestock, (new_stock, supply_id,))
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                if float(quant_1) > float(stock_item):
+                                    MessageHelper.show_message("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                                "No se dará de baja", "warning")
+                                else:
+                                    commands_add_deliv_quant_1 = ("""
+                                        UPDATE purch_fact.client_ord_detail
+                                        SET "deliv_quant_1" = %s
+                                        WHERE "id" = %s
+                                        """)
+                                    query_stock = ("""
+                                                    SELECT physical_stock FROM purch_fact.supplies
+                                                    WHERE "id" = %s
+                                                    """)
+                                    query_updatestock = ("""
+                                                        UPDATE purch_fact.supplies 
+                                                        SET "physical_stock" = %s
+                                                        WHERE "id" = %s
+                                                        """)
+                                    cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
+                                    cur.execute(query_stock, (supply_id,))
+                                    results=cur.fetchone()
 
-                        # self.root.deiconify()
-                        # self.root.destroy()
+                                    stock = results[0]
+                                    new_stock = str(float(stock) - float(quant_1))
+                                    cur.execute(query_updatestock, (new_stock, supply_id,))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 1ª entrega")
-                    dlg.setText("1ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                                    MessageHelper.show_message("1ª entrega añadida con éxito", "info")
+
+                                conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    print(error)
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3149,37 +2759,13 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrder.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", "warning")
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 2ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 2ª entrega", "warning")
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("La fecha de 2ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 2ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", "warning")
 
         else:
             commands_deliv2_check = ("""
@@ -3187,37 +2773,17 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 FROM purch_fact.client_ord_header
                 WHERE id = %s
                 """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of principal command
-                data=(order_id,)
-                cur.execute(commands_deliv2_check, data)
-                results_check=cur.fetchone()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(order_id,)
+                        cur.execute(commands_deliv2_check, data)
+                        results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
@@ -3234,90 +2800,54 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                                     SET "deliv_date_2" = %s, "deliv_note_2" = %s
                                     WHERE "client_ord_header_id" = %s
                                     """)
-                        conn = None
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of principal command
-                        data=(date,note,order_id,)
-                        cur.execute(commands_deliv2_header, data)
-                        cur.execute(commands_deliv2_detail, data)
 
-                        record_id = self.tableRecord.item(row_index, 0).text()
-                        supply_name = self.tableRecord.item(row_index, 1).text()
-                        supply_id = self.tableRecord.item(row_index, 10).text()
-                        supply_description = self.tableRecord.item(row_index, 2).text()
-                        # pending = self.tableRecord.item(row, 6).text()
-                        quant_2 = self.tableRecord.item(row_index, 6).text()
-                        stock_item = self.tableRecord.item(row_index, 3).text()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                data=(date,note,order_id,)
+                                cur.execute(commands_deliv2_header, data)
+                                cur.execute(commands_deliv2_detail, data)
 
-                        if float(quant_2) > float(stock_item):
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Añadir 2ª entrega")
-                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
-                                        "No se dará de baja")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg,new_icon
-                        else:
-                            commands_add_deliv_quant_2 = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_quant_2" = %s
-                                WHERE "id" = %s
-                                """)
-                            query_stock = ("""
-                                            SELECT physical_stock FROM purch_fact.supplies
-                                            WHERE "id" = %s
-                                            """)
-                            query_updatestock = ("""
-                                                UPDATE purch_fact.supplies 
-                                                SET "physical_stock" = %s
-                                                WHERE "id" = %s
-                                                """)
-                            cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
-                            cur.execute(query_stock, (supply_id,))
-                            results=cur.fetchone()
+                                record_id = self.tableRecord.item(row_index, 0).text()
+                                supply_name = self.tableRecord.item(row_index, 1).text()
+                                supply_id = self.tableRecord.item(row_index, 10).text()
+                                supply_description = self.tableRecord.item(row_index, 2).text()
+                                # pending = self.tableRecord.item(row, 6).text()
+                                quant_2 = self.tableRecord.item(row_index, 6).text()
+                                stock_item = self.tableRecord.item(row_index, 3).text()
 
-                            stock = results[0]
-                            new_stock = str(float(stock) - float(quant_2))
-                            cur.execute(query_updatestock, (new_stock, supply_id,))
-                # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                if float(quant_2) > float(stock_item):
+                                    MessageHelper.show_message("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                                "No se dará de baja", "warning")
+                                else:
+                                    commands_add_deliv_quant_2 = ("""
+                                        UPDATE purch_fact.client_ord_detail
+                                        SET "deliv_quant_2" = %s
+                                        WHERE "id" = %s
+                                        """)
+                                    query_stock = ("""
+                                                    SELECT physical_stock FROM purch_fact.supplies
+                                                    WHERE "id" = %s
+                                                    """)
+                                    query_updatestock = ("""
+                                                        UPDATE purch_fact.supplies 
+                                                        SET "physical_stock" = %s
+                                                        WHERE "id" = %s
+                                                        """)
+                                    cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
+                                    cur.execute(query_stock, (supply_id,))
+                                    results=cur.fetchone()
 
-                        # self.root.deiconify()
-                        # self.root.destroy()
+                                    stock = results[0]
+                                    new_stock = str(float(stock) - float(quant_2))
+                                    cur.execute(query_updatestock, (new_stock, supply_id,))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 2ª entrega")
-                    dlg.setText("2ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                                    MessageHelper.show_message("2ª entrega añadida con éxito", "info")
+
+                            conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3333,37 +2863,13 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrder.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", "warning")
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 3ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 3ª entrega", "warning")
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("La fecha de 3ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 3ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", "warning")
 
         else:
             commands_deliv3_check = ("""
@@ -3371,37 +2877,17 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                             FROM purch_fact.client_ord_header
                             WHERE id = %s
                             """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of principal command
-                data=(order_id,)
-                cur.execute(commands_deliv3_check, data)
-                results_check=cur.fetchone()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(order_id,)
+                        cur.execute(commands_deliv3_check, data)
+                        results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
@@ -3418,90 +2904,54 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                                     SET "deliv_date_3" = %s, "deliv_note_3" = %s
                                     WHERE "client_ord_header_id" = %s
                                     """)
-                        conn = None
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of principal command
-                        data=(date,note,order_id,)
-                        cur.execute(commands_deliv3_header, data)
-                        cur.execute(commands_deliv3_detail, data)
 
-                        record_id = self.tableRecord.item(row_index, 0).text()
-                        supply_name = self.tableRecord.item(row_index, 1).text()
-                        supply_id = self.tableRecord.item(row_index, 10).text()
-                        supply_description = self.tableRecord.item(row_index, 2).text()
-                        # pending = self.tableRecord.item(row, 6).text()
-                        quant_3 = self.tableRecord.item(row_index, 6).text()
-                        stock_item = self.tableRecord.item(row_index, 3).text()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                data=(date,note,order_id,)
+                                cur.execute(commands_deliv3_header, data)
+                                cur.execute(commands_deliv3_detail, data)
 
-                        if float(quant_3) > float(stock_item):
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Añadir 3ª entrega")
-                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
-                                        "No se dará de baja")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg,new_icon
-                        else:
-                            commands_add_deliv_quant_3 = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_quant_3" = %s
-                                WHERE "id" = %s
-                                """)
-                            query_stock = ("""
-                                            SELECT physical_stock FROM purch_fact.supplies
-                                            WHERE "id" = %s
-                                            """)
-                            query_updatestock = ("""
-                                                UPDATE purch_fact.supplies 
-                                                SET "physical_stock" = %s
-                                                WHERE "id" = %s
-                                                """)
-                            cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
-                            cur.execute(query_stock, (supply_id,))
-                            results=cur.fetchone()
+                                record_id = self.tableRecord.item(row_index, 0).text()
+                                supply_name = self.tableRecord.item(row_index, 1).text()
+                                supply_id = self.tableRecord.item(row_index, 10).text()
+                                supply_description = self.tableRecord.item(row_index, 2).text()
+                                # pending = self.tableRecord.item(row, 6).text()
+                                quant_3 = self.tableRecord.item(row_index, 6).text()
+                                stock_item = self.tableRecord.item(row_index, 3).text()
 
-                            stock = results[0]
-                            new_stock = str(float(stock) - float(quant_3))
-                            cur.execute(query_updatestock, (new_stock, supply_id,))
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                if float(quant_3) > float(stock_item):
+                                    MessageHelper.show_message("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                                "No se dará de baja", "warning")
+                                else:
+                                    commands_add_deliv_quant_3 = ("""
+                                        UPDATE purch_fact.client_ord_detail
+                                        SET "deliv_quant_3" = %s
+                                        WHERE "id" = %s
+                                        """)
+                                    query_stock = ("""
+                                                    SELECT physical_stock FROM purch_fact.supplies
+                                                    WHERE "id" = %s
+                                                    """)
+                                    query_updatestock = ("""
+                                                        UPDATE purch_fact.supplies 
+                                                        SET "physical_stock" = %s
+                                                        WHERE "id" = %s
+                                                        """)
+                                    cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
+                                    cur.execute(query_stock, (supply_id,))
+                                    results=cur.fetchone()
 
-                        # self.root.deiconify()
-                        # self.root.destroy()
+                                    stock = results[0]
+                                    new_stock = str(float(stock) - float(quant_3))
+                                    cur.execute(query_updatestock, (new_stock, supply_id,))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 3ª entrega")
-                    dlg.setText("3ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                                    MessageHelper.show_message("3ª entrega añadida con éxito", "info")
+
+                            conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3516,17 +2966,12 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             supply_name=supply_name[:supply_name.find(" |")]
             supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
-                cur.execute(query_stocks, (supply_id,))
-                result_stocks = cur.fetchone()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                        cur.execute(query_stocks, (supply_id,))
+                        result_stocks = cur.fetchone()
 
             # get id from table
                 stock = result_stocks[0]
@@ -3537,25 +2982,9 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 self.StockDsp_ClientOrder.setText(str(round(available_stock,2)))
                 self.StockVrt_ClientOrder.setText(str(round(available_stock + pending,4)))
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         self.Quantity_ClientOrder.setFocus()
 
@@ -3690,36 +3119,18 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
                         FROM purch_fact.supplies
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clients)
-            results_clients=cur.fetchall()
-            cur.execute(commands_supplies)
-            results_supplies=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
+                    cur.execute(commands_supplies)
+                    results_supplies=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_clients=[''] + [x[2] for x in results_clients]
         self.Client_ClientOrder.addItems([''] + list_clients)
@@ -3746,15 +3157,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrder.text()
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ver Pedido")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", "warning")
         else:
             from windows.ClientOrderResume_Window import Ui_ClientOrderResume_Window
             self.artmov_window=QtWidgets.QMainWindow()
