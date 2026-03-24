@@ -610,9 +610,9 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableQueryOffer = CustomTableWidget()
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(21)
+        self.tableQueryOffer.setColumnCount(22)
         self.tableQueryOffer.setRowCount(0)
-        for i in range(21):
+        for i in range(22):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -720,10 +720,12 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOffer.horizontalHeaderItem(17)
         item.setText(_translate("QueryOffer_Window", "Fecha Presentación"))
         item = self.tableQueryOffer.horizontalHeaderItem(18)
-        item.setText(_translate("QueryOffer_Window", "Veces Rec."))
+        item.setText(_translate("QueryOffer_Window", "Probabilidad"))
         item = self.tableQueryOffer.horizontalHeaderItem(19)
-        item.setText(_translate("QueryOffer_Window", "Seguimiento"))
+        item.setText(_translate("QueryOffer_Window", "Veces Rec."))
         item = self.tableQueryOffer.horizontalHeaderItem(20)
+        item.setText(_translate("QueryOffer_Window", "Seguimiento"))
+        item = self.tableQueryOffer.horizontalHeaderItem(21)
         item.setText(_translate("QueryOffer_Window", "Ptos. Importantes"))
         self.label_Months.setText(_translate("QueryOffer_Window", "Meses/Año:"))
 
@@ -756,7 +758,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         commands_queryoffer = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
                         offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
-                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."probability", offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
@@ -778,7 +780,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(21):
+                for column in range(22):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -842,7 +844,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             commands_queryoffer = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
                         offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
-                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."probability", offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
@@ -852,7 +854,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             commands_queryoffer_dates1 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
                         offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
-                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."probability", offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
@@ -864,7 +866,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             commands_queryoffer_dates2 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
                         offers."final_client", offers."project", offers."nac_ext", 'Exterior' as nac_ext, offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
-                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."probability", offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
@@ -896,7 +898,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(21):
+                    for column in range(22):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -986,7 +988,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         Args:
             item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
         """
-        if item.column() in [7, 12, 19, 20]:
+        if item.column() in [7, 12, 20, 21]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
