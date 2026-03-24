@@ -30,7 +30,7 @@ from windows.overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dw
                         dwg_m_landscape, general_dwg_m, drawing_number, drawing_number_landscape)
 from pypdf import PdfReader, PdfWriter, Transformation
 import fnmatch
-import math
+import ast
 import numpy as np
 
 STANDARD_TW_DIAMS = [35, 38, 40, 42, 45, 48, 50]
@@ -4724,11 +4724,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 50, 51]].copy()
+                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 50, 51]].copy()
                                 df_selected.rename(columns={
                                     0: 'id', 9: 'type', 10: 'size', 11: 'rating',
                                     12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam', 18: 'tip_diam',
-                                    19: 'bore_diam', 20: 'tip_thk', 50: 'base_tw_diam', 51: 'notes_tw'
+                                    19: 'bore_diam', 21: 'tip_thk', 50: 'base_tw_diam', 51: 'notes_tw'
                                 }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
@@ -4817,8 +4817,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     if os.path.exists(key):
                                         writer = PdfWriter()
                                         reader = PdfReader(key)
-                                        page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
-                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
+                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
                                         writer.add_page(reader.pages[0])
 
                                         writer.write(key)
@@ -4858,9 +4858,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                                df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 57, 86]].copy()
+                                df_selected = df_general.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 57, 86]].copy()
                                 df_selected.rename(columns={
-                                    0: 'id', 8: 'type', 9: 'size', 10: 'rating',
+                                    0: 'id', 1: 'tag', 8: 'type', 9: 'size', 10: 'rating',
                                     11: 'facing', 12: 'schedule', 13: 'material', 14:'flange_type',
                                     15: 'tube_material', 16: 'tapping_size', 17: 'tapping_number', 18: 'tapping_orientation', 
                                     23: 'gasket', 57: 'pipe_int_diam', 86: 'notes_equipment'
@@ -4872,7 +4872,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             # Loop through different types of equipment and create drawings accordingly
                                 for item in df_selected['type'].unique().tolist():
-
+                                    list_items_drawings = []
                                     if item in ['F+P', 'F']:
                                         df_selected_fp = df_selected[df_selected['type'] == item].copy()
 
@@ -4893,12 +4893,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping_size"], row["tapping_number"], row["tapping_orientation"], row["gasket"], row["flange_type"], zip(row["pipe_int_diam"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
-                                                    
+
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
                                                     writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
                                                     dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                                    list_items_drawings.append([row['tag'], f"M-{counter_drawings:02d}"])
                                             else:
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping_number"]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
@@ -4924,7 +4925,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping_size"], row["tapping_number"], row["tapping_orientation"], row["gasket"], row["type_orifice_flange"], zip(row["final_pipe_int_diam"], row["orifice_flange_height"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
-                                                    
+
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
@@ -4950,7 +4951,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     pdf_buffer = flange_dwg_line(self.numorder, row["material"], row["schedule"], row["type_line_flange"], row["reduction"], row["connection"], zip(row["final_pipe_int_diam"], row["line_flange_height"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
-                                                    
+
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
@@ -4976,7 +4977,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     pdf_buffer = tube_dwg_meterrun(self.numorder, row["size_orifice_flange"], row["sch_orifice_flange"], row["tube_material"], row["calibrated"], zip(row["final_pipe_int_diam"], row["pipe_ext_diam"], row["length_long"], row["length_short"], row["welding_type_orifice"], row["welding_type_line"], row["count"]))
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
-                                                    
+
                                                     base_page.merge_page(page2=page_overlay)
                                                     writer.add_page(base_page)
 
@@ -5031,15 +5032,19 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         pass
 
                             # Loop to add the drawing number and insert into the database
+                                mcode_to_numot = {}
                                 for key, value in dict_drawings.items():
                                     if os.path.exists(key):
                                         writer = PdfWriter()
                                         reader = PdfReader(key)
-                                        page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
-                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
+                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
                                         writer.add_page(reader.pages[0])
 
                                         writer.write(key)
+
+                                        m_code = key.stem if hasattr(key, "stem") else os.path.basename(key).split(".")[0]  # obtiene "M-01"
+                                        mcode_to_numot[m_code] = num_ot
 
                                     query_insert_drawing = ("""
                                         INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
@@ -5055,6 +5060,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                     + str(error), "critical")
+
+                                for item in list_items_drawings:
+                                    m_code = item[1]  # "M-01"
+                                    item.append(mcode_to_numot.get(m_code))
+
+                                df = pd.DataFrame(list_items_drawings, columns=['TAGS', 'PLANO M', 'NUM_OT'])
+                                df_expanded = df.explode('TAGS').reset_index(drop=True)
+                                df_expanded.to_excel(str(output_path_M / f"Planos M.xlsx"), index=False, header=True)
 
                             elif self.table_toquery == "tags_data.tags_level":
                                 print('c')
@@ -5151,7 +5164,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         # Write Drawing data
                                             writer = PdfWriter()
                                             reader = PdfReader(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
-                                            page_overlay = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
+                                            page_overlay, num_ot = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
 
@@ -5221,7 +5234,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     # Write Drawing data
                                         writer = PdfWriter()
                                         reader = PdfReader(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
-                                        page_overlay = PdfReader(drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
+                                        page_overlay, num_ot = PdfReader(drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
 
@@ -5290,7 +5303,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     # Write Drawing data
                                         writer = PdfWriter()
                                         reader = PdfReader(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
-                                        page_overlay = PdfReader(drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
+                                        page_overlay, num_ot = PdfReader(drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
 
@@ -5338,10 +5351,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         writer = PdfWriter()
                                         reader = PdfReader(key)
                                         if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras']):
-                                            page_overlay = PdfReader(drawing_number_landscape(self.numorder, value, counter_drawings)).pages[0]
+                                            page_overlay, num_ot = drawing_number_landscape(self.numorder, value, counter_drawings)
                                         else:
-                                            page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
-                                        reader.pages[0].merge_page(page2=page_overlay)
+                                            page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
+                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
                                         writer.add_page(reader.pages[0])
 
                                         writer.write(key)
@@ -5450,8 +5463,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         lambda row: rf"""\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
         axis=1)
 
-        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
-        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"pipe_int_diam": list, "count": list}).reset_index()
+        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam', 'tag']).size().reset_index(name="count")
+        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"tag": list, "pipe_int_diam": list, "count": list}).reset_index()
 
         return grouped_flanges
 
