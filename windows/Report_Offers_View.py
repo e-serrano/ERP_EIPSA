@@ -12,13 +12,23 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection, Database_Connection
-from config.config_functions import config_database, get_path
+from config.config_functions import config_database, get_path, config_sql_engine
 import psycopg2
 import re
 import locale
 from datetime import *
 import pandas as pd
 from utils.Show_Message import MessageHelper
+from windows.Create_MatOrder import flow_material_list, temp_material_list, level_material_list, others_material_list, general_material_list
+from windows.Excel_Export_Templates import material_order
+from fractions import Fraction
+
+VARIABLE_TABLES = {
+    "Caudal": ("tags_data.tags_flow"), # table_check, initial_column, column_difference, excluded_range
+    "Temperatura": ("tags_data.tags_temp"),
+    "Nivel": ("tags_data.tags_level"),
+    "Otros": ("tags_data.tags_others"),
+}
 
 
 def imagen_to_base64(imagen):
@@ -735,8 +745,10 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
 
         self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
-        # self.model2 = EditableTableModel2()
-        # self.proxy2 = CustomProxyModel2()
+        self.model_tags = EditableTableModel(self.username)
+        self.proxy_tags = CustomProxyModel()
+        self.model_tags2 = EditableTableModel(self.username)
+        self.proxy_tags2 = CustomProxyModel()
         self.db = db
 
         self.checkbox_states = {}
@@ -814,13 +826,14 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
-        # self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
-        # self.toolDeleteFilter.setObjectName("Save_Button")
-        # self.hcab.addWidget(self.toolDeleteFilter)
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.toolDeleteFilter.setIcon(icon)
-        # self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
+        self.toolMatOrder = QtWidgets.QToolButton(self.frame)
+        self.toolMatOrder.setObjectName("MatOrder_Button")
+        self.toolMatOrder.setToolTip("Pedido Materiales")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolMatOrder.setIcon(icon)
+        self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolMatOrder)
         # self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         # self.hcab.addItem(self.hcabspacer1)
         # self.toolShow = QtWidgets.QToolButton(self.frame)
@@ -1044,6 +1057,7 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
         # self.toolExpExcel.clicked.connect(self.exporttoexcel)
         # self.toolImpExcel.clicked.connect(self.importexcel)
         # self.generate_dwg.clicked.connect(self.generate_drawings)
+        self.toolMatOrder.clicked.connect(self.materialorder)
         self.Offer_State_Combobox.currentTextChanged.connect(self.query_data)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -1801,6 +1815,297 @@ class Ui_Report_Offers_View(QtWidgets.QMainWindow):
                 sum_value += float(val.replace(',', '.'))
 
         return [count_value, locale.format_string("%.2f", sum_value, grouping=True)]
+
+# Function to obtain material list for sent offers with high probability
+    def materialorder(self):
+        data_frames_with_data = []
+
+        while True:
+            probability, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona probabilidad:", ['Alta', 'Media', 'Baja'], 0, False)
+            if ok and probability:
+                query_offers = "SELECT num_offer FROM offers WHERE state = 'Presentada' AND probability = %s"
+
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_offers, (probability,))
+                        results = cur.fetchall()
+
+                while True:
+                    framework, ok = QtWidgets.QInputDialog.getItem(None, "Informes", "Selecciona que quieres generar:", ['Informe Equipos (GL)', 'Informe Materiales'], 0, False)
+                    if ok and framework:
+                        while True:
+                            if framework == 'Informe Equipos (GL)':
+                                df_flow = []
+                                df_temp = []
+                                df_level = []
+                                for result in results:
+                                    variable = self.detect_variable(result[0])
+
+                                    if variable == '':
+                                        continue
+
+                                    self.configure_models(variable)
+                                    self.model_tags.setFilter(f"""num_offer <> '' AND UPPER(num_offer) LIKE '%{result[0].upper()}%'""")
+
+                                    self.model_tags.select()
+                                    self.proxy_tags.setSourceModel(self.model_tags)
+
+                                    if '+' in variable:
+                                        variable2 = variable.split('+')[1]
+                                        variable = variable.split('+')[0]
+                                        self.model_tags2.select()
+                                        self.proxy_tags2.setSourceModel(self.model_tags2)
+
+                                    if variable == 'Otros':
+                                        continue
+                                    df = general_material_list(self.proxy_tags, self.model_tags, variable, result[0])
+                                    if '+' in variable:
+                                        df2 = general_material_list(self.proxy_tags2, self.model_tags2, variable2, result[0])
+
+                                    if variable == 'Caudal':
+                                        df_flow.append(df)
+                                    elif variable == 'Temperatura':
+                                        df_temp.append(df)
+                                    elif variable == 'Nivel':
+                                        df_level.append(df)
+                                    elif variable == 'Caudal+Temperatura':
+                                        df_flow.append(df)
+                                        df_temp.append(df2)
+                                    elif variable == 'Caudal+Nivel':
+                                        df_flow.append(df)
+                                        df_level.append(df2)
+                                    elif variable =='Temperatura+Nivel':
+                                        df_temp.append(df)
+                                        df_level.append(df2)
+
+                                cols_flow = ['TIPO', 'MAT. BRIDA', 'MAT. ELEMENTO', 'TAMAÑO', 'RATING', 'FACING', 'SCHEDULE', 'Nº EQUIPOS']
+                                df_final_flow = pd.concat(df_flow, ignore_index=True) if df_flow else pd.DataFrame(columns=cols_flow)
+                                df_final_flow = df_final_flow.groupby(cols_flow[:-1], as_index=False)['Nº EQUIPOS'].sum()
+                                df_final_flow["tam_num"] = df_final_flow["TAMAÑO"].apply(self.size_to_float)
+                                df_flow_sorted = df_final_flow.sort_values(["TIPO", "MAT. BRIDA", "tam_num"]).drop(columns="tam_num")
+
+                                cols_temp = ['TIPO', 'TIPO TW', 'MAT. TW', 'TAMAÑO', 'RATING', 'FACING', 'INSERCIÓN', 'Nº EQUIPOS']
+                                df_final_temp = pd.concat(df_temp, ignore_index=True) if df_temp else pd.DataFrame(columns=cols_temp)
+                                df_final_temp = df_final_temp.groupby(cols_temp[:-1], as_index=False)['Nº EQUIPOS'].sum()
+                                df_final_temp["tam_num"] = df_final_temp["TAMAÑO"].apply(self.size_to_float)
+                                df_temp_sorted = df_final_temp.sort_values(["TIPO", "TIPO TW", "MAT. TW", "tam_num"]).drop(columns="tam_num")
+
+                                cols_level = ['TIPO', 'MAT. CUERPO', 'TAMAÑO', 'RATING', 'FACING', 'LONG. C-C', 'MAT. CUBIERTA / FLOTADOR', 'MAT. TORN', 'Nº EQUIPOS']
+                                df_final_level = pd.concat(df_level, ignore_index=True) if df_level else pd.DataFrame(columns=cols_level)
+                                df_final_level = df_final_level.groupby(cols_level[:-1], as_index=False)['Nº EQUIPOS'].sum()
+                                df_final_level["tam_num"] = df_final_level["TAMAÑO"].apply(self.size_to_float)
+                                df_level_sorted = df_final_level.sort_values(["TIPO", "MAT. CUERPO", "MAT. CUBIERTA / FLOTADOR", "LONG. C-C", "tam_num"]).drop(columns="tam_num")
+
+                                path, _ = QtWidgets.QFileDialog.getSaveFileName(
+                                None,
+                                "Guardar lista de materiales",
+                                "",
+                                "Excel Files (*.xlsx)"
+                                )
+                                if path:
+                                    with pd.ExcelWriter(path, engine="xlsxwriter") as writer:
+                                        bold = writer.book.add_format({'bold': True})
+
+                                        row = 3
+                                        worksheet = writer.book.add_worksheet('CAUDAL')
+                                        writer.sheets['CAUDAL'] = worksheet
+                                        worksheet.write(0, 6, date.today().strftime("%d/%m/%Y"), bold)
+
+                                        for type_equipment, df_type in df_flow_sorted.groupby("TIPO"):
+                                            df_type.to_excel(writer, sheet_name='CAUDAL', startrow=row, index=False)
+                                            total = df_type["Nº EQUIPOS"].sum() #calculate total quantity for type dataframe
+
+                                            row += len(df_type) + 1  # +1 header
+
+                                            # write TOTAL and total value
+                                            worksheet.write(row, len(df_type.columns)-2, "TOTAL", bold)
+                                            worksheet.write(row, len(df_type.columns)-1, total, bold)
+
+                                            row += 2  # total + blank row
+
+                                        row = 3
+                                        worksheet = writer.book.add_worksheet('TEMP')
+                                        writer.sheets['TEMP'] = worksheet
+                                        worksheet.write(0, 6, date.today().strftime("%d/%m/%Y"), bold)
+
+                                        for type_equipment, df_type in df_temp_sorted.groupby("TIPO"):
+                                            df_type.to_excel(writer, sheet_name='TEMP', startrow=row, index=False)
+                                            total = df_type["Nº EQUIPOS"].sum() #calculate total quantity for type dataframe
+
+                                            row += len(df_type) + 1  # +1 header
+
+                                            # write TOTAL and total value
+                                            worksheet.write(row, len(df_type.columns)-2, "TOTAL", bold)
+                                            worksheet.write(row, len(df_type.columns)-1, total, bold)
+
+                                            row += 2  # total + blank row
+
+                                        row = 3
+                                        worksheet = writer.book.add_worksheet('NIVEL')
+                                        writer.sheets['NIVEL'] = worksheet
+                                        worksheet.write(0, 6, date.today().strftime("%d/%m/%Y"), bold)
+
+                                        for type_equipment, df_type in df_level_sorted.groupby("TIPO"):
+                                            df_type.to_excel(writer, sheet_name='NIVEL', startrow=row, index=False)
+                                            total = df_type["Nº EQUIPOS"].sum() #calculate total quantity for type dataframe
+
+                                            row += len(df_type) + 1  # +1 header
+
+                                            # write TOTAL and total value
+                                            worksheet.write(row, len(df_type.columns)-2, "TOTAL", bold)
+                                            worksheet.write(row, len(df_type.columns)-1, total, bold)
+
+                                            row += 2  # total + blank row
+                                    MessageHelper.show_message("Guardado con éxito", "info")
+
+                                break
+                            elif framework == 'Informe Materiales':
+                                for result in results:
+                                    variable = self.detect_variable(result[0])
+
+                                    if variable == '':
+                                        continue
+
+                                    self.configure_models(variable)
+                                    self.model_tags.setFilter(f"""num_offer <> '' AND UPPER(num_offer) LIKE '%{result[0].upper()}%'""")
+
+                                    self.model_tags.select()
+                                    self.proxy_tags.setSourceModel(self.model_tags)
+
+                                    if self.variable2 is not None:
+                                        self.model_tags2.select()
+                                        self.proxy_tags2.setSourceModel(self.model_tags2)
+
+                                    if variable == 'Caudal':
+                                        df_flow = flow_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_flow)
+                                    elif variable == 'Temperatura':
+                                        df_temp = temp_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_temp)
+                                    elif variable == 'Nivel':
+                                        df_level = level_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_level)
+                                    elif variable == 'Otros':
+                                        df_others = others_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_others)
+                                    elif variable == 'Caudal+Temperatura':
+                                        df_flow = flow_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_flow)
+                                        df_temp = temp_material_list(self.proxy_tags2, self.model_tags2)
+                                        data_frames_with_data.append(df_temp)
+                                    elif variable == 'Caudal+Nivel':
+                                        df_flow = flow_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_flow)
+                                        df_level = level_material_list(self.proxy_tags2, self.model_tags2)
+                                        data_frames_with_data.append(df_level)
+                                    elif variable =='Temperatura+Nivel':
+                                        df_temp = temp_material_list(self.proxy_tags, self.model_tags)
+                                        data_frames_with_data.append(df_temp)
+                                        df_level = level_material_list(self.proxy_tags2, self.model_tags2)
+                                        data_frames_with_data.append(df_level)
+
+                                df_final = pd.concat(data_frames_with_data, ignore_index=True)
+                                df_final = df_final.groupby(['descripción', 'modelo', 'diseño', 'proceso', 'material', 'suministro'])['cantidad'].sum().reset_index()
+
+                                values_supplies = df_final['suministro'].dropna().unique().tolist()
+
+                                query = """
+                                SELECT reference AS suministro, physical_stock AS st_fisico, available_stock AS st_disponible, pending_stock as st_pend, virtual_stock AS st_virtual
+                                FROM purch_fact.supplies
+                                WHERE reference IN %(values)s
+                                """
+
+                                with Database_Connection(config_database()) as conn:
+                                    df_supplies = pd.read_sql(query, config_sql_engine(), params={"values": tuple(values_supplies)})
+
+                                df_final = (df_final.merge(df_supplies, on='suministro', how='left')
+                                            [['descripción', 'modelo', 'diseño', 'proceso', 'material', 'cantidad', 'suministro',
+                                                'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']])
+
+                                df_final[['almacen_si', 'almacen_no', 'proveedor', 'fecha_pedido', 'fecha_prevista']] = ''
+
+                                df_final = df_final[
+                                    ['descripción', 'modelo', 'diseño', 'proceso', 'material',
+                                    'cantidad', 'almacen_si', 'almacen_no', 'suministro',
+                                    'proveedor', 'fecha_pedido', 'fecha_prevista',
+                                    'st_fisico', 'st_disponible', 'st_pend', 'st_virtual']
+                                ]
+
+                                excel_mat_order = material_order(df_final, 'Ofertas', '', '', '0')
+                                excel_mat_order.save_excel()
+                                break
+                        break
+                    else:
+                        break
+                break
+            else:
+                break
+
+# Function to detect the variable of the order or offer based on field and value provided
+    def detect_variable(self, value):
+        queries = {
+            "Caudal":  f'SELECT 1 FROM tags_data.tags_flow WHERE UPPER(num_offer) LIKE UPPER(%s) LIMIT 1',
+            "Temperatura": f'SELECT 1 FROM tags_data.tags_temp WHERE UPPER(num_offer) LIKE UPPER(%s) LIMIT 1',
+            "Nivel": f'SELECT 1 FROM tags_data.tags_level WHERE UPPER(num_offer) LIKE UPPER(%s) LIMIT 1',
+            "Otros": f'SELECT 1 FROM tags_data.tags_others WHERE UPPER(num_offer) LIKE UPPER(%s) LIMIT 1',
+        }
+
+        found = []
+
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                for var, q in queries.items():
+                    cur.execute(q, (f"%{value}%",))
+                    if cur.fetchone():
+                        found.append(var)
+
+        if "Caudal" in found and "Temperatura" in found:
+            return "Caudal+Temperatura"
+        if "Caudal" in found and "Nivel" in found:
+            return "Caudal+Nivel"
+        if "Temperatura" in found and "Nivel" in found:
+            return "Temperatura+Nivel"
+        return found[0] if found else ""
+
+# Function to configure table models based on the detected variable
+    def configure_models(self, variable):
+        self.variable2 = None
+        self.excluded_range2 = None
+
+        if variable in ("Caudal+Temperatura", "Caudal+Nivel"):
+            v1, v2 = variable.split("+")
+            self.variable, self.variable2 = v1, v2
+
+            t1 = VARIABLE_TABLES[v1]
+            t2 = VARIABLE_TABLES[v2]
+
+            self.model_tags.setTable(t1)
+            self.model_tags2.setTable(t2)
+
+        else:
+            self.variable = variable
+            t = VARIABLE_TABLES[variable]
+
+            self.model_tags.setTable(t)
+
+# Function to transform pipe sizes to float values
+    def size_to_float(self, size):
+        size = size.replace('"', '')
+
+        if 'N/A' in size:
+            return 'N/A'
+        
+        if 'HOLD' in size:
+            return 'HOLD'
+
+        if '-' in size:              # ejemplo 1-1/2
+            whole, frac = size.split('-')
+            return float(whole) + float(Fraction(frac))
+
+        if '/' in size:              # ejemplo 1/2
+            return float(Fraction(size))
+
+        return float(size) 
 
 
 
