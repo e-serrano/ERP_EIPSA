@@ -1446,8 +1446,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.initial_column2 = 25
 
                     if self.username != 'j.martinez':
-                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
-                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state not in ('FOR INVOICING','SUPERADO')")
+                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state not in ('FOR INVOICING','SUPERADO')")
                     else:
                         self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
                         self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
@@ -3184,6 +3184,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('s.sanchez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
