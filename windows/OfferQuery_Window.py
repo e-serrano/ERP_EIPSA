@@ -765,59 +765,38 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         ORDER BY offers."num_offer")
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryoffer)
-            results=cur.fetchall()
-            self.tableQueryOffer.setRowCount(len(results))
-            tablerow=0
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryoffer)
+                    results=cur.fetchall()
+                    self.tableQueryOffer.setRowCount(len(results))
+                    tablerow=0
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(22):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableQueryOffer.setItem(tablerow, column, it)
+                # fill the Qt Table with the query results
+                    for row in results:
+                        for column in range(22):
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableQueryOffer.setItem(tablerow, column, it)
 
-                self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
-                tablerow+=1
+                        self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
+                        tablerow+=1
 
-            # self.tableQueryOffer.verticalHeader().hide()
-            self.tableQueryOffer.setSortingEnabled(False)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    # self.tableQueryOffer.verticalHeader().hide()
+                    self.tableQueryOffer.setSortingEnabled(False)
+                    self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-            for column in [4, 7, 12, 19, 20]:
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOffer.setColumnWidth(column, 300)
+                    for column in [4, 7, 12, 19, 20]:
+                        self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                        self.tableQueryOffer.setColumnWidth(column, 300)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def query_offer_filtered(self):
         """
@@ -830,14 +809,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         year = int(self.Year_QueryOffer.text()) if self.Year_QueryOffer.text() != '' else None
 
         if month1=='' and month2!='':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
-            dlg.setText("No puede haber un segundo mes sin haber introducido un primer mes")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("No puede haber un segundo mes sin haber introducido un primer mes", "warning")
 
         else:
             self.tableQueryOffer.setRowCount(0)
@@ -877,65 +849,45 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         """)
             conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                if month1 == '' and month2 == '':
-                    data=(year,year,)
-                    cur.execute(commands_queryoffer,data)
-                elif month1 != '' and month2 == '':
-                    data=(month1,year,year,)
-                    cur.execute(commands_queryoffer_dates1, data)
-                elif month1 != '' and month2 != '':
-                    data=(month1,month2,year,year,)
-                    cur.execute(commands_queryoffer_dates2, data)
-                results=cur.fetchall()
-                self.tableQueryOffer.setRowCount(len(results))
-                tablerow=0
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        if month1 == '' and month2 == '':
+                            data=(year,year,)
+                            cur.execute(commands_queryoffer,data)
+                        elif month1 != '' and month2 == '':
+                            data=(month1,year,year,)
+                            cur.execute(commands_queryoffer_dates1, data)
+                        elif month1 != '' and month2 != '':
+                            data=(month1,month2,year,year,)
+                            cur.execute(commands_queryoffer_dates2, data)
+                        results=cur.fetchall()
+                        self.tableQueryOffer.setRowCount(len(results))
+                        tablerow=0
 
-            # fill the Qt Table with the query results
-                for row in results:
-                    for column in range(22):
-                        value = row[column]
-                        if value is None:
-                            value = ''
-                        it = QtWidgets.QTableWidgetItem(str(value))
-                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableQueryOffer.setItem(tablerow, column, it)
+                    # fill the Qt Table with the query results
+                        for row in results:
+                            for column in range(22):
+                                value = row[column]
+                                if value is None:
+                                    value = ''
+                                it = QtWidgets.QTableWidgetItem(str(value))
+                                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                                self.tableQueryOffer.setItem(tablerow, column, it)
 
-                    self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
-                    tablerow+=1
+                            self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
+                            tablerow+=1
 
-                # self.tableQueryOffer.verticalHeader().hide()
-                self.tableQueryOffer.setSortingEnabled(False)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                        # self.tableQueryOffer.verticalHeader().hide()
+                        self.tableQueryOffer.setSortingEnabled(False)
+                        self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-                for column in [4, 7, 12, 19, 20]:
-                    self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                    self.tableQueryOffer.setColumnWidth(column, 300)
+                        for column in [4, 7, 12, 19, 20]:
+                            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(column,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                            self.tableQueryOffer.setColumnWidth(column, 300)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
     def countSelectedCells(self):
         """
@@ -990,14 +942,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [7, 12, 20, 21]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas")
-            dlg.setText(cell_content)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message(cell_content, "info")
         elif item.column() == 0:
             self.editofferform(item)
 
@@ -1067,26 +1012,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
                 writer._save()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("Datos exportados con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
