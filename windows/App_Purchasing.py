@@ -1251,7 +1251,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         results_suppliers = cur.fetchall()
 
                 df_supplies = pd.DataFrame(results_supplies, columns=["ID", "ID Destino", "ID Clase", "Referencia", "Descripción", "Un. Med",
-                                                            "Val. Unit.", "Notas", "Stock", "Stock Disponible", "Pendiente", "Ubicación"])
+                                                            "Val. Unit.", "Notas", "Stock", "Stock Disponible", "Pendiente", "Ubicación", "Stock Virtual"])
 
                 df_client_order_header = pd.DataFrame(results_client_ord_header, columns=["ID", "ID Cliente", "Fecha Pedido", "Fecha Entrega", "Nº Pedido Cliente", "Notas",
                                                             "Fecha Entrega 1", "Albarán 1", "Fecha Entrega 2", "Albarán 2", "Fecha Entrega 3", "Albarán 3"])
