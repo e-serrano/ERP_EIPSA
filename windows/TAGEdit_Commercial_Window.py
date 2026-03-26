@@ -1450,7 +1450,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to apply filters to the table models
     def apply_filters(self, field, value):
-        f = f"""{field} <> '' AND UPPER({field}) LIKE '%{value.upper()}%'"""
+        f = f"""{field} <> '' AND UPPER({field}) LIKE '%{value.upper()}%' AND tag_state NOT IN ('SUPERADO', 'EXTRAOFICIAL')"""
         self.model.setFilter(f)
         self.model2.setFilter(f)
 

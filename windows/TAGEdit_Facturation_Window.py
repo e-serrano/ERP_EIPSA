@@ -1649,8 +1649,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.column_position = 57
                         self.column_subposition = 58
                         self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state IN ('PURCHASED', 'FOR INVOICING')")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state IN ('PURCHASED', 'FOR INVOICING')")
 
             if self.variable != '':
                 self.tableEditTags.setModel(None)
