@@ -401,7 +401,7 @@ class offer_flow:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -628,7 +628,7 @@ class offer_flow:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -1885,7 +1885,7 @@ class offer_short_flow_english:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -2112,7 +2112,7 @@ class offer_short_flow_english:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -2717,7 +2717,7 @@ class offer_temp:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -2946,7 +2946,7 @@ class offer_temp:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -4283,7 +4283,7 @@ class offer_short_temp_english:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -4512,7 +4512,7 @@ class offer_short_temp_english:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -4967,7 +4967,7 @@ class offer_level:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -5172,7 +5172,7 @@ class offer_level:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -6205,7 +6205,7 @@ class offer_short_level_english:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -6410,7 +6410,7 @@ class offer_short_level_english:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -7244,7 +7244,7 @@ class offer_flow_temp:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -7560,7 +7560,7 @@ class offer_flow_temp:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
@@ -8525,7 +8525,7 @@ class offer_flow_temp_level:
                 rich_string = CellRichText(
                 'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
@@ -8906,7 +8906,7 @@ class offer_flow_temp_level:
                     rich_string = CellRichText(
                     'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holdiays excluded).')
+                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
