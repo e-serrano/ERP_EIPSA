@@ -1363,6 +1363,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
         # self.model.clearModifiedRows()
 
+        print('Guardar')
         self.model.submitAll()
 
         for column in range(self.model.columnCount()):
@@ -1377,19 +1378,19 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
-        # self.model2.submitAll()
+        self.model2.submitAll()
 
-        # for column in range(self.model2.columnCount()):
-        #     list_valuesUnique2 = []
-        #     for row in range(self.model2.rowCount()):
-        #         value = self.model2.record(row).value(column)
-        #         if value not in list_valuesUnique2:
-        #             if isinstance(value, QtCore.QDate):
-        #                 value=value.toString("dd/MM/yyyy")
-        #             list_valuesUnique2.append(str(value))
-        #             if value not in self.checkbox_states2[column]:
-        #                 self.checkbox_states2[column][value] = True
-        #     self.dict_valuesuniques2[column] = list_valuesUnique2
+        for column in range(self.model2.columnCount()):
+            list_valuesUnique2 = []
+            for row in range(self.model2.rowCount()):
+                value = self.model2.record(row).value(column)
+                if value not in list_valuesUnique2:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    list_valuesUnique2.append(str(value))
+                    if value not in self.checkbox_states2[column]:
+                        self.checkbox_states2[column][value] = True
+            self.dict_valuesuniques2[column] = list_valuesUnique2
 
 # Function to detect the variable of the order or offer based on field and value provided
     def detect_variable(self, field, value):
