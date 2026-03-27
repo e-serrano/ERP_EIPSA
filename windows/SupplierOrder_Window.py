@@ -3795,7 +3795,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             pdf_buffer = pdf.output()
 
-            temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp.pdf"))
+            temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp" + self.username + ".pdf"))
 
             with open(temp_file_path, "wb") as temp_file:
                 temp_file.write(pdf_buffer)
