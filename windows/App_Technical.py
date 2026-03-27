@@ -2002,6 +2002,17 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 
+# Function to open window for tag query
+    def query_commercial_tag(self):
+        """
+        Opens a new window for querying tags. 
+        """
+        from windows.TAGQuery_Menu import Ui_TAGQuery_Menu
+        self.querytag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TAGQuery_Menu('Comercial')
+        self.ui.setupUi(self.querytag_window)
+        self.querytag_window.show()
+
 # Function to open window for documentation creation
     def create_documents(self):
         """
@@ -2697,6 +2708,18 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open commercial menu
     def commercial_menu(self):
+        actions = {
+            'Nueva Oferta': self.new_offer,
+            'Editar Oferta': self.edit_offer,
+            'Reclamar Oferta': self.reclamation_offer,
+            'Exportar Oferta': self.export_offer,
+            'Nuevo Pedido': self.new_order,
+            'Editar Pedido': self.edit_order,
+            'Nuevo Tag(s)': self.new_tag,
+            'Editar Tag(s)': self.edit_tag_commercial,
+            'Importar Tag(s)': self.import_tag,
+            'Consultar Tag(s)': self.query_commercial_tag,
+        }
         while True:
             action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
                                                                                                 'Editar Oferta',
@@ -2706,35 +2729,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                                                                 'Editar Pedido',
                                                                                                 'Nuevo Tag(s)',
                                                                                                 'Editar Tag(s)',
-                                                                                                'Importar Tag(s)'], 0, False)
+                                                                                                'Importar Tag(s)',
+                                                                                                'Consultar Tag(s)'], 0, False)
             if ok and action:
                 while True:
-                    if action == 'Nueva Oferta':
-                        self.new_offer()
-                        break
-                    elif action == 'Editar Oferta':
-                        self.edit_offer()
-                        break
-                    elif action == 'Reclamar Oferta':
-                        self.reclamation_offer()
-                        break
-                    elif action == 'Exportar Oferta':
-                        self.export_offer()
-                        break
-                    elif action == 'Nuevo Pedido':
-                        self.new_order()
-                        break
-                    elif action == 'Editar Pedido':
-                        self.edit_order()
-                        break
-                    elif action == 'Nuevo Tag(s)':
-                        self.new_tag()
-                        break
-                    elif action == 'Editar Tag(s)':
-                        self.edit_tag_commercial()
-                        break
-                    elif action == 'Importar Tag(s)':
-                        self.import_tag()
+                    func = actions.get(action)
+                    if func:
+                        func()
                         break
                 break
             else:
