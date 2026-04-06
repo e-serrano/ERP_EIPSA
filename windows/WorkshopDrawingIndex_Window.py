@@ -5472,36 +5472,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         dataframe['pipe_int_diam'] = pd.to_numeric(dataframe['pipe_int_diam'], errors='coerce')
 
         materials = ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
-        sizes_floor = ['3/4"', '1-1/2"', '2"/1-1/2"']
-        sizes_ceil  = ['1/2"', '1"', '2"/1"']
+        sizes = ['3/4"', '1-1/2"', '2"/1-1/2"', '1/2"', '1"', '2"/1"']
         schedules = ['40', '80', 'STD', 'XS']
 
         # Creating boolean mask
-        mask_floor = (dataframe['material'].isin(materials)) & \
-                    (dataframe['size'].isin(sizes_floor)) & \
+        mask_calibrated = (dataframe['material'].isin(materials)) & \
+                    (dataframe['size'].isin(sizes)) & \
                     (dataframe['schedule'].isin(schedules))
-
-        mask_ceil = (dataframe['material'].isin(materials)) & \
-                    (dataframe['size'].isin(sizes_ceil)) & \
-                    (dataframe['schedule'].isin(schedules))
-
-        # Apply vectorized floor y ceil
-        dataframe['final_pipe_int_diam'] = np.where(mask_floor,
-                                                    np.floor(dataframe['pipe_int_diam']),
-                                                    np.where(mask_ceil,
-                                                            np.ceil(dataframe['pipe_int_diam']),
-                                                            dataframe['pipe_int_diam']))
-
-        # dataframe['final_pipe_int_diam'] = dataframe.apply(
-        #     lambda row: math.floor(row['pipe_int_diam']) if row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
-        #     and row['size'] in ['3/4"', '1-1/2"', '2"/1-1/2"']
-        #     and row['schedule'] in ['40', '80', 'STD', 'XS']
-        #     else math.ceil(row['pipe_int_diam']) if row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
-        #     and row['size'] in ['1/2"', '1"', '2"/1"']
-        #     and row['schedule'] in ['40', '80', 'STD', 'XS']
-        #     else row['pipe_int_diam'],
-        #     axis=1
-        # )
 
         dataframe['calibrated'] = dataframe.apply(
             lambda row: 'YES' if (row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
@@ -5538,6 +5515,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         query_flanges_ff = ("""SELECT code_flange, dim_h
                         FROM verification.flanges_verification""")
 
+        query_calibrated_tube = ("SELECT line_size, sch, calibrated_int FROM validation_data.pipe_diam")
+
         try:
             with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
@@ -5547,6 +5526,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     results_flanges_rtj=cur.fetchall()
                     cur.execute(query_flanges_ff)
                     results_flanges_ff=cur.fetchall()
+                    cur.execute(query_calibrated_tube)
+                    results_calibrated_tube = cur.fetchall()
 
             flanges_rf = {}
             for item in results_flanges_rf:
@@ -5560,10 +5541,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             for item in results_flanges_ff:
                 flanges_ff[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0)
 
+            dataframe_tube = pd.DataFrame(results_calibrated_tube, columns=['size_orifice_flange', 'sch_orifice_flange', 'calibrated_int'])
+
+            dataframe = dataframe.merge(dataframe_tube, on=['size_orifice_flange', 'sch_orifice_flange'], how='left')
+
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
+        dataframe['final_pipe_int_diam'] = np.where(mask_calibrated,
+                                            dataframe['calibrated_int'],
+                                            dataframe['pipe_int_diam'])
+        
         dataframe['orifice_flange_height'] = np.select(
             [
                 dataframe['facing'].str.contains('RF', na=False),
@@ -5603,7 +5592,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         df_orifice_flanges['drawing_code'] = df_orifice_flanges.apply(
         lambda row: 'CMRB' + str(row['type_orifice_flange']) + ('O' if row['type_orifice_flange'] == 'WN' else '') + str(row['facing']) + ('' if 'CORNER' not in str(row["notes_equipment"]) else 'Q') +
-                    ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + str(row['size_orifice_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_orifice_flange']) else '.0') +
+                    ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + ("01" if str(row['size_orifice_flange']) in ('1-1/2"') else ("0" if str(row['size_orifice_flange']) in ('1/2"') else str(row['size_orifice_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_orifice_flange']) else '.0') +
                     ('-0' + str(row['rating_orifice_flange']) if str(row['rating_orifice_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_orifice_flange'])),
         axis=1)
 
@@ -5625,7 +5614,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         df_line_flanges['drawing_code'] = df_line_flanges.apply(
         lambda row: 'CB' + str(row['type_line_flange']) + ('L'if row['type_line_flange'] == 'WN' else '') + str(row['facing']) +
-                    ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + str(row['size_line_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_line_flange']) else '.0') +
+                    ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + ("01" if str(row['size_line_flange']) in ('1-1/2"') else ("0" if str(row['size_line_flange']) in ('1/2"') else str(row['size_line_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_line_flange']) else '.0') +
                     ('-0' + str(row['rating_line_flange']) if str(row['rating_line_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_line_flange'])),
         axis=1)
 
@@ -5715,7 +5704,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         + str(error), "critical")
 
         df_tubes = df_tubes.merge(df_diam, how='left', left_on=['size_orifice_flange', 'sch_orifice_flange'], right_on=['line_size', 'sch'])
-        df_tubes['final_pipe_int_diam'] = df_tubes['in_diam']
+        # df_tubes['final_pipe_int_diam'] = df_tubes['in_diam']
 
         df_grouped = df_tubes.groupby(['drawing_path','size_orifice_flange', 'sch_orifice_flange', 'tube_material', 'calibrated', 'final_pipe_int_diam', 'pipe_ext_diam', 'length_long', 'length_short', 'welding_type_orifice', 'welding_type_line']).size().reset_index(name="count")
         grouped_tubes = df_grouped.groupby(['drawing_path','size_orifice_flange','sch_orifice_flange','tube_material', 'calibrated']).agg({"final_pipe_int_diam": list, "pipe_ext_diam": list, "length_long": list, "length_short": list, "welding_type_orifice": list, "welding_type_line": list, "count": list}).reset_index()
