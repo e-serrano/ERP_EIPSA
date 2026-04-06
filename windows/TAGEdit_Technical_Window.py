@@ -1268,6 +1268,72 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.checkbox_states2[column][value] = True
             self.dict_valuesuniques2[column] = list_valuesUnique2
 
+# Function to detect the variable of the order or offer based on field and value provided
+    def detect_variable(self, field, value):
+        queries = {
+            "Caudal":  f'SELECT 1 FROM tags_data.tags_flow WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Temperatura": f'SELECT 1 FROM tags_data.tags_temp WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Nivel": f'SELECT 1 FROM tags_data.tags_level WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Otros": f'SELECT 1 FROM tags_data.tags_others WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+        }
+
+        found = []
+
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                for var, q in queries.items():
+                    cur.execute(q, (f"%{value}%",))
+                    if cur.fetchone():
+                        found.append(var)
+
+        if "Caudal" in found and "Temperatura" in found:
+            return "Caudal+Temperatura"
+        if "Caudal" in found and "Nivel" in found:
+            return "Caudal+Nivel"
+        if "Temperatura" in found and "Nivel" in found:
+            return "Temperatura+Nivel"
+        return found[0] if found else ""
+
+# Function to configure table models based on the detected variable
+    # def configure_models(self, variable):
+    #     self.variable2 = None
+    #     self.excluded_range2 = None
+
+    #     if variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
+    #         v1, v2 = variable.split("+")
+    #         self.variable, self.variable2 = v1, v2
+
+    #         t1, c1, d1, e1 = VARIABLE_TABLES[v1]
+    #         t2, c2, d2, e2 = VARIABLE_TABLES[v2]
+
+    #         self.model.setTable(t1)
+    #         self.model2.setTable(t2)
+
+    #         self.model.table_check = t1
+    #         self.model2.table_check = t2
+
+    #         self.initial_column, self.column_difference, self.excluded_range = c1, d1, e1
+    #         self.initial_column2, self.column_difference2, self.excluded_range2 = c2, d2, e2
+
+    #     else:
+    #         self.variable = variable
+    #         t, c, d, e = VARIABLE_TABLES[variable]
+
+    #         self.model.setTable(t)
+    #         self.model.table_check = t
+
+    #         self.initial_column, self.column_difference, self.excluded_range = c, d, e
+
+# Function to apply filters to the table models
+    def apply_filters(self, field, value):
+        if self.username != 'j.martinez':
+            f = f"""{field} <> '' AND UPPER({field}) LIKE '%{value.upper()}%' AND tag_state NOT IN ('FOR INVOICING', 'SUPERADO', 'EXTRAOFICIAL')"""
+        else:
+            f = f"""{field} <> '' AND UPPER({field}) LIKE '%{value.upper()}%' AND tag_state NOT IN ('SUPERADO', 'EXTRAOFICIAL')"""
+        self.model.setFilter(f)
+        self.model2.setFilter(f)
+
+
 # Function to load table and setting in the window
     def query_tags(self):
         """
@@ -1290,167 +1356,79 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
 
         else:
-            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder):
+            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder) and self.username != 'j.martinez':
                 MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
-                query = ('''
-                        SELECT num_order, product_type."variable"
-                        FROM orders
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
+                field = "num_order" if self.numorder.upper()[0] == 'P' else "num_offer"
+                self.variable = self.detect_variable(field, self.numorder)
 
-                try:
-                    with Database_Connection(config_database()) as conn:
-                        with conn.cursor() as cur:
-                            cur.execute(query,(self.numorder,))
-                            results_variable=cur.fetchone()
-                            self.variable = results_variable[1] if results_variable != None else ''
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                + str(error), "critical")
-
-                if results_variable == None:
-                    MessageHelper.show_message("El número de pedido no existe", "warning")
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    query_flow = ('''
-                        SELECT num_order
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT num_order
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
-                        ''')
+                if self.variable == 'Caudal+Temp':
+                    self.variable = 'Caudal'
+                    self.variable2 = 'Temperatura'
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model2.setTable("tags_data.tags_temp")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.model2.table_check = "tags_data.tags_temp"
+                    self.initial_column = 33
+                    self.initial_column2 = 102
+                    self.initial_column_ = 40
+                    self.initial_column2_ = 82
+                elif self.variable =='Caudal+Nivel':
+                    self.variable = 'Caudal'
+                    self.variable2 = 'Nivel'
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model2.setTable("tags_data.tags_level")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.model2.table_check = "tags_data.tags_level"
+                    self.initial_column = 33
+                    self.initial_column2 = 102
+                    self.initial_column_ = 36
+                    self.initial_column2_ = 66
+                elif self.variable =='Temp+Nivel':
+                    self.variable = 'Temperatura'
+                    self.variable2 = 'Nivel'
+                    self.model.setTable("tags_data.tags_temp")
+                    self.model2.setTable("tags_data.tags_level")
+                    self.model.table_check = "tags_data.tags_temp"
+                    self.model2.table_check = "tags_data.tags_level"
+                    self.initial_column = 40
+                    self.initial_column2 = 82
+                    self.initial_column_ = 36
+                    self.initial_column2_ = 66
+                elif self.variable == 'Caudal':
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.initial_column = 33
+                    self.initial_column2 = 102
+                    self.model.invoice_column = 148
+                elif self.variable == 'Temperatura':
+                    self.model.setTable("tags_data.tags_temp")
+                    self.model.table_check = "tags_data.tags_temp"
+                    self.initial_column = 40
+                    self.initial_column2 = 82
+                    self.model.invoice_column = 133
+                elif self.variable == 'Nivel':
                     if self.username != 'j.martinez':
-                        query_level = ('''
-                            SELECT num_order
-                            FROM tags_data.tags_level
-                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
-                            ''')
+                        self.model.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_level"
+                        self.initial_column = 36
+                        self.initial_column2 = 66
+                        self.model.invoice_column = 178
                     else:
-                        query_level = ('''
-                            SELECT num_order
-                            FROM tags_data.tags_level_new
-                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
-                            ''')
-                    query_others = ('''
-                        SELECT num_order
-                        FROM tags_data.tags_others
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
-                        ''')
+                        self.model.setTable("tags_data.tags_level_new")
+                        self.model.table_check = "tags_data.tags_level_new"
+                        self.initial_column = 36
+                        self.initial_column2 = 66
+                        self.model.invoice_column = 178
+                elif self.variable == 'Otros':
+                    self.model.setTable("tags_data.tags_others")
+                    self.model.table_check = "tags_data.tags_others"
+                    self.initial_column = 11
+                    self.initial_column2 = 25
 
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                                cur.execute(query_flow,(self.numorder,))
-                                results_flow=cur.fetchall()
-                                cur.execute(query_temp,(self.numorder,))
-                                results_temp=cur.fetchall()
-                                cur.execute(query_level,(self.numorder,))
-                                results_level=cur.fetchall()
-                                cur.execute(query_others,(self.numorder,))
-                                results_others=cur.fetchall()
-
-                        if len(results_flow) != 0 and len(results_temp) != 0:
-                            self.variable = 'Caudal+Temp'
-                        elif len(results_flow) != 0 and len(results_level) != 0:
-                            self.variable = 'Caudal+Nivel'
-                        elif len(results_temp) != 0 and len(results_level) != 0:
-                            self.variable = 'Temp+Nivel'
-                        elif len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
-
-                    if self.variable == 'Caudal+Temp':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Temperatura'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_temp"
-                        self.initial_column = 33
-                        self.initial_column2 = 102
-                        self.initial_column_ = 40
-                        self.initial_column2_ = 82
-                    elif self.variable =='Caudal+Nivel':
-                        self.variable = 'Caudal'
-                        self.variable2 = 'Nivel'
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model2.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 33
-                        self.initial_column2 = 102
-                        self.initial_column_ = 36
-                        self.initial_column2_ = 66
-                    elif self.variable =='Temp+Nivel':
-                        self.variable = 'Temperatura'
-                        self.variable2 = 'Nivel'
-                        self.model.setTable("tags_data.tags_temp")
-                        self.model2.setTable("tags_data.tags_level")
-                        self.model.table_check = "tags_data.tags_temp"
-                        self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 40
-                        self.initial_column2 = 82
-                        self.initial_column_ = 36
-                        self.initial_column2_ = 66
-                    elif self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.model.table_check = "tags_data.tags_flow"
-                        self.initial_column = 33
-                        self.initial_column2 = 102
-                        self.model.invoice_column = 148
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.model.table_check = "tags_data.tags_temp"
-                        self.initial_column = 40
-                        self.initial_column2 = 82
-                        self.model.invoice_column = 133
-                    elif self.variable == 'Nivel':
-                        if self.username != 'j.martinez':
-                            self.model.setTable("tags_data.tags_level")
-                            self.model.table_check = "tags_data.tags_level"
-                            self.initial_column = 36
-                            self.initial_column2 = 66
-                            self.model.invoice_column = 178
-                        else:
-                            self.model.setTable("tags_data.tags_level_new")
-                            self.model.table_check = "tags_data.tags_level_new"
-                            self.initial_column = 36
-                            self.initial_column2 = 66
-                            self.model.invoice_column = 178
-                    elif self.variable == 'Otros':
-                        self.model.setTable("tags_data.tags_others")
-                        self.model.table_check = "tags_data.tags_others"
-                        self.initial_column = 11
-                        self.initial_column2 = 25
-
-                    if self.username != 'j.martinez':
-                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state not in ('FOR INVOICING','SUPERADO')")
-                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state not in ('FOR INVOICING','SUPERADO')")
-                    else:
-                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                self.apply_filters(field, self.numorder)
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -3184,6 +3162,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('s.sanchez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
