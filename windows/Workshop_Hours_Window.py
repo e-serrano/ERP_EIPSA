@@ -2561,19 +2561,23 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
             df_orders = df_orders.fillna('')
             df_orders.columns = ['num_order', 'num_offer', 'num_ref_order', 'order_date', 'num_eqs',
                                 'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
-                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'manufacture', 'notes_hours',]
+                                'welding_hours', 'cnc_drilling_hours', 'deep_drilling_hours', 'lathing_hours', 'cnc_lathing_hours', 'manufacture', 'notes_hours',
+                                'hours_title', 'order_hours', 'offers_hours', 'al_hours', 'total_hours']
+            df_orders = df_orders.drop(columns = ['num_offer', 'num_ref_order', 'order_date', 'num_eqs', 'hours_title', 'order_hours', 'offers_hours', 'al_hours', 'total_hours'])
 
             df_offers = pd.read_excel(input_file, sheet_name="O-", skiprows=6, header=None, dtype=str)
             df_offers = df_offers.fillna('')
             df_offers.columns = ['num_offer', 'state', 'responsible', 'client', 'final_client', 'material', 'num_eqs', 'probability',
                                 'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
-                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours',]
+                                'welding_hours', 'cnc_drilling_hours', 'deep_drilling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours', 'hours_title', 'offers_hours']
+            df_offers = df_offers.drop(columns = ['state', 'responsible', 'client', 'final_client', 'material', 'num_eqs', 'probability', 'hours_title', 'offers_hours'])
 
             df_al = pd.read_excel(input_file, sheet_name="AL-", skiprows=6, header=None, dtype=str)
             df_al = df_al.fillna('')
-            df_al.columns = ['num_order_al', 'num_offer', 'num_ref_order', 'order_date', 'num_eqs',
+            df_al.columns = ['num_order', 'order_date', 'eq_type', 'quantity', 'details',
                                 'warehouse_hours', 'quality_hours', 'packing_hours', 'milling_hours', 'assembly_hours', 'pyrometry_hours', 'cme_hours',
-                                'welding_hours', 'cnc_drilling_hours', 'deep_driling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours',]
+                                'welding_hours', 'cnc_drilling_hours', 'deep_drilling_hours', 'lathing_hours', 'cnc_lathing_hours', 'notes_hours', 'hours_title', 'al_hours']
+            df_al = df_al.drop(columns = ['hours_title', 'al_hours'])
 
             try:
                 with Database_Connection(config_database()) as conn:
@@ -2583,54 +2587,53 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                             id_value = row["num_order"]
                             columns_values = [(column, row[column]) for column in df_orders.columns if not pd.isnull(row[column])]
 
-                            columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+                            values = [None if value == '' else value for _, value in columns_values]
 
                         # Creating the SET  and WHERE clause with proper formatting
-                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                            where_clause = f"num_order = {id_value}"
+                            set_clause = ", ".join([f"{column} = %s" for column, _ in columns_values])
+                            where_clause = f"num_order = '{id_value}'"
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE orders SET {set_clause} WHERE {where_clause}'
-                            cur.execute(sql_update)
+                            cur.execute(sql_update, values)
 
                         for index, row in df_offers.iterrows():
                             # Creating string for columns names and values
                             id_value = row["num_offer"]
                             columns_values = [(column, row[column]) for column in df_offers.columns if not pd.isnull(row[column])]
 
-                            columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+                            values = [None if value == '' else value for _, value in columns_values]
 
                         # Creating the SET  and WHERE clause with proper formatting
-                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                            where_clause = f"num_offer = {id_value}"
+                            set_clause = ", ".join([f"{column} = %s" for column, _ in columns_values])
+                            where_clause = f"num_offer = '{id_value}'"
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE offers SET {set_clause} WHERE {where_clause}'
-                            cur.execute(sql_update)
+                            cur.execute(sql_update, values)
 
                         for index, row in df_al.iterrows():
                             # Creating string for columns names and values
-                            id_value = row["num_order_al"]
+                            id_value = row["num_order"]
                             columns_values = [(column, row[column]) for column in df_al.columns if not pd.isnull(row[column])]
 
-                            columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join(['NULL' if value == '' else value for column, value in columns_values])
+                            values = [None if value == '' else value for _, value in columns_values]
 
                         # Creating the SET  and WHERE clause with proper formatting
-                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                            where_clause = f"num_order_al = {id_value}"
+                            set_clause = ", ".join([f"{column} = %s" for column, _ in columns_values])
+                            where_clause = f"num_order = '{id_value}'"
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE orders_warehouse SET {set_clause} WHERE {where_clause}'
-                            cur.execute(sql_update)
+                            cur.execute(sql_update, values)
 
                     conn.commit()
 
+                self.query_data()
                 MessageHelper.show_message("Datos actualizados con éxito", "information")
 
             except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
