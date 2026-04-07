@@ -29,8 +29,8 @@ class Ui_OrderActivation_Window(object):
         """
         OrderActivation_Window.setObjectName("OrderActivation_Window")
         OrderActivation_Window.resize(300, 650)
-        OrderActivation_Window.setMinimumSize(QtCore.QSize(300, 650))
-        OrderActivation_Window.setMaximumSize(QtCore.QSize(300, 650))
+        OrderActivation_Window.setMinimumSize(QtCore.QSize(450, 650))
+        OrderActivation_Window.setMaximumSize(QtCore.QSize(450, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderActivation_Window.setWindowIcon(icon)
@@ -95,8 +95,8 @@ class Ui_OrderActivation_Window(object):
         self.verticalLayout.addWidget(self.label_numorder_orderactivation, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.numorder_orderactivation = QtWidgets.QLineEdit(parent=self.frame)
         self.numorder_orderactivation.setEnabled(True)
-        self.numorder_orderactivation.setMinimumSize(QtCore.QSize(200, 25))
-        self.numorder_orderactivation.setMaximumSize(QtCore.QSize(200, 25))
+        self.numorder_orderactivation.setMinimumSize(QtCore.QSize(400, 25))
+        self.numorder_orderactivation.setMaximumSize(QtCore.QSize(400, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.numorder_orderactivation.setFont(font)
@@ -126,14 +126,16 @@ class Ui_OrderActivation_Window(object):
         self.verticalLayout.addWidget(self.label_info_example, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.info_orderactivation = QtWidgets.QTextEdit(parent=self.frame)
         self.info_orderactivation.setEnabled(True)
-        self.info_orderactivation.setMinimumSize(QtCore.QSize(200, 100))
-        self.info_orderactivation.setMaximumSize(QtCore.QSize(200, 100))
+        self.info_orderactivation.setMinimumSize(QtCore.QSize(400, 100))
+        self.info_orderactivation.setMaximumSize(QtCore.QSize(400, 100))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.info_orderactivation.setFont(font)
         self.info_orderactivation.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.info_orderactivation.setObjectName("info_orderactivation")
         self.verticalLayout.addWidget(self.info_orderactivation, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout")
         self.label_tests = QtWidgets.QLabel(parent=self.frame)
         self.label_tests.setEnabled(True)
         self.label_tests.setMinimumSize(QtCore.QSize(200, 30))
@@ -142,9 +144,9 @@ class Ui_OrderActivation_Window(object):
         font.setPointSize(12)
         font.setBold(True)
         self.label_tests.setFont(font)
-        self.label_tests.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_tests.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
         self.label_tests.setObjectName("label_tests")
-        self.verticalLayout.addWidget(self.label_tests, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.label_tests, 0, 0, 1, 1)
         self.checkbox_pmi = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_pmi.setEnabled(True)
         self.checkbox_pmi.setMinimumSize(QtCore.QSize(200, 30))
@@ -154,7 +156,7 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_pmi.setFont(font)
         self.checkbox_pmi.setObjectName("checkbox_pmi")
         self.checkbox_pmi.setText('PMI')
-        self.verticalLayout.addWidget(self.checkbox_pmi, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.checkbox_pmi, 1, 0, 1, 1)
         self.checkbox_ultrasound = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_ultrasound.setEnabled(True)
         self.checkbox_ultrasound.setMinimumSize(QtCore.QSize(200, 30))
@@ -164,7 +166,7 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_ultrasound.setFont(font)
         self.checkbox_ultrasound.setObjectName("checkbox_ultrasound")
         self.checkbox_ultrasound.setText('Ultrasonidos')
-        self.verticalLayout.addWidget(self.checkbox_ultrasound, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.checkbox_ultrasound, 2, 0, 1, 1)
         self.checkbox_xray = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_xray.setEnabled(True)
         self.checkbox_xray.setMinimumSize(QtCore.QSize(200, 30))
@@ -174,7 +176,7 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_xray.setFont(font)
         self.checkbox_xray.setObjectName("checkbox_xray")
         self.checkbox_xray.setText('Radiografías')
-        self.verticalLayout.addWidget(self.checkbox_xray, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.checkbox_xray, 3, 0, 1, 1)
         self.checkbox_ph_ext = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_ph_ext.setEnabled(True)
         self.checkbox_ph_ext.setMinimumSize(QtCore.QSize(200, 30))
@@ -184,7 +186,7 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_ph_ext.setFont(font)
         self.checkbox_ph_ext.setObjectName("checkbox_ph_ext")
         self.checkbox_ph_ext.setText('Prueba Hidráulica Externa')
-        self.verticalLayout.addWidget(self.checkbox_ph_ext, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.checkbox_ph_ext, 4, 0, 1, 1)
         self.checkbox_lp = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_lp.setEnabled(True)
         self.checkbox_lp.setMinimumSize(QtCore.QSize(200, 30))
@@ -194,7 +196,7 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_lp.setFont(font)
         self.checkbox_lp.setObjectName("checkbox_lp")
         self.checkbox_lp.setText('Líquidos Penetrantes')
-        self.verticalLayout.addWidget(self.checkbox_lp, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.gridLayout_3.addWidget(self.checkbox_lp, 5, 0, 1, 1)
         self.checkbox_calibration = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_calibration.setEnabled(True)
         self.checkbox_calibration.setMinimumSize(QtCore.QSize(200, 30))
@@ -204,17 +206,81 @@ class Ui_OrderActivation_Window(object):
         self.checkbox_calibration.setFont(font)
         self.checkbox_calibration.setObjectName("checkbox_calibration")
         self.checkbox_calibration.setText('Calibración')
-        self.verticalLayout.addWidget(self.checkbox_calibration, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.checkbox_stress = QtWidgets.QCheckBox(parent=self.frame)
-        self.checkbox_stress.setEnabled(True)
-        self.checkbox_stress.setMinimumSize(QtCore.QSize(200, 30))
-        self.checkbox_stress.setMaximumSize(QtCore.QSize(200, 30))
+        self.gridLayout_3.addWidget(self.checkbox_calibration, 6, 0, 1, 1)
+
+        self.label_documentation = QtWidgets.QLabel(parent=self.frame)
+        self.label_documentation.setEnabled(True)
+        self.label_documentation.setMinimumSize(QtCore.QSize(200, 30))
+        self.label_documentation.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_documentation.setFont(font)
+        self.label_documentation.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        self.label_documentation.setObjectName("label_documentation")
+        self.gridLayout_3.addWidget(self.label_documentation, 0, 1, 1, 1)
+        self.checkbox_not_apply = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_not_apply.setEnabled(True)
+        self.checkbox_not_apply.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_not_apply.setMaximumSize(QtCore.QSize(200, 30))
         font = QtGui.QFont()
         font.setPointSize(9)
-        self.checkbox_stress.setFont(font)
-        self.checkbox_stress.setObjectName("checkbox_stress")
-        self.checkbox_stress.setText('Cálculos Stress')
-        self.verticalLayout.addWidget(self.checkbox_stress, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_not_apply.setFont(font)
+        self.checkbox_not_apply.setObjectName("checkbox_not_apply")
+        self.checkbox_not_apply.setText('No Aplica')
+        self.gridLayout_3.addWidget(self.checkbox_not_apply, 1, 1, 1, 1)
+        self.checkbox_calculations = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_calculations.setEnabled(True)
+        self.checkbox_calculations.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_calculations.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_calculations.setFont(font)
+        self.checkbox_calculations.setObjectName("checkbox_calculations")
+        self.checkbox_calculations.setText('Cálculos')
+        self.gridLayout_3.addWidget(self.checkbox_calculations, 2, 1, 1, 1)
+        self.checkbox_drawings = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_drawings.setEnabled(True)
+        self.checkbox_drawings.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_drawings.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_drawings.setFont(font)
+        self.checkbox_drawings.setObjectName("checkbox_drawings")
+        self.checkbox_drawings.setText('Planos')
+        self.gridLayout_3.addWidget(self.checkbox_drawings, 3, 1, 1, 1)
+        self.checkbox_calc_drawings = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_calc_drawings.setEnabled(True)
+        self.checkbox_calc_drawings.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_calc_drawings.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_calc_drawings.setFont(font)
+        self.checkbox_calc_drawings.setObjectName("checkbox_calc_drawings")
+        self.checkbox_calc_drawings.setText('Planos y Cálculos')
+        self.gridLayout_3.addWidget(self.checkbox_calc_drawings, 4, 1, 1, 1)
+        self.checkbox_calc_drawings_extras = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_calc_drawings_extras.setEnabled(True)
+        self.checkbox_calc_drawings_extras.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_calc_drawings_extras.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_calc_drawings_extras.setFont(font)
+        self.checkbox_calc_drawings_extras.setObjectName("checkbox_calc_drawings_extras")
+        self.checkbox_calc_drawings_extras.setText('Planos, Cálculos, Soldadura, ITP')
+        self.gridLayout_3.addWidget(self.checkbox_calc_drawings_extras, 5, 1, 1, 1)
+        self.checkbox_vddl = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_vddl.setEnabled(True)
+        self.checkbox_vddl.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_vddl.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_vddl.setFont(font)
+        self.checkbox_vddl.setObjectName("checkbox_vddl")
+        self.checkbox_vddl.setText('Según VDDL acordada')
+        self.gridLayout_3.addWidget(self.checkbox_vddl, 6, 1, 1, 1)
+
+        self.verticalLayout.addLayout(self.gridLayout_3)
         self.generate_orderactivation = QtWidgets.QPushButton(parent=self.frame)
         self.generate_orderactivation.setEnabled(True)
         self.generate_orderactivation.setMinimumSize(QtCore.QSize(200, 35))
@@ -287,6 +353,7 @@ class Ui_OrderActivation_Window(object):
         self.label_info_orderactivation.setText(_translate("OrderActivation_Window", "Info adicional:"))
         self.label_info_example.setText(_translate("OrderActivation_Window", "Mínimo indicar nº y tipo de equipo.\nEj: Son 25 bridas+placas"))
         self.label_tests.setText(_translate("OrderActivation_Window", "Extras:"))
+        self.label_documentation.setText(_translate("OrderActivation_Window", "Documentación:"))
         self.generate_orderactivation.setText(_translate("OrderActivation_Window", "Activar"))
 
 
@@ -297,20 +364,33 @@ class Ui_OrderActivation_Window(object):
         numorder=self.numorder_orderactivation.text()
         adit_info=self.info_orderactivation.toPlainText()
 
-        checkbox_map = {
+        checkbox_test_map = {
             self.checkbox_pmi: "PMI",
             self.checkbox_ultrasound: "Ultrasonidos",
             self.checkbox_xray: "Radiografías",
             self.checkbox_ph_ext: "Prueba Hidráulica Externa",
             self.checkbox_lp: "Líquidos Penetrantes",
             self.checkbox_calibration: "Calibración",
-            self.checkbox_stress: "Cálculos Stress",
         }
 
-        extras_list = [label for checkbox, label in checkbox_map.items()
+        checkbox_docs_map = {
+            self.checkbox_not_apply: "No aplica",
+            self.checkbox_calculations: "Cálculos",
+            self.checkbox_drawings: "Planos",
+            self.checkbox_calc_drawings: "Planos y Cálculos",
+            self.checkbox_calc_drawings_extras: "Planos, Cálculos, Procedimientos de soldadura, ITP",
+            self.checkbox_vddl: "Según VDDL acordada",
+        }
+
+        extras_list = [label for checkbox, label in checkbox_test_map.items()
                     if checkbox.checkState() == QtCore.Qt.CheckState.Checked]
 
         extras_text = '\n'.join(extras_list)
+
+        docs_list = [label for checkbox, label in checkbox_docs_map.items()
+                    if checkbox.checkState() == QtCore.Qt.CheckState.Checked]
+
+        docs_text = '\n'.join(docs_list)
 
         if len(adit_info) == 0 or len(numorder) == 0:
             MessageHelper.show_message("Hay que rellenar el nº pedido y la información adicional", "warning")
@@ -391,10 +471,12 @@ class Ui_OrderActivation_Window(object):
                                 mails_copy_manager = [x[0] for x in results_manager]
                                 mails_copy_manager.insert(0, 'ana-calvo@eipsa.es', )
 
-                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy_normal, adit_info, email_responsible, extras_text)
+                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time,
+                                                    name_responsible, mails_sendto, mails_copy_normal, adit_info, email_responsible, extras_text, docs_text)
                         mail.send_email()
 
-                        mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_manager, mails_copy_manager, adit_info, email_responsible, extras_text, order_amount)
+                        mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time,
+                                                            name_responsible, mails_manager, mails_copy_manager, adit_info, email_responsible, extras_text, docs_text, order_amount)
                         mail.send_email()
 
                         MessageHelper.show_message("Pedido activado con éxito", "info")
