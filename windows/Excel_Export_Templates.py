@@ -10096,7 +10096,7 @@ class material_order:
                 cell = ws.cell(row=start_row + index, column=col_num)
 
                 if col_num == 9:
-                    cell.value = float(value)
+                    cell.value = float(value) if value is not None and value != '' else 0
                 elif col_num == 16:
                     cell.value = f"=IFERROR(VLOOKUP({get_column_letter(col_num-4)}{start_row + index},'Suministros'!D:Z,6,FALSE),\"CODIGO NO EXISTE\")" #(NOT(ISERROR(VLOOKUP({get_column_letter(col_num-1)}{start_row + index},'Suministros'!D:Z,6,FALSE))),VLOOKUP({get_column_letter(col_num-1)}{start_row + index},'Suministros'!D:Z,6,FALSE),\"\")"
                 elif col_num == 17:
