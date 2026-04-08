@@ -233,21 +233,21 @@ class Ui_ImportTAG_Window(object):
             'radioTemp': {
                 'table_name': 'tags_data.tags_temp',
                 'seq_id': 'tags_temp_id_tag_temp_seq',
-                'columns_range': (1, 44),
+                'columns_range': (1, 45),
                 'required_columns': ["tag", "tag_state", "num_offer", "item_type", "tw_type", "size", 
                                 "rating", "facing", "material_tw", "root_diam", "tip_diam", "bore_diam", "tip_thk", "radius_dim", 
                                 "sensor_element", "wire_size", "sheath_stem_material", "sheath_stem_diam", 
                                 "insulation", "temp_inf", "temp_sup", "nipple_ext_material", 
                                 "nipple_ext_length", "head_case_material", "head_certification", "elec_conn_case_diam", 
                                 "tt_cerblock", "material_flange_lj", "gasket_material", "puntal", 
-                                "tube_t", "nace"],
-                'int_columns': ['nipple_ext_length', 'std_length', 'ins_length'],
+                                "tube_t", "nace", "base_tw_diam"],
+                'int_columns': ['nipple_ext_length', 'std_length', 'ins_length', "base_tw_diam"],
                 'decimal_columns': ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam'],
                 'null_columns': ['num_order', 'contractual_date'],
                 'validation_map': {'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'O':'F', 
-                                'R':'I', 'S':'J', 'W':'L', 'Y':'M', 'Z':'N', 'AA':'O', 'AB':'P', 
-                                'AC':'Q', 'AD':'R', 'AE':'S', 'AF':'T', 'AG':'AC', 'AH':'U',
-                                'AI':'V', 'AJ':'W', 'AK':'X', 'AL':'Z', 'AM':'AA', 'AN':'K'}
+                                'R':'I', 'S':'J', 'X':'L', 'Z':'M', 'AA':'N', 'AB':'O', 'AC':'P', 
+                                'AD':'Q', 'AE':'R', 'AF':'S', 'AG':'T', 'AH':'AC', 'AI':'U',
+                                'AJ':'V', 'AK':'W', 'AL':'X', 'AM':'Z', 'AN':'AA', 'AO':'K'}
             },
             'radioLevel': {
                 'table_name': 'tags_data.tags_level',
