@@ -3871,7 +3871,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_flow = ('''
                     SELECT "item_type"
                     FROM tags_data.tags_flow
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s and tag_state = 'PURCHASED'
                     ''')
 
                 try:
@@ -3888,7 +3888,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         plate_type, plate_thk, flange_material, flange_type, tapping_size || ' (' || tapping_number || ')' as tapping_num_size,
                         gasket_material, tube_material, stages_number
                         FROM tags_data.tags_flow
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s and tag_state = 'PURCHASED'
                         ''')
 
                         with Database_Connection(config_database()) as conn:
@@ -3955,7 +3955,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_flow = ('''
                     SELECT "item_type"
                     FROM tags_data.tags_flow
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") LIKE ('%%'||%s||'%%')
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") LIKE ('%%'||%s||'%%') and tag_state = 'PURCHASED'
                     ''')
 
                 try:
@@ -3972,7 +3972,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         plate_type, plate_thk, flange_material, flange_type, tapping_size || ' (' || tapping_number || ')' as tapping_num_size,
                         gasket_material, tube_material, stages_number, pipe_int_diam
                         FROM tags_data.tags_flow
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE ('%%'||%s||'%%')
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE ('%%'||%s||'%%') and tag_state = 'PURCHASED'
                         ''')
 
                         with Database_Connection(config_database()) as conn:
@@ -4106,7 +4106,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_temp = ('''
                     SELECT "item_type"
                     FROM tags_data.tags_temp
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s and tag_state = 'PURCHASED'
                     ''')
 
                 try:
@@ -4123,7 +4123,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         ins_length, root_diam, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
                         nipple_ext_material, head_case_material, tt_cerblock
                         FROM tags_data.tags_temp
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s and tag_state = 'PURCHASED'
                         ''')
 
                         with Database_Connection(config_database()) as conn:
@@ -4186,7 +4186,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_temp = ('''
                     SELECT "item_type"
                     FROM tags_data.tags_temp
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s and tag_state = 'PURCHASED'
                     ''')
 
                 try:
@@ -4202,7 +4202,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         SELECT item_type, tw_type, size, rating, facing, geometry, material_tw,
                         ins_length, root_diam
                         FROM tags_data.tags_temp
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s and tag_state = 'PURCHASED'
                         ''')
 
                         with Database_Connection(config_database()) as conn:
@@ -4303,7 +4303,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_level = ('''
                     SELECT "item_type"
                     FROM tags_data.tags_level
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s and tag_state = 'PURCHASED'
                     ''')
 
                 try:
@@ -4319,7 +4319,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         SELECT item_type, model_num, proc_conn_size, proc_conn_rating, proc_conn_facing, valve_type,
                         gasket_mica, illuminator, scale_type, antifrost, float_material, body_material
                         FROM tags_data.tags_level
-                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s and tag_state = 'PURCHASED'
                         ''')
 
                         with Database_Connection(config_database()) as conn:
@@ -4375,7 +4375,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 query_data_others = ('''
                     SELECT "description"
                     FROM tags_data.tags_others
-                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s and tag_state = 'PURCHASED'
                     ''')
 
                 try:
