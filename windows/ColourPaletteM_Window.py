@@ -119,7 +119,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '665')
 
             elif '347H' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
                 end_color = QtGui.QColor(251, 131, 179)  # Pink
                 border_color = QtGui.QColor(255, 0, 0)  # Red
 
@@ -137,9 +137,10 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '696')
 
             elif '317H' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
                 end_color = QtGui.QColor(251, 131, 179)  # Pink
                 border_color = QtGui.QColor(255, 0, 0)  # Red
+                
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -512,8 +513,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
 
             elif '347' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -525,8 +526,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '641')
 
             elif '317' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
