@@ -5155,17 +5155,24 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                         # Write equipment data
                                             writer = PdfWriter()
+
                                             reader = PdfReader(dim_drawing)
-                                            page_overlay = PdfReader(loose_valves_dwg_dim(self.numorder, material, connection_1, connection_2, exterior_size, zip(row["count"]))).pages[0]
-                                            reader.pages[0].merge_page(page2=page_overlay)
-                                            writer.add_page(reader.pages[0])
+                                            base_page = reader.pages[0]
+
+                                            pdf_buffer = loose_valves_dwg_dim(self.numorder, material, connection_1, connection_2, exterior_size, row["count"])
+
+                                            page_overlay = PdfReader(pdf_buffer).pages[0]
+
+                                            base_page.merge_page(page2=page_overlay)
+                                            writer.add_page(base_page)
+
                                             writer.write(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
 
                                         # Write Drawing data
                                             writer = PdfWriter()
                                             reader = PdfReader(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
-                                            page_overlay, num_ot = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
-                                            reader.pages[0].merge_page(page2=page_overlay)
+                                            page_overlay, num_ot = drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)
+                                            reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
                                             writer.add_page(reader.pages[0])
 
                                             writer.write(f"{output_path_Dim}/DIM-{dim_drawing_number[:2]}.pdf")
@@ -5193,11 +5200,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     base_page = reader.pages[0]
 
                                                     if counter_drawings in [2, 3]:
-                                                        pdf_buffer = dwg_m_landscape(self.numorder, zip(row["count"]), material)
+                                                        pdf_buffer = dwg_m_landscape(self.numorder, row["count"], material)
                                                     elif counter_drawings in [1, 4, 5]:
-                                                        pdf_buffer = general_dwg_m(self.numorder, zip(row["count"]))
+                                                        pdf_buffer = general_dwg_m(self.numorder, row["count"])
                                                     else:
-                                                        pdf_buffer = general_dwg_m(self.numorder, zip(row["count"]), '304')
+                                                        pdf_buffer = general_dwg_m(self.numorder, row["count"], '304')
 
                                                     page_overlay = PdfReader(pdf_buffer).pages[0]
                                                     
@@ -5205,7 +5212,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     writer.add_page(base_page)
 
                                                     writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row['count'])) + " " + description, sum(row['count'])]
+                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(row['count']) + " " + description, str(row['count'])]
 
                                     elif 'CN-32218-A1' in item:
                                         df_selected_final = df_selected[df_selected['description'].str.contains('CN-32218-A1')].copy()
