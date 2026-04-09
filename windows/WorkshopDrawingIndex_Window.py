@@ -5592,7 +5592,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         df_orifice_flanges['drawing_code'] = df_orifice_flanges.apply(
         lambda row: 'CMRB' + str(row['type_orifice_flange']) + ('O' if row['type_orifice_flange'] == 'WN' else '') + str(row['facing']) + ('' if 'CORNER' not in str(row["notes_equipment"]) else 'Q') +
-                    ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + ("01" if str(row['size_orifice_flange']) in ('1-1/2"') else ("0" if str(row['size_orifice_flange']) in ('1/2"') else str(row['size_orifice_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_orifice_flange']) else '.0') +
+                    ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + ("01" if str(row['size_orifice_flange']) == '1-1/2"' else ("00" if str(row['size_orifice_flange']) == '1/2"' else str(row['size_orifice_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_orifice_flange']) else '.0') +
                     ('-0' + str(row['rating_orifice_flange']) if str(row['rating_orifice_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_orifice_flange'])),
         axis=1)
 
@@ -5614,7 +5614,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         df_line_flanges['drawing_code'] = df_line_flanges.apply(
         lambda row: 'CB' + str(row['type_line_flange']) + ('L'if row['type_line_flange'] == 'WN' else '') + str(row['facing']) +
-                    ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + ("01" if str(row['size_line_flange']) in ('1-1/2"') else ("0" if str(row['size_line_flange']) in ('1/2"') else str(row['size_line_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_line_flange']) else '.0') +
+                    ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + ("01" if str(row['size_line_flange']) == '1-1/2"' else ("00" if str(row['size_line_flange']) == '1/2"' else str(row['size_line_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_line_flange']) else '.0') +
                     ('-0' + str(row['rating_line_flange']) if str(row['rating_line_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_line_flange'])),
         axis=1)
 
