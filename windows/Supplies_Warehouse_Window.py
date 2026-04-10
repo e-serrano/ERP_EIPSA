@@ -518,14 +518,7 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
     "    border-color: rgb(255, 255, 255);\n"
     "}")
         else:
-            Supplies_Warehouse_Window.setStyleSheet("QWidget {\n"
-    "background-color: rgb(255, 255, 255);\n"
-    "}\n"
-    "\n"
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
+            Supplies_Warehouse_Window.setStyleSheet(
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -567,9 +560,9 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.tableSupplies = CustomTableWidget()
         self.tableSupplies.setObjectName("tableWidget")
-        self.tableSupplies.setColumnCount(4)
+        self.tableSupplies.setColumnCount(5)
         self.tableSupplies.setRowCount(0)
-        for i in range(4):
+        for i in range(5):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -604,13 +597,10 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
         self.tableSupplies.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableSupplies.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableSupplies.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableSupplies.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableSupplies.setSortingEnabled(False)
-
-        if self.username == 'j.tena':
-            self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
 
         self.retranslateUi(Supplies_Warehouse_Window)
         QtCore.QMetaObject.connectSlotsByName(Supplies_Warehouse_Window)
@@ -635,6 +625,8 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
         item.setText(_translate("Supplies_Warehouse_Window", "Stock Físico"))
         item = self.tableSupplies.horizontalHeaderItem(3)
         item.setText(_translate("Supplies_Warehouse_Window", "Stock Disponible"))
+        item = self.tableSupplies.horizontalHeaderItem(4)
+        item.setText(_translate("Supplies_Warehouse_Window", "Pendiente"))
         __sortingEnabled = self.tableSupplies.isSortingEnabled()
         self.tableSupplies.setSortingEnabled(False)
         self.tableSupplies.setSortingEnabled(__sortingEnabled)
@@ -646,7 +638,7 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         commands_supplies = ("""
-                    SELECT "reference","description","physical_stock","available_stock"
+                    SELECT "reference","description","physical_stock","available_stock","pending_stock"
                     FROM purch_fact.supplies
                     ORDER BY "reference"
                     """)
@@ -665,7 +657,7 @@ class Ui_Supplies_Warehouse_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(4):
+                for column in range(5):
                     value = row[column]
                     if value is None:
                         value = ''

@@ -377,12 +377,47 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
 "    border-radius: 10px;\n"
 "}")
         self.Button_Workshop_Hours.setText("")
-        # icon2 = QtGui.QIcon()
-        # icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Calibration.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.Button_Workshop_Hours.setIcon(icon2)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Machine_Hours.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Workshop_Hours.setIcon(icon2)
         self.Button_Workshop_Hours.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Workshop_Hours.setObjectName("Button_Workshop_Hours")
         self.Header.addWidget(self.Button_Workshop_Hours)
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Supplies.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Supplies.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Supplies.setToolTip('Suministros')
+        self.Button_Supplies.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Supplies.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Supplies.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Supplies.setIcon(icon4)
+        self.Button_Supplies.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Supplies.setObjectName("Button_Supplies")
+        self.Header.addWidget(self.Button_Supplies)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -622,6 +657,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.Button_Calibrations.clicked.connect(self.calibration)
         self.Button_Reports.clicked.connect(self.generate_report)
         self.Button_Workshop_Hours.clicked.connect(self.workshop_hours)
+        self.Button_Supplies.clicked.connect(self.supplies_warehouse)
 
         self.load_notifications()
 
@@ -1095,6 +1131,16 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         self.ws_hours_window = Ui_Workshop_Hours_Window(db_ws_hours, self.username)
         self.ws_hours_window.showMaximized()
 
+# Function to open supplies table
+    def supplies_warehouse(self):
+        """
+        Opens the supplies table window.
+        """
+        from windows.Supplies_Warehouse_Window import Ui_Supplies_Warehouse_Window
+        self.supplies_window = QtWidgets.QMainWindow()
+        self.ui = Ui_Supplies_Warehouse_Window(self.username)
+        self.ui.setupUi(self.supplies_window)
+        self.supplies_window.show()
 
 # if __name__ == "__main__":
 #     import sys
