@@ -19,6 +19,246 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.datavalidation import DataValidation
 
 
+PAY_TERMS_MAP = {
+    "100_delivery": {
+        "en": (
+            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+            "Payment method: bank transfer"
+        ),
+        "es": (
+            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+            "Método de pago: Transferencia bancaria."
+        )
+    },
+    "100_order": {
+        "en": (
+            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+            "Payment method: bank transfer"
+        ),
+        "es": (
+            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+            "Método de pago: Transferencia bancaria"
+        )
+    },
+    "90_10": {
+        "en": (
+            "PAYMENT TERMS:\n"
+            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved.\n"
+            "Bank Transfer: 60 days since invoice issue date."
+        ),
+        "es": (
+            "TERMINOS DE PAGO:\n"
+            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+            "Transferencia Bancaria: 60 días desde emisión de factura."
+        )
+    },
+    "50_50": {
+        "en": (
+            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+            "Payment method: bank transfer."
+        ),
+        "es": (
+            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+            "Método de pago: Transferencia bancaria."
+        )
+    },
+    "Others": {
+        "en": "PAYMENT TERMS TO BE DEFINED",
+        "es": "TERMINOS DE PAGO POR DEFINIR",
+        "style": {
+            "en": Font(name="Calibri", size=11, bold=True, color="FF0000"),
+            "es": Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000"),
+        }
+    }
+}
+
+FLOW_EQ_TYPE_MAP = {
+            1: "FLOW ELEMENTS DATA", 2: "NOZZLE ELEMENTS DATA",
+            3: "VENTURI ELEMENTS DATA", 4: "WEDGE ELEMENTS DATA",
+            5: "PITOT ELEMENTS DATA", 6: "RO ELEMENTS DATA",
+            7: "MULTISTAGE RO ELEMENTS DATA"
+        }
+
+FLOW_COLUMNS_DROP_MAP = {
+            "FLOW ELEMENTS DATA": [
+                "tube_material", "plate_type", "valve_conn",
+                "valve_material_body", "stages_number", "aprox_length"
+            ],
+            "NOZZLE ELEMENTS DATA": [
+                "plate_type", "plate_thk", "gasket_material",
+                "valve_conn", "valve_material_body", "stages_number"
+            ],
+            "VENTURI ELEMENTS DATA": [
+                "plate_type", "plate_thk", "gasket_material", "bolts_material", "nuts_material",
+                "valve_conn", "valve_material_body", "stages_number"
+            ],
+            "WEDGE ELEMENTS DATA": [  # same as venturi
+                "plate_type", "plate_thk", "gasket_material", "bolts_material", "nuts_material",
+                "valve_conn", "valve_material_body", "stages_number"
+            ],
+            "PITOT ELEMENTS DATA": [
+                "flange_material", "tube_material", "tapping_number", "tapping_size",
+                "plate_type", "plate_thk", "gasket_material", "stages_number", "aprox_length"
+            ],
+            "RO ELEMENTS DATA": [
+                "flange_material", "tube_material", "tapping_number", "tapping_size",
+                "gasket_material", "bolts_material", "nuts_material", "valve_conn", "valve_material_body",
+                "stages_number", "aprox_length", "paint_system"
+            ],
+            "MULTISTAGE RO ELEMENTS DATA": [
+                "tapping_number", "tapping_size", "gasket_material", "bolts_material", "nuts_material",
+                "valve_conn", "valve_material_body"
+            ]
+        }
+
+FLOW_VALUE_TYPE_GROUPS = {
+    1: ["A. Chamber", "C. RING", "F", "F+C.RING", "F+P", "IFO", "M.RUN", "P"],
+    2: ["NOZZLE BF", "NOZZLE BW", "NOZZLE F", "PTC-6"],
+    3: ["VFM", "VFW", "VWM", "VWW"],
+    4: ["WEDGE"],
+    5: ["PITOT"],
+    6: ["RO"],
+    7: ["MULTISTAGE RO"],
+}
+
+FLOW_VALUE_TYPE_MAP = {
+    key: group
+    for group, keys in FLOW_VALUE_TYPE_GROUPS.items()
+    for key in keys
+}
+
+TEMP_EQ_TYPE_MAP = {
+            1: "TW ELEMENTS DATA", 2: "TW+TE ELEMENTS DATA",
+            3: "TW+BIM ELEMENTS DATA", 4: "TE ELEMENTS DATA",
+            5: "BIM ELEMENTS DATA", 6: "TIT ELEMENTS DATA",
+            7: "SKIN POINT ELEMENTS DATA", 7: "SKIN+TT ELEMENTS DATA",
+            8: "MULTI-T ELEMENTS DATA"
+        }
+
+TEMP_COLUMNS_DROP_MAP = {
+            "TW ELEMENTS DATA": [
+                "std_length", "sensor_element", "sheath_stem_material",
+                "sheath_stem_diam", "temp_inf", "temp_sup",
+                "nipple_ext_material", "nipple_ext_length", "head_case_material",
+                "elec_conn_case_diam", "tt_cerblock"
+            ],
+            "TW+TE ELEMENTS DATA": [
+                "std_length", "temp_inf", "temp_sup", "nipple_ext_length"
+            ],
+            "TW+BIM ELEMENTS DATA": [
+                "std_length", "nipple_ext_length", "tt_cerblock", "puntal", "tube_t"
+            ],
+            "TE ELEMENTS DATA": [  # 
+                "tw_type", "size", "rating", "facing", "material_tw",
+                "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
+                "nipple_ext_material", "nipple_ext_length", "head_case_material", "elec_conn_case_diam", "tt_cerblock",
+                "material_flange_lj", "gasket_material", "puntal", "tube_t"
+            ],
+            "BIM ELEMENTS DATA": [
+                "tw_type", "size", "rating", "facing", "material_tw",
+                "std_length", "root_diam", "tip_diam", "nipple_ext_length", "tt_cerblock",
+                "material_flange_lj", "gasket_material", "puntal", "tube_t"
+            ],
+            "TIT ELEMENTS DATA": [
+                "tw_type", "size", "rating", "facing", "material_tw",
+                "std_length", "ins_length", "root_diam", "tip_diam", "sensor_element",
+                "sheath_stem_material", "sheath_stem_diam", "nipple_ext_material", "nipple_ext_length", "head_case_material",
+                "material_flange_lj", "gasket_material", "puntal", "tube_t"
+            ],
+            "SKIN POINT ELEMENTS DATA": [
+                "tw_type", "size", "rating", "facing", "material_tw",
+                "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
+                "material_flange_lj", "gasket_material", "puntal", "tube_t"
+            ],
+            "SKIN+TT ELEMENTS DATA": [
+                "tw_type", "size", "rating", "facing", "material_tw",
+                "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
+                "material_flange_lj", "gasket_material", "puntal", "tube_t"
+            ],
+            "MULTI-T ELEMENTS DATA": [
+                "material_tw", "root_diam", "tip_diam", "temp_inf", "temp_sup",
+                "tt_cerblock", "material_flange_lj", "puntal", "tube_t"
+            ]
+        }
+
+TEMP_VALUE_TYPE_GROUPS = {
+    1: ["TW"],
+    2: ["TW+TE", "TW+TE+TIT", "RETAINING FLANGE"],
+    3: ["TW+BIM"],
+    4: ["TE"],
+    5: ["BIM"],
+    6: ["TIT"],
+    7: ["SKIN+TT", "SKIN POINT"],
+    8: ["Multi-T"],
+}
+
+TEMP_VALUE_TYPE_MAP = {
+    key: group
+    for group, keys in TEMP_VALUE_TYPE_GROUPS.items()
+    for key in keys
+}
+
+
+
+
+
+def euros_to_float(value):
+    """
+    Converts a string value representing an amount in euros to a float.
+    
+    Args:
+        value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+    
+    Returns:
+        float: The numeric value of the amount in euros.
+    """
+    if not value:
+        value = "0 €"
+    value = value.replace(".", "")
+    value = value.replace(",", ".")
+    value = value[: value.find(" €")]
+    return float(value)
+
+def save_excel_commercial(wb):
+    """Saves the populated Excel workbook to a specified location.
+    Opens a dialog window for the user to select the file path and name.
+    """
+    # Dialog window to select folder and file name; if path is selected, excel file is saved
+    output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
+    if output_path_commercial :
+        if not output_path_commercial .lower().endswith(".xlsx"):
+            output_path_commercial += ".xlsx"
+
+        wb.save(output_path_commercial)
+        wb.close()
+        del wb
+        return output_path_commercial
+
+def save_excel_technical(wb):
+    """Saves the populated Excel workbook to a specified location.
+    Opens a dialog window for the user to select the file path and name.
+    """
+    output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
+    if output_path_technical:
+        if not output_path_technical.lower().endswith(".xlsx"):
+            output_path_technical+= ".xlsx"
+
+        wb.save(output_path_technical)
+        wb.close()
+        del wb
+
+def adjust_images(sheet):
+    """
+    Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
+    
+    Args:
+        sheet: The spreadsheet sheet containing images to be adjusted.
+    """
+    for image in sheet._images:
+        image.width -= 22
+
+
+
 # Templates for orders
 
 class offer_flow:
@@ -55,8 +295,9 @@ class offer_flow:
             revchanges (str): Details of changes made in the revision.
             notes (str): Additional notes, split by line.
         """
+
         notes = notes.split('\n')
-        
+
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -80,26 +321,22 @@ class offer_flow:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -108,50 +345,19 @@ class offer_flow:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "A. Chamber": 1,
-                    "C. RING": 1,
-                    "F": 1,
-                    "F+C.RING": 1,
-                    "F+P": 1,
-                    "IFO": 1,
-                    "M.RUN": 1,
-                    "P": 1,
-                    "NOZZLE BF": 2,
-                    "NOZZLE BW": 2,
-                    "NOZZLE F": 2,
-                    "PTC-6": 2,
-                    "VFM": 3,
-                    "VFW": 3,
-                    "VWM": 3,
-                    "VWW": 3,
-                    "WEDGE": 4,
-                    "PITOT": 5,
-                    "RO": 6,
-                    "MULTISTAGE RO": 7,
-                }
-
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:35]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df = df.iloc[:, 1:38]
+                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "flange_type",
-                        "plate_std",
-                        "tapping_orientation",
-                        "pipe_spec",
-                        "aprox_weight"
-                    ],
-                    axis=1,)
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "flange_type", "plate_std", "tapping_orientation",
+                        "pipe_spec", "aprox_weight"
+                    ], axis=1,)
 
                 number_items = df.shape[0]
                 documentation = number_items * 70
@@ -188,100 +394,13 @@ class offer_flow:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "FLOW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tube_material",
-                                "plate_type",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "NOZZLE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif (eq_type == "VENTURI ELEMENTS DATA" or eq_type == "WEDGE ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif eq_type == "PITOT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body"],
-                            axis=1,)
+                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -307,35 +426,35 @@ class offer_flow:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["Z1"]._style
+                                cell._style = ws["AC1"]._style
                             else:
-                                cell._style = ws["U1"]._style
+                                cell._style = ws["X1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["AD2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["AD1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["AD1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AD1"]._style
+                                ws[f"A{line}"]._style = ws["AE1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AD1"]._style
+                            ws[f"A{line}"]._style = ws["AE1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -348,9 +467,9 @@ class offer_flow:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
 
                     row_amount += 2
 
@@ -365,24 +484,24 @@ class offer_flow:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -422,49 +541,15 @@ class offer_flow:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -507,8 +592,9 @@ class offer_flow:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -519,31 +605,7 @@ class offer_flow:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -649,49 +711,15 @@ class offer_flow:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B45"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B45"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B45"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B46"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B45"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B46"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B45"] = data_pay_terms["en"]
+                    ws["B46"] = data_pay_terms["es"]
+
+                    # Aplicar estilo si existe
+                    if "style" in data_pay_terms:
+                        ws["B45"].font = data_pay_terms["style"]["en"]
+                        ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -727,84 +755,14 @@ class offer_flow:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
-
-    def adjust_images(self, sheet):
-        """
-        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
-        
-        Args:
-            sheet: The spreadsheet sheet containing images to be adjusted.
-        """
-        for image in sheet._images:
-            image.width -= 22
+            MessageHelper.show("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_flow_spanish:
     """
@@ -841,6 +799,7 @@ class offer_short_flow_spanish:
             notes (str): Additional notes, split by line.
         """
         notes = notes.split('\n')
+
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -864,26 +823,22 @@ class offer_short_flow_spanish:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -892,50 +847,19 @@ class offer_short_flow_spanish:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "A. Chamber": 1,
-                    "C.RING": 1,
-                    "F": 1,
-                    "F+C.RING": 1,
-                    "F+P": 1,
-                    "IFO": 1,
-                    "M.RUN": 1,
-                    "P": 1,
-                    "NOZZLE BF": 2,
-                    "NOZZLE BW": 2,
-                    "NOZZLE F": 2,
-                    "PTC-6": 2,
-                    "VFM": 3,
-                    "VFW": 3,
-                    "VWM": 3,
-                    "VWW": 3,
-                    "WEDGE": 4,
-                    "PITOT": 5,
-                    "RO": 6,
-                    "MULTISTAGE RO": 7,
-                }
-
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:35]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df = df.iloc[:, 1:38]
+                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "flange_type",
-                        "plate_std",
-                        "pipe_spec",
-                        "tapping_orientation",
-                        "aprox_weight"
-                    ],
-                    axis=1,)
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "flange_type", "plate_std", "tapping_orientation",
+                        "pipe_spec", "aprox_weight"
+                    ], axis=1,)
 
                 number_items = df.shape[0]
                 documentation = number_items * 70
@@ -972,100 +896,13 @@ class offer_short_flow_spanish:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "FLOW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tube_material",
-                                "plate_type",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "NOZZLE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif (eq_type == "VENTURI ELEMENTS DATA" or eq_type == "WEDGE ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif eq_type == "PITOT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body"],
-                            axis=1,)
+                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -1091,35 +928,35 @@ class offer_short_flow_spanish:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["Z1"]._style
+                                cell._style = ws["AC1"]._style
                             else:
-                                cell._style = ws["U1"]._style
+                                cell._style = ws["X1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "LOS PRECIOS INCLUYEN LA SECCIÓN CENTRAL INTEGRAL MECANIZADA Y TODAS LAS SOLDADURAS ESTRUCTURALES 100% RADIOGRAFIADAS"
-                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
                     ws[f"A{last_row+4}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
                     ws[f"A{last_row+5}"] = (
                         "PLAZO DE ENTREGA: "
                         + delivery_time
                         + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO, ÚLTIMAS DOS SEMANAS DE DICIEMBRE Y FESTIVOS NACIONALES EXCLUIDOS)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AB1"]._style
+                                ws[f"A{line}"]._style = ws["AE1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AB1"]._style
+                            ws[f"A{line}"]._style = ws["AE1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1132,9 +969,9 @@ class offer_short_flow_spanish:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
 
                     row_amount += 2
 
@@ -1149,24 +986,24 @@ class offer_short_flow_spanish:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -1189,30 +1026,13 @@ class offer_short_flow_spanish:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B30"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B30"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B30"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B30"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B30"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B30"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B30"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
@@ -1250,8 +1070,9 @@ class offer_short_flow_spanish:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -1262,31 +1083,7 @@ class offer_short_flow_spanish:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -1373,30 +1170,13 @@ class offer_short_flow_spanish:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B16"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B30"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B30"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B30"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B30"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B30"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B30"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B30"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
@@ -1427,84 +1207,14 @@ class offer_short_flow_spanish:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
                 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos PDF (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
-
-    def adjust_images(self, sheet):
-        """
-        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
-        
-        Args:
-            sheet: The spreadsheet sheet containing images to be adjusted.
-        """
-        for image in sheet._images:
-            image.width -= 22
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_flow_english:
     """
@@ -1541,6 +1251,7 @@ class offer_short_flow_english:
             notes (str): Additional notes, split by line.
         """
         notes = notes.split('\n')
+
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -1564,26 +1275,22 @@ class offer_short_flow_english:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -1592,50 +1299,19 @@ class offer_short_flow_english:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "A. Chamber": 1,
-                    "C.RING": 1,
-                    "F": 1,
-                    "F+C.RING": 1,
-                    "F+P": 1,
-                    "IFO": 1,
-                    "M.RUN": 1,
-                    "P": 1,
-                    "NOZZLE BF": 2,
-                    "NOZZLE BW": 2,
-                    "NOZZLE F": 2,
-                    "PTC-6": 2,
-                    "VFM": 3,
-                    "VFW": 3,
-                    "VWM": 3,
-                    "VWW": 3,
-                    "WEDGE": 4,
-                    "PITOT": 5,
-                    "RO": 6,
-                    "MULTISTAGE RO": 7,
-                }
-
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:35]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df = df.iloc[:, 1:38]
+                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "flange_type",
-                        "plate_std",
-                        "pipe_spec",
-                        "tapping_orientation",
-                        "aprox_weight"
-                    ],
-                    axis=1,)
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "flange_type", "plate_std", "tapping_orientation",
+                        "pipe_spec", "aprox_weight"
+                    ], axis=1,)
 
                 number_items = df.shape[0]
                 documentation = number_items * 70
@@ -1672,100 +1348,13 @@ class offer_short_flow_english:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "FLOW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tube_material",
-                                "plate_type",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "NOZZLE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif (eq_type == "VENTURI ELEMENTS DATA" or eq_type == "WEDGE ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif eq_type == "PITOT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body"],
-                            axis=1,)
+                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -1791,35 +1380,35 @@ class offer_short_flow_english:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["Z1"]._style
+                                cell._style = ws["AC1"]._style
                             else:
-                                cell._style = ws["U1"]._style
+                                cell._style = ws["X1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AB1"]._style
+                                ws[f"A{line}"]._style = ws["AE1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AB1"]._style
+                            ws[f"A{line}"]._style = ws["AE1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1832,9 +1421,9 @@ class offer_short_flow_english:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
 
                     row_amount += 2
 
@@ -1849,24 +1438,24 @@ class offer_short_flow_english:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["V1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["X1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["Y1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -1906,49 +1495,15 @@ class offer_short_flow_english:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -2003,31 +1558,7 @@ class offer_short_flow_english:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -2133,49 +1664,15 @@ class offer_short_flow_english:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B45"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B45"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B45"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B46"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B45"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B46"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -2188,7 +1685,7 @@ class offer_short_flow_english:
                     ws["B43"] = rich_string
 
                     ws["A52"] = (
-                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+                        "If you require further information related to this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
                         + email
@@ -2210,85 +1707,15 @@ class offer_short_flow_english:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                self.save_excel_technical()
+
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
-
-    def adjust_images(self, sheet):
-        """
-        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
-        
-        Args:
-            sheet: The spreadsheet sheet containing images to be adjusted.
-        """
-        for image in sheet._images:
-            image.width -= 22
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_temp:
     """
@@ -6690,87 +6117,30 @@ class offer_flow_temp:
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
-                value_type_dict_flow = {
-                    "A. Chamber": 1,
-                    "C. RING": 1,
-                    "F": 1,
-                    "F+C.RING": 1,
-                    "F+P": 1,
-                    "IFO": 1,
-                    "M.RUN": 1,
-                    "P": 1,
-                    "NOZZLE BF": 2,
-                    "NOZZLE BW": 2,
-                    "NOZZLE F": 2,
-                    "PTC-6": 2,
-                    "VFM": 3,
-                    "VFW": 3,
-                    "VWM": 3,
-                    "VWW": 3,
-                    "WEDGE": 4,
-                    "PITOT": 5,
-                    "RO": 6,
-                    "MULTISTAGE RO": 7,
-                }
-
-                # Setting the dataframe with the equipment data
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:35]
-                df_flow["value_type"] = df_flow["item_type"].map(value_type_dict_flow)
+                df_flow = df_flow.iloc[:, 1:38]
+                df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
-                df_flow["amount"] = df_flow["amount"].apply(self.euros_to_float)
+                df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
                 total_amount_material = df_flow["amount"].sum()
                 df_flow = df_flow.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "flange_type",
-                        "plate_std",
-                        "pipe_spec",
-                        "tapping_orientation",
-                        "aprox_weight"
-                    ],
-                    axis=1,)
-                
-                value_type_dict_temp = {
-                    "TW": 1,
-                    "TW+TE": 2,
-                    "TW+TE+TIT": 2,
-                    "RETAINING FLANGE":2,
-                    "TW+BIM": 3,
-                    "TE": 4,
-                    "BIM": 5,
-                    "TIT": 6,
-                    "SKIN+TT": 7,
-                    "SKIN POINT": 7,
-                    "Multi-T": 8
-                }
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "flange_type", "plate_std", "tapping_orientation",
+                        "pipe_spec", "aprox_weight"
+                    ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
-                df_temp = df_temp.sort_values(by=["tag", "value_type"])
                 df_temp = df_temp.iloc[:, 1:42]
-                df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
+                df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
-                df_temp["amount"] = df_temp["amount"].apply(self.euros_to_float)
+                df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
                 total_amount_material = df_temp["amount"].sum()
                 df_temp = df_temp.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "std_tw",
-                        "insulation",
-                        "bore_diam",
-                        "tip_thk",
-                        "radius_dim",
-                        "wire_size",
-                        "head_certification"
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "std_tw", "insulation", "bore_diam",
+                        "tip_thk", "radius_dim", "wire_size", "head_certification"
                     ],
                     axis=1,)
 
@@ -6811,100 +6181,13 @@ class offer_flow_temp:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "FLOW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tube_material",
-                                "plate_type",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "NOZZLE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif (eq_type == "VENTURI ELEMENTS DATA" or eq_type == "WEDGE ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif eq_type == "PITOT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body"],
-                            axis=1,)
+                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -6937,36 +6220,35 @@ class offer_flow_temp:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["Z1"]._style
+                                cell._style = ws["AC1"]._style
                             else:
-                                cell._style = ws["U1"]._style
+                                cell._style = ws["X1"]._style
 
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
                         ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["AB2"]._style
+                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
                     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
                     ws[f"A{last_row+5}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+5}"]._style = ws["AB1"]._style
+                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 6
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AB1"]._style
+                                ws[f"A{line}"]._style = ws["AE1"]._style
                                 line += 1
                         else:
                             line = last_row + 6
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AB1"]._style
-
+                            ws[f"A{line}"]._style = ws["AE1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -6977,158 +6259,13 @@ class offer_flow_temp:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "TW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock"],
-                            axis=1,)
-                    elif eq_type == "TW+TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_length"],
-                            axis=1,)
-                    elif eq_type == "TW+BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TIT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "ins_length",
-                                "root_diam",
-                                "tip_diam",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "MULTI-T ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "material_tw",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
+                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -7185,7 +6322,7 @@ class offer_flow_temp:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -7265,49 +6402,15 @@ class offer_flow_temp:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -7351,7 +6454,8 @@ class offer_flow_temp:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
                 
-                path = self.save_excel_commercial()
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -7362,31 +6466,7 @@ class offer_flow_temp:
                     ws["E6"] = offername_technical
 
                 for value_type in df_flow["value_type"].unique():
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -7449,35 +6529,7 @@ class offer_flow_temp:
                     stamp_2.anchor = new_anchor
 
                 for value_type in df_temp["value_type"].unique():
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -7581,49 +6633,15 @@ class offer_flow_temp:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B45"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B45"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B45"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B46"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B45"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B46"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Aplicar estilo si existe
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -7643,7 +6661,7 @@ class offer_flow_temp:
                         + "\n"
                         "Telf.: (+34) 916.582.118"
                     )
-                    
+
                     std = self.wb_technical["1.3"]
                     self.wb_technical.remove(std)
 
@@ -7659,84 +6677,14 @@ class offer_flow_temp:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
-
-    def adjust_images(self, sheet):
-        """
-        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
-        
-        Args:
-            sheet: The spreadsheet sheet containing images to be adjusted.
-        """
-        for image in sheet._images:
-            image.width -= 22
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_flow_temp_level:
     """

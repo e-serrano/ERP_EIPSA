@@ -121,127 +121,127 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
         flange_material = data(index(row, 13))
         sch = data(index(row, 12))
-        design_flange = str(data(index(row, 57))).replace('.', ',')
+        design_flange = str(data(index(row, 61))).replace('.', ',') # pipe internal diameter
         size = f"{data(index(row,9))} {data(index(row,10))} {data(index(row,11))}"
 
         all_list_parts =[]
 
-        # setting list for eache element [code_element, code_fab_element, trad_element, design_elemente, process_element, material_element, qty_element, code_purch_element]
-        code_orifice_flange = data(index(row, 156))
+        # setting list for eache element [code_element, code_fab_element, trad_element, design_element, process_element, material_element, qty_element, code_purch_element]
+        code_orifice_flange = data(index(row, 162))
         if code_orifice_flange:
             orifice_flange_list.append([
                 code_orifice_flange,
-                data(index(row, 168)),
-                data(index(row, 192)),
+                data(index(row, 174)), # code fab orifice flange
+                data(index(row, 198)), # trad orifice flange
                 sch,
                 design_flange,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 180))), #* int(data(index(row, 34))),
-                data(index(row, 204))
+                int(data(index(row, 186))) * int(data(index(row, 35))), # quantity orifice flange per equipment * number of equipments
+                data(index(row, 210)) # code purch orifice flange
                 ])
             all_list_parts.append(orifice_flange_list)
 
-        code_line_flange = data(index(row, 157))
+        code_line_flange = data(index(row, 163))
         if code_line_flange:
             line_flange_list.append([
                 code_line_flange,
-                data(index(row, 169)),
-                data(index(row, 193)),
+                data(index(row, 175)), # code fab line flange
+                data(index(row, 199)), # trad line flange
                 sch,
                 design_flange,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 181))), #* int(data(index(row, 34))),
-                data(index(row, 205))
+                int(data(index(row, 187))) * int(data(index(row, 35))), # quantity line flange per equipment * number of equipments
+                data(index(row, 211)) # code purch line flange
                 ])
             all_list_parts.append(line_flange_list)
 
-        code_gasket = data(index(row, 158))
+        code_gasket = data(index(row, 164))
         if code_gasket:
             gasket_list.append([
                 code_gasket,
-                data(index(row, 170)),
-                data(index(row, 194)),
+                data(index(row, 176)), # code fab gasket
+                data(index(row, 200)), # trad gasket
                 size,
                 '',
                 '',
                 '',
-                int(data(index(row, 39))), #* int(data(index(row, 34))),
-                data(index(row, 206))])
+                int(data(index(row, 42))) * int(data(index(row, 35))), # quantity gasket per equipment * number of equipments
+                data(index(row, 212))]) # code purch gasket
             all_list_parts.append(gasket_list)
 
-        code_bolts = data(index(row, 159))
+        code_bolts = data(index(row, 165))
         if code_bolts:
             bolts_list.append([
                 code_bolts,
-                data(index(row, 171)),
-                data(index(row, 195)),
+                data(index(row, 177)), # code fab bolts
+                data(index(row, 201)), # trad bolts
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
                 data(index(row, 24)) + " / " + data(index(row, 25)),
-                (int(data(index(row, 41))) if data(index(row, 41)) != '' else 0), #* int(data(index(row, 34))),
-                data(index(row, 207))])
+                (int(data(index(row, 44))) if data(index(row, 44)) != '' else 0) * int(data(index(row, 35))), # quantity bolts per equipment * number of equipments
+                data(index(row, 213))]) # code purch bolts
             all_list_parts.append(bolts_list)
 
-        code_extractor = data(index(row, 161))
+        code_extractor = data(index(row, 167))
         if code_extractor:
             extractor_list.append([
                 code_extractor,
-                data(index(row, 173)),
-                data(index(row, 197)),
+                data(index(row, 179)), # code fab extractor
+                data(index(row, 203)), # trad extractor
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
-                data(index(row, 44)),
-                int(data(index(row, 46))), #* int(data(index(row, 34))),
-                data(index(row, 209))
+                data(index(row, 47)),
+                int(data(index(row, 49))) * int(data(index(row, 35))), # quantity extractor per equipment * number of equipments
+                data(index(row, 215)) # code purch extractor
                 ])
             all_list_parts.append(extractor_list)
 
-        code_plate = data(index(row, 162))
+        code_plate = data(index(row, 168))
         if code_plate:
             plate_list.append([
                 code_plate,
-                data(index(row, 174)),
-                data(index(row, 198)),
+                data(index(row, 180)), # code fab plate
+                data(index(row, 204)), # trad plate
                 ('ESP ' + data(index(row, 21)) + 'mm'),
-                data(index(row, 58)),
+                data(index(row, 62)),
                 'ARAMCO' if data(index(row, 22)) =='ARA' else '',
                 data(index(row, 19)),
-                int(data(index(row, 28)) if data(index(row, 8)) == "MULTISTAGE RO" else 1), #* int(data(index(row, 34))),
-                data(index(row, 210))
+                int(data(index(row, 28)) if data(index(row, 8)) == "MULTISTAGE RO" else 1) * int(data(index(row, 35))), # quantity of plates per equipment * number of equipments
+                data(index(row, 216)) # code purch plate
                 ])
             all_list_parts.append(plate_list)
 
-        code_nipple = data(index(row, 163))
+        code_nipple = data(index(row, 169))
         if code_nipple:
             nipple_list.append([
                 code_nipple,
-                data(index(row, 175)),
-                data(index(row, 199)),
+                data(index(row, 181)), # code fab nipple
+                data(index(row, 205)), # trad nipple
                 '',
                 '',
                 '',
                 data(index(row, 13)),
-                int(data(index(row, 187))), #* int(data(index(row, 34))),
-                data(index(row, 211))
+                int(data(index(row, 193))) * int(data(index(row, 35))), # quantity nipple per equipment * quantity of equipments
+                data(index(row, 217)) # code purch nipple
                 ])
             all_list_parts.append(nipple_list)
 
-        code_handle = data(index(row, 164))
+        code_handle = data(index(row, 170))
         if code_handle and data(index(row, 21)) not in ['3', '1/8" (3)']:
             handle_list.append([
                 code_handle,
-                data(index(row, 176)),
-                data(index(row, 200)),
-                '' if data(index(row, 11)) == 'RTJ' else (data(index(row, 60)) + "x" + data(index(row, 61)) + "x" + data(index(row, 62)) +' mm'),
+                data(index(row, 182)), # code fab handle
+                data(index(row, 206)), # trad handle
+                '' if data(index(row, 11)) == 'RTJ' else (data(index(row, 64)) + "x" + data(index(row, 65)) + "x" + data(index(row, 66)) +' mm'),
                 '' if data(index(row, 11)) == 'RTJ' else data(index(row, 22)),
                 '',
                 '316SS',
-                1, #* int(data(index(row, 34))),
-                data(index(row, 212))
+                1 * int(data(index(row, 35))), # quantity of handles per equipment * quantity of equipments
+                data(index(row, 218)) # code purch handle
                 ])
             all_list_parts.append(handle_list)
 
@@ -254,57 +254,57 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 '',
                 '',
                 '316SS',
-                ((int(float(data(index(row, 60)))) - 30) if 'datos' not in data(index(row, 60)) else 0), #* int(data(index(row, 34))),
+                ((int(float(data(index(row, 64)))) - 30) if 'datos' not in data(index(row, 64)) else 0) * int(data(index(row, 35))), # length of bar handle per equipment * quantity of equipments
                 ''
                 ])
             all_list_parts.append(bar_handle_list)
 
-        code_chring = data(index(row, 165))
+        code_chring = data(index(row, 171))
         if code_chring:
             chring_list.append([
                 code_chring,
-                data(index(row, 177)),
-                data(index(row, 201)),
+                data(index(row, 183)), # code fab chring
+                data(index(row, 207)), # trad chring
                 'ESP ' if data(index(row, 11)) == "RTJ" else 'ESP 38,5mm ACABADO',
-                'ø' + str(data(index(row, 58))),
+                'ø' + str(data(index(row, 62))),
                 '', #data(index(row, 37)),
                 data(index(row, 19)),
-                1, #* int(data(index(row, 34))),
-                data(index(row, 213))
+                1 * int(data(index(row, 35))), # quantity chring per equipment * quantity of equipments
+                data(index(row, 219)) # code purch chring
                 ])
             all_list_parts.append(chring_list)
 
-        code_plugs = data(index(row, 160))
+        code_plugs = data(index(row, 166))
         if code_plugs != '':
             plugs_list.append([
                 code_plugs,
-                data(index(row, 172)),
-                data(index(row, 196)),
+                data(index(row, 178)), # code fab plug
+                data(index(row, 202)), # trad plug
                 '',
                 '',
                 '',
-                'ASTM A105' if data(index(row, 171))[-2:] == 'C1' else data(index(row, 13)),
-                (int(data(index(row, 43))) if data(index(row, 62)) != '' else 0), #* int(data(index(row, 34))),
-                data(index(row, 208))
+                data(index(row, 45)), # material plug
+                (int(data(index(row, 46))) if data(index(row, 46)) != '' else 0) * int(data(index(row, 35))), # quantity plugs per equipment * quantity of equipment
+                data(index(row, 214))
                 ])
             all_list_parts.append(plugs_list)
 
-        code_tube = data(index(row, 166))
+        code_tube = data(index(row, 172))
         if code_tube:
             tube_list.append([
                 code_tube,
-                data(index(row, 178)),
-                data(index(row, 202)),
+                data(index(row, 184)), # code fab tube
+                data(index(row, 208)), # trad tube
                 sch,
                 design_flange,
                 '',
                 data(index(row,15)),
-                float(data(index(row, 190))),
-                data(index(row, 214))
+                float(data(index(row, 196))) * int(data(index(row, 35))), # quantity tube per equipment (length of tube) * quantity of equipments
+                data(index(row, 220)) # code purch tube
                 ])
             all_list_parts.append(tube_list)
 
-        code_piece2 = data(index(row, 167))
+        code_piece2 = data(index(row, 173))
         if code_piece2:
             commands_thk = ("""
                 SELECT wall_thk
@@ -354,14 +354,14 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
             piece2_list.append([
                 code_piece2,
-                data(index(row, 179)),
-                data(index(row, 203)),
+                data(index(row, 185)), # code fab wedge
+                data(index(row, 209)), # trad wedge
                 ('Th mín ' + thkmin + 'mm'),
                 '',
                 '',
                 materialpiece2,
-                1,
-                data(index(row, 215))
+                1 * int(data(index(row, 35))), # quantity of wedge parts per equipment * quantity of equipments
+                data(index(row, 221)) # code purch wedge
                 ])
             all_list_parts.append(piece2_list)
 
@@ -375,17 +375,17 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
         columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
         columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
 
-        values_equipments = [data(index(row, 153)), data(index(row, 154)), data(index(row, 155)), "Q-CAUD",
-                            data(index(row, 156)), data(index(row, 180)), data(index(row, 157)), data(index(row, 181)),
-                            data(index(row, 158)), data(index(row, 182)), data(index(row, 159)), data(index(row, 183)),
-                            data(index(row, 160)), data(index(row, 184)), data(index(row, 161)), data(index(row, 185)),
+        values_equipments = [data(index(row, 159)), data(index(row, 160)), data(index(row, 161)), "Q-CAUD",
                             data(index(row, 162)), data(index(row, 186)), data(index(row, 163)), data(index(row, 187)),
                             data(index(row, 164)), data(index(row, 188)), data(index(row, 165)), data(index(row, 189)),
-                            data(index(row, 166)), data(index(row, 190)), data(index(row, 167)), data(index(row, 191))]
+                            data(index(row, 166)), data(index(row, 190)), data(index(row, 167)), data(index(row, 191)),
+                            data(index(row, 168)), data(index(row, 192)), data(index(row, 169)), data(index(row, 193)),
+                            data(index(row, 170)), data(index(row, 194)), data(index(row, 171)), data(index(row, 195)),
+                            data(index(row, 172)), data(index(row, 196)), data(index(row, 173)), data(index(row, 197))]
 
         values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
-                        data(index(row, 153)), data(index(row, 4)), data(index(row, 89)),
-                        data(index(row, 36)), data(index(row, 136))]
+                        data(index(row, 159)), data(index(row, 4)), data(index(row, 94)),
+                        data(index(row, 39)), data(index(row, 141))]
 
         columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
         values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
@@ -398,7 +398,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
         commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
         commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-        check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 153))}'"
+        check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 159))}'"
 
         if state == 'Order':
             try:
@@ -415,7 +415,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 153))}'"
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 159))}'"
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(update_equipments)
@@ -2083,131 +2083,153 @@ def flow_material_list(proxy, model):
 
         flange_material = data(index(row, 13))
         sch = data(index(row, 12))
-        design = str(data(index(row, 57))).replace('.', ',')
+        design = str(data(index(row, 61))).replace('.', ',') # pipe internal diameter
         size = f"{data(index(row,9))} {data(index(row,10))} {data(index(row,11))}"
 
-        code_orifice_flange = data(index(row, 156))
+        code_orifice_flange = data(index(row, 162))
         if code_orifice_flange:
             parts.append([
-                data(index(row,192)),
+                data(index(row, 198)), # trad orifice flange
                 sch,
                 design,
-                '',
+                "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row,180))),
-                data(index(row,204))
+                int(data(index(row, 186))) * int(data(index(row, 35))), # quantity orifice flange per equipment * number of equipments
+                data(index(row, 210)) # code purch orifice flange
             ])
 
-        code_line_flange = data(index(row,157))
+        code_line_flange = data(index(row,163))
         if code_line_flange:
             parts.append([
-                data(index(row,193)),
+                data(index(row, 199)), # trad line flange
                 sch,
                 design,
-                '',
+                "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row,181))),
-                data(index(row,205))
+                int(data(index(row, 187))) * int(data(index(row, 35))), # quantity line flange per equipment * number of equipments
+                data(index(row, 211)) # code purch line flange
             ])
 
-        code_gasket = data(index(row,158))
+        code_gasket = data(index(row,164))
         if code_gasket:
             parts.append([
-                data(index(row,194)),
+                data(index(row, 200)), # trad gasket
                 size,
                 '',
                 '',
                 '',
-                int(data(index(row,39))),
-                data(index(row,206))
-            ])
+                int(data(index(row, 42))) * int(data(index(row, 35))), # quantity gasket per equipment * number of equipments
+                data(index(row, 212)) # code purch gasket
+            ]) 
 
-        code_bolts = data(index(row,159))
+        code_bolts = data(index(row,165))
         if code_bolts:
-            qty = int(data(index(row,41))) if data(index(row,41)) != '' else 0
+            qty = int(data(index(row,44))) if data(index(row,44)) != '' else 0
             parts.append([
-                data(index(row,195)),
+                data(index(row, 201)), # trad bolts
                 size,
-                'esp. placa ' + data(index(row,21)),
+                ('esp. placa ' + data(index(row, 21))),
                 '',
-                data(index(row,24)) + " / " + data(index(row,25)),
-                qty,
-                data(index(row,207))
+                data(index(row, 24)) + " / " + data(index(row, 25)),
+                qty * int(data(index(row, 35))), # quantity bolts per equipment * number of equipments
+                data(index(row, 213)) # code purch bolts
             ])
 
-        code_extractor = data(index(row,161))
+        code_plugs = data(index(row, 166))
+        if code_plugs != '':
+            parts.append([
+                data(index(row, 202)), # trad plug
+                '',
+                '',
+                '',
+                data(index(row, 45)), # material plug
+                (int(data(index(row, 46))) if data(index(row, 46)) != '' else 0) * int(data(index(row, 35))), # quantity plugs per equipment * quantity of equipment
+                data(index(row, 214))
+                ])
+
+        code_extractor = data(index(row,167))
         if code_extractor:
             parts.append([
-                data(index(row,197)),
+                data(index(row, 203)), # trad extractor
                 size,
-                'esp. placa ' + data(index(row,21)),
+                ('esp. placa ' + data(index(row, 21))),
                 '',
-                data(index(row,44)),
-                int(data(index(row,46))),
-                data(index(row,209))
+                data(index(row, 47)),
+                int(data(index(row, 49))) * int(data(index(row, 35))), # quantity extractor per equipment * number of equipments
+                data(index(row, 215)) # code purch extractor
             ])
 
-        code_plate = data(index(row,162))
+        code_plate = data(index(row,168))
         if code_plate:
             qty = int(float(data(index(row,28)))) if data(index(row,8)) == "MULTISTAGE RO" else 1
             process = 'ARAMCO' if data(index(row,22)) == 'ARA' else ''
 
             parts.append([
-                data(index(row,198)),
-                'ESP ' + data(index(row,21)) + 'mm',
-                data(index(row,58)),
+                data(index(row, 204)), # trad plate
+                ('ESP ' + data(index(row, 21)) + 'mm'),
+                data(index(row, 62)),
                 process,
-                data(index(row,19)),
-                qty,
-                data(index(row,210))
+                data(index(row, 19)),
+                qty * int(data(index(row, 35))), # quantity of plates per equipment * number of equipments
+                data(index(row, 216)) # code purch plate
             ])
 
-        code_handle = data(index(row,164))
+        code_handle = data(index(row,170))
         if code_handle and data(index(row,21)) not in ['3', '1/8" (3)']:
             if data(index(row,11)) == 'RTJ':
                 modelhandle = ''
                 designhandle = ''
+
+                parts.append([
+                    'BARRA MANGO', # trad handle
+                    '',
+                    '',
+                    '',
+                    '316SS',
+                    ((int(float(data(index(row, 64)))) - 30) if 'datos' not in data(index(row, 64)) else 0) * int(data(index(row, 35))), # length of bar handle per equipment * quantity of equipments
+                    '' # code purch handle
+                    ])
             else:
-                modelhandle = f"{data(index(row,60))}x{data(index(row,61))}x{data(index(row,62))} mm"
+                modelhandle = f"{data(index(row,64))}x{data(index(row,65))}x{data(index(row,66))} mm"
                 designhandle = data(index(row,22))
 
             parts.append([
-                data(index(row,200)),
+                data(index(row,206)), # trad handle
                 modelhandle,
                 designhandle,
                 '',
                 '316SS',
-                1,
-                data(index(row,212))
+                1 * int(data(index(row, 35))), # quantity of handles per equipment * number of equipments
+                data(index(row,218)) # code purch handle
             ])
 
-        code_ch_ring = data(index(row,165))
+        code_ch_ring = data(index(row,171))
         if code_ch_ring:
             schchring = 'ESP ' if data(index(row,11)) == "RTJ" else 'ESP 38,5mm ACABADO'
 
             parts.append([
-                data(index(row,201)),
+                data(index(row, 207)), # trad chring
                 schchring,
-                "ø" + str(data(index(row,58))),
-                '',
-                data(index(row,19)),
-                1,
-                data(index(row,213))
+                'ø' + str(data(index(row, 62))),
+                '', #data(index(row, 37)),
+                data(index(row, 19)),
+                1 * int(data(index(row, 35))), # quantity chring per equipment * quantity of equipments
+                data(index(row, 219)) # code purch chring
             ])
 
-        code_tube = data(index(row,166))
+        code_tube = data(index(row,172))
         if code_tube:
             parts.append([
-                data(index(row,202)),
+                data(index(row, 208)), # trad tube
                 sch,
                 design,
                 '',
                 data(index(row,15)),
-                float(data(index(row,190))),
-                data(index(row,214))
+                float(data(index(row, 196))) * int(data(index(row, 35))), # quantity tube per equipment (length of tube) * quantity of equipments
+                data(index(row, 220)) # code purch tube
             ])
 
-        code_piece2 = data(index(row,167))
+        code_piece2 = data(index(row,173))
         if code_piece2:
             line_size = data(index(row,9))
             sch = data(index(row,12))
@@ -2282,13 +2304,13 @@ def flow_material_list(proxy, model):
             materialpiece2 = sheet_material_cache[flange_code]
 
             parts.append([
-                data(index(row,203)),
+                data(index(row, 209)), # trad wedge
                 modelpiece2,
                 '',
                 '',
                 materialpiece2,
-                1,
-                data(index(row,215))
+                1 * int(data(index(row, 35))), # quantity of wedge parts per equipment * quantity of equipments
+                data(index(row, 221)) # code purch wedge
             ])
 
     df = pd.DataFrame(

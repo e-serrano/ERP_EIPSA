@@ -189,7 +189,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 elif '347H' in value_check:
-                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
                     end_color = QtGui.QColor(251, 131, 179)  # Pink
                     border_color = QtGui.QColor(255, 0, 0)  # Red
 
@@ -204,7 +204,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 elif '317H' in value_check:
-                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
                     end_color = QtGui.QColor(251, 131, 179)  # Pink
                     border_color = QtGui.QColor(255, 0, 0)  # Red
 
@@ -464,8 +464,9 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif '347' in value_check:
-                    start_color = QtGui.QColor(251, 131, 179)  # Pink
-                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -474,8 +475,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif '317' in value_check:
-                    start_color = QtGui.QColor(92, 197, 229)  # Blue
-                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -2714,7 +2715,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.splitter.addWidget(self.tableOfDwg)
 
             # Change all column names
-                headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
+                headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción",
+                            "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
                 self.modelOf.setAllColumnHeaders(headers)
 
                 self.tableOfDwg.hideColumn(0)
@@ -4858,12 +4860,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                                df_selected = df_general.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 57, 86]].copy()
+                                df_selected = df_general.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 61, 90]].copy()
                                 df_selected.rename(columns={
                                     0: 'id', 1: 'tag', 8: 'type', 9: 'size', 10: 'rating',
                                     11: 'facing', 12: 'schedule', 13: 'material', 14:'flange_type',
                                     15: 'tube_material', 16: 'tapping_size', 17: 'tapping_number', 18: 'tapping_orientation', 
-                                    23: 'gasket', 57: 'pipe_int_diam', 86: 'notes_equipment'
+                                    23: 'gasket', 61: 'pipe_int_diam', 90: 'notes_equipment'
                                 }, inplace=True)
 
                                 df_selected['tapping'] = df_selected.apply(

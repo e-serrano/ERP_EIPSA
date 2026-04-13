@@ -218,17 +218,17 @@ class Ui_ImportTAG_Window(object):
             'radioFlow': {
                 'table_name': 'tags_data.tags_flow',
                 'seq_id': 'tags_flow_id_tag_flow_seq',
-                'columns_range': (1, 37),
+                'columns_range': (1, 40),
                 'required_columns': ["tag", "tag_state", "num_offer", "item_type", "line_size",
                                 "rating", "facing", "schedule", "flange_material", "flange_type",
                                 "tube_material", "tapping_size", "element_material", "plate_type", 
-                                "plate_thk", "plate_std", "gasket_material", "bolts_material", "nuts_material", "nace"],
-                'int_columns': ['tapping_number'],
-                'decimal_columns': ['amount', 'plate_thk'],
+                                "plate_thk", "plate_std", "gasket_material", "bolts_material", "nuts_material", "nace", "material_certificate", "paint_system"],
+                'int_columns': ['tapping_number', 'item_quantity'],
+                'decimal_columns': ['amount'],
                 'null_columns': ['num_order', 'contractual_date'],
                 'validation_map': {'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D', 'M':'E', 'N':'F', 
                                 'O':'N', 'P':'Q', 'Q':'G', 'T':'H', 'U':'I', 'V':'J', 'W':'M', 
-                                'X':'K', 'Y':'T', 'Z':'U', 'AG': 'O'}
+                                'X':'K', 'Y':'T', 'Z':'U', 'AH': 'O'}
             },
             'radioTemp': {
                 'table_name': 'tags_data.tags_temp',
@@ -296,8 +296,9 @@ class Ui_ImportTAG_Window(object):
                 keep_default_na=False, 
                 skiprows=7, 
                 dtype={'plate_thk': str, 'schedule': str, 'rating': str,
-                        'std_length': str, 'ins_length': str, 'temp_inf': str, 'temp_sup': str}
-            )
+                        'std_length': str, 'ins_length': str, 'temp_inf': str, 'temp_sup': str},
+                converters={'plate_thk': lambda x: str(x).replace('.', ',')}
+                    )
             df_table = df_table.astype(str).replace('nan', 'N/A')
             df_final = df_table.iloc[:, config_tags['columns_range'][0]:config_tags['columns_range'][1]]
 

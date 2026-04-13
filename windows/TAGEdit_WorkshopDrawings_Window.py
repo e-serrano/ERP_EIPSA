@@ -939,8 +939,8 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             if self.variable == 'Caudal':
-                self.tableEditTags.showColumn(92)
-                self.tableEditTags.showColumn(95)
+                self.tableEditTags.showColumn(97)
+                self.tableEditTags.showColumn(100)
 
             elif self.variable == 'Temperatura':
                 self.tableEditTags.showColumn(69)
@@ -975,25 +975,26 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                             "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Mat. Brida", "Tipo Brida",
                             "Mat. Tubo", "Tamaño Tomas", "Nº Tomas", "Orient. Tomas", "Mat. Elemento", "Tipo Placa",
                             "Esp. Placa", "Std Paca", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
-                            "Nº Saltos", "Pipe Spec.", "Peso (mm)", "Long. (mm)", "NACE", "Precio (€)", "Notas Oferta", "Cambios Com.",
-                            "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas", "Tamaño Torn.", "Cant. Torn", "Mat. Tapón",
-                            "Cant. Tapón", "Mat. Extractor", "Tamaño Extractor", "Cant. Extractor", "Mat. Porta RTJ", "Espesor RTJ", "Tipo RTJ",
-                            "Notas Brida", "Notas Tornillos", "Notas Tuercas", "Notas Placa", "Notas Junta", "Notas Tapones", "Notas Extractor",
-                            "øInt. Línea", "øExt. Placa", "Cota C Placa", "Alto Mango", "Ancho Mango", "Espesor Mango",
-                            "Cota P RTJ", "Cota E RTJ", "Cota F RTJ",
-                            "O Brida", "A Brida", "C Brida", "Y Brida", "X Brida", "R Brida", "D Brida", "T Brida", "øBore Torn.",
-                            "Mat. Conos Vent.", "A Venturi", "D Venturi", "E Venturi", "F Venturi", "G Venturi", "C Venturi", "H Venturi", "T Venturi",
-                            "Cambios Tec.", "Notas Tec.", "Notas Equipo", "Doc EIPSA Calc.", "Doc EIPSA Plano",
+                            "Nº Saltos", "Pipe Spec.", "Pintura", "Peso (mm)", "Long. (mm)", "NACE", "Cert. Material", "Cantidad Eqs.",
+                            "Precio (€)", "Notas Oferta", "Cambios Com.", "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas",
+                            "Tamaño Torn.", "Cant. Torn", "Mat. Tapón", "Cant. Tapón",
+                            "Mat. Extractor", "Tamaño Extractor", "Cant. Extractor", "Mat. Porta RTJ", "Espesor RTJ", "Tipo RTJ",
+                            "Notas Brida", "Notas Tornillos", "Notas Tuercas", "Notas Placa", "Notas Junta",
+                            "Notas Tapón", "Notas Extractor", "Notas Tomas", "øInt. Línea", "øExt. Placa", "Cota C Placa",
+                            "Alto Mango", "Ancho Mango", "Espesor Mango", "Cota P RTJ", "Cota E RTJ", "Cota F RTJ",
+                            "O Brida", "A Brida", "C Brida", "Y Brida", "X Brida", "R Brida", "D Brida", "T Brida",
+                            "øBore Torn.", "Mat. Conos Vent.", "A Venturi", "D Venturi", "E Venturi", "F Venturi", "G Venturi", "C Venturi", "H Venturi", "T Venturi",
+                            "Cambios Tec.", "Notas Tec.", "Notas Equipo", "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
                             "Plano Dim.", "Rev. Plano Dim.", "Fecha Plano Dim.", "Plano OF", "Rev. Plano OF", "Fecha Plano OF",
                             "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida",
                             "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1",
                             "Fecha PH2", "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2",
-                            "Fecha LP", "Colada LP 9PR5", "Colada LP 9D1B", "Colada LP 996PB", "Estado LP", "Notas LP",
+                            "Fecha LP", "Colada", "Colada", "Colada", "Estado LP", "Notas LP",
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
-                            "Fotos", "Fotos 2", "Estado Fab.", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
-                            "Posición", "Subposición", "Importe Fact.", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact.", "% Fact.",
+                            "Fotos", "Fotos 2", "Estado Fab.", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Brida Orif.", "Cod. Brida Línea", "Cod. Junta", "Cod. Tornillería", "Cod. Tapones", "Cod. Extractor",
                             "Cod. Placa", "Cod. Niplo", "Cod. Mango", "Cod. ChRing", "Cod. Tubo", "Cod. Wedge",
@@ -1002,7 +1003,9 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                             "Cant. Brida Orif.", "Cant. Brida Línea", "Cant. Junta", "Cant. Tornillería", "Cant. Tapones", "Cant. Extractor",
                             "Cant. Placa", "Cant. Niplo", "Cant. Mango", "Cant. ChRing", "Cant. Tubo", "Cant. Wedge",
                             "Trad. Brida Orif.", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones", "Trad. Extractor",
-                            "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge"]
+                            "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. ChRing", "Trad. Tubo", "Trad. Wedge",
+                            "Cod. Compra Brida Orif.", "Cod. Compra Brida Línea", "Cod. Compra Junta", "Cod. Compra Tornillería", "Cod. Compra Tapones", "Cod. Compra Extractor",
+                            "Cod. Compra Placa", "Cod. Compra Niplo", "Cod. Compra Mango", "Cod. Compra ChRing", "Cod. Compra Tubo", "Cod. Compra Wedge"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
