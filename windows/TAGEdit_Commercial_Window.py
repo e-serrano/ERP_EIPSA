@@ -843,18 +843,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolImpExcel.setIcon(icon)
         self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
+
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
-        self.toolCompare = QtWidgets.QToolButton(self.frame)
-        self.toolCompare.setObjectName("toolCompare")
-        self.toolCompare.setToolTip("Comparar con pedido inicial")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Comparison.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolCompare.setIcon(icon)
-        self.toolCompare.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolCompare)
-        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer4)
         self.tooladdItem = QtWidgets.QToolButton(self.frame)
         self.tooladdItem.setObjectName("tooladdItem")
         self.tooladdItem.setToolTip("Añadir Item")
@@ -1101,7 +1092,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.toolImpExcel.clicked.connect(self.importexcel)
-        self.toolCompare.clicked.connect(self.data_comparison)
         self.tooladdItem.clicked.connect(self.add_item)
 
         self.toolMatOrder.clicked.connect(self.materialorder)
@@ -2768,114 +2758,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
-
-# Function to compare table with Excel with initial values and generate excel with cells with differences painted
-    def data_comparison(self):
-        """
-        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
-
-        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
-        """
-        if self.username not in ['d.marquez','g.lopez']:
-            if self.proxy.rowCount() == 0:
-                MessageHelper.show_message("No hay datos cargados", "warning")
-            else:
-                final_data = []
-
-                visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
-                visible_headers = self.model.getColumnHeaders(visible_columns)
-                for row in range(self.proxy.rowCount()):
-                    tag_data = []
-                    for column in visible_columns:
-                        value = self.proxy.data(self.proxy.index(row, column))
-                        if isinstance(value, QDate):
-                            value = value.toString("dd/MM/yyyy")
-                        tag_data.append(value)
-                    final_data.append(tag_data)
-
-                final_data.insert(0, visible_headers)
-                df_generated = pd.DataFrame(final_data)
-                df_generated.columns = df_generated.iloc[0]
-
-                if self.variable == 'Caudal':
-                    df_generated = df_generated.iloc[1:,:37]
-                elif self.variable == 'Temperatura':
-                    df_generated = df_generated.iloc[1:,:39]
-                elif self.variable == 'Nivel':
-                    df_generated = df_generated.iloc[1:,:40]
-                elif self.variable == 'Otros':
-                    df_generated = df_generated.iloc[1:,:15]
-
-            # Sorting dataframe by ID
-                df_generated[df_generated.columns[0]] = df_generated[df_generated.columns[0]].astype(int)
-                df_generated = df_generated.sort_values(by=df_generated.columns[0], ascending=True)
-
-                output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel Comparación", "", "Archivos de Excel (*.xlsx)")
-                if output_path:
-                    if not output_path.lower().endswith(".xlsx"):
-                        output_path += ".xlsx"
-                    df_generated.to_excel(output_path, index=False, header=True)
-
-                comparison_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel Importación", "", "Archivos de Excel (*.xlsx)")
-
-                if not comparison_file:
-                    print("No se seleccionó ningún archivo.")
-                    return
-
-            # Read Excel file with original data
-                if self.variable == 'Caudal':
-                    df_original = pd.read_excel(comparison_file, usecols=range(37), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-                elif self.variable == 'Temperatura':
-                    df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-                elif self.variable == 'Nivel':
-                    df_original = pd.read_excel(comparison_file, usecols=range(40), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-                elif self.variable == 'Otros':
-                    df_original = pd.read_excel(comparison_file, usecols=range(15), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-
-                # if df_generated.shape != df_original.shape:
-                #     print("Los archivos tienen diferentes formas y no se pueden comparar.")
-                #     return
-
-            # Open generated excel
-                workbook = load_workbook(output_path)
-                sheet = workbook.active
-
-            # Red fill for diferencesRelleno rojo para diferencias
-                fill_red = PatternFill(start_color="fa5151", end_color="fa5151", fill_type="solid")
-
-            # Sorting dataframe by ID
-                df_original[df_original.columns[0]] = df_original[df_original.columns[0]].astype(int)
-                df_original = df_original.sort_values(by=df_original.columns[0], ascending=True)
-
-            # Change date format on dataframe with original data
-                df_original['contractual_date'] = pd.to_datetime(df_original['contractual_date'], errors='coerce')
-                df_original['contractual_date'] = df_original['contractual_date'].dt.strftime('%d/%m/%Y')
-                df_original['amount'] = (df_original['amount'].astype(float))
-
-            # Change price format on dataframe with final data
-                df_generated['Precio (€)'] = (df_generated['Precio (€)'].str.replace('.', '').str.replace(',', '.').str.replace(' €', '').astype(float))
-                if 'Espesor Placa' in df_generated.columns:
-                    df_generated['Espesor Placa'] = (df_generated['Espesor Placa'].str.replace(',', '.').astype(str))
-
-            # Compare cell by cell
-                for row in range(df_generated.shape[0]):
-                    for col in range(df_generated.shape[1]):
-                        gen_value = df_generated.iloc[row, col]
-                        comp_value = df_original.iloc[row, col]
-
-                        if pd.isna(gen_value) and pd.isna(comp_value):
-                            continue  # Both cell are NaN, no differences
-
-                        if gen_value != comp_value:
-                            # Fill cell in red if there is difference
-                            excel_row = row + 2  # +2 to adjust to Excel index (1-based) and header
-                            excel_col = col + 1  # +1 to adjust to Excel index (1-based)
-                            sheet.cell(row=excel_row, column=excel_col).fill = fill_red
-
-            # Save file with differences filled
-                workbook.save(output_path)
-
-                MessageHelper.show_message("Excel comparativo generado", "info")
 
 # Function to insert new item
     def add_item(self):
