@@ -34,6 +34,12 @@ import ast
 import numpy as np
 
 STANDARD_TW_DIAMS = [35, 38, 40, 42, 45, 48, 50]
+GROUPS_TW_TYPES = {
+    'Flanged TW': 'Flanged',
+    'Flanged Helical': 'Flanged',
+    'Buttweld TW': 'Not_Flanged',
+    'Socket TW': 'Not_Flanged'
+}
 
 
 def imagen_to_base64(imagen):
@@ -4734,11 +4740,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
-                                for item in df_selected['type'].unique().tolist():
-                                    if item in ['Flanged TW', 'Flanged Helical']:
-                                        df_selected = df_selected[df_selected['type'].isin(['Flanged TW', 'Flanged Helical'])].copy()
+                                df_selected['group'] = df_selected['type'].map(GROUPS_TW_TYPES)
+                                for group_name, df_group in df_selected.groupby('group'):
+                                    if pd.isna(group_name):
+                                        continue
 
-                                        grouped_flanges = self.create_df_flanges_flanged_tw(df_selected)
+                                    if group_name == 'Flanged':
+                                        df_filtered = df_selected[df_selected['type'].isin(['Flanged TW', 'Flanged Helical'])].copy()
+
+                                        grouped_flanges = self.create_df_flanges_flanged_tw(df_filtered)
                                         total_count = grouped_flanges['count'].explode().sum() 
 
                                         for _, row in grouped_flanges.iterrows():
@@ -4769,7 +4779,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             else:
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
 
-                                        grouped_bars = self.create_df_bars_flanged_tw(df_selected)
+                                        grouped_bars = self.create_df_bars_flanged_tw(df_filtered)
                                         total_count = grouped_bars['count'].explode().sum() 
 
                                         for _, row in grouped_bars.iterrows():
@@ -4790,10 +4800,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             else:
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
 
-                                    elif item in ['Buttweld TW', 'Socket TW']:
-                                        df_selected = df_selected[df_selected['type'].isin(['Buttweld TW', 'Socket TW'])].copy()
+                                    elif group_name == 'Not_Flanged':
+                                        df_filtered = df_selected[df_selected['type'].isin(['Buttweld TW', 'Socket TW'])].copy()
 
-                                        grouped_bars = self.create_df_not_flanged_tw(df_selected, item)
+                                        grouped_bars = self.create_df_not_flanged_tw(df_filtered)
                                         total_count = grouped_bars['count'].explode().sum() 
 
                                         for _, row in grouped_bars.iterrows():
@@ -4810,9 +4820,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 writer.add_page(reader.pages[0])
 
                                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), total_count]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
                                             else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), total_count]
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
 
                             # Loop to add the drawing number and insert into the database
                                 for key, value in dict_drawings.items():
@@ -5433,7 +5443,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         return grouped_bars
 
-    def create_df_not_flanged_tw(self, dataframe, item):
+    def create_df_not_flanged_tw(self, dataframe):
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
         dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 1,axis=1)
 
