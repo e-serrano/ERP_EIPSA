@@ -1547,7 +1547,8 @@ class offer_short_flow_english:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
                 
-                path = self.save_excel_commercial()
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
