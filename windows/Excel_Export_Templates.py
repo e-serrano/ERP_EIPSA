@@ -761,7 +761,7 @@ class offer_flow:
                 del self.wb_commercial, self.wb_technical
 
         except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
 class offer_short_flow_spanish:
