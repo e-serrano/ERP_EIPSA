@@ -365,42 +365,42 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 ])
             all_list_parts.append(piece2_list)
 
-        columns_equipments = ["code_equipment", "code_fab_equipment", "translate_equipment", "section_type",
+        if state == 'Order':
+            columns_equipments = ["code_equipment", "code_fab_equipment", "translate_equipment", "section_type",
                                 "f_orifice_flange", "qty_f_orifice_flange", "f_line_flange", "qty_f_line_flange",
                                 "f_gasket", "qty_f_gasket", "f_bolts", "qty_f_bolts",
                                 "f_plug", "qty_f_plug", "f_extractor", "qty_f_extractor",
                                 "f_plate", "qty_f_plate", "f_nipple", "qty_f_nipple",
                                 "f_handle", "qty_f_handle", "f_chring", "qty_f_chring",
                                 "f_tube", "qty_f_tube", "f_piece2", "qty_f_piece2"]
-        columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
-        columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
+            columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
+            columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
 
-        values_equipments = [data(index(row, 159)), data(index(row, 160)), data(index(row, 161)), "Q-CAUD",
-                            data(index(row, 162)), data(index(row, 186)), data(index(row, 163)), data(index(row, 187)),
-                            data(index(row, 164)), data(index(row, 188)), data(index(row, 165)), data(index(row, 189)),
-                            data(index(row, 166)), data(index(row, 190)), data(index(row, 167)), data(index(row, 191)),
-                            data(index(row, 168)), data(index(row, 192)), data(index(row, 169)), data(index(row, 193)),
-                            data(index(row, 170)), data(index(row, 194)), data(index(row, 171)), data(index(row, 195)),
-                            data(index(row, 172)), data(index(row, 196)), data(index(row, 173)), data(index(row, 197))]
+            values_equipments = [data(index(row, 159)), data(index(row, 160)), data(index(row, 161)), "Q-CAUD",
+                                data(index(row, 162)), data(index(row, 186)), data(index(row, 163)), data(index(row, 187)),
+                                data(index(row, 164)), data(index(row, 188)), data(index(row, 165)), data(index(row, 189)),
+                                data(index(row, 166)), data(index(row, 190)), data(index(row, 167)), data(index(row, 191)),
+                                data(index(row, 168)), data(index(row, 192)), data(index(row, 169)), data(index(row, 193)),
+                                data(index(row, 170)), data(index(row, 194)), data(index(row, 171)), data(index(row, 195)),
+                                data(index(row, 172)), data(index(row, 196)), data(index(row, 173)), data(index(row, 197))]
 
-        values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
-                        data(index(row, 159)), data(index(row, 4)), data(index(row, 94)),
-                        data(index(row, 39)), data(index(row, 141))]
+            values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
+                            data(index(row, 159)), data(index(row, 4)), data(index(row, 94)),
+                            data(index(row, 39)), data(index(row, 141))]
 
-        columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
-        values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
+            columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
+            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
 
-        columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-        values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
 
-        columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
+            columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
-        commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
-        commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
+            commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
+            commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-        check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 159))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 159))}'"
 
-        if state == 'Order':
             try:
                 with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
