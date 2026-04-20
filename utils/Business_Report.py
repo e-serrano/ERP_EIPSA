@@ -71,6 +71,12 @@ def report_offers():
                             ORDER BY state
                             """)
 
+        query_orders_data = ("""
+                        SELECT orders.num_order, COALESCE(orders.order_amount, 0::money) AS order_amount
+                        FROM orders
+                        WHERE EXTRACT(YEAR FROM orders.order_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                        """)
+
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
 
@@ -160,9 +166,18 @@ def report_offers():
                                             .str.replace(',', '.', regex=False) \
                                             .astype(float)
 
+                cur.execute(query_orders_data)
+                results_orders_data = cur.fetchall()
+                df_orders_data = pd.DataFrame(results_orders_data, columns=['Nº Pedido', 'Importe Pedido'])
+                df_orders_data['Importe Euros'] = df_orders_data['Importe Pedido']\
+                                            .str.replace('€', '', regex=False) \
+                                            .str.replace('.', '', regex=False) \
+                                            .str.replace(',', '.', regex=False) \
+                                            .astype(float)
+
         pdf = generate_report_offers(start_date, end_date,
                                     df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1,
-                                    df_weekly, df_active, df_active_budgetary)
+                                    df_weekly, df_active, df_active_budgetary, df_orders_data)
 
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar PDF", "", "Archivos PDF (*.pdf)")
         if output_path:
@@ -497,7 +512,9 @@ def report_projects():
 
     future_projects(final_df)
 
-def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2, df_graph_orders_1, df_weekly, df_active, df_active_budgetary):
+def generate_report_offers(start_date, end_date,
+                            df_graph_commercial_1, df_graph_commercial_2, df_graph_calculation_1, df_graph_calculation_2,
+                            df_graph_orders_1, df_weekly, df_active, df_active_budgetary, df_orders_data):
     pdf = CustomPDF_A3('P')
 
     pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
@@ -530,7 +547,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     received_amount = df_graph_commercial_1['Importe Oferta'].sum()
     offered_amount = df_graph_commercial_1[~df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
     budgetary_amount = df_graph_commercial_1[df_graph_commercial_1['Nº Oferta'].str.contains('B-', na=False)]['Importe Oferta'].sum()
-    order_amount = df_graph_commercial_1[df_graph_commercial_1['Estado'] == 'Adjudicada']['Importe Final'].sum()
+    order_amount = df_orders_data['Importe Euros'].sum()
 
     pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
     y_position = 1.1
@@ -564,7 +581,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     received_count = df_graph_commercial_2.shape[0]
     offered_count = df_graph_commercial_2[~df_graph_commercial_2['Nº Oferta'].str.contains('B-', na=False)].shape[0]
     budgetary_count = df_graph_commercial_2[df_graph_commercial_2['Nº Oferta'].str.contains('B-', na=False)].shape[0]
-    order_count = df_graph_commercial_2[df_graph_commercial_2['Estado'] == 'Adjudicada'].shape[0]
+    order_count = df_orders_data.shape[0]
 
     pdf.set_font('DejaVuSansCondensed-Bold','', size=6)
     y_position = 2.2
@@ -583,7 +600,7 @@ def generate_report_offers(start_date, end_date, df_graph_commercial_1, df_graph
     df_graph_commercial_1 = df_graph_commercial_1[df_graph_commercial_1['Estado'] != 'Budgetary']
     img_graph_1, img_graph_2 = graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2)
     img_graph_3, img_graph_4 = graphs_calculation_report(df_graph_calculation_1, df_graph_calculation_2)
-    img_graph_5, img_graph_6 = graphs_orders_report(df_graph_orders_1)
+    img_graph_5, img_graph_6 = graphs_orders_report(df_orders_data)
 
     y_position = 3
     pdf.image(img_graph_1, x=0.5, y=y_position, w=8.5, h=4.5)
@@ -1332,8 +1349,8 @@ def graphs_orders_report(df_graph_orders_1):
     df_pa = df_graph_orders_1[df_graph_orders_1['Nº Pedido'].str.startswith('PA-')]
 
     sum_amount = pd.Series({
-        'P': df_p['Importe Pedido'].sum(),
-        'PA': df_pa['Importe Pedido'].sum()
+        'P': df_p['Importe Euros'].sum(),
+        'PA': df_pa['Importe Euros'].sum()
     })
 
     count = pd.Series({
