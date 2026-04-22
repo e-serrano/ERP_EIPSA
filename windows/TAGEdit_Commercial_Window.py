@@ -20,12 +20,11 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from openpyxl import load_workbook
-from openpyxl.styles import PatternFill
 from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder, others_matorder, material_list
 from utils.Generate_Dim_Dwg import generate_dim_drawings
 from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
+from utils.Item_Prices import set_prices_flow
 
 VARIABLE_TABLES = {
     "Caudal": ("tags_data.tags_flow", 40, 149, list(range(97, 103)) + [156, 157]), # table_check, initial_column, column_difference, excluded_range
@@ -846,6 +845,17 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
+        self.toolSetPrices = QtWidgets.QToolButton(self.frame)
+        self.toolSetPrices.setObjectName("toolSetPrices")
+        self.toolSetPrices.setToolTip("Generar Precios")
+        self.hcab.addWidget(self.toolSetPrices)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Euros.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolSetPrices.setIcon(icon)
+        self.toolSetPrices.setIconSize(QtCore.QSize(25, 25))
+
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
         self.tooladdItem = QtWidgets.QToolButton(self.frame)
         self.tooladdItem.setObjectName("tooladdItem")
         self.tooladdItem.setToolTip("Añadir Item")
@@ -1093,6 +1103,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.toolImpExcel.clicked.connect(self.importexcel)
         self.tooladdItem.clicked.connect(self.add_item)
+        self.toolSetPrices.clicked.connect(self.set_prices)
 
         self.toolMatOrder.clicked.connect(self.materialorder)
         self.generate_dwg.clicked.connect(self.generate_drawings)
@@ -2939,6 +2950,19 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         else:
                             break
 
+# Function to set prices
+    def set_prices(self):
+        if self.proxy.rowCount() == 0:
+            MessageHelper.show_message("No hay datos cargados", "warning")
+        else:
+            if self.variable == 'Caudal':
+                set_prices_flow(self.proxy, self.model)
+            # elif self.variable == 'Temperatura':
+            #     set_temp_prices(self.proxy, self.model)
+            # elif self.variable == 'Nivel':
+            #     set_level_prices(self.proxy, self.model)
+        #     elif self.variable == 'Otros':
+        #         set_others_prices(self.proxy, self.model)
 
 
 if __name__ == "__main__":
