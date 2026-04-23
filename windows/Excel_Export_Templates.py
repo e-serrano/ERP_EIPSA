@@ -198,8 +198,30 @@ TEMP_VALUE_TYPE_MAP = {
     for key in keys
 }
 
+LEVEL_EQ_TYPE_MAP = {
+            1: "LEVEL GAUGES ELEMENTS DATA", 2: "MAGNETIC ELEMENTS DATA"
+        }
 
+LEVEL_COLUMNS_DROP_MAP = {
+            "LEVEL GAUGES ELEMENTS DATA": [
+                "dv_size", "dv_rating", "dv_facing", "float_material"
+            ],
+            "MAGNETIC ELEMENTS DATA": [
+                "dv_conn", "item_type", "valve_type",
+                "case_cover_material", "illuminator", "ip_code"
+            ]
+            }
 
+LEVEL_VALUE_TYPE_GROUPS = {
+    1: ["Transparent", "Reflex"],
+    2: ["Magnetic"],
+}
+
+LEVEL_VALUE_TYPE_MAP = {
+    key: group
+    for group, keys in LEVEL_VALUE_TYPE_GROUPS.items()
+    for key in keys
+}
 
 
 def euros_to_float(value):
@@ -546,7 +568,7 @@ class offer_flow:
                 ws["B45"] = data_pay_terms["en"]
                 ws["B46"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B45"].font = data_pay_terms["style"]["en"]
                     ws["B46"].font = data_pay_terms["style"]["es"]
@@ -561,7 +583,7 @@ class offer_flow:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A58"] = (
+                ws["A61"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -716,7 +738,7 @@ class offer_flow:
                     ws["B45"] = data_pay_terms["en"]
                     ws["B46"] = data_pay_terms["es"]
 
-                    # Aplicar estilo si existe
+                    # Apply style if exists
                     if "style" in data_pay_terms:
                         ws["B45"].font = data_pay_terms["style"]["en"]
                         ws["B46"].font = data_pay_terms["style"]["es"]
@@ -731,7 +753,7 @@ class offer_flow:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A58"] = (
+                    ws["A61"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -1030,7 +1052,7 @@ class offer_short_flow_spanish:
 
                 ws["B30"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B30"].font = data_pay_terms["style"]["es"]
 
@@ -1039,7 +1061,7 @@ class offer_short_flow_spanish:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B28"] = rich_string
 
-                ws["A36"] = (
+                ws["A38"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -1174,7 +1196,7 @@ class offer_short_flow_spanish:
 
                 ws["B30"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B30"].font = data_pay_terms["style"]["es"]
 
@@ -1183,7 +1205,7 @@ class offer_short_flow_spanish:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B28"] = rich_string
 
-                    ws["A36"] = (
+                    ws["A38"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -1500,7 +1522,7 @@ class offer_short_flow_english:
                 ws["B45"] = data_pay_terms["en"]
                 ws["B46"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B45"].font = data_pay_terms["style"]["en"]
                     ws["B46"].font = data_pay_terms["style"]["es"]
@@ -1515,7 +1537,7 @@ class offer_short_flow_english:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B43"] = rich_string
 
-                ws["A52"] = (
+                ws["A55"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -1670,7 +1692,7 @@ class offer_short_flow_english:
                 ws["B45"] = data_pay_terms["en"]
                 ws["B46"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B45"].font = data_pay_terms["style"]["en"]
                     ws["B46"].font = data_pay_terms["style"]["es"]
@@ -1685,7 +1707,7 @@ class offer_short_flow_english:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B43"] = rich_string
 
-                    ws["A52"] = (
+                    ws["A55"] = (
                         "If you require further information related to this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -1776,26 +1798,22 @@ class offer_temp:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -1804,42 +1822,17 @@ class offer_temp:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "TW": 1,
-                    "TW+TE": 2,
-                    "TW+TE+TIT": 2,
-                    "RETAINING FLANGE":2,
-                    "TW+BIM": 3,
-                    "TE": 4,
-                    "BIM": 5,
-                    "TIT": 6,
-                    "SKIN+TT": 7,
-                    "SKIN POINT": 7,
-                    "Multi-T": 8
-                }
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "std_tw",
-                        "insulation",
-                        "bore_diam",
-                        "tip_thk",
-                        "radius_dim",
-                        "wire_size",
-                        "head_certification"
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "std_tw", "insulation", "bore_diam",
+                        "tip_thk", "radius_dim", "wire_size", "head_certification"
                     ],
                     axis=1,)
 
@@ -1878,158 +1871,13 @@ class offer_temp:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "TW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock"],
-                            axis=1,)
-                    elif eq_type == "TW+TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_length"],
-                            axis=1,)
-                    elif eq_type == "TW+BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TIT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "ins_length",
-                                "root_diam",
-                                "tip_diam",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "MULTI-T ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "material_tw",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
+                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -2166,49 +2014,15 @@ class offer_temp:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -2251,8 +2065,9 @@ class offer_temp:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -2263,35 +2078,7 @@ class offer_temp:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -2395,49 +2182,15 @@ class offer_temp:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B45"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B45"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B45"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B46"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B45"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B46"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B45"] = data_pay_terms["en"]
+                    ws["B46"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B45"].font = data_pay_terms["style"]["en"]
+                        ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -2472,75 +2225,15 @@ class offer_temp:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                self.save_excel_technical()
+
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_temp_spanish:
     """
@@ -2599,26 +2292,22 @@ class offer_short_temp_spanish:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -2627,42 +2316,17 @@ class offer_short_temp_spanish:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "TW": 1,
-                    "TW+TE": 2,
-                    "TW+TE+TIT": 2,
-                    "RETAINING FLANGE":2,
-                    "TW+BIM": 3,
-                    "TE": 4,
-                    "BIM": 5,
-                    "TIT": 6,
-                    "SKIN+TT": 7,
-                    "SKIN POINT": 7,
-                    "Multi-T": 8
-                }
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "std_tw",
-                        "insulation",
-                        "bore_diam",
-                        "tip_thk",
-                        "radius_dim",
-                        "wire_size",
-                        "head_certification"
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "std_tw", "insulation", "bore_diam",
+                        "tip_thk", "radius_dim", "wire_size", "head_certification"
                     ],
                     axis=1,)
 
@@ -2701,157 +2365,13 @@ class offer_short_temp_spanish:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "TW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock"],
-                            axis=1,)
-                    elif eq_type == "TW+TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_length"],
-                            axis=1,)
-                    elif eq_type == "TW+BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TIT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "MULTI-T ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "material_tw",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
+                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -2910,7 +2430,7 @@ class offer_short_temp_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -2973,30 +2493,13 @@ class offer_short_temp_spanish:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B35"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B35"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B35"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B35"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B35"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B35"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B35"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
@@ -3034,8 +2537,9 @@ class offer_short_temp_spanish:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -3046,35 +2550,7 @@ class offer_short_temp_spanish:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -3161,30 +2637,13 @@ class offer_short_temp_spanish:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B16"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B35"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B35"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B35"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B35"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B35"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B35"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B35"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
@@ -3214,75 +2673,15 @@ class offer_short_temp_spanish:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                self.save_excel_technical()
+
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_temp_english:
     """
@@ -3342,26 +2741,22 @@ class offer_short_temp_english:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -3370,42 +2765,17 @@ class offer_short_temp_english:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {
-                    "TW": 1,
-                    "TW+TE": 2,
-                    "TW+TE+TIT": 2,
-                    "RETAINING FLANGE":2,
-                    "TW+BIM": 3,
-                    "TE": 4,
-                    "BIM": 5,
-                    "TIT": 6,
-                    "SKIN+TT": 7,
-                    "SKIN POINT": 7,
-                    "Multi-T": 8
-                }
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "std_tw",
-                        "insulation",
-                        "bore_diam",
-                        "tip_thk",
-                        "radius_dim",
-                        "wire_size",
-                        "head_certification"
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "std_tw", "insulation", "bore_diam",
+                        "tip_thk", "radius_dim", "wire_size", "head_certification"
                     ],
                     axis=1,)
 
@@ -3444,157 +2814,13 @@ class offer_short_temp_english:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "TW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock"],
-                            axis=1,)
-                    elif eq_type == "TW+TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_length"],
-                            axis=1,)
-                    elif eq_type == "TW+BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TIT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "MULTI-T ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "material_tw",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
+                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -3652,7 +2878,7 @@ class offer_short_temp_english:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -3732,49 +2958,15 @@ class offer_short_temp_english:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B48"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B49"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B48"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B49"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B48"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B49"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B48"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B49"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B48"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B48"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B49"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B49"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B48"] = data_pay_terms["en"]
+                ws["B49"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B48"].font = data_pay_terms["style"]["en"]
+                    ws["B49"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -3817,8 +3009,9 @@ class offer_short_temp_english:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -3829,35 +3022,7 @@ class offer_short_temp_english:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -3961,49 +3126,15 @@ class offer_short_temp_english:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B48"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B49"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B48"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B49"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B48"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B49"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B48"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B49"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B48"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B48"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B49"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B49"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B48"] = data_pay_terms["en"]
+                    ws["B49"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B48"].font = data_pay_terms["style"]["en"]
+                        ws["B49"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -4039,74 +3170,14 @@ class offer_short_temp_english:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_level:
     """
@@ -4166,26 +3237,22 @@ class offer_level:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -4194,28 +3261,15 @@ class offer_level:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {"Transparent": 1, "Reflex": 1, "Magnetic": 2}
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:38]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "proc_conn_type",
-                        "flags",
-                        "flange_type",
-                        "nipple_hex",
-                        "nipple_tub"
+                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
@@ -4254,31 +3308,13 @@ class offer_level:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "LEVEL GAUGES ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_size",
-                                "dv_rating",
-                                "dv_facing",
-                                "float_material"],
-                            axis=1,)
-                    elif eq_type == "MAGNETIC ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_conn",
-                                "item_type",
-                                "valve_type",
-                                "case_cover_material",
-                                "illuminator",
-                                "ip_code"],
-                            axis=1,)
+                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -4416,49 +3452,15 @@ class offer_level:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B42"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B43"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B42"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B43"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B42"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B43"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B42"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B43"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B42"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B42"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B43"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B43"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B42"] = data_pay_terms["en"]
+                ws["B43"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B42"].font = data_pay_terms["style"]["en"]
+                    ws["B43"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -4470,7 +3472,7 @@ class offer_level:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B46"] = rich_string
 
-                ws["A56"] = (
+                ws["A59"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -4501,8 +3503,9 @@ class offer_level:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -4513,11 +3516,7 @@ class offer_level:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -4621,49 +3620,15 @@ class offer_level:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B42"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B43"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B42"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B43"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B42"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B43"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B42"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B43"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B42"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B43"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B43"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B42"] = data_pay_terms["en"]
+                    ws["B43"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B42"].font = data_pay_terms["style"]["en"]
+                        ws["B43"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -4675,7 +3640,7 @@ class offer_level:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B46"] = rich_string
 
-                    ws["A56"] = (
+                    ws["A59"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -4699,74 +3664,15 @@ class offer_level:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_level_spanish:
     """
@@ -4826,26 +3732,22 @@ class offer_short_level_spanish:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -4854,28 +3756,15 @@ class offer_short_level_spanish:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {"Transparent": 1, "Reflex": 1, "Magnetic": 2}
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:38]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "proc_conn_type",
-                        "flags",
-                        "flange_type",
-                        "nipple_hex",
-                        "nipple_tub"
+                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
@@ -4914,31 +3803,13 @@ class offer_short_level_spanish:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "LEVEL GAUGES ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_size",
-                                "dv_rating",
-                                "dv_facing",
-                                "float_material"],
-                            axis=1,)
-                    elif eq_type == "MAGNETIC ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_conn",
-                                "item_type",
-                                "valve_type",
-                                "case_cover_material",
-                                "illuminator",
-                                "ip_code"],
-                            axis=1,)
+                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -5059,37 +3930,19 @@ class offer_short_level_spanish:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B29"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B29"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B29"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B29"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B29"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+                ws["B29"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B29"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B27"] = rich_string
 
-                ws["A37"] = (
+                ws["A39"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -5120,8 +3973,9 @@ class offer_short_level_spanish:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -5132,11 +3986,7 @@ class offer_short_level_spanish:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -5223,37 +4073,19 @@ class offer_short_level_spanish:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B16"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B29"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B29"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B29"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B29"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B29"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+                    ws["B29"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B29"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B27"] = rich_string
 
-                    ws["A37"] = (
+                    ws["A39"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -5277,74 +4109,14 @@ class offer_short_level_spanish:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_short_level_english:
     """
@@ -5404,26 +4176,22 @@ class offer_short_level_english:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
-
-            cur.execute(query_tagsdata, (numoffer,))
-            data_tags = cur.fetchall()
+                    cur.execute(query_tagsdata, (numoffer,))
+                    data_tags = cur.fetchall()
 
             if len(data_tags) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -5432,28 +4200,15 @@ class offer_short_level_english:
                 for elt in cur.description:
                     columns.append(elt[0])
 
-                value_type_dict = {"Transparent": 1, "Reflex": 1, "Magnetic": 2}
-
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df["value_type"] = df["item_type"].map(value_type_dict)
-                df = df.sort_values(by=["tag", "value_type"])
                 df = df.iloc[:, 1:38]
-                df["value_type"] = df["item_type"].map(value_type_dict)
+                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(self.euros_to_float)
+                df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = df["amount"].sum()
                 df = df.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "proc_conn_type",
-                        "flags",
-                        "flange_type",
-                        "nipple_hex",
-                        "nipple_tub"
+                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
@@ -5492,31 +4247,13 @@ class offer_short_level_english:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "LEVEL GAUGES ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_size",
-                                "dv_rating",
-                                "dv_facing",
-                                "float_material"],
-                            axis=1,)
-                    elif eq_type == "MAGNETIC ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_conn",
-                                "item_type",
-                                "valve_type",
-                                "case_cover_material",
-                                "illuminator",
-                                "ip_code"],
-                            axis=1,)
+                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -5574,7 +4311,7 @@ class offer_short_level_english:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -5654,49 +4391,15 @@ class offer_short_level_english:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B41"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B42"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B41"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B42"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B41"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B42"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B41"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B42"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B41"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B41"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B42"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B41"] = data_pay_terms["en"]
+                ws["B42"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B41"].font = data_pay_terms["style"]["en"]
+                    ws["B42"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -5708,7 +4411,7 @@ class offer_short_level_english:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B39"] = rich_string
 
-                ws["A51"] = (
+                ws["A53"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -5739,8 +4442,9 @@ class offer_short_level_english:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -5751,11 +4455,7 @@ class offer_short_level_english:
                     ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -5859,49 +4559,15 @@ class offer_short_level_english:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B41"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B42"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B41"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B42"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B41"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B42"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B41"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B42"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B41"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B41"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B42"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B41"] = data_pay_terms["en"]
+                    ws["B42"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B41"].font = data_pay_terms["style"]["en"]
+                        ws["B42"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -5913,7 +4579,7 @@ class offer_short_level_english:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B39"] = rich_string
 
-                    ws["A51"] = (
+                    ws["A53"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -5937,83 +4603,14 @@ class offer_short_level_english:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 class offer_flow_temp:
     """
@@ -6083,33 +4680,29 @@ class offer_flow_temp:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
+                    cur.execute(query_tagsdata_flow, (numoffer,))
+                    data_tags_flow = cur.fetchall()
 
-            cur.execute(query_tagsdata_flow, (numoffer,))
-            data_tags_flow = cur.fetchall()
+                    cur.execute(query_tagsdata_temp, (numoffer,))
+                    data_tags_temp = cur.fetchall()
 
             columns_flow = []
             for elt in cur.description:
                 columns_flow.append(elt[0])
-
-            cur.execute(query_tagsdata_temp, (numoffer,))
-            data_tags_temp = cur.fetchall()
 
             columns_temp = []
             for elt in cur.description:
@@ -6408,7 +5001,7 @@ class offer_flow_temp:
                 ws["B45"] = data_pay_terms["en"]
                 ws["B46"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
+                # Apply style if exists
                 if "style" in data_pay_terms:
                     ws["B45"].font = data_pay_terms["style"]["en"]
                     ws["B46"].font = data_pay_terms["style"]["es"]
@@ -6423,7 +5016,7 @@ class offer_flow_temp:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A60"] = (
+                ws["A64"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -6454,7 +5047,7 @@ class offer_flow_temp:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
+
                 path = save_excel_commercial(self.wb_commercial)
                 self.wb_commercial = None
 
@@ -6636,13 +5229,13 @@ class offer_flow_temp:
 
                     data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
 
-                ws["B45"] = data_pay_terms["en"]
-                ws["B46"] = data_pay_terms["es"]
+                    ws["B45"] = data_pay_terms["en"]
+                    ws["B46"] = data_pay_terms["es"]
 
-                # Aplicar estilo si existe
-                if "style" in data_pay_terms:
-                    ws["B45"].font = data_pay_terms["style"]["en"]
-                    ws["B46"].font = data_pay_terms["style"]["es"]
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B45"].font = data_pay_terms["style"]["en"]
+                        ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -6654,7 +5247,7 @@ class offer_flow_temp:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A60"] = (
+                    ws["A64"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -6764,40 +5357,36 @@ class offer_flow_temp_level:
                         "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_dataoffer, (numoffer,))
+                    results_offer = cur.fetchall()
+                    client = results_offer[0][0]
+                    num_ref = results_offer[0][1]
 
-            cur.execute(query_dataoffer, (numoffer,))
-            results_offer = cur.fetchall()
-            client = results_offer[0][0]
-            num_ref = results_offer[0][1]
+                    cur.execute(query_commercial, (username,))
+                    results_commercial = cur.fetchall()
+                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
+                    email = results_commercial[0][2]
 
-            cur.execute(query_commercial, (username,))
-            results_commercial = cur.fetchall()
-            responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-            email = results_commercial[0][2]
+                    cur.execute(query_tagsdata_flow, (numoffer,))
+                    data_tags_flow = cur.fetchall()
 
-            cur.execute(query_tagsdata_flow, (numoffer,))
-            data_tags_flow = cur.fetchall()
+                    cur.execute(query_tagsdata_temp, (numoffer,))
+                    data_tags_temp = cur.fetchall()
+
+                    cur.execute(query_tagsdata_level, (numoffer,))
+                    data_tags_level = cur.fetchall()
 
             columns_flow = []
             for elt in cur.description:
                 columns_flow.append(elt[0])
-
-            cur.execute(query_tagsdata_temp, (numoffer,))
-            data_tags_temp = cur.fetchall()
-
+            
             columns_temp = []
             for elt in cur.description:
                 columns_temp.append(elt[0])
-
-            cur.execute(query_tagsdata_level, (numoffer,))
-            data_tags_level = cur.fetchall()
 
             columns_level = []
             for elt in cur.description:
@@ -6806,112 +5395,42 @@ class offer_flow_temp_level:
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0 or len(data_tags_level) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
-                value_type_dict_flow = {
-                    "A. Chamber": 1,
-                    "C. RING": 1,
-                    "F": 1,
-                    "F+C.RING": 1,
-                    "F+P": 1,
-                    "IFO": 1,
-                    "M.RUN": 1,
-                    "P": 1,
-                    "NOZZLE BF": 2,
-                    "NOZZLE BW": 2,
-                    "NOZZLE F": 2,
-                    "PTC-6": 2,
-                    "VFM": 3,
-                    "VFW": 3,
-                    "VWM": 3,
-                    "VWW": 3,
-                    "WEDGE": 4,
-                    "PITOT": 5,
-                    "RO": 6,
-                    "MULTISTAGE RO": 7,
-                }
-
-                # Setting the dataframe with the equipment data
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:35]
-                df_flow["value_type"] = df_flow["item_type"].map(value_type_dict_flow)
+                df_flow = df_flow.iloc[:, 1:38]
+                df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
-                df_flow["amount"] = df_flow["amount"].apply(self.euros_to_float)
+                df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
                 total_amount_material = df_flow["amount"].sum()
                 df_flow = df_flow.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "flange_type",
-                        "plate_std",
-                        "pipe_spec",
-                        "tapping_orientation",
-                        "aprox_weight"
-                    ],
-                    axis=1,)
-                
-                value_type_dict_temp = {
-                    "TW": 1,
-                    "TW+TE": 2,
-                    "TW+TE+TIT": 2,
-                    "RETAINING FLANGE":2,
-                    "TW+BIM": 3,
-                    "TE": 4,
-                    "BIM": 5,
-                    "TIT": 6,
-                    "SKIN+TT": 7,
-                    "SKIN POINT": 7,
-                    "Multi-T": 8
-                }
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "flange_type", "plate_std", "tapping_orientation",
+                        "pipe_spec", "aprox_weight"
+                    ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
-                df_temp = df_temp.sort_values(by=["tag", "value_type"])
                 df_temp = df_temp.iloc[:, 1:42]
-                df_temp["value_type"] = df_temp["item_type"].map(value_type_dict_temp)
+                df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
-                df_temp["amount"] = df_temp["amount"].apply(self.euros_to_float)
+                df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
                 total_amount_material = df_temp["amount"].sum()
                 df_temp = df_temp.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "std_tw",
-                        "insulation",
-                        "bore_diam",
-                        "tip_thk",
-                        "radius_dim",
-                        "wire_size",
-                        "head_certification"
+                        "tag_state", "num_offer", "num_order",
+                        "num_po", "position", "subposition",
+                        "std_tw", "insulation", "bore_diam",
+                        "tip_thk", "radius_dim", "wire_size", "head_certification"
                     ],
                     axis=1,)
 
-                value_type_dict = {"Transparent": 1, "Reflex": 1, "Magnetic": 2}
-
                 df_level = pd.DataFrame(data=data_tags_level, columns=columns_level)
-                df_level["value_type"] = df_level["item_type"].map(value_type_dict)
-                df_level = df_level.sort_values(by=["tag", "value_type"])
                 df_level = df_level.iloc[:, 1:38]
-                df_level["value_type"] = df_level["item_type"].map(value_type_dict)
+                df_level["value_type"] = df_level["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df_level = df_level.sort_values(by=["value_type", "tag"])
-                df_level["amount"] = df_level["amount"].apply(self.euros_to_float)
+                df_level["amount"] = df_level["amount"].apply(euros_to_float)
                 total_amount_material = df_level["amount"].sum()
                 df_level = df_level.drop([
-                        "tag_state",
-                        "num_offer",
-                        "num_order",
-                        "num_po",
-                        "position",
-                        "subposition",
-                        "proc_conn_type",
-                        "flags",
-                        "flange_type",
-                        "nipple_hex",
-                        "nipple_tub"
+                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
@@ -6955,100 +5474,13 @@ class offer_flow_temp_level:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "FLOW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tube_material",
-                                "plate_type",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "NOZZLE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif (eq_type == "VENTURI ELEMENTS DATA" or eq_type == "WEDGE ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number"],
-                            axis=1,)
-                    elif eq_type == "PITOT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "plate_type",
-                                "plate_thk",
-                                "gasket_material",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "flange_material",
-                                "tube_material",
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
-                            axis=1,)
-                    elif eq_type == "MULTISTAGE RO ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tapping_number",
-                                "tapping_size",
-                                "gasket_material",
-                                "bolts_material",
-                                "nuts_material",
-                                "valve_conn",
-                                "valve_material_body"],
-                            axis=1,)
+                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -7121,158 +5553,13 @@ class offer_flow_temp_level:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "TW ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock"],
-                            axis=1,)
-                    elif eq_type == "TW+TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_length"],
-                            axis=1,)
-                    elif eq_type == "TW+BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "std_length",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TE ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "elec_conn_case_diam",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "BIM ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "nipple_ext_length",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "TIT ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "ins_length",
-                                "root_diam",
-                                "tip_diam",
-                                "sensor_element",
-                                "sheath_stem_material",
-                                "sheath_stem_diam",
-                                "nipple_ext_material",
-                                "nipple_ext_length",
-                                "head_case_material",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
-                        df_toexport = df_toexport.drop([
-                                "tw_type",
-                                "size",
-                                "rating",
-                                "facing",
-                                "material_tw",
-                                "std_length",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "material_flange_lj",
-                                "gasket_material",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
-                    elif eq_type == "MULTI-T ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "material_tw",
-                                "root_diam",
-                                "tip_diam",
-                                "temp_inf",
-                                "temp_sup",
-                                "tt_cerblock",
-                                "material_flange_lj",
-                                "puntal",
-                                "tube_t"],
-                            axis=1,)
+                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -7333,31 +5620,13 @@ class offer_flow_temp_level:
                     df_toexport.index.name = None
                     df_toexport = df_toexport.drop(["value_type"], axis=1)
 
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     if eq_type not in sheets_confirmed:
                         sheets_confirmed.append(eq_type)
 
-                    if eq_type == "LEVEL GAUGES ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_size",
-                                "dv_rating",
-                                "dv_facing",
-                                "float_material"],
-                            axis=1,)
-                    elif eq_type == "MAGNETIC ELEMENTS DATA":
-                        df_toexport = df_toexport.drop([
-                                "dv_conn",
-                                "item_type",
-                                "valve_type",
-                                "case_cover_material",
-                                "illuminator",
-                                "ip_code"],
-                            axis=1,)
+                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
+                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
 
                     ws = self.wb_commercial[eq_type]
                     ws["G2"] = date_offer
@@ -7415,7 +5684,7 @@ class offer_flow_temp_level:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -7495,49 +5764,15 @@ class offer_flow_temp_level:
                 TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                 ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                ws["B45"] = data_pay_terms["en"]
+                ws["B46"] = data_pay_terms["es"]
+
+                # Apply style if exists
+                if "style" in data_pay_terms:
+                    ws["B45"].font = data_pay_terms["style"]["en"]
+                    ws["B46"].font = data_pay_terms["style"]["es"]
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -7549,7 +5784,7 @@ class offer_flow_temp_level:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A64"] = (
+                ws["A67"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -7580,8 +5815,9 @@ class offer_flow_temp_level:
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
-                
-                path = self.save_excel_commercial()
+
+                path = save_excel_commercial(self.wb_commercial)
+                self.wb_commercial = None
 
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
@@ -7592,31 +5828,7 @@ class offer_flow_temp_level:
                     ws["E6"] = offername_technical
 
                 for value_type in df_flow["value_type"].unique():
-                    eq_type = (
-                        "FLOW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "NOZZLE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "VENTURI ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "WEDGE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "PITOT ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "RO ELEMENTS DATA"
-                                            if value_type == 6
-                                            else "MULTISTAGE RO ELEMENTS DATA"
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -7679,35 +5891,7 @@ class offer_flow_temp_level:
                     stamp_2.anchor = new_anchor
 
                 for value_type in df_temp["value_type"].unique():
-                    eq_type = (
-                        "TW ELEMENTS DATA"
-                        if value_type == 1
-                        else (
-                            "TW+TE ELEMENTS DATA"
-                            if value_type == 2
-                            else (
-                                "TW+BIM ELEMENTS DATA"
-                                if value_type == 3
-                                else (
-                                    "TE ELEMENTS DATA"
-                                    if value_type == 4
-                                    else (
-                                        "BIM ELEMENTS DATA"
-                                        if value_type == 5
-                                        else (
-                                            "TIT ELEMENTS DATA"
-                                            if value_type == 6
-                                            else (
-                                                "SKIN POINT ELEMENTS DATA"
-                                                if value_type == 7
-                                                else "MULTI-T ELEMENTS DATA"
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -7768,11 +5952,7 @@ class offer_flow_temp_level:
                     stamp_2.anchor = new_anchor
 
                 for value_type in df_level["value_type"].unique():
-                    eq_type = (
-                        "LEVEL GAUGES ELEMENTS DATA"
-                        if value_type == 1
-                        else "MAGNETIC ELEMENTS DATA"
-                        )
+                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
 
                     ws = self.wb_technical[eq_type]
                     if int(rev) == 0:
@@ -7876,49 +6056,15 @@ class offer_flow_temp_level:
                     TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
                     ws["B22"] = rich_string
 
-                    if pay_term == "100_delivery":
-                        ws["B45"] = (
-                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "100_order":
-                        ws["B45"] = (
-                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                            "Payment method: bank transfer"
-                        )
-                        ws["B46"] = (
-                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                            "Método de pago: Transferencia bancaria"
-                        )
-                    elif pay_term == "90_10":
-                        ws["B45"] = (
-                            "PAYMENT TERMS:\n"
-                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                            "Bank Transfer: 60 days since invoice issue date."
-                        )
-                        ws["B46"] = (
-                            "TERMINOS DE PAGO:\n"
-                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                            "Transferencia Bancaria: 60 días desde emisión de factura."
-                        )
-                    elif pay_term == "50_50":
-                        ws["B45"] = (
-                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                            "Payment method: bank transfer."
-                        )
-                        ws["B46"] = (
-                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                            "Método de pago: Transferencia bancaria."
-                        )
-                    elif pay_term == "Others":
-                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+                    ws["B45"] = data_pay_terms["en"]
+                    ws["B46"] = data_pay_terms["es"]
+
+                    # Apply style if exists
+                    if "style" in data_pay_terms:
+                        ws["B45"].font = data_pay_terms["style"]["en"]
+                        ws["B46"].font = data_pay_terms["style"]["es"]
 
                     rich_string = CellRichText(
                     'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
@@ -7930,7 +6076,7 @@ class offer_flow_temp_level:
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A64"] = (
+                    ws["A67"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -7954,84 +6100,14 @@ class offer_flow_temp_level:
                     sheet.oddFooter.right.size = 9
                     sheet.oddFooter.center.size = 9
 
-                self.save_excel_technical()
+                save_excel_technical(self.wb_technical)
+                self.wb_technical = None
 
                 del self.wb_commercial, self.wb_technical
 
-                # close communication with the PostgreSQL database server
-                # commit the changes
-                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def euros_to_float(self, value):
-        """
-        Converts a string value representing an amount in euros to a float.
-        
-        Args:
-            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
-        
-        Returns:
-            float: The numeric value of the amount in euros.
-        """
-        if not value:
-            value = "0 €"
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
-        return float(value)
-
-    def save_excel_commercial(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path_commercial , _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Comercial", "", "Archivos de Excel (*.xlsx)")
-        if output_path_commercial :
-            if not output_path_commercial .lower().endswith(".xlsx"):
-                output_path_commercial += ".xlsx"
-            wb = self.wb_commercial
-            wb.save(output_path_commercial)
-            wb.close()
-            del wb
-            self.wb_commercial = None 
-            return output_path_commercial
-
-    def save_excel_technical(self):
-        """Saves the populated Excel workbook to a specified location.
-        Opens a dialog window for the user to select the file path and name.
-        """
-        output_path_technical, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Oferta Técnica", "", "Archivos de Excel (*.xlsx)")
-        if output_path_technical:
-            if not output_path_technical.lower().endswith(".xlsx"):
-                output_path_technical+= ".xlsx"
-            wb = self.wb_technical
-            wb.save(output_path_technical)
-            wb.close()
-            del wb
-            self.wb_technical= None 
-
-    def adjust_images(self, sheet):
-        """
-        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
-        
-        Args:
-            sheet: The spreadsheet sheet containing images to be adjusted.
-        """
-        for image in sheet._images:
-            image.width -= 22
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 
 # Templates for commercials
@@ -8681,6 +6757,7 @@ class spares_two_years:
                 output_path += ".xlsx"
             self.wb_spares.save(output_path)
             return output_path
+
 
 # Templates for technicals
 class nuclear_annexes:
@@ -9504,7 +7581,3 @@ class workshop_hours:
                 output_path += ".xlsx"
             self.wb.save(output_path)
 
-
-# offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
-# offer_short_temp('O-23/001', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')
-# offer_short_level('OE-23/114', 'l.bravo', '0', '-', 'FCA (our facilities on truck)', '12-16', '90', '50_50', '100', '', '')
