@@ -2917,40 +2917,22 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 elif item.column() == 2 and item.text() == 'PPI':
                     self.num_order_value = self.num_order.text().upper()
                     order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
-                    
-                    if self.num_order_value[:2] == 'PA':
-                        num_order = self.num_order_value
-                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
-                        for folder in os.listdir(path):
-                            if num_order.replace("/", "-") in folder:
-                                folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen" / folder
-                                for root, dirs, files in os.walk(folder_path):
-                                    for filename in files:
-                                        if fnmatch.fnmatch(filename, '*-PPI*'):
-                                            file_path = os.path.join(root, filename)
-                                            file_path = os.path.normpath(file_path)
-                                            os.startfile(file_path)
-                                            break
-                                    else:
-                                        continue
-                                    break
 
-                    elif self.num_order_value[:2] == 'P-':
-                        num_order = self.num_order_value[:8]
-                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
-                        for folder in os.listdir(path):
-                            if num_order.replace("/", "-") in folder:
-                                folder_path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos" / folder
-                                for root, dirs, files in os.walk(folder_path):
-                                    for filename in files:
-                                        if fnmatch.fnmatch(filename, '*-PPI.pdf'):
-                                            file_path = os.path.join(root, filename)
-                                            file_path = os.path.normpath(file_path)
-                                            os.startfile(file_path)
-                                            break
-                                    else:
-                                        continue
-                                    break
+                    path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if self.num_order_value[:2] == 'PA' else f"{order_year} Pedidos")
+                    order = self.num_order_value[:8] if 'P-' in self.num_order_value[:2] else self.num_order_value
+
+                    for folder in sorted(os.listdir(path)):
+                        if order.replace("/", "-") in folder:
+                            folder_path = path / folder
+                            for root, dirs, files in os.walk(folder_path):
+                                for filename in files:
+                                    if fnmatch.fnmatch(filename, '*-PPI.pdf'):
+                                        file_path = os.path.normpath(os.path.join(root, filename))
+                                        os.startfile(file_path)
+                                        break
+                                else:
+                                    continue
+                                break
 
                 elif item.column() == 2 and item.text()[:2] == 'M-':
                     num_order = self.tableOthers.item(item.row(), 1).text()
