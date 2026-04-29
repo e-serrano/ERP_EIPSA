@@ -939,13 +939,14 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
-                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
-                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Pipe Spec.", "Cert. Material", "Cantidad Eqs.", "Importe",
+                            "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
                             "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
-                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
-                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Notas Plano", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
                             "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
                             "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
@@ -955,7 +956,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
                             "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
-                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
@@ -1060,7 +1061,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
         if ((variable == 'Caudal' and index.column() in [138, 139])
-        or (variable == 'Temperatura' and index.column() in [166, 176])
+        or (variable == 'Temperatura' and index.column() in [116, 117])
         or (variable == 'Nivel' and index.column() in [169, 179])
         or (variable == 'Otros' and index.column() in [56, 66])):
             value = index.data()

@@ -4732,11 +4732,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
 
-                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 50, 51]].copy()
+                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 53, 54]].copy()
                                 df_selected.rename(columns={
                                     0: 'id', 9: 'type', 10: 'size', 11: 'rating',
                                     12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam', 18: 'tip_diam',
-                                    19: 'bore_diam', 21: 'tip_thk', 50: 'base_tw_diam', 51: 'notes_tw'
+                                    19: 'bore_diam', 21: 'tip_thk', 53: 'base_tw_diam', 54: 'notes_tw'
                                 }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
@@ -4855,7 +4855,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 query = ('''
                                     SELECT *
                                     FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED' and position <> 'ZZZ'
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%ZZZ%'
                                     ''')
 
                                 try:

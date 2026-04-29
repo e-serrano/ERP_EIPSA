@@ -181,7 +181,7 @@ class FreezeTableWidget(QtWidgets.QTableView):
             Exception: If there is an error while trying to open the file, it displays an error message.
         """
         if ((self.variable_table == 'Caudal' and index.column() in [138, 139])
-        or (self.variable_table == 'Temperatura' and index.column() in [166, 176])
+        or (self.variable_table == 'Temperatura' and index.column() in [116, 117])
         or (self.variable_table == 'Nivel' and index.column() in [169, 179])
         or (self.variable_table == 'Otros' and index.column() in [56, 66])):
             value = index.data()
@@ -345,7 +345,7 @@ class FreezeTableWidget2(QtWidgets.QTableView):
             Exception: If there is an error while trying to open the file, it displays an error message.
         """
         if ((self.variable_table == 'Caudal' and index.column() in [138, 139])
-        or (self.variable_table == 'Temperatura' and index.column() == 166)
+        or (self.variable_table == 'Temperatura' and index.column() in [116, 117])
         or (self.variable_table == 'Nivel' and index.column() == 169)
         or (self.variable_table == 'Otros' and index.column() == 56)):
             value = index.data()
@@ -778,26 +778,8 @@ class EditableTableModel2(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
 
-        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-
-        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            if index.column() == 0 or index.column() in self.column_range:
-                flags &= ~Qt.ItemFlag.ItemIsEditable
-                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-            else:
-                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        flags &= ~Qt.ItemFlag.ItemIsEditable
+        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -1442,7 +1424,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
-                self.tableEditTags.hideColumn(40)
+                self.tableEditTags.hideColumn(43)
                 for i in range(84,88):
                     self.tableEditTags.hideColumn(i)
                 for i in range(89,93):
@@ -1457,7 +1439,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(114,116):
                     self.tableEditTags.hideColumn(i)
-                for i in range(125, columns_number):
+                for i in range(126, columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1546,13 +1528,14 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
-                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
-                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Pipe Spec.", "Cert. Material", "Cantidad Eqs.", "Importe",
+                            "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
                             "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
-                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
-                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Notas Plano", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
                             "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
                             "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
@@ -1562,7 +1545,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
                             "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
-                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
@@ -1671,7 +1654,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 self.model2.column_range = self.variable_cells2
 
                 if self.variable2 == 'Temperatura':
-                    self.tableEditTags2.hideColumn(40)
+                    self.tableEditTags2.hideColumn(43)
                     for i in range(84,88):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(89,93):
@@ -1686,7 +1669,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(114,116):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(125, columns_number):
+                    for i in range(126, columns_number):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Nivel':

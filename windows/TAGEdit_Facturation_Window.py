@@ -1021,7 +1021,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in range (2,6) or index.column() in range(8,37) or index.column() in self.column_range or index.column() == 0:
+        if index.column() in range (2,6) or index.column() in range(8,44) or index.column() in self.column_range or index.column() == 0:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -1599,13 +1599,13 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.initial_column = 140
                         self.initial_column2 = 156
                         self.initial_column_ = 120
-                        self.initial_column2_ = 135
+                        self.initial_column2_ = 136
                         self.column_position = 146
                         self.column_subposition = 147
                         self.column_difference = 149
-                        self.column_position2 = 125
-                        self.column_subposition2 = 126
-                        self.column_difference2 = 128
+                        self.column_position2 = 126
+                        self.column_subposition2 = 127
+                        self.column_difference2 = 129
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1631,10 +1631,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 120
-                        self.initial_column2 = 135
-                        self.column_position = 167
-                        self.column_subposition = 168
-                        self.column_difference = 170
+                        self.initial_column2 = 136
+                        self.column_position = 126
+                        self.column_subposition = 127
+                        self.column_difference = 129
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.initial_column = 61
@@ -1679,11 +1679,11 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 elif self.variable == 'Temperatura':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(9,40):
+                    for i in range(9,43):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(41,121):
+                    for i in range(44,122):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(135,columns_number):
+                    for i in range(136,columns_number):
                         self.tableEditTags.hideColumn(i)
 
                 elif self.variable == 'Nivel':
@@ -1772,13 +1772,14 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Tipo Vaina", "Tamaño", "Rating", "Facing", "STD Vaina", "Mat. Vaina",
-                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Esp. Punta (mm)", "Radio (mm)",
+                            "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
-                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Pipe Spec.", "Cert. Material", "Cantidad Eqs.", "Importe",
+                            "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
                             "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
-                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
-                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Notas Plano", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
                             "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
                             "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
@@ -1788,7 +1789,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
                             "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
-                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
@@ -1904,11 +1905,11 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     if self.variable2 == 'Temperatura':
                         for i in range(3,4):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(9,40):
+                        for i in range(9,43):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(41,121):
+                        for i in range(44,122):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(135,columns_number):
+                        for i in range(136,columns_number):
                             self.tableEditTags2.hideColumn(i)
 
                     elif self.variable2 == 'Nivel':

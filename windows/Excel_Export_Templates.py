@@ -1823,7 +1823,7 @@ class offer_temp:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
+                df = df.iloc[:, 1:45]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -1832,7 +1832,7 @@ class offer_temp:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
                     ],
                     axis=1,)
 
@@ -1903,32 +1903,32 @@ class offer_temp:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
+                                cell._style = ws["AI1"]._style
                             else:
-                                cell._style = ws["AB1"]._style
+                                cell._style = ws["AD1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                ws[f"A{line}"]._style = ws["AK1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
+                            ws[f"A{line}"]._style = ws["AK1"]._style
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
@@ -1940,9 +1940,9 @@ class offer_temp:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
 
                     row_amount += 2
 
@@ -1957,24 +1957,24 @@ class offer_temp:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -2317,7 +2317,7 @@ class offer_short_temp_spanish:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
+                df = df.iloc[:, 1:45]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -2326,7 +2326,7 @@ class offer_short_temp_spanish:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
                     ],
                     axis=1,)
 
@@ -2397,20 +2397,20 @@ class offer_short_temp_spanish:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
+                                cell._style = ws["AI1"]._style
                             else:
-                                cell._style = ws["AB1"]._style
+                                cell._style = ws["AD1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
                     ws[f"A{last_row+4}"] = (
                         "PLAZO DE ENTREGA: "
                         + delivery_time
                         + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO, ÚLTIMAS DOS SEMANAS DE DICIEMBRE Y FESTIVOS NACIONALES EXCLUIDOS)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
 
 
                     if notes != "":
@@ -2418,12 +2418,12 @@ class offer_short_temp_spanish:
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                ws[f"A{line}"]._style = ws["AK1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
+                            ws[f"A{line}"]._style = ws["AK1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -2436,9 +2436,9 @@ class offer_short_temp_spanish:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
 
                     row_amount += 2
 
@@ -2453,24 +2453,24 @@ class offer_short_temp_spanish:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -2766,7 +2766,7 @@ class offer_short_temp_english:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
+                df = df.iloc[:, 1:45]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -2775,7 +2775,7 @@ class offer_short_temp_english:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
                     ],
                     axis=1,)
 
@@ -2846,32 +2846,32 @@ class offer_short_temp_english:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
+                                cell._style = ws["AI1"]._style
                             else:
-                                cell._style = ws["AB1"]._style
+                                cell._style = ws["AD1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                ws[f"A{line}"]._style = ws["AK1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
+                            ws[f"A{line}"]._style = ws["AK1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -2884,9 +2884,9 @@ class offer_short_temp_english:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
 
                     row_amount += 2
 
@@ -2901,24 +2901,24 @@ class offer_short_temp_english:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -4725,7 +4725,7 @@ class offer_flow_temp:
                     ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp = df_temp.iloc[:, 1:42]
+                df_temp = df_temp.iloc[:, 1:43]
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
@@ -4734,7 +4734,7 @@ class offer_flow_temp:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
                     ],
                     axis=1,)
 
@@ -4885,32 +4885,32 @@ class offer_flow_temp:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
+                                cell._style = ws["AI1"]._style
                             else:
-                                cell._style = ws["AB1"]._style
+                                cell._style = ws["AD1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                ws[f"A{line}"]._style = ws["AK1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
+                            ws[f"A{line}"]._style = ws["AK1"]._style
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
@@ -4922,9 +4922,9 @@ class offer_flow_temp:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
 
                     row_amount += 2
 
@@ -4939,24 +4939,24 @@ class offer_flow_temp:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["T1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["T1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["U1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["U1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["V1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -5409,7 +5409,7 @@ class offer_flow_temp_level:
                     ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp = df_temp.iloc[:, 1:42]
+                df_temp = df_temp.iloc[:, 1:45]
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
@@ -5418,7 +5418,7 @@ class offer_flow_temp_level:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
                     ],
                     axis=1,)
 

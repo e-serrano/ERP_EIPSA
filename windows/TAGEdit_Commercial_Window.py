@@ -28,7 +28,7 @@ from utils.Item_Prices import set_prices_flow
 
 VARIABLE_TABLES = {
     "Caudal": ("tags_data.tags_flow", 40, 149, list(range(97, 103)) + [156, 157]), # table_check, initial_column, column_difference, excluded_range
-    "Temperatura": ("tags_data.tags_temp", 44, 128, list(range(70, 78)) + [135, 136, 137]),
+    "Temperatura": ("tags_data.tags_temp", 44, 129, list(range(70, 78)) + [136, 137, 138]),
     "Nivel": ("tags_data.tags_level", 40, 173, range(0,1)),
     "Otros": ("tags_data.tags_others", 15, 60, range(0,1)),
 }
@@ -395,15 +395,24 @@ class EditableTableModel(QtSql.QSqlTableModel):
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
+            if index.column() == 154 and 'F' in str(value) and self.table_check == 'tags_data.tags_flow':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 134 and 'F' in str(value) and self.table_check == 'tags_data.tags_temp':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
-                if index.column() == 0 or index.column() in self.column_range:
+                if index.column() not in self.column_range:
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+                else:
                     flags &= ~Qt.ItemFlag.ItemIsEditable
                     return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-                else:
-                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -670,15 +679,24 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
+            if index.column() == 154 and 'F' in str(value) and self.table_check == 'tags_data.tags_flow':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 134 and 'F' in str(value) and self.table_check == 'tags_data.tags_temp':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
-                if index.column() == 0 or index.column() in self.column_range:
+                if index.column() not in self.column_range:
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+                else:
                     flags &= ~Qt.ItemFlag.ItemIsEditable
                     return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-                else:
-                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -1557,14 +1575,14 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(114,116):
                     self.tableEditTags.hideColumn(i)
-                for i in range(125, columns_number):
+                for i in range(126, columns_number):
                     self.tableEditTags.hideColumn(i)
 
-                self.tableEditTags.showColumn(128) # Amount difference column
-                self.tableEditTags.showColumn(133) # Invoice number column
-                self.tableEditTags.showColumn(135) # Dim drawing path column
-                self.tableEditTags.showColumn(136) # OF drawing path column
-                self.tableEditTags.showColumn(137) # OF sensor drawing path column
+                self.tableEditTags.showColumn(129) # Amount difference column
+                self.tableEditTags.showColumn(134) # Invoice number column
+                self.tableEditTags.showColumn(136) # Dim drawing path column
+                self.tableEditTags.showColumn(137) # OF drawing path column
+                self.tableEditTags.showColumn(138) # OF sensor drawing path column
 
             elif self.variable == 'Nivel':
                 for i in range(48,61):
@@ -1665,10 +1683,11 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
-                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Pipe Spec.", "Cert. Material", "Cantidad Eqs.", "Importe",
+                            "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
                             "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
-                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
-                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Notas Plano", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
                             "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
                             "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
@@ -1678,7 +1697,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
                             "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
-                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
@@ -1797,7 +1816,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+15, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                self.tableEditTags.setItemDelegateForColumn(49, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(52, self.combo_itemtype)
 
             elif self.variable == 'Nivel':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
@@ -1862,14 +1881,14 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(114,116):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(125, columns_number):
+                    for i in range(126, columns_number):
                         self.tableEditTags2.hideColumn(i)
 
-                    self.tableEditTags2.showColumn(128) # Amount difference column
-                    self.tableEditTags2.showColumn(133) # Invoice number column
-                    self.tableEditTags2.showColumn(135) # Dim drawing path column
-                    self.tableEditTags2.showColumn(136) # OF drawing path column
-                    self.tableEditTags2.showColumn(137) # OF sensor drawing path column
+                    self.tableEditTags2.showColumn(129) # Amount difference column
+                    self.tableEditTags2.showColumn(134) # Invoice number column
+                    self.tableEditTags2.showColumn(136) # Dim drawing path column
+                    self.tableEditTags2.showColumn(137) # OF drawing path column
+                    self.tableEditTags2.showColumn(138) # OF sensor drawing path column
 
                 elif self.variable2 == 'Nivel':
                     for i in range(48,61):
@@ -2568,7 +2587,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                                 columns = ', '.join([column for column, _ in columns_values])
-                                values = ', '.join([f"'{int(float(value))}'" if column in ['tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                                values = ', '.join([f"'{int(float(value))}'" if column in ['items_quantity', 'tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                                     else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                                     else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
                                                     else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']

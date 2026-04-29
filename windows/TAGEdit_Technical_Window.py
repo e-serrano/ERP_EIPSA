@@ -1405,9 +1405,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 elif self.variable == 'Temperatura':
                     self.model.setTable("tags_data.tags_temp")
                     self.model.table_check = "tags_data.tags_temp"
-                    self.initial_column = 40
+                    self.initial_column = 43
                     self.initial_column2 = 82
-                    self.model.invoice_column = 133
+                    self.model.invoice_column = 134
                 elif self.variable == 'Nivel':
                     if self.username != 'j.martinez':
                         self.model.setTable("tags_data.tags_level")
@@ -1448,7 +1448,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             elif self.variable == 'Temperatura':
                 self.model.column_range = list(range(self.initial_column, self.initial_column + 4)) + \
                                             list(range(self.initial_column2, self.initial_column2 + 36)) + \
-                                            list(range(138, columns_number))
+                                            list(range(139, columns_number))
             elif self.variable == 'Nivel':
                 self.model.column_range = list(range(self.initial_column, self.initial_column + 4)) + \
                                             list(range(self.initial_column2, self.initial_column2 + 36)) + \
@@ -1481,12 +1481,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(100,107):
                     self.tableEditTags.hideColumn(i)
-                for i in range(125,columns_number):
+                for i in range(126,columns_number):
                     self.tableEditTags.hideColumn(i)
 
-                self.tableEditTags.showColumn(135) # Dim drawing path column
-                self.tableEditTags.showColumn(136) # OF drawing path column
-                self.tableEditTags.showColumn(137) # OF sensor drawing path column
+                self.tableEditTags.showColumn(136) # Dim drawing path column
+                self.tableEditTags.showColumn(137) # OF drawing path column
+                self.tableEditTags.showColumn(138) # OF sensor drawing path column
 
             elif self.variable == 'Nivel':
                 if self.username != 'j.martinez':
@@ -1594,10 +1594,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "L (mm)", "U (mm)", "Raiz (mm)", "Punta (mm)", "Taladro (mm)", "Radio (mm)", "Esp. Punta (mm)",
                             "Sensor", "Tamaño Cable", "Mat. Camisa", "Diam. Sensor", "Aislam.", "Temp. Inf.", "Temp. Sup.",
                             "Mat. Ext.", "Long. Ext.", "Cabeza / Mat. Carcasa", "Cert. Cabeza", "Con. Elec. / Diam. Carcasa", "TT / Bl. Cer.",
-                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Importe", "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
+                            "Mat. LapJoint", "Mat. Junta", "Puntal", "Tubo / T", "NACE", "Pipe Spec.", "Cert. Material", "Cantidad Eqs.", "Importe",
+                            "Notas Oferta", "Cambios Com.", "Fecha Contrac.",
                             "Stress", "Geometría", "Long. Conica", "Long. Recta", "Notas Cálc.", "Tapón", "Diam. Base", "Notas TW", "Notas Sensor",
-                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Cambios Tec.", "Notas Tec.",
-                            "Doc EIPSA Calc.", "Estado Calc.", "Fecha Estado Calc.", "Doc EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano",
+                            "L Corte TW (mm)", "Dim A Sensor (mm)", "Dim B Sensor (mm)", "Dim L Sensor (mm)", "Notas Plano", "Cambios Tec.", "Notas Tec.",
+                            "Doc EIPSA Calc.", "Doc EIPSA Plano", "Estado Eq.",
                             "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Rev Plano Dim.", "Fecha Plano Dim.",
                             "Plano OF Sensor", "Rev Plano OF Sensor", "Fecha Plano OF Sensor", "Plano OF", "Rev Plano OF", "Fecha Plano OF",
                             "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
@@ -1607,7 +1608,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza", "Notas Dureza",
                             "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF", "Notas Verif. OF",
                             "Fecha Verif. OF Sensor", "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos", "Fotos 2",
-                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Estado Fab. Sensor", "Estado Fab. TW", "Estado Fab. Equipo", "Inspeccion", "Fecha Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Número Fact.", "% Fact.",
                             "Ruta Dim.", "Ruta OF", "Ruta OF Sensor", "Pedido Tipo Tag", "Cod. Equipo", "Cod. Fab. Equipo", "Trad. Equipo",
                             "Cod. Barra", "Cod. Tubo", "Cod. Brida", "Cod. Sensor", "Cod. Cabeza", "Cod. Transmisor",
@@ -1746,7 +1747,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+15, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                self.tableEditTags.setItemDelegateForColumn(49, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(52, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(118, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
@@ -1967,7 +1968,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
         if ((variable == 'Caudal' and index.column() in [138, 139])
-        or (variable == 'Temperatura' and index.column() in [166, 176])
+        or (variable == 'Temperatura' and index.column() in [116, 117])
         or (variable == 'Nivel' and index.column() in [169, 179])
         or (variable == 'Otros' and index.column() in [56, 66])):
             value = index.data()
@@ -2597,7 +2598,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         value = value.toString("dd/MM/yyyy")
                     elif column in [46] and self.variable == 'Caudal':
                         value = int(value) if value != '' else 0
-                    elif column in [15,16,53,54,55,56] and self.variable == 'Temperatura':
+                    elif column in [15,16,56,57,58,59] and self.variable == 'Temperatura':
                         value = int(float(value)) if value != '' else 0
                     elif column in [17,18,19,20,21] and self.variable == 'Temperatura':
                         value = float(value.replace(',', '.')) if value not in ('', 'N/A', 'HOLD') else 0
@@ -2667,7 +2668,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
 
                             columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                            values = ', '.join([f"'{int(float(value))}'" if column in ['item_quantity', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                                 else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                                 else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
                                                 else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date', 'calc_state_date','dwg_state_date','plug_number']
