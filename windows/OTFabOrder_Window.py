@@ -562,11 +562,12 @@ class Ui_OTFabOrder_Window(object):
 
             wb.save(output_path)
 
-            excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-            workbook = load_workbook(excel_file_path, keep_vba=True)
-            worksheet = workbook.active
-            worksheet['B2'].value = self.num_ot
-            workbook.save(excel_file_path)
+            if self.num_ot is not None and self.num_ot != '':
+                excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+                workbook = load_workbook(excel_file_path, keep_vba=True)
+                worksheet = workbook.active
+                worksheet['B2'].value = self.num_ot
+                workbook.save(excel_file_path)
 
 
 
