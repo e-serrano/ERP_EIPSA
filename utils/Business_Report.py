@@ -890,6 +890,7 @@ def generate_report_offers(start_date, end_date,
     pdf.set_fill_color(3, 174, 236)
     pdf.set_font('Helvetica', 'B', size=7)
     pdf.cell(3, 0.5, 'PRESENTADAS:')
+    pdf.cell(3, 0.5, str(df_presented.shape[0]), align='L')
     pdf.ln(0.5)
 
     df_presented['Fecha Pres.'] = pd.to_datetime(df_presented['Fecha Pres.'], errors='coerce', dayfirst=True)
