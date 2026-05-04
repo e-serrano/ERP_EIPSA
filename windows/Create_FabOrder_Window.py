@@ -132,19 +132,11 @@ class Ui_CreateFabOrder_Window(object):
         spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem4, 2, 0, 1, 2)
         if self.variable == "Caudal":
-            self.columns_number = 27
-            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabEq", "CFabPlaca", "QPlaca", "CFabBrOr", "QBrOr",
-                                "CFabBrLin", "QBrLin", "CFabJunta", "QJunta", "CFabTorn", "QTorn",
-                                "CFabTapón", "QTapón", "CFabExt", "QExt",
-                                "CFabNiplo", "QNiplo", "CFabMango", "QMango",
-                                "CodFabChRing", "QChRing", "CFabTubo", "QTubo", "CFabCuña", "QCuña"]
+            self.columns_number = 4
+            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabPlaca", "QPlaca"]
         elif self.variable == "Temperatura":
-            self.columns_number = 27
-            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabEq", "CFabVaina", "QVaina", "CFabSensor", "QSensor",
-                                "CFabBarra", "QBarra", "CFabTubo", "QTubo", "CFabBrida", "QBrida",
-                                "CFabCabeza", "QCabeza", "CFabBTB", "QBTB", "CFabNiplo",
-                                "QNiplo", "CFabMuelle", "QMuelle", "CFabpuntal", "QPuntal",
-                                "CodFabTapón", "QTapón", "CFabCable", "QCable"]
+            self.columns_number = 6
+            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabVaina", "QVaina", "CFabSensor", "QSensor"]
         elif self.variable == "Nivel":
             self.columns_number = 37
             headers_labels = ["Tag", "PTTAG (Dim.)", "CFabEq", "CFabCuerpo", "QCuerpo", "CFabCubierta",
@@ -199,70 +191,19 @@ class Ui_CreateFabOrder_Window(object):
                 if self.variable == "Caudal":
                     tag = self.model.data(self.model.index(target_row, 1))
                     ped_type_tag = self.model.data(self.model.index(target_row, 158))
-                    code_fab_equipment = self.model.data(self.model.index(target_row, 160))
-                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 174))
-                    qty_orifice_flange = self.model.data(self.model.index(target_row, 186))
-                    codefab_line_flange = self.model.data(self.model.index(target_row, 175))
-                    qty_line_flange = self.model.data(self.model.index(target_row, 187))
-                    codefab_gasket = self.model.data(self.model.index(target_row, 176))
-                    qty_gasket = self.model.data(self.model.index(target_row, 188))
-                    codefab_bolts = self.model.data(self.model.index(target_row, 177))
-                    qty_bolts = self.model.data(self.model.index(target_row, 189))
-                    codefab_plugs = self.model.data(self.model.index(target_row, 178))
-                    qty_plugs = self.model.data(self.model.index(target_row, 190))
-                    codefab_extractor = self.model.data(self.model.index(target_row, 179))
-                    qty_extractor = self.model.data(self.model.index(target_row, 191))
                     codefab_plate = self.model.data(self.model.index(target_row, 180))
                     qty_plate = self.model.data(self.model.index(target_row, 192))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 181))
-                    qty_nipple = self.model.data(self.model.index(target_row, 193))
-                    codefab_handle = self.model.data(self.model.index(target_row, 182))
-                    qty_handle = self.model.data(self.model.index(target_row, 194))
-                    codefab_chring = self.model.data(self.model.index(target_row, 183))
-                    qty_chring = self.model.data(self.model.index(target_row, 195))
-                    codefab_tube = self.model.data(self.model.index(target_row, 184))
-                    qty_tube = self.model.data(self.model.index(target_row, 196))
-                    codefab_piece2 = self.model.data(self.model.index(target_row, 185))
-                    qty_piece2 = self.model.data(self.model.index(target_row, 197))
-                    data_list.append([tag, ped_type_tag, code_fab_equipment, codefab_plate, qty_plate, codefab_orifice_flange, qty_orifice_flange,
-                                        codefab_line_flange, qty_line_flange, codefab_gasket, qty_gasket, codefab_bolts, qty_bolts,
-                                        codefab_plugs, qty_plugs, codefab_extractor, qty_extractor,
-                                        codefab_nipple, qty_nipple, codefab_handle, qty_handle,
-                                        codefab_chring, qty_chring, codefab_tube, qty_tube, codefab_piece2, qty_piece2])
+                    data_list.append([tag, ped_type_tag, codefab_plate, qty_plate])
 
                 elif self.variable == "Temperatura":
                     tag = self.model.data(self.model.index(target_row, 1))
                     ped_type_tag = self.model.data(self.model.index(target_row, 139))
-                    code_fab_equipment = self.model.data(self.model.index(target_row, 141))
-                    codefab_bar = self.model.data(self.model.index(target_row, 155))
-                    qty_bar = self.model.data(self.model.index(target_row, 167))
-                    codefab_tube = self.model.data(self.model.index(target_row, 156))
-                    qty_tube = self.model.data(self.model.index(target_row, 168))
-                    codefab_flange = self.model.data(self.model.index(target_row, 157))
-                    qty_flange = self.model.data(self.model.index(target_row, 169))
                     codefab_sensor = self.model.data(self.model.index(target_row, 158))
                     qty_sensor = self.model.data(self.model.index(target_row, 170))
-                    codefab_head = self.model.data(self.model.index(target_row, 159))
-                    qty_head = self.model.data(self.model.index(target_row, 171))
-                    codefab_btb = self.model.data(self.model.index(target_row, 160))
-                    qty_btb = self.model.data(self.model.index(target_row, 172))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 161))
-                    qty_nipple = self.model.data(self.model.index(target_row, 173))
-                    codefab_spring = self.model.data(self.model.index(target_row, 162))
-                    qty_spring = self.model.data(self.model.index(target_row, 174))
-                    codefab_puntal = self.model.data(self.model.index(target_row, 163))
-                    qty_puntal = self.model.data(self.model.index(target_row, 175))
-                    codefab_plug = self.model.data(self.model.index(target_row, 164))
-                    qty_plug = self.model.data(self.model.index(target_row, 176))
                     codefab_tw = self.model.data(self.model.index(target_row, 165))
                     qty_tw = self.model.data(self.model.index(target_row, 177))
-                    codefab_cable = self.model.data(self.model.index(target_row, 166))
-                    qty_cable = self.model.data(self.model.index(target_row, 178))
-                    data_list.append([tag, ped_type_tag, code_fab_equipment, codefab_tw, qty_tw, codefab_sensor, qty_sensor,
-                                        codefab_bar, qty_bar, codefab_tube, qty_tube, codefab_flange, qty_flange,
-                                        codefab_head, qty_head, codefab_btb, qty_btb, codefab_nipple,
-                                        qty_nipple, codefab_spring, qty_spring, codefab_puntal, qty_puntal,
-                                        codefab_plug, qty_plug, codefab_cable, qty_cable])
+
+                    data_list.append([tag, ped_type_tag, codefab_tw, qty_tw, codefab_sensor, qty_sensor])
 
                 elif self.variable == "Nivel":
                     tag = self.model.data(self.model.index(target_row, 1))
@@ -313,8 +254,10 @@ class Ui_CreateFabOrder_Window(object):
         self.tableElements.setRowCount(len(self.id_list) + 1)
         tablerow=1
 
-        if self.variable in ['Caudal', 'Temperatura']:
-            list_columns = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+        if self.variable in ['Caudal']:
+            list_columns = [1, 2]
+        elif self.variable in ['Temperatura']:
+            list_columns = [1, 2, 4]
         elif self.variable in ['Nivel']:
             list_columns = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]
 
