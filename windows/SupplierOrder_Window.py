@@ -3146,8 +3146,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             pdf.close()
 
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-            self.pdf_viewer.showMaximized()
+            # file_path = os.path.normpath(results[0][0])
+            os.startfile(temp_file_path)
+            # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+            # self.pdf_viewer.showMaximized()
 
             pdf_verification = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
             pdf_verification.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
