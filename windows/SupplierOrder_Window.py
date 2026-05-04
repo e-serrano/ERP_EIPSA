@@ -17,6 +17,7 @@ import os
 from windows.PDF_Viewer import PDF_Viewer
 from datetime import *
 from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class CustomTableWidgetOrder(QtWidgets.QTableWidget):
@@ -1767,31 +1768,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.tableRecords.setHorizontalHeaderItem(i, item)
         self.tableRecords.hideColumn(12)
         self.gridLayout_2.addWidget(self.tableRecords, 10, 1, 1, 17)
-        # self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        # self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(80//self.scale)))
-        # self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(int(2800//self.scale), int(1500//self.scale)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//self.scale))
-        # self.Coms_SupplierOrder.setFont(font)
-        # self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
-        # self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 11, 1, 3, 17)
-        # self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
-        # self.label_FinalCom.setMinimumSize(QtCore.QSize(int(75//self.scale), int(35//self.scale)))
-        # self.label_FinalCom.setMaximumSize(QtCore.QSize(int(75//self.scale), int(35//self.scale)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//self.scale))
-        # self.label_FinalCom.setFont(font)
-        # self.label_FinalCom.setObjectName("label_FinalCom")
-        # self.gridLayout_2.addWidget(self.label_FinalCom, 14, 1, 1, 1)
-        # self.FinalComs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        # self.FinalComs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(60//self.scale)))
-        # self.FinalComs_SupplierOrder.setMaximumSize(QtCore.QSize(int(1220//self.scale), int(60//self.scale)))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(14//self.scale))
-        # self.FinalComs_SupplierOrder.setFont(font)
-        # self.FinalComs_SupplierOrder.setObjectName("FinalComs_SupplierOrder")
-        # self.gridLayout_2.addWidget(self.FinalComs_SupplierOrder, 14, 2, 2, 15)
-        
+
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.tableSupplierOrders = CustomTableWidgetOrder()
         self.tableSupplierOrders.setObjectName("tableSupplierOrders")
@@ -1804,9 +1781,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             font.setBold(True)
             item.setFont(font)
             self.tableSupplierOrders.setHorizontalHeaderItem(i, item)
-
-        # self.verticalLayout_2.addWidget(self.scrollArea)
-        # self.verticalLayout_2.addWidget(self.tableSupplierOrders)
 
         self.splitter.addWidget(self.scrollArea)
         self.splitter.addWidget(self.tableSupplierOrders)
@@ -1872,19 +1846,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     cur.execute(commands_payway)
                     results_payway=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         list_suppliers=[x[1] for x in results_suppliers]
         self.Supplier_SupplierOrder.addItems([''] + list_suppliers)
@@ -1930,7 +1893,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.position_table(self.num_order)
 
         self.Quantity_SupplierOrder.editingFinished.connect(lambda: (self.UnitValue_SupplierOrder.setFocus(), self.UnitValue_SupplierOrder.selectAll()))
-
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, SupplierOrder_Window):
@@ -2027,26 +1989,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Coms_SupplierOrder = ''
 
         if order_date=="" or (order_date==" " or (num_order==" " or (num_order=="" or supplier_name == ""))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("Rellena la fecha, el número de pédido y el proveedor")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena la fecha, el número de pédido y el proveedor", 'warning')
 
         elif not self.is_valid_date(order_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", 'warning')
 
         else:
             delivdate = None if delivdate == '' else delivdate
@@ -2079,44 +2025,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                             data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,total,currency_id,)
                             cur.execute(commands_neworder, data)
 
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Crear Pedido Proveedor")
-                            dlg.setText("Pedido creado con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-
-                            del dlg,new_icon
+                            MessageHelper.show_message("Pedido creado con éxito", 'info')
                         else:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Crear Pedido Proveedor")
-                            dlg.setText("El número de pedido ya existe")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg,new_icon
+                            MessageHelper.show_message("El número de pedido ya existe", 'warning')
 
                     conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             try:
                 with Database_Connection(config_database()) as conn:
@@ -2130,19 +2047,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         self.label_IDOrd.setText(str(idorder))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             self.loadtableorders()
 
@@ -2167,26 +2073,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         total=self.Total_SupplierOrder.text()
 
         if order_id=="" or (order_date==" " or order_date==""):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Pedido")
-            dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona un pedido existente e introduce una fecha válida", 'warning')
 
         elif not self.is_valid_date(order_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", 'warning')
 
         else:
             commands_updateorder = ("""
@@ -2215,31 +2105,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                     conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Modificar Pedido Proveedor")
-                dlg.setText("Pedido modificado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-
-                del dlg,new_icon
+                MessageHelper.show_message("Pedido modificado con éxito", 'info')
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to create record
     def addrecord(self):
@@ -2275,74 +2145,23 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     result_position = cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Por favor, para añadir registros elige un pedido existente o crea uno nuevo")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Por favor, para añadir registros elige un pedido existente o crea uno nuevo", 'warning')
 
         elif quantity == "" or (quantity == " " or quantity == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade una cantidad válida de elementos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Añade una cantidad válida de elementos", 'warning')
 
         elif position == "" or (position ==" " or position == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade posición válida y mayor que 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Añade posición válida y mayor que 0", 'warning')
 
         elif unit_value == "" or (unit_value ==" " or unit_value == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade un precio válido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Añade un precio válido", 'warning')
 
         elif len(result_position)>0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Esa posición ya existe. Elige otra")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Esa posición ya existe. Elige otra", 'warning')
 
         else:
             commands_newrecord = ("""
@@ -2376,19 +2195,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             self.Supply_SupplierOrder.setCurrentIndex(0)
             self.Quantity_SupplierOrder.setText("")
@@ -2435,37 +2243,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("No puedes hacer lo que estas intentando, flipao")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido para modificar un registro", 'warning')
 
         elif record_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Selecciona un registro existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un registro existente", 'warning')
 
         elif position == "" or (position ==" " or position == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Elige una posición válida y mayor que 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Elige una posición válida y mayor que 0", 'warning')
 
         else:
             commands_modifyrecord = ("""
@@ -2520,20 +2304,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             self.loadtablerecords()
             self.calculate_totalorder()
@@ -2547,15 +2319,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         record_id=self.label_IDRecord.text()
 
         if record_id == "" or self.Supply_SupplierOrder.currentText()=='':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Eliminar Registros")
-            dlg.setText("Selecciona un registro existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un registro existente", 'warning')
+
         else:
             supply_name=self.Supply_SupplierOrder.currentText()
             supply_name=supply_name[:supply_name.find(" |")]
@@ -2588,19 +2353,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             self.Supply_SupplierOrder.setCurrentIndex(0)
             self.Position_SupplierOrder.setText("")
@@ -2650,19 +2404,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         results_orders=cur.fetchall()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             self.NumOrder_SupplierOrder.setText(results_orders[0][0])
             self.Supplier_SupplierOrder.setCurrentText(results_orders[0][1])
@@ -2756,19 +2499,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 self.Supply_SupplierOrder.setCurrentText(data_supply[2] + " | " + data_supply[3] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[12])
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to load table of orders
     def loadtableorders(self):
@@ -2791,19 +2523,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     results_orders=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         self.tableSupplierOrders.setRowCount(len(results_orders))
         tablerow=0
@@ -2865,19 +2586,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     results_records=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         self.tableRecords.setRowCount(len(results_records))
         tablerow=0
@@ -2937,37 +2647,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrd.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 1ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 1ª entrega", 'warning')
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("La fecha de 1ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 1ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", 'warning')
 
         else:
             commands_deliv1_check = ("""
@@ -2983,19 +2669,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             selected_indexes = self.tableRecords.selectedIndexes()
             if selected_indexes:
@@ -3054,30 +2729,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                             conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 1ª entrega")
-                    dlg.setText("1ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("1ª entrega añadida con éxito", 'info')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3093,37 +2749,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrd.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 2ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 2ª entrega", 'warning')
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("La fecha de 2ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 2ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", 'warning')
 
         else:
             commands_deliv2_check = ("""
@@ -3140,19 +2772,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             selected_indexes = self.tableRecords.selectedIndexes()
             if selected_indexes:
@@ -3210,30 +2831,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                             conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 2ª entrega")
-                    dlg.setText("2ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("2ª entrega añadida con éxito", 'info')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
                 self.loadtablerecords()
                 self.loadtableorders()
@@ -3250,37 +2852,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrd.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         elif date == "" or note == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("Rellena la fecha y albarán de la 3ª entrega")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Rellena la fecha y albarán de la 3ª entrega", 'warning')
 
         elif not self.is_valid_date(date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("La fecha de 3ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha de 3ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)", 'warning')
 
         else:
             commands_deliv3_check = ("""
@@ -3296,19 +2874,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         results_check=cur.fetchone()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             selected_indexes = self.tableRecords.selectedIndexes()
             if selected_indexes:
@@ -3366,30 +2933,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                             conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Añadir 3ª entrega")
-                    dlg.setText("3ª entrega añadida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("3ª entrega añadida con éxito", 'info')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3423,19 +2971,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         self.UnitValue_SupplierOrder.setText(str(unit_value))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         if supply_name != '':
             self.Quantity_SupplierOrder.setFocus()
@@ -3467,15 +3004,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrd.text()
 
         if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Imprimir pedido")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         else:
             num_order=self.NumOrder_SupplierOrder.text()
@@ -3505,19 +3034,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
             pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
             pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
@@ -3790,40 +3308,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                             conn.commit()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Forma de pago")
-                        dlg.setText("Datos insertados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                        MessageHelper.show_message("Datos insertados con éxito", 'info')
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Forma de pago")
-                dlg_error.setText("El valor no puede estar vacío")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El valor no puede estar vacío", 'warning')
             else:
                 break
 
@@ -3840,19 +3331,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     results_payway=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         self.PayWay_SupplierOrder.clear()
         list_payway=[x[0] for x in results_payway]
@@ -3958,19 +3438,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                 conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to load file
     def item_double_clicked(self, item):
@@ -4000,19 +3469,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     os.startfile(file_path)
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
 # Function to load comboboxes
     def load_comboboxes(self):
@@ -4041,19 +3499,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     results_supplies=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
         list_suppliers=[x[1] for x in results_suppliers]
         self.Supplier_SupplierOrder.addItems([''] + list_suppliers)
@@ -4077,26 +3524,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         order_id=self.label_IDOrd.text()
 
         if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Cotización")
-            dlg.setText("Por favor, para elige o un crea un pedido para crear la cotización")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Por favor, para elige o un crea un pedido para crear la cotización", 'warning')
 
         elif self.tableRecords.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Cotización")
-            dlg.setText("Por favor, añade productos al pedido para crear la cotización")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Por favor, añade productos al pedido para crear la cotización", 'warning')
 
         else:
             supplier_name=self.Supplier_SupplierOrder.currentText()
@@ -4160,43 +3591,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                                 conn.commit()
 
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Crear Cotización")
-                            dlg.setText("Cotización creada con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-
-                            del dlg,new_icon
+                            MessageHelper.show_message("Cotización creada con éxito", 'info')
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), 'critical')
 
                         break
 
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Crear Cotización")
-                    dlg_error.setText("La fecha no puede estar vacía")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("La fecha no puede estar vacía", 'warning')
                 else:
                     break
 
