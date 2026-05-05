@@ -67,6 +67,26 @@ class PDF(FPDF):
 
         self.set_xy(x, y + total_h)
 
+    def draw_revision_triangle(pdf, x, y, size=4, rev="1"):
+        """
+        x, y   -> base position (mm)
+        size   -> triangle size
+        rev    -> revision number
+        """
+
+        # Triángulo
+        pdf.set_draw_color(255, 0, 0)
+        pdf.set_line_width(0.4)
+
+        pdf.line(x, y, x + size, y + size * 2)
+        pdf.line(x + size, y + size * 2, x + size * 2, y)
+        pdf.line(x + size * 2, y, x, y)
+
+        # Texto revisión
+        pdf.set_text_color(255, 0, 0)
+        pdf.set_font("Arial", size=6)
+        pdf.text(x + size * 0.9, y + size * 1.3, rev)
+
 
 # Function to create PDF with specific note in a position
 def new_content_notes(technical_note):
