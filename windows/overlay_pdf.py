@@ -479,8 +479,7 @@ def general_dwg_m(num_order, item_data, material=None):
 
     pdf.add_page()
 
-    item_data = list(item_data)
-    cnt = item_data[0][0]
+    cnt = item_data
 
     pdf.set_draw_color(255, 0, 0)
 
@@ -1533,9 +1532,7 @@ def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exteri
         pdf.set_draw_color(*map(int, border_color.split(',')))
         pdf.rect(18, 6, 187, 284, style='D')
 
-    item_data = list(item_data)
-
-    cnt = item_data[0][0]
+    cnt = item_data
 
     pdf.set_draw_color(255, 0, 0)
 
