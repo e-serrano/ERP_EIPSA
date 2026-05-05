@@ -1029,7 +1029,6 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
     item_data = list(item_data)
     cnt = item_data[0][2]
 
-
     if reduction != 'REDUCTION':
         pipe_int_diam = item_data[0][0]
         flange_height = item_data[0][1]
@@ -1038,10 +1037,10 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
             pdf.line(192, 68, 195, 75)
 
             pdf.set_font('Helvetica', 'B', 12)
-            pdf.set_xy(56, 34)
+            pdf.set_xy(38, 60)
             pdf.cell(20, 5, "A", align='C')
 
-            pdf.set_xy(193, 87)
+            pdf.set_xy(193, 95)
             with pdf.rotation(90):
                 pdf.cell(0.1, 0.1, f"{flange_height:.1f}")
         elif type_flange == 'SW':
