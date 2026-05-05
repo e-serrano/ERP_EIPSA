@@ -97,7 +97,7 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
 
         # df_final.loc[mask_new, "dim_drawing"] = [f"{i:0{num_width}d}/{total}" for i in range(start, start + qty_new)]
 
-        df_final.loc[mask_new, "dim_drawing"] = [numorder[2:].replace("/", "-") + "-" + f"{i:0{num_width}d}" for i in range(start, start + qty_new)]
+        df_final.loc[mask_new, "dim_drawing"] = [re.sub(r"^P-", "", numorder).replace("/", "-") + "-" + f"{i:0{num_width}d}" for i in range(start, start + qty_new)]
 
         try:
             with Database_Connection(config_database()) as conn:
@@ -123,7 +123,6 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
     except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
         MessageHelper.show_message("Ha ocurrido un error numerando planos:\n"
                     "Los planos no se han podido generar", "critical")
 
