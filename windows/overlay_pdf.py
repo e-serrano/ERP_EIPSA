@@ -105,10 +105,10 @@ def new_content_notes(technical_note):
     pdf.set_text_color(0, 0, 0)
 
     pdf.add_page()
-    pdf.set_xy(20,230)
+    pdf.set_xy(20,250)
     pdf.set_font("courier", "B", 10)
     pdf.cell(150, 5, "NOTES:")
-    pdf.set_xy(20,235)
+    pdf.set_xy(20,255)
     pdf.set_font("courier", "", 10)
     pdf.multi_cell(150, 5, str(technical_note)) #x_position, y_position, technical_note)
 
