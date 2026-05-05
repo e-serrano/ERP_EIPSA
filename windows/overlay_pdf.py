@@ -39,17 +39,23 @@ class PDF(FPDF):
             border (str, optional): Border settings for the cell. Defaults to ''.
             fill (bool, optional): Whether to fill the cell with color. Defaults to False.
         """
-        words = txt.split() # Divide text in words
+        txt = txt.replace('\r\n', '\n').replace('\r', '\n')
+        paragraphs = txt.split('\n') 
         lines = []
-        line = ''
-        for word in words:
-            if self.get_string_width(line + word + ' ') > w - 0.5:
-                lines.append(line) # Add line to line list and starts a new one
-                line = word + ' '
-            else:
-                line += word + ' ' # Add word to actual line
-        lines.append(line) # Add last line to line list
-        
+        for paragraph in paragraphs:
+            words = paragraph.split() # Divide text in words
+            line = ''
+            for word in words:
+                if self.get_string_width(line + word + ' ') > w - 0.5:
+                    lines.append(line) # Add line to line list and starts a new one
+                    line = word + ' '
+                else:
+                    line += word + ' ' # Add word to actual line
+            lines.append(line) # Add last line to line list
+
+        if not lines:
+            return
+
         line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
 
         x, y = self.get_x(), self.get_y() # Save actual position
