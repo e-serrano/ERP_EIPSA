@@ -2,7 +2,7 @@ import os
 from fpdf import FPDF
 import io
 import pandas as pd
-from config.config import config, get_path
+from config.config_functions import config_database, get_path
 import psycopg2
 from PySide6 import QtCore, QtGui, QtWidgets
 import openpyxl
@@ -153,7 +153,7 @@ def general_dwg(num_ot, material=None):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -208,7 +208,7 @@ def general_dwg_landscape(num_ot, material=None):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -280,13 +280,13 @@ def drawing_number(num_order, info_drawing, counter):
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
 
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(check_ot)
                 results=cur.fetchall()
 
         if len(results) == 0:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
                     cur.execute(insert_ot, data)
@@ -417,13 +417,13 @@ def drawing_number_landscape(num_order, info_drawing, counter):
         worksheet = workbook.active
         num_ot = worksheet['B2'].value
 
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(check_ot)
                 results=cur.fetchall()
 
         if len(results) == 0:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
                     cur.execute(insert_ot, data)
@@ -559,7 +559,7 @@ def general_dwg_m(num_order, item_data, material=None):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -608,7 +608,7 @@ def flange_dwg_flangedTW(num_order, material, count):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -669,7 +669,7 @@ def bar_dwg_flangedTW(num_order, material, base_diam, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -855,7 +855,7 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping_size, tappin
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -988,7 +988,7 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -1088,7 +1088,7 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
         ''')
 
         try:
-            with Database_Connection(config()) as conn:
+            with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_outter_in_diam, (outter_size,outter_sch,))
                     results_outter_in_diam=cur.fetchall()
@@ -1211,7 +1211,7 @@ def tube_dwg_meterrun(num_order, size, schedule, tube_material, calibrated, item
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(tube_material,))
                 results_colors=cur.fetchall()
@@ -1308,7 +1308,7 @@ def welding_dwg_meterrun(num_order, material, flange_type, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -1444,7 +1444,7 @@ def dwg_m_welding_32218_32219(num_order, material, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -1508,7 +1508,7 @@ def dwg_m_32218_32219(num_order, material, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -1575,7 +1575,7 @@ def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exteri
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
@@ -1655,7 +1655,7 @@ def dwg_dim_32218_32219(num_order, material, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
