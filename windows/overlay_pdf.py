@@ -711,16 +711,16 @@ def bar_dwg_flangedTW(num_order, material, base_diam, item_data):
     for bore, std_len, p_length, cnt in item_data:
         pdf.cell(15, 6.8, str(cnt), align='C')
         pdf.cell(15, 6.8, str(bore), align='C')
-        if base_diam <= 35:
+        if float(base_diam) <= 35:
             pdf.cell(15, 6.8, str(int(p_length)), align='C')
-        elif base_diam <= 40:
+        elif float(base_diam) <= 40:
             pdf.cell(15, 6.8, str(int(p_length) + 3), align='C')
         else:
             pdf.cell(15, 6.8, str(int(p_length) + 5), align='C')
 
-        if base_diam <= 35:
+        if float(base_diam) <= 35:
             pdf.cell(15, 6.8, str(int(std_len) + 10), align='C')
-        elif base_diam <= 40:
+        elif float(base_diam) <= 40:
             pdf.cell(15, 6.8, str(int(std_len) + 10 + 3), align='C')
         else:
             pdf.cell(15, 6.8, str(int(std_len) + 10 + 5), align='C')
@@ -802,16 +802,16 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
         pdf.cell(15, 6.8, str(cnt), align='C')
         pdf.cell(15, 6.8, str(bore), align='C')
 
-        if base_diam < 38:
+        if float(base_diam) < 38:
             pdf.cell(15, 6.8, str(int(p_length)), align='C')
-        elif base_diam < 45:
+        elif float(base_diam) < 45:
             pdf.cell(15, 6.8, str(int(p_length) + 3), align='C')
         else:
             pdf.cell(15, 6.8, str(int(p_length) + 5), align='C')
 
-        if base_diam < 38:
+        if float(base_diam) < 38:
             pdf.cell(15, 6.8, str(int(std_len) + 10), align='C')
-        elif base_diam < 45:
+        elif float(base_diam) < 45:
             pdf.cell(15, 6.8, str(int(std_len) + 10 + 3), align='C')
         else:
             pdf.cell(15, 6.8, str(int(std_len) + 10 + 5), align='C')
