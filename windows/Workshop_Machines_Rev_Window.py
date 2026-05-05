@@ -1283,7 +1283,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.hideColumn(1)
         self.tableRevisions.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableRevisions.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableRevisions.verticalHeader().hide()
+        # self.tableRevisions.verticalHeader().hide()
 
 # Function to add images to machines
     def add_images(self):
