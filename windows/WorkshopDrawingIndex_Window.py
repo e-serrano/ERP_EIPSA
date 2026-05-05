@@ -4717,7 +4717,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 query = ('''
                                     SELECT *
                                     FROM tags_data.tags_temp
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED' NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
@@ -4855,7 +4855,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 query = ('''
                                     SELECT *
                                     FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%ZZZ%'
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
@@ -5089,7 +5089,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 query = ('''
                                     SELECT *
                                     FROM tags_data.tags_others
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED' NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
