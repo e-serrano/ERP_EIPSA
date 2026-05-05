@@ -871,7 +871,7 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping_size, tappin
     second_color = results_colors[0][1]
     border_color = results_colors[0][2]
 
-    pdf = FPDF(unit='mm')
+    pdf = PDF()
     pdf.set_font("helvetica", "B", 12)
     pdf.set_text_color(49, 49, 229)
 
@@ -893,19 +893,21 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping_size, tappin
     if type == 'M.RUN':
         pipe_int_diam = item_data[0][0]
         flange_height = item_data[0][1]
-        cnt = item_data[0][2]
+        cnt = item_data[0][2] * len(item_data)
     else:
         pipe_int_diam = item_data[0][0]
-        cnt = item_data[0][1]
+        cnt = item_data[0][1] * len(item_data)
 
     pdf.set_draw_color(255, 0, 0)
 
     pdf.set_xy(29, 200)
     pdf.cell(12.5, 6.5, "ORIENTACIÓN TOMAS: " + str(tapping_orientation), align='L')
     
+    pdf.set_font('Helvetica', 'B', 9)
     pdf.set_xy(29, 210)
-    pdf.cell(12.5, 6.5, "EXTRACTORES A UN TALADRO A LA IZQUIERDA DE LA TOMA", align='L')
+    pdf.fixed_height_multicell(100, 6.5, "EXTRACTORES A UN TALADRO A LA IZQUIERDA DE LA TOMA\nSEGÚN PLANO GENERAL", 'L')
     
+    pdf.set_font('Helvetica', 'B', 12)
     pdf.line(28, 234, 32, 238)
     pdf.line(28, 238, 32, 234)
     pdf.line(27, 231, 58, 231)
