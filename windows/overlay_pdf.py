@@ -1259,6 +1259,20 @@ def tube_dwg_meterrun(num_order, size, schedule, tube_material, calibrated, item
     pdf.set_font("helvetica", "B", 12)
     if calibrated == 'YES':
         pdf.cell(40, 8, "TUBO CALIBRADO " + str(size), align='C')
+
+        query = ("SELECT calibrated_int, calibrated_ext FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s")
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query,(size, schedule))
+                    results_tube_calibrated=cur.fetchall()
+                    final_pipe_int_diam = results_tube_calibrated[0][0]
+                    pipe_ext_diam = results_tube_calibrated[0][1]
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
     else:
         pdf.cell(40, 8, "TUBO " + str(size) + " SCH " + str(schedule), align='C')
 
