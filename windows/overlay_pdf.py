@@ -532,8 +532,72 @@ def general_dwg_m(num_order, item_data, material=None):
 
     return io.BytesIO(pdf.output())
 
-# Function to create M drawings PDF
+def dwg_m_landscape(num_order, item_data, material=None):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
 
+    Args:
+        num_order (str): The order number.
+        material (str): The material code.
+        item_data (list): The list of items to be included in the PDF.
+    """
+    if material is None:
+        material = 'A105'
+
+    query = ('''
+        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
+        FROM validation_data.material_color_code AS colors
+        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
+        ''')
+
+    try:
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query,(material,))
+                results_colors=cur.fetchall()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                    + str(error), "critical")
+
+    first_color = results_colors[0][0]
+    second_color = results_colors[0][1]
+    border_color = results_colors[0][2]
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_line_width(1)
+    pdf.set_draw_color(*map(int, first_color.split(',')))
+    pdf.rect(6, 19, 198, 270, style='D')
+
+    pdf.set_draw_color(*map(int, second_color.split(',')))
+    pdf.rect(5, 18, 200, 272, style='D')
+
+    if border_color is not None:
+        pdf.set_draw_color(*map(int, border_color.split(',')))
+        pdf.rect(4, 17, 202, 274, style='D')
+
+    cnt = item_data
+
+    pdf.set_draw_color(255, 0, 0)
+
+    pdf.set_xy(35, 166)
+    with pdf.rotation(270):
+        pdf.cell(10, 10, str(cnt), align='C')
+
+    pdf.set_xy(35, 254)
+    with pdf.rotation(270):
+        pdf.set_font("helvetica", "B", 12)
+        pdf.cell(30, 6, str(num_order), align='C')
+
+    return io.BytesIO(pdf.output())
+
+
+# Function to create M drawings PDF
 def flange_dwg_flangedTW(num_order, material, count):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -591,7 +655,6 @@ def flange_dwg_flangedTW(num_order, material, count):
     pdf.cell(49, 9, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
-
 
 def bar_dwg_flangedTW(num_order, material, base_diam, item_data):
     """
@@ -683,7 +746,6 @@ def bar_dwg_flangedTW(num_order, material, base_diam, item_data):
 
     return io.BytesIO(pdf.output())
 
-
 def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.""
@@ -774,7 +836,6 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
     pdf.cell(49, 9, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
-
 
 def flange_dwg_orifice(num_order, type, material, schedule, tapping_size, tapping_num, tapping_orientation, gasket, type_flange, item_data):
     """
@@ -908,7 +969,6 @@ def flange_dwg_orifice(num_order, type, material, schedule, tapping_size, tappin
     pdf.cell(49, 9, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
-
 
 def flange_dwg_line(num_order, material, schedule, type_flange, reduction, connection, item_data):
     """
@@ -1133,7 +1193,6 @@ def flange_dwg_line(num_order, material, schedule, type_flange, reduction, conne
 
     return io.BytesIO(pdf.output())
 
-
 def tube_dwg_meterrun(num_order, size, schedule, tube_material, calibrated, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -1232,7 +1291,6 @@ def tube_dwg_meterrun(num_order, size, schedule, tube_material, calibrated, item
 
     return io.BytesIO(pdf.output())
 
-
 def welding_dwg_meterrun(num_order, material, flange_type, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -1300,77 +1358,6 @@ def welding_dwg_meterrun(num_order, material, flange_type, item_data):
 
     return io.BytesIO(pdf.output())
 
-
-
-
-def dwg_m_landscape(num_order, item_data, material=None):
-    """
-    Generates a PDF containing a new content based on the specified value and equipment type.
-
-    Args:
-        num_order (str): The order number.
-        material (str): The material code.
-        item_data (list): The list of items to be included in the PDF.
-    """
-    if material is None:
-        material = 'A105'
-
-    query = ('''
-        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
-        FROM validation_data.material_color_code AS colors
-        WHERE UPPER (colors.material) LIKE UPPER('%%'||%s||'%%')
-        ''')
-
-    try:
-        with Database_Connection(config()) as conn:
-            with conn.cursor() as cur:
-                cur.execute(query,(material,))
-                results_colors=cur.fetchall()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                    + str(error), "critical")
-
-    first_color = results_colors[0][0]
-    second_color = results_colors[0][1]
-    border_color = results_colors[0][2]
-
-    pdf = FPDF(unit='mm')
-    pdf.set_font("helvetica", "B", 12)
-    pdf.set_text_color(49, 49, 229)
-
-    pdf.add_page()
-
-    pdf.set_line_width(1)
-    pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(6, 19, 198, 270, style='D')
-
-    pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(5, 18, 200, 272, style='D')
-
-    if border_color is not None:
-        pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(4, 17, 202, 274, style='D')
-
-    item_data = list(item_data)
-    cnt = item_data[0][0]
-
-    pdf.set_draw_color(255, 0, 0)
-
-    pdf.set_xy(35, 166)
-    with pdf.rotation(270):
-        pdf.cell(10, 10, str(cnt), align='C')
-
-    pdf.set_xy(35, 254)
-    with pdf.rotation(270):
-        pdf.set_font("helvetica", "B", 12)
-        pdf.cell(30, 6, str(num_order), align='C')
-
-    return io.BytesIO(pdf.output())
-
-
-
-
 def dwg_m_welding_32218_32219(num_order, material, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -1433,7 +1420,6 @@ def dwg_m_welding_32218_32219(num_order, material, item_data):
         pdf.cell(30, 6, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
-
 
 def dwg_m_32218_32219(num_order, material, item_data):
     """
@@ -1498,7 +1484,6 @@ def dwg_m_32218_32219(num_order, material, item_data):
 
 
 # Functions to create Dimensional drawings PDFs
-
 def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exterior_size, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -1644,6 +1629,10 @@ def dwg_dim_32218_32219(num_order, material, item_data):
         pdf.cell(30, 6, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
+
+
+
+
 
 def dwg_dim_flange_plate(num_order: str, tag: str,
                         size: str, schedule: str, rating: str, facing: str,
