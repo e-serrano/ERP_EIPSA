@@ -764,7 +764,7 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
         ''')
 
     try:
-        with Database_Connection(config()) as conn:
+        with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
                 cur.execute(query,(material,))
                 results_colors=cur.fetchall()
