@@ -16,23 +16,23 @@ from windows.overlay_pdf import (dwg_dim_flange_plate, dwg_dim_plate, dwg_dim_ro
 
 
 def generate_dim_drawings(numorder, client, final_client, project, num_po):
-    query_tags_flow = ("SELECT * FROM tags_data.tags_flow WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'")
-    query_tags_temp = ("SELECT * FROM tags_data.tags_temp WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'")
-    query_tags_level = ("SELECT * FROM tags_data.tags_level_new WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'")
+    query_tags_flow = ("SELECT * FROM tags_data.tags_flow WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'")
+    query_tags_temp = ("SELECT * FROM tags_data.tags_temp WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'")
+    query_tags_level = ("SELECT * FROM tags_data.tags_level_new WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'")
 
     query_select_drawings = ("""
             SELECT * FROM (
                 SELECT id_tag_flow, dim_drawing, 'tags_data.tags_flow' as table, 'id_tag_flow' as id_column, tag
-                FROM tags_data.tags_flow
-                WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'
-                ORDER BY tag) t_flow
+            FROM tags_data.tags_flow
+            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
+            ORDER BY tag) t_flow
 
             UNION ALL
 
             SELECT * FROM (
                 SELECT id_tag_temp, dim_drawing, 'tags_data.tags_temp' as table, 'id_tag_temp' as id_column, tag
             FROM tags_data.tags_temp
-            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'
+            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
             ORDER BY tag) t_temp
 
             UNION ALL
@@ -40,7 +40,7 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
             SELECT * FROM (
                 SELECT id_tag_level, dim_drawing, 'tags_data.tags_level_new' as table, 'id_tag_level' as id_column, tag
             FROM tags_data.tags_level_new
-            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'
+            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
             ORDER BY tag) t_level
 
             UNION ALL
@@ -48,7 +48,7 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
             SELECT * FROM (
                 SELECT id_tag_others, dim_drawing, 'tags_data.tags_others' as table, 'id_tag_others' as id_column, tag
             FROM tags_data.tags_others
-            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND position <> 'ZZZ'
+            WHERE num_order ILIKE %s and tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
             ORDER BY tag) t_others
             """)
 
@@ -75,7 +75,7 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
-                cur.execute(query_select_drawings,(f"%{numorder}%", f"%{numorder}%", f"%{numorder}%", f"%{numorder}%",))
+                cur.execute(query_select_drawings,(numorder, numorder, numorder, numorder,))
                 results_tags_drawings=cur.fetchall()
                 df_final = pd.DataFrame(results_tags_drawings, columns=["id", "dim_drawing", "table", "id_column", "tag"])
     except (Exception, psycopg2.DatabaseError) as error:
