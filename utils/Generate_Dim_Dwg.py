@@ -127,6 +127,28 @@ def generate_dim_drawings(numorder, client, final_client, project, num_po):
         MessageHelper.show_message("Ha ocurrido un error numerando planos:\n"
                     "Los planos no se han podido generar", "critical")
 
+# Selecting framework for drawings
+    framework_folder = None
+    while True:
+        framework, ok = QtWidgets.QInputDialog.getItem(None, "Cajetín", "Selecciona un tipo de cajetín:", ['EIPSA', 'Otro'], 0, False)
+        if ok and framework:
+            while True:
+                if framework == 'EIPSA':
+                    framework_folder = 'EIPSA'
+                    break
+                elif framework == 'Otro':
+                    framework_folder = '-'.join(numorder.split('-')[:2]).replace('/', '-')
+                    # framework_folder = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con cajetines", "//ERP-EIPSA-DATOS/Comunes/4 PLANOS AUTOMATICOS/CAJETINES")
+                    break
+            break
+        else:
+            break
+
+    if not framework_folder:
+        MessageHelper.show_message("No se ha seleccionado un tipo de cajetín:\n"
+                    "Los planos no se han podido generar", "critical")
+        return
+
 # Drawing generation
     try:
     # Loop through different types of equipment and create drawings accordingly
