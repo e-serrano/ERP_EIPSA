@@ -4664,25 +4664,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                         order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
 
-                        if self.numorder[:2] == 'PA':
-                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
-                            for folder in os.listdir(path):
+                        path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if self.numorder[:2] == 'PA' else f"{order_year} Pedidos")
+                        for folder in sorted(os.listdir(path)):
+                            if 'S00' in self.numorder:
+                                if self.numorder[:8].replace("/", "-") in folder:
+                                    output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
+                                    output_path_M = path / folder / "3-Fabricacion" / "Planos M"
+                                    break
+                            else:
                                 if self.numorder.replace("/", "-") in folder:
                                     output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
                                     output_path_M = path / folder / "3-Fabricacion" / "Planos M"
-                        else:
-                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
-                            for folder in sorted(os.listdir(path)):
-                                if 'S00' in self.numorder:
-                                    if self.numorder[:8].replace("/", "-") in folder:
-                                        output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
-                                        output_path_M = path / folder / "3-Fabricacion" / "Planos M"
-                                        break
-                                else:
-                                    if self.numorder.replace("/", "-") in folder:
-                                        output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
-                                        output_path_M = path / folder / "3-Fabricacion" / "Planos M"
-                                        break
+                                    break
 
                         if not os.path.exists(output_path_M):
                             os.makedirs(output_path_M)
