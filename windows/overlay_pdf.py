@@ -341,7 +341,7 @@ def drawing_number(num_order, info_drawing, counter):
     
     pdf.set_font("helvetica", "B", 12)
 
-    return io.BytesIO(pdf.output())
+    return io.BytesIO(pdf.output()), num_ot_text
 
 def drawing_number_x(num_order, info_drawing, counter):
     """
@@ -357,48 +357,6 @@ def drawing_number_x(num_order, info_drawing, counter):
     pdf.set_xy(163, 262)
 
     pdf.cell(37, 7, f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", align='C')
-
-    # order_id = f"{num_order} - {info_drawing[0].split('.')[0]}/{counter:02d} - {info_drawing[1]}"
-
-    # check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{order_id}'"
-
-    # insert_ot = ("""INSERT INTO fabrication.fab_order (
-    #                 "id","tag","element","qty_element",
-    #                 "ot_num","qty_ot","start_date")
-    #                 VALUES (%s,%s,%s,%s,%s,%s,%s)
-    #                 """)
-
-    # try:
-    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-    #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
-    #     worksheet = workbook.active
-    #     num_ot = worksheet['B2'].value
-
-    #     with Database_Connection(config()) as conn:
-    #         with conn.cursor() as cur:
-    #             cur.execute(check_ot)
-    #             results=cur.fetchall()
-
-    #     if len(results) == 0:
-    #         with Database_Connection(config()) as conn:
-    #             with conn.cursor() as cur:
-    #                 data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
-    #                 cur.execute(insert_ot, data)
-    #             conn.commit()
-
-    #         worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-    #         workbook.save(excel_file_path)
-    #         workbook.close()
-
-    #         num_ot_text = '{:06}'.format(int(num_ot) + 1)
-
-    #     else:
-    #         num_ot = '{:06}'.format(int(results[0][4]))
-    #         num_ot_text = '{:06}'.format(int(num_ot))
-
-    # except (Exception, psycopg2.DatabaseError) as error:
-    #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-    #                 + str(error), "critical")
 
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("IDAutomationHC39M", size=16)
@@ -477,7 +435,7 @@ def drawing_number_landscape(num_order, info_drawing, counter):
 
     pdf.set_font("helvetica", "B", 12)
 
-    return io.BytesIO(pdf.output())
+    return io.BytesIO(pdf.output()), num_ot_text
 
 def drawing_number_landscape_x(num_order, info_drawing, counter):
     """
@@ -493,47 +451,6 @@ def drawing_number_landscape_x(num_order, info_drawing, counter):
     pdf.set_xy(18, 263)
     with pdf.rotation(270):
         pdf.cell(23, 4, f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", align='C')
-
-    # order_id = f"{num_order} - {info_drawing[0].split('.')[0]}/{counter:02d} - {info_drawing[1]}"
-
-    # check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{order_id}'"
-
-    # insert_ot = ("""INSERT INTO fabrication.fab_order (
-    #                 "id","tag","element","qty_element",
-    #                 "ot_num","qty_ot","start_date")
-    #                 VALUES (%s,%s,%s,%s,%s,%s,%s)
-    #                 """)
-
-    # try:
-    #     excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-    #     workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
-    #     worksheet = workbook.active
-    #     num_ot = worksheet['B2'].value
-
-    #     with Database_Connection(config()) as conn:
-    #         with conn.cursor() as cur:
-    #             cur.execute(check_ot)
-    #             results=cur.fetchall()
-
-    #     if len(results) == 0:
-    #         with Database_Connection(config()) as conn:
-    #             with conn.cursor() as cur:
-    #                 data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
-    #                 cur.execute(insert_ot, data)
-    #             conn.commit()
-
-    #         worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-    #         workbook.save(excel_file_path)
-
-    #         num_ot_text = '{:06}'.format(int(num_ot) + 1)
-
-    #     else:
-    #         num_ot = '{:06}'.format(int(results[0][4]))
-    #         num_ot_text = '{:06}'.format(int(num_ot))
-
-    # except (Exception, psycopg2.DatabaseError) as error:
-    #     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-    #                 + str(error), "critical")
 
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("IDAutomationHC39M", size=16)
