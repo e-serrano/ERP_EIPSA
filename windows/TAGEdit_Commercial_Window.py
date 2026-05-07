@@ -24,7 +24,7 @@ from windows.Create_MatOrder import flow_matorder, temp_matorder, level_matorder
 from utils.Generate_Dim_Dwg import generate_dim_drawings
 from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
-from utils.Item_Prices import set_prices_flow, set_prices_temp
+from utils.Item_Prices import set_prices_flow, set_prices_temp, set_prices_level
 
 VARIABLE_TABLES = {
     "Caudal": ("tags_data.tags_flow", 40, 149, list(range(97, 103)) + [156, 157]), # table_check, initial_column, column_difference, excluded_range
@@ -2978,10 +2978,13 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 set_prices_flow(self.proxy, self.model)
             elif self.variable == 'Temperatura':
                 set_prices_temp(self.proxy, self.model)
-            # elif self.variable == 'Nivel':
-            #     set_level_prices(self.proxy, self.model)
+            elif self.variable == 'Nivel':
+                set_prices_level(self.proxy, self.model)
         #     elif self.variable == 'Otros':
         #         set_others_prices(self.proxy, self.model)
+
+            self.query_tags()
+            MessageHelper.show_message("Precios establecidos correctamente", "info")
 
 
 if __name__ == "__main__":
