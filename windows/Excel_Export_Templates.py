@@ -131,8 +131,7 @@ TEMP_EQ_TYPE_MAP = {
             1: "TW ELEMENTS DATA", 2: "TW+TE ELEMENTS DATA",
             3: "TW+BIM ELEMENTS DATA", 4: "TE ELEMENTS DATA",
             5: "BIM ELEMENTS DATA", 6: "TIT ELEMENTS DATA",
-            7: "SKIN POINT ELEMENTS DATA", 7: "SKIN+TT ELEMENTS DATA",
-            8: "MULTI-T ELEMENTS DATA"
+            7: "SKIN POINT ELEMENTS DATA", 8: "MULTI-T ELEMENTS DATA"
         }
 
 TEMP_COLUMNS_DROP_MAP = {
@@ -166,11 +165,6 @@ TEMP_COLUMNS_DROP_MAP = {
                 "material_flange_lj", "gasket_material", "puntal", "tube_t"
             ],
             "SKIN POINT ELEMENTS DATA": [
-                "tw_type", "size", "rating", "facing", "material_tw",
-                "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
-                "material_flange_lj", "gasket_material", "puntal", "tube_t"
-            ],
-            "SKIN+TT ELEMENTS DATA": [
                 "tw_type", "size", "rating", "facing", "material_tw",
                 "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
                 "material_flange_lj", "gasket_material", "puntal", "tube_t"
@@ -282,7 +276,6 @@ def adjust_images(sheet):
 
 
 # Templates for orders
-
 class offer_flow:
     """
     A class to manage export offer details for flow equipments.
