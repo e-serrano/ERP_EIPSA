@@ -2029,6 +2029,9 @@ def size_to_float(size):
     if 'N/A' in size:
         return 'N/A'
     
+    if 'HOLD' in size:
+        return 'HOLD'
+
     if '-' in size:              # ejemplo 1-1/2
         whole, frac = size.split('-')
         return float(whole) + float(Fraction(frac))
