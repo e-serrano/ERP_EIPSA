@@ -1884,63 +1884,72 @@ def material_list(proxy, model, variable, numoffer):
         for row in range(model.rowCount())
     }
 
-    for element in id_list:
-        row = row_map.get(element)
-        if row is None:
-            continue
+    if variable == 'Caudal':
+        for element in id_list:
+            row = row_map.get(element)
+            if row is None:
+                continue
 
-        if variable == 'Caudal':
+            row_data = [data(index(row, c)) for c in range(model.columnCount())]
             # appending [type_value, flange_material_value, element_material_value, size_value, rating_value, facing_value, schedule_value, qty_value]
             flow_list.append([
-                data(index(row, 8)),
-                data(index(row, 13)),
-                data(index(row, 19)),
-                data(index(row, 9)),
-                int(data(index(row, 10))) if data(index(row, 10)) != 'N/A' else data(index(row, 10)),
-                data(index(row, 11)),
-                data(index(row, 12)),
-                1 #* int(data(index(row, 34)))
+                row_data[8],
+                row_data[13],
+                row_data[19],
+                row_data[9],
+                int(row_data[10]) if row_data[10] not in ['N/A', 'HOLD', 'OTHERS'] else row_data[10],
+                row_data[11],
+                row_data[12],
+                1 * int(row_data[35])
                 ])
 
-        if variable == 'Temperatura':
+    elif variable == 'Temperatura':
+        for element in id_list:
+            row = row_map.get(element)
+            if row is None:
+                continue
             # [type_value, tw_type_value, tw_material_value, size_value, rating_value, facing_value, insertion_value, qty_value]
             temp_list.append([
-                data(index(row, 8)),
-                data(index(row, 9)),
-                data(index(row, 14)),
-                data(index(row, 10)),
-                int(data(index(row, 11))) if data(index(row, 11)) != 'N/A' else data(index(row, 11)),
-                data(index(row, 12)),
-                data(index(row, 16)),
-                1
+                row_data[8],
+                row_data[9],
+                row_data[14],
+                row_data[10],
+                int(row_data[11]) if row_data[11] not in ['N/A', 'HOLD', 'OTHERS'] else row_data[11],
+                row_data[12],
+                row_data[16],
+                1 * int(row_data[42])
                 ])
 
-        if variable == 'Nivel':
-            type_value = data(index(row, 8))
+    elif variable == 'Nivel':
+        for element in id_list:
+            row = row_map.get(element)
+            if row is None:
+                continue
+            type_value = row_data[8]
             if type_value == 'Magnetic':
                 # [type_value, body_material, conn_size, conn_rating, conn_facing, c-c_length, float_material, bolting_material, qty_value]
                 level_list.append([
-                    data(index(row, 8)),
-                    data(index(row, 10)),
-                    data(index(row, 12)),
-                    int(data(index(row, 13))) if data(index(row, 13)) != 'N/A' else data(index(row, 13)),
-                    data(index(row, 14)),
-                    data(index(row, 17)),
-                    data(index(row, 26)),
-                    data(index(row, 24)),
+                    row_data[8],
+                    row_data[10],
+                    row_data[12],
+                    int(row_data[13]) if row_data[13] != 'N/A' else row_data[13],
+                    row_data[14],
+                    row_data[17],
+                    row_data[26],
+                    row_data[24],
                     1
                     ])
             else:
                 # [type_value, body_material, conn_size, conn_rating, conn_facing, c-c_length, cover_material, bolting_material, qty_value]
                 level_list.append([
-                    data(index(row, 8)),
-                    data(index(row, 10)),
-                    data(index(row, 12)),
-                    int(data(index(row, 13))) if data(index(row, 13)) != 'N/A' else data(index(row, 13)),
-                    data(index(row, 14)),
-                    data(index(row, 27)),
-                    data(index(row, 26)),
-                    data(index(row, 24)),
+                    row_data[8],
+                    row_data[10],
+                    row_data[12],
+                    int(row_data[13]) if row_data[13] != 'N/A' else row_data[13],
+                    row_data[14],
+                    row_data[27],
+                    row_data[26],
+                    row_data[24],
                     1
                     ])
 
