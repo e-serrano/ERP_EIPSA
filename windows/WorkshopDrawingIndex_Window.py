@@ -4588,7 +4588,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
 
                 else:
-                    query = ('''
+                # Query to check if order has been created
+                    try:
+                        query = ('''
                             SELECT num_order, product_type."variable", offers."client", offers."final_client"
                             FROM orders
                             INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
@@ -4597,7 +4599,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
                             ''')
 
-                    try:
                         with Database_Connection(config_database()) as conn:
                             with conn.cursor() as cur:
                                 cur.execute(query,(self.numorder,))
@@ -4609,19 +4610,21 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                     + str(error), "critical")
 
-                    if results_variable == None:
+                    if results_variable is None:
                         MessageHelper.show_message("El número de pedido no existe", "warning")
 
                     else:
-                        query_variable = sql.SQL("""
+                    # Query to obtain variable and table of tags 
+                        try:
+                            query_variable = sql.SQL("""
                             SELECT 1
                             FROM {}.{}
                             WHERE num_order ILIKE %s
                             LIMIT 1
-                        """)
-                        results = {}
+                            """)
 
-                        try:
+                            results = {}
+
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
                                     for variable, table in TABLES_TAGS.items():
@@ -4663,32 +4666,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                         + str(error), "critical")
 
-                        order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
-
-                        path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if self.numorder[:2] == 'PA' else f"{order_year} Pedidos")
-                        for folder in sorted(os.listdir(path)):
-                            if 'S00' in self.numorder:
-                                if self.numorder[:8].replace("/", "-") in folder:
-                                    output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
-                                    output_path_M = path / folder / "3-Fabricacion" / "Planos M"
-                                    break
-                            else:
-                                if self.numorder.replace("/", "-") in folder:
-                                    output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
-                                    output_path_M = path / folder / "3-Fabricacion" / "Planos M"
-                                    break
-
-                        if not os.path.exists(output_path_M):
-                            os.makedirs(output_path_M)
-
-                        commands_select_m_drawing = ("""
+                    # Query to obtain M drawings of the order
+                        try:
+                            commands_select_m_drawing = ("""
                             SELECT drawing_number
                             FROM verification."m_drawing_verification"
                             WHERE "num_order" = %s
                             ORDER BY drawing_number DESC
                             """)
-
-                        try:
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:  
                                     cur.execute(commands_select_m_drawing,(self.numorder,))
@@ -4705,7 +4690,26 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         else:
                             counter_drawings = int(results_drawings_m[0][0][-2:])
 
+                    # Generate drawings for differents items
                         try:
+                            order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
+
+                            path = ORDERS_PATH / f"Año {order_year}" / (f"{order_year} Pedidos Almacen" if self.numorder[:2] == 'PA' else f"{order_year} Pedidos")
+                            for folder in sorted(os.listdir(path)):
+                                if 'S00' in self.numorder:
+                                    if self.numorder[:8].replace("/", "-") in folder:
+                                        output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
+                                        output_path_M = path / folder / "3-Fabricacion" / "Planos M"
+                                        break
+                                else:
+                                    if self.numorder.replace("/", "-") in folder:
+                                        output_path_Dim = path / folder / "3-Fabricacion" / "Planos Dimensionales"
+                                        output_path_M = path / folder / "3-Fabricacion" / "Planos M"
+                                        break
+
+                            if not os.path.exists(output_path_M):
+                                os.makedirs(output_path_M)
+
                             if self.table_toquery == "tags_data.tags_temp":
                             # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
