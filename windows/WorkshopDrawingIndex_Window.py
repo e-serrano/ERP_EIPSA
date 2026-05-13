@@ -2607,7 +2607,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 FROM offers
                                 INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                 INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
-                                WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                                WHERE UPPER(orders."num_order") ILIKE %s
                                 ORDER BY orders."num_order"
                                 """
 
