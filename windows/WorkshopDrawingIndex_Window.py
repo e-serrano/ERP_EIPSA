@@ -17,6 +17,7 @@ from utils.Database_Manager import Database_Connection, Create_DBconnection
 from utils.Show_Message import MessageHelper
 from config.config_functions import config_database, get_path
 import psycopg2
+from psycopg2 import sql
 import locale
 import os
 import sys
@@ -34,11 +35,19 @@ import ast
 import numpy as np
 
 STANDARD_TW_DIAMS = [35, 38, 40, 42, 45, 48, 50]
+
 GROUPS_TW_TYPES = {
     'Flanged TW': 'Flanged',
     'Flanged Helical': 'Flanged',
     'Buttweld TW': 'Not_Flanged',
     'Socket TW': 'Not_Flanged'
+}
+
+TABLES_TAGS = {
+    "Caudal": "tags_data.tags_flow",
+    "Temperatura": "tags_data.tags_temp",
+    "Nivel": "tags_data.tags_level",
+    "Otros": "tags_data.tags_others"
 }
 
 
@@ -4604,58 +4613,50 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         MessageHelper.show_message("El número de pedido no existe", "warning")
 
                     else:
-                        query_flow = ('''
-                            SELECT tags_data.tags_flow."num_order"
-                            FROM tags_data.tags_flow
-                            WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ''')
-
-                        query_temp = ('''
-                            SELECT tags_data.tags_temp."num_order"
-                            FROM tags_data.tags_temp
-                            WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ''')
-
-                        query_level = ('''
-                            SELECT tags_data.tags_level."num_order"
-                            FROM tags_data.tags_level
-                            WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ''')
-
-                        query_others = ('''
-                            SELECT tags_data.tags_others."num_order"
-                            FROM tags_data.tags_others
-                            WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ''')
+                        query_variable = sql.SQL("""
+                            SELECT 1
+                            FROM {}.{}
+                            WHERE num_order ILIKE %s
+                            LIMIT 1
+                        """)
+                        results = {}
 
                         try:
                             with Database_Connection(config_database()) as conn:
                                 with conn.cursor() as cur:
-                                    cur.execute(query_flow,(self.numorder,))
-                                    results_flow=cur.fetchall()
-                                    cur.execute(query_temp,(self.numorder,))
-                                    results_temp=cur.fetchall()
-                                    cur.execute(query_level,(self.numorder,))
-                                    results_level=cur.fetchall()
-                                    cur.execute(query_others,(self.numorder,))
-                                    results_others=cur.fetchall()
+                                    for variable, table in TABLES_TAGS.items():
 
-                            if len(results_flow) != 0 and len(results_temp) != 0:
-                                self.variable = 'Caudal + Temperatura'
-                            elif len(results_flow) != 0:
-                                self.variable = 'Caudal'
-                                self.table_toquery = "tags_data.tags_flow"
-                            elif len(results_temp) != 0:
-                                self.variable = 'Temperatura'
-                                self.table_toquery = "tags_data.tags_temp"
-                            elif len(results_level) != 0:
-                                self.variable = 'Nivel'
-                                self.table_toquery = "tags_data.tags_level"
-                            elif len(results_others) != 0:
-                                self.variable = 'Otros'
-                                self.table_toquery = "tags_data.tags_others"
+                                        schema, table_name = table.split(".")
+
+                                        query = query_variable.format(
+                                            sql.Identifier(schema),
+                                            sql.Identifier(table_name)
+                                        )
+                                        cur.execute(query, (self.numorder,))
+
+                                        results[variable] = cur.fetchone() is not None
+
+                            if results["Caudal"] and results["Temperatura"]:
+                                self.variable = "Caudal + Temperatura"
+
+                            elif results["Caudal"]:
+                                self.variable = "Caudal"
+                                self.table_toquery = TABLES_TAGS["Caudal"]
+
+                            elif results["Temperatura"]:
+                                self.variable = "Temperatura"
+                                self.table_toquery = TABLES_TAGS["Temperatura"]
+
+                            elif results["Nivel"]:
+                                self.variable = "Nivel"
+                                self.table_toquery = TABLES_TAGS["Nivel"]
+
+                            elif results["Otros"]:
+                                self.variable = "Otros"
+                                self.table_toquery = TABLES_TAGS["Otros"]
+
                             else:
-                                self.variable = ''
+                                self.variable = ""
                                 self.table_toquery = ""
 
                         except (Exception, psycopg2.DatabaseError) as error:
