@@ -4771,6 +4771,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 elif int(row["base_tw_diam"]) == 38:
                                                     reader.pages[3].merge_page(page2=page_overlay)
                                                     writer.add_page(reader.pages[3])
+                                                elif int(row["base_tw_diam"]) == 40:
+                                                    reader.pages[4].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[4])
 
                                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
