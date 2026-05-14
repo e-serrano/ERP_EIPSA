@@ -4543,7 +4543,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         if index.column() == 1:
             model = table.model()
             item_index = model.index(index.row(), 2)
-            drawing_number = model.data(item_index)[:4]
+            drawing_number = model.data(item_index)[:4] if 'M' in model.data(item_index)[:4] else model.data(item_index)
 
             order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
 
@@ -4566,7 +4566,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     for root, dirs, files in os.walk(folder_path):
                     # Loop in files to find the correct drawing
                         for filename in files:
-                            normalized_drawing = str(drawing_number.split('/')[0]) + '.pdf'
+                            normalized_drawing = str(drawing_number) + '.pdf'
 
                             file_path = os.path.normpath(os.path.join(root, normalized_drawing))
                             os.startfile(file_path)
