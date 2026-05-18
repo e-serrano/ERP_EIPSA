@@ -3234,7 +3234,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             pdf_verification.set_x(x_position + 19.35)
             pdf_verification.ln(1)
 
-            output_path = "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + ".pdf"
+            output_path = "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + "-" + supplier_name + ".pdf"
 
             if output_path:
                 pdf_verification.output(output_path)
