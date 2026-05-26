@@ -12,7 +12,8 @@ from windows.ReportArtMov_Window import Ui_ArtMov_Window
 from windows.ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
 from windows.ReportStockVal_Window import Ui_StockVal_Window
 import os
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
+from utils.Database_Manager import Database_Connection
 import pandas as pd
 import psycopg2
 from windows.PDF_Styles import pending_orders
@@ -21,9 +22,6 @@ from windows.PDF_Viewer import PDF_Viewer
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
-
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
@@ -64,7 +62,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         Purchasing_Reports_Menu.setMinimumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
         Purchasing_Reports_Menu.setMaximumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Reports_Menu.setWindowIcon(icon)
         if self.username == 'd.marquez':
             Purchasing_Reports_Menu.setStyleSheet("QWidget {\n"
@@ -307,7 +305,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -383,7 +381,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -417,8 +415,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         pdf = pending_orders()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
         pdf.set_font('Helvetica', 'B', 20)
         pdf.cell(9.5, 0.5, 'Artículos Pendientes De Entregar')
         pdf.set_font('Helvetica', 'B', 10)
@@ -466,7 +464,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp.pdf"))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
@@ -518,8 +516,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         pdf = pending_orders()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
         pdf.set_font('Helvetica', 'B', 20)
         pdf.cell(9.5, 0.5, 'Artículos Pendientes de Recibir')
         pdf.set_font('Helvetica', 'B', 10)
@@ -573,7 +571,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp.pdf"))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)
