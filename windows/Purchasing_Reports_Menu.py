@@ -345,7 +345,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         # execution of commands
             commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
                                             TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplier_ord_detail."unit_value",
-                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal, TO_CHAR(supplier_ord_header."delivery_date",'DD/MM/YYYY'), supplier_ord_header."notes"
+                                            supplier_ord_detail."pending" * supplier_ord_detail."unit_value" AS subtotal, TO_CHAR(supplier_ord_header."delivery_date",'DD/MM/YYYY'), supplier_ord_header."notes"
                                         FROM 
                                             purch_fact.supplier_ord_header AS supplier_ord_header
                                             INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
