@@ -22,6 +22,7 @@ from windows.PDF_Viewer import PDF_Viewer
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
+from utils.Show_Message import MessageHelper
 
 
 class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
@@ -262,33 +263,24 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
             Exception: If there is an issue with the database connection or query execution.
         """
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            commands_delivery_client = (""" SELECT supplies."reference", supplies."description", clients."name", client_ord_header."client_order_num",
-                                            TO_CHAR(client_ord_header."order_date",'DD/MM/YYYY'), ROUND(client_ord_detail."pending"::numeric, 2)
-                                        FROM 
-                                            purch_fact.client_ord_header AS client_ord_header
-                                            LEFT JOIN purch_fact.clients AS clients ON (client_ord_header."client_id" = clients."id")
-                                            JOIN purch_fact.client_ord_detail AS client_ord_detail ON (client_ord_header."id" = client_ord_detail."client_ord_header_id")
-                                            JOIN purch_fact.supplies AS supplies ON (client_ord_detail."supply_id" = supplies."id")
-                                        WHERE 
-                                            client_ord_detail."pending" > 0 
-                                        ORDER BY
-                                            clients."name"
-                                        """)
-            cur.execute(commands_delivery_client)
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_delivery_client = (""" SELECT supplies."reference", supplies."description", clients."name", client_ord_header."client_order_num",
+                                                    TO_CHAR(client_ord_header."order_date",'DD/MM/YYYY'), ROUND(client_ord_detail."pending"::numeric, 2)
+                                                FROM 
+                                                    purch_fact.client_ord_header AS client_ord_header
+                                                    LEFT JOIN purch_fact.clients AS clients ON (client_ord_header."client_id" = clients."id")
+                                                    JOIN purch_fact.client_ord_detail AS client_ord_detail ON (client_ord_header."id" = client_ord_detail."client_ord_header_id")
+                                                    JOIN purch_fact.supplies AS supplies ON (client_ord_detail."supply_id" = supplies."id")
+                                                WHERE 
+                                                    client_ord_detail."pending" > 0 
+                                                ORDER BY
+                                                    clients."name"
+                                                """)
+                    cur.execute(commands_delivery_client)
 
-            results = cur.fetchall()
-            df = pd.DataFrame(results, columns=["Referencia", "Descripción", "Cliente", "Nº Pedido", "Fecha Pedido", "Pendiente"])
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    results = cur.fetchall()
+                    df = pd.DataFrame(results, columns=["Referencia", "Descripción", "Cliente", "Nº Pedido", "Fecha Pedido", "Pendiente"])
 
             while True:
                 doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Informe", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
@@ -303,20 +295,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
                     break
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
     def purchaserefdate(self):
@@ -337,34 +317,25 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
             Exception: If there is an issue with the database connection or query execution.
         """
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
-                                            TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplier_ord_detail."unit_value",
-                                            supplier_ord_detail."pending" * supplier_ord_detail."unit_value" AS subtotal, TO_CHAR(supplier_ord_header."delivery_date",'DD/MM/YYYY'), supplier_ord_header."notes"
-                                        FROM 
-                                            purch_fact.supplier_ord_header AS supplier_ord_header
-                                            INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
-                                            INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
-                                            INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
-                                        WHERE 
-                                            supplier_ord_detail."pending" > 0 
-                                        ORDER BY
-                                            suppliers."name"
-                                        """)
-            cur.execute(commands_pending_client)
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
+                                                    TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplier_ord_detail."unit_value",
+                                                    supplier_ord_detail."pending" * supplier_ord_detail."unit_value" AS subtotal, TO_CHAR(supplier_ord_header."delivery_date",'DD/MM/YYYY'), supplier_ord_header."notes"
+                                                FROM 
+                                                    purch_fact.supplier_ord_header AS supplier_ord_header
+                                                    INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
+                                                    INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
+                                                    INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
+                                                WHERE 
+                                                    supplier_ord_detail."pending" > 0 
+                                                ORDER BY
+                                                    suppliers."name"
+                                                """)
+                    cur.execute(commands_pending_client)
 
-            results = cur.fetchall()
-            df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal", "Fecha Entrega", "Pedido"])
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    results = cur.fetchall()
+                    df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal", "Fecha Entrega", "Pedido"])
 
             while True:
                 doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Informe", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
@@ -379,20 +350,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
                     break
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
     def stockval(self):
