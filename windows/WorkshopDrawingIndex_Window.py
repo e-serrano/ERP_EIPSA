@@ -5365,12 +5365,81 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
 
+                                    elif 'D-3355/2' in item:
+                                        df_selected_final = df_selected[df_selected['description'].str.contains('D-3355/2')].copy()
+
+                                        df_grouped = df_selected_final.groupby(['description', 'dim_drawing']).size().reset_index(name="count")
+                                        grouped_equipment = df_grouped.groupby(['description', 'dim_drawing']).agg({"count": list}).reset_index()
+                                        total_count = grouped_equipment['count'].explode().sum()
+
+                                        dim_drawing = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-0.0 Cnj D-3355-2.pdf"
+                                        dim_description = str(total_count) + ' Vainas Múltiples Tubo D-3355-2'
+                                        dim_drawing_number = grouped_equipment.iloc[0]['dim_drawing']
+
+                                        dict_drawings_M = self.drawings_tw_3355_2(total_count)
+
+                                    # Write equipment data
+                                        writer = PdfWriter()
+                                        reader = PdfReader(dim_drawing)
+                                        page_overlay = PdfReader(dwg_dim_32218_32219(self.numorder, '321', zip(str(total_count)))).pages[0]
+
+                                        base_page = reader.pages[0]
+
+                                        base_page.merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
+                                        writer.write(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
+
+                                    # Write Drawing data
+                                        writer = PdfWriter()
+                                        reader = PdfReader(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
+                                        page_overlay, num_ot = drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)
+                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
+                                        writer.add_page(reader.pages[0])
+
+                                        writer.write(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
+
+                                        query_update_drawing = ("""
+                                            UPDATE verification.workshop_dim_drawings 
+                                            SET printed_date= %s, printed_state= %s
+                                            WHERE num_order = %s AND drawing_number = %s
+                                            """)
+
+                                        try:
+                                            with Database_Connection(config_database()) as conn:
+                                                with conn.cursor() as cur:
+                                                    cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
+                                                conn.commit()
+
+                                        except (Exception, psycopg2.DatabaseError) as error:
+                                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                        + str(error), "critical")
+
+                                        for drawing, description in dict_drawings_M.items():
+                                            counter_drawings += 1
+                                            with open(drawing, 'rb') as f:
+                                                writer = PdfWriter()
+                                                reader = PdfReader(f)
+                                                base_page = reader.pages[0]
+
+                                                if counter_drawings in (1, 10, 11):
+                                                    pdf_buffer = dwg_m_welding_32218_32219(self.numorder, '321', zip(str(total_count)))
+                                                else:
+                                                    pdf_buffer = dwg_m_32218_32219(self.numorder, '321', zip(str(3*int(total_count)))) if any(code in drawing for code in ['TVMTUD-1.3', 'TVMTUD-1.4']) else dwg_m_32218_32219(self.numorder, '321', zip(str(total_count)))
+
+                                                page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                
+                                                base_page.merge_page(page2=page_overlay)
+                                                writer.add_page(base_page)
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
+
                             # Loop to add the drawing number and insert into the database
                                 for key, value in dict_drawings.items():
                                     if os.path.exists(key):
                                         writer = PdfWriter()
                                         reader = PdfReader(key)
-                                        if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras']):
+                                        if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras', 'Orientación', 'Posicionado']):
                                             page_overlay, num_ot = drawing_number_landscape(self.numorder, value, counter_drawings)
                                         else:
                                             page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
@@ -5812,7 +5881,46 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         return drawings_dict
 
+    def drawings_tw_3355_2(self, equipment_count):
+        drawings_dict = {}
 
+        drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.0 ConjVainaMultipleTubo.pdf"
+        drawing_path_2 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.1 05.00-0600-RF BridaUnion.pdf"
+        drawing_path_3 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.2 TuboVaina.pdf"
+        drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.2.1 TaponCierreVaina.pdf"
+        drawing_path_5 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.3 TuboSensor.pdf"
+        drawing_path_6 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.3.1 AccesorioFijacion.pdf"
+        drawing_path_7 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.4 Reduccion 0.25 SW-NPT.pdf"
+        drawing_path_8 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.5.1 Purgador.pdf"
+        drawing_path_9 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.5.2 TapónPurgador.pdf"
+        drawing_path_10 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.6.1 OrientaciónTubos.pdf"
+        drawing_path_11 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\D-3355-2\TVMTUD-1.6.2 OrientaciónTubos.pdf"
+        
+        description_1 = 'Mapa Soldaduras'
+        description_2 = str(equipment_count) + ' Bridas 5" 600# RF 321'
+        description_3 = str(equipment_count) + ' Tubos Vaina 3" SCH XXS 321'
+        description_4 = str(equipment_count) + ' Tapones Cierre Vaina 321'
+        description_5 = str(3 * int(equipment_count)) + ' Tubo Vaina 1/4" SCH 321'
+        description_6 = str(3 * int(equipment_count)) + ' Accesorios Fijación 321'
+        description_7 = str(3 * int(equipment_count)) + ' Reducciones 321'
+        description_8 = str(equipment_count) + ' Soportes de tapón 321'
+        description_9 = str(equipment_count) + ' Tapones Purgadores 321'
+        description_10 = 'Orientación Tubos'
+        description_11 = 'Posicionado Tubos'
+
+        drawings_dict.update({drawing_path_1: description_1,
+                            drawing_path_2: description_2,
+                            drawing_path_3: description_3,
+                            drawing_path_4: description_4,
+                            drawing_path_5: description_5,
+                            drawing_path_6: description_6,
+                            drawing_path_7: description_7,
+                            drawing_path_8: description_8,
+                            drawing_path_9: description_9,
+                            drawing_path_10: description_10,
+                            drawing_path_11: description_11})
+
+        return drawings_dict
 
 if __name__ == "__main__":
     import sys
