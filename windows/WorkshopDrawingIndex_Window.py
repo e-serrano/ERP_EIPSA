@@ -5129,10 +5129,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             exterior_size = row['description'].split(' / ')[1]
 
                                             if connection_3 == 'Flanged':
-                                                coded_connection = (('-0' + exterior_size.split(' ')[0].split('"')[0] if len(exterior_size.split(' ')[0]) == 2 else '-') + ('.5' if ' 1/2' in exterior_size.split(' ')[0] else ('0.75' if '3/4' in exterior_size.split(' ')[0] else '.0')) +
+                                                coded_connection = (('-0' + (exterior_size.split(' ')[0].split('"')[0] + '.0') if len(exterior_size.split(' ')[0]) == 2 else 
+                                                                        ('-01.5' if '1-1/2' in exterior_size.split(' ')[0] else 
+                                                                        ('-0.5' if '1/2' in exterior_size.split(' ')[0] else 
+                                                                        ('-0.75' if '3/4' in exterior_size.split(' ')[0] else '.0')))) +
                                                                     ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-') + ' ' + str(exterior_size.split(' ')[2]))
 
-                                            if coded_connection in ['-0.75-0150', '-0.75-0300', '-01.0-0150', '-01.0-0300', '-1.5-0150']:
+                                            if coded_connection in ['-0.75-0150 RF', '-0.75-0300 RF', '-01.0-0150 RF', '-01.0-0300 RF', '-1.5-0150 RF']:
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
                                             else:
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B{coded_connection}.pdf"
