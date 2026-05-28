@@ -4713,7 +4713,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             if self.table_toquery == "tags_data.tags_temp":
                             # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
-                                    SELECT *
+                                    SELECT id_tag_temp, tw_type, size, rating, facing, std_tw, material_tw, std_length,
+                                            root_diam, tip_diam, bore_diam, tip_thk, base_tw_diam, notes_tw
                                     FROM tags_data.tags_temp
                                     WHERE UPPER (num_order) ILIKE %s and tag_state = 'PURCHASED' and position NOT LIKE '%%ZZZ%%'
                                     ''')
@@ -4724,18 +4725,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
 
-                                    df_general = pd.DataFrame(results_tags)
+                                    df_selected = pd.DataFrame(results_tags, columns=['id', 'type', 'size', 'rating', 'facing',
+                                                                                    'std_tw', 'material', 'std_length',
+                                                                                    'root_diam', 'tip_diam', 'bore_diam',
+                                                                                    'tip_thk', 'base_tw_diam', 'notes_tw'])
 
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
-
-                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 53, 54]].copy()
-                                df_selected.rename(columns={
-                                    0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                    12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam', 18: 'tip_diam',
-                                    19: 'bore_diam', 21: 'tip_thk', 53: 'base_tw_diam', 54: 'notes_tw'
-                                }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
                                 df_selected['group'] = df_selected['type'].map(GROUPS_TW_TYPES)
@@ -4854,7 +4851,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             elif self.table_toquery == "tags_data.tags_flow":
                             # Obtain the data from the database for flow tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
-                                    SELECT *
+                                    SELECT id_tag_flow, tag, item_tipe, line_size, rating, faching, schedule, flange_material, flange_type, tube_material,
+                                        tapping_size, tapping_number, tapping_orientation, gasket_material, pipe_int_diam, notes_equipment
                                     FROM tags_data.tags_flow
                                     WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
                                     ''')
@@ -4865,19 +4863,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
 
-                                    df_general = pd.DataFrame(results_tags)
+                                    df_selected = pd.DataFrame(results_tags,
+                                                            columns=['id', 'tag', 'type', 'size', 'rating',
+                                                                    'facing', 'schedule', 'material', 'flange_type',
+                                                                    'tube_material', 'tapping_size', 'tapping_number', 'tapping_orientation', 
+                                                                    'gasket', 'pipe_int_diam', 'notes_equipment'])
 
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
-
-                                df_selected = df_general.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 61, 90]].copy()
-                                df_selected.rename(columns={
-                                    0: 'id', 1: 'tag', 8: 'type', 9: 'size', 10: 'rating',
-                                    11: 'facing', 12: 'schedule', 13: 'material', 14:'flange_type',
-                                    15: 'tube_material', 16: 'tapping_size', 17: 'tapping_number', 18: 'tapping_orientation', 
-                                    23: 'gasket', 61: 'pipe_int_diam', 90: 'notes_equipment'
-                                }, inplace=True)
 
                                 df_selected['tapping'] = df_selected.apply(
                                 lambda row: str(row['tapping_size']) + " (" + str(row['tapping_number']) + ")",
@@ -5088,7 +5082,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             elif self.table_toquery == "tags_data.tags_others":
                             # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
-                                    SELECT *
+                                    SELECT id_tag_others, description, code_equipment, dim_drawing
                                     FROM tags_data.tags_others
                                     WHERE UPPER (num_order) ILIKE %s and tag_state = 'PURCHASED' and position NOT LIKE '%%ZZZ%%'
                                     ''')
@@ -5099,16 +5093,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query,(self.numorder,))
                                             results_tags=cur.fetchall()
 
-                                    df_general = pd.DataFrame(results_tags)
+                                    df_selected = pd.DataFrame(results_tags, columns = ['id', 'description', 'code_equipment', 'dim_drawing'])
 
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
-
-                                df_selected = df_general.iloc[:, [0, 8, 9, 15]].copy()
-                                df_selected.rename(columns={
-                                    0: 'id', 8: 'description', 9: 'code_equipment', 15: 'dim_drawing'
-                                }, inplace=True)
 
                             # Loop through different types of equipment and create drawings accordingly
                                 for item in df_selected['description'].unique().tolist():
