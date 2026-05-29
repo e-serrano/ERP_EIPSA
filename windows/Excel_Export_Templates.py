@@ -147,7 +147,7 @@ TEMP_COLUMNS_DROP_MAP = {
             "TW+BIM ELEMENTS DATA": [
                 "std_length", "nipple_ext_length", "tt_cerblock", "puntal", "tube_t"
             ],
-            "TE ELEMENTS DATA": [  # 
+            "TE ELEMENTS DATA": [ 
                 "tw_type", "size", "rating", "facing", "material_tw",
                 "std_length", "root_diam", "tip_diam", "temp_inf", "temp_sup",
                 "nipple_ext_material", "nipple_ext_length", "head_case_material", "elec_conn_case_diam", "tt_cerblock",
@@ -366,7 +366,7 @@ class offer_flow:
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -374,7 +374,7 @@ class offer_flow:
                         "pipe_spec", "aprox_weight"
                     ], axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -868,7 +868,7 @@ class offer_short_flow_spanish:
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -876,7 +876,7 @@ class offer_short_flow_spanish:
                         "pipe_spec", "aprox_weight"
                     ], axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -1320,7 +1320,7 @@ class offer_short_flow_english:
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -1328,7 +1328,7 @@ class offer_short_flow_english:
                         "pipe_spec", "aprox_weight"
                     ], axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -1820,7 +1820,7 @@ class offer_temp:
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -1829,7 +1829,7 @@ class offer_temp:
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -2314,7 +2314,7 @@ class offer_short_temp_spanish:
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -2323,7 +2323,7 @@ class offer_short_temp_spanish:
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -2763,7 +2763,7 @@ class offer_short_temp_english:
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -2772,7 +2772,7 @@ class offer_short_temp_english:
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -3259,14 +3259,14 @@ class offer_level:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -3754,14 +3754,14 @@ class offer_short_level_spanish:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -4198,14 +4198,14 @@ class offer_short_level_english:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
+                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
-                number_items = df.shape[0]
+                number_items = df["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -4675,6 +4675,8 @@ class offer_flow_temp:
                         """
 
         try:
+            columns_flow = []
+            columns_temp = []
             with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query_dataoffer, (numoffer,))
@@ -4690,16 +4692,14 @@ class offer_flow_temp:
                     cur.execute(query_tagsdata_flow, (numoffer,))
                     data_tags_flow = cur.fetchall()
 
+                    for elt in cur.description:
+                        columns_flow.append(elt[0])
+
                     cur.execute(query_tagsdata_temp, (numoffer,))
                     data_tags_temp = cur.fetchall()
 
-            columns_flow = []
-            for elt in cur.description:
-                columns_flow.append(elt[0])
-
-            columns_temp = []
-            for elt in cur.description:
-                columns_temp.append(elt[0])
+                    for elt in cur.description:
+                        columns_temp.append(elt[0])
 
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -4709,7 +4709,7 @@ class offer_flow_temp:
                 df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
-                total_amount_material = df_flow["amount"].sum()
+                total_amount_material = (df_flow["amount"] * df_flow["item_quantity"]).sum()
                 df_flow = df_flow.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -4722,7 +4722,7 @@ class offer_flow_temp:
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
-                total_amount_material = df_temp["amount"].sum()
+                total_amount_material = (df_temp["amount"] * df_temp["item_quantity"]).sum()
                 df_temp = df_temp.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -4731,7 +4731,7 @@ class offer_flow_temp:
                     ],
                     axis=1,)
 
-                number_items = df_flow.shape[0] + df_temp.shape[0]
+                number_items = df_flow["item_quantity"].sum() + df_temp["item_quantity"].sum()
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -5367,23 +5367,23 @@ class offer_flow_temp_level:
                     cur.execute(query_tagsdata_flow, (numoffer,))
                     data_tags_flow = cur.fetchall()
 
+                    columns_flow = []
+                    for elt in cur.description:
+                        columns_flow.append(elt[0])
+
                     cur.execute(query_tagsdata_temp, (numoffer,))
                     data_tags_temp = cur.fetchall()
+
+                    columns_temp = []
+                    for elt in cur.description:
+                        columns_temp.append(elt[0])
 
                     cur.execute(query_tagsdata_level, (numoffer,))
                     data_tags_level = cur.fetchall()
 
-            columns_flow = []
-            for elt in cur.description:
-                columns_flow.append(elt[0])
-            
-            columns_temp = []
-            for elt in cur.description:
-                columns_temp.append(elt[0])
-
-            columns_level = []
-            for elt in cur.description:
-                columns_level.append(elt[0])
+                    columns_level = []
+                    for elt in cur.description:
+                        columns_level.append(elt[0])
 
             if len(data_tags_flow) == 0 or len(data_tags_temp) == 0 or len(data_tags_level) == 0:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
@@ -5393,7 +5393,7 @@ class offer_flow_temp_level:
                 df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
-                total_amount_material = df_flow["amount"].sum()
+                total_amount_material_flow = (df_flow["amount"] * df_flow["item_quantity"]).sum()
                 df_flow = df_flow.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -5406,7 +5406,7 @@ class offer_flow_temp_level:
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
-                total_amount_material = df_temp["amount"].sum()
+                total_amount_material_temp = (df_temp["amount"] * df_temp["item_quantity"]).sum()
                 df_temp = df_temp.drop([
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
@@ -5420,14 +5420,15 @@ class offer_flow_temp_level:
                 df_level["value_type"] = df_level["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df_level = df_level.sort_values(by=["value_type", "tag"])
                 df_level["amount"] = df_level["amount"].apply(euros_to_float)
-                total_amount_material = df_level["amount"].sum()
+                total_amount_material_level = df_level["amount"].sum()
                 df_level = df_level.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
                     ],
                     axis=1,)
 
-                number_items = df_flow.shape[0] + df_temp.shape[0] + df_level.shape[0]
+                total_amount_material = total_amount_material_flow + total_amount_material_temp + total_amount_material_level
+                number_items = df_flow["item_quantity"].sum() + df_temp["item_quantity"].sum() + df_level.shape[0]
                 documentation = number_items * 70
 
                 # Loading Excel Template
