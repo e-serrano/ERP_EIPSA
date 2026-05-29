@@ -939,9 +939,17 @@ class Ui_CreateTAGTemp_Window(object):
                             "ins_length","root_diam","tip_diam","sensor_element","sheath_stem_material",
                             "sheath_stem_diam","insulation","temp_inf","temp_sup","nipple_ext_material",
                             "nipple_ext_length","head_case_material","elec_conn_case_diam","tt_cerblock","material_flange_lj",
-                            "gasket_material","puntal","tube_t","nace","offer_notes","amount"
+                            "gasket_material","puntal","tube_t","nace","offer_notes",
+                            "amount","item_quantity"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s,%s,%s,%s,
+                                    %s,%s)
                             """)
             conn = None
             try:
@@ -957,7 +965,8 @@ class Ui_CreateTAGTemp_Window(object):
                         insertionlength,rootdiam,tipdiam,sensor,sheathstemmat,
                         sheatstemdiam,insulation,tempinf,tempsup,nipextmat,
                         nipextlength,headcasemat,elecconn_casedial,ttcerblock,flangelapjointmat,
-                        gasketmat,puntal,tube_t,nace,notes,amount,)
+                        gasketmat,puntal,tube_t,nace,notes,
+                        amount,1,)
                 cur.execute(commands_inserttagtemp,data)
             # close communication with the PostgreSQL database server
                 cur.close()

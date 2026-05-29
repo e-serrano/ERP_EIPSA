@@ -819,7 +819,7 @@ class Ui_CreateTAGFlow_Window(object):
                             "tapping_size", "tapping_number","tapping_orientation",
                             "element_material","plate_type","plate_thk","plate_std",
                             "gasket_material","bolts_material","nuts_material","nace","stages_number","pipe_spec",
-                            "aprox_weight","aprox_length","offer_notes","amount"
+                            "aprox_weight","aprox_length","offer_notes","amount","item_quantity"
                             )
                             VALUES (%s,%s,%s,%s,%s,
                                     %s,%s,%s,%s,%s,
@@ -827,7 +827,7 @@ class Ui_CreateTAGFlow_Window(object):
                                     %s,%s,%s,
                                     %s,%s,%s,%s,
                                     %s,%s,%s,%s,%s,%s,
-                                    %s,%s,%s,%s)
+                                    %s,%s,%s,%s,%s)
                             """)
 
             try:
@@ -839,7 +839,7 @@ class Ui_CreateTAGFlow_Window(object):
                                 tapping,tapping_num,tapping_orient,
                                 elementmat,platetype,platethk,platestd,
                                 gasketmat,boltsmat,nutsmat,nace,numstages,pipespec,
-                                weight,length,notes,amount)
+                                weight,length,notes,amount,1,)
                         cur.execute(commands_inserttagflow,data)
                     conn.commit()
 
