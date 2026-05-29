@@ -246,13 +246,16 @@ class Ui_OTFabOrder_Window(object):
         for i in range(1,self.tableOT.rowCount()):
             text_col_0 = self.tableOT.item(i, 0).text()
             if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or 'RO' in text_col_0):
-                self.num_ot = ''
-            else:
-                use_same_ot = (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
+                it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(i, 5, it)
+                continue
 
-                # Increase num_ot only if we are not using the same number and it is not the first row
-                if not use_same_ot and i > 0:
-                    self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
+            use_same_ot = (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
+
+            # Increase num_ot only if we are not using the same number and it is not the first row
+            if not use_same_ot and i > 0:
+                self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
 
             it = QtWidgets.QTableWidgetItem(str(self.num_ot))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
