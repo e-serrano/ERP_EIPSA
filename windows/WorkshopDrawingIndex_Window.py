@@ -51,22 +51,6 @@ TABLES_TAGS = {
 }
 
 
-def imagen_to_base64(imagen):
-    """
-    Converts an image in PNG format to a base64 encoded string.
-
-    Args:
-        imagen: An instance of QImage or QPixmap to be converted.
-    Return: 
-        A base64 encoded string representing the image in PNG format.
-    """
-    buffer = QtCore.QBuffer()
-    buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
-    imagen.save(buffer, ".png")
-    base64_data = buffer.data().toBase64().data().decode()
-    return base64_data
-
-
 class CheckboxWidget(QtWidgets.QWidget):
     """
     A custom QWidget class that creates a widget with a checkbox.
@@ -5913,6 +5897,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             drawing_path_11: description_11})
 
         return drawings_dict
+
+
 
 if __name__ == "__main__":
     import sys
