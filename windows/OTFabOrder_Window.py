@@ -236,11 +236,11 @@ class Ui_OTFabOrder_Window(object):
                         + str(error), "critical")
 
         it = QtWidgets.QTableWidgetItem(str(self.num_ot))
-        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+        it.setFlags(it.flags()) # & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 4, it)
 
         it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
-        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+        it.setFlags(it.flags()) # & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 5, it)
 
         for i in range(1,self.tableOT.rowCount()):
