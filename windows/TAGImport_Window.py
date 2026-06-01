@@ -304,7 +304,7 @@ class Ui_ImportTAG_Window(object):
             df_final = df_table.iloc[:, config_tags['columns_range'][0]:config_tags['columns_range'][1]]
 
         # Validate required columns
-            empty_columns = [col for col in config_tags['required_columns'] if df_table[col].eq('').sum() > 0]
+            empty_columns = [col for col in config_tags['required_columns'] if self.is_empty(df_table[col]).any()]
             if empty_columns:
                 MessageHelper.show_message(
                     f"Las siguientes columnas no pueden tener celdas vacías:\n{', '.join(empty_columns)}\n\n"
@@ -406,7 +406,12 @@ class Ui_ImportTAG_Window(object):
             if wb is not None:
                 del wb
 
-
+    def is_empty(self, series):
+        return (
+            series.isna() |
+            series.astype(str).str.strip().eq('') |
+            series.eq('nan')
+        )
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
