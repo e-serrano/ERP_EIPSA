@@ -41,8 +41,8 @@ FLOW_COLUMNS = ["id_tag_flow", "tag", "tag_state", "num_offer", "num_order", "nu
 				"item_type", "line_size", "rating", "facing", "schedule", "flange_material", "flange_type", "tube_material",
 				"tapping_size", "tapping_number", "tapping_orientation", "element_material", "plate_type", "plate_thk", "plate_std",
 				"gasket_material", "bolts_material", "nuts_material", "valve_conn", "valve_material_body", "stages_number", "pipe_spec",
-				"paint_system", "aprox_weight", "aprox_length", "nace", "material_certificate", "item_quantity",
-				"amount", "offer_notes", "commercial_changes", "contractual_date",
+				"paint_system", "aprox_weight", "aprox_length", "nace", "material_certificate", "item_quantity", "min_price", "medium_price", "pvp_price",
+				"amount", "notes_price", "offer_notes", "commercial_changes", "contractual_date",
 				"orif_diam", "dv_diam", "gasket_quantity", "bolts_size", "bolts_quantity", "plug_material", "plug_quantity",
 				"jack_screw_material", "jack_screw_size", "jack_screw_quantity", "rtj_porta_material", "rtj_thickness", "rtj_r_type",
 				"notes_flange", "notes_stud", "notes_nut", "notes_plate", "notes_gasket", "notes_plugs", "notes_jack_screw", "notes_presure_taps",
@@ -174,13 +174,13 @@ LEVEL_HEADERS = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posic
 				"Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
 				"Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
 				"Estado Verif. OF", "Notas Verif. OF", "Fotos",
-				"Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
+				"Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2", "% Fact."]
 
 LEVEL_COLUMNS = ["id_tag_level", "tag", "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
 				"item_type", "model_num", "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", "proc_conn_facing",
 				"conn_type", "visibility", "cc_length", "valve_type", "dv_conn", "dv_size", "dv_rating", "dv_facing", "gasket_mica", "stud_nuts_material",
 				"illuminator", "float_material", "case_cover_material", "scale_type", "flags", "ip_code", "flange_type", "nipple_hex", "nipple_tub",
-				"antifrost", "nace", "min_price", "medium_price", "max_price", "amount", "notes_prices", "offer_notes", "commercial_changes", "contractual_date",
+				"antifrost", "nace", "min_price", "medium_price", "pvp_price", "amount", "notes_prices", "offer_notes", "commercial_changes", "contractual_date",
 				"float_dim", "flange_gasket", "technical_changes", "technical_notes", "dwg_num_doc_eipsa", "dwg_state", "dwg_state_date", "dwg_notes",
 				"purchase_order", "purchase_order_date", "purchase_order_notes", "dim_drawing", "of_drawing", "of_date", "notes_equipment",
 				"heat_number_body", "cert_body", "heat_number_body_vlv", "cert_body_vlv", "heat_number_flange_vlv", "cert_flange_vlv",
@@ -214,7 +214,8 @@ OTHERS_HEADERS = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posi
 				"Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
 				"Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
 				"Estado Verif. OF", "Notas Verif. OF", "Fotos",
-				"Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
+				"Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact",
+				"Fotos 2", "Número Fact.", "% Fact.", "Cod. Compra Item"]
 
 OTHERS_COLUMNS = ["id_tag_others", "tag", "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
 					"description", "code_equipment", "nace", "amount", "offer_notes", "commercial_changes", "contractual_date",
