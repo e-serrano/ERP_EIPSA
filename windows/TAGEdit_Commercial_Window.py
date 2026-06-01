@@ -1539,7 +1539,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 columns_number=self.model.columnCount()
                 for column in range(columns_number):
                     self.tableEditTags.setItemDelegateForColumn(column, None)
-                if self.username is not None and self.username != 'e.serrano':
+                if self.username is not None:
                     self.model.column_range = range(0,columns_number)
                 else:
                     self.model.column_range = [c for c in range(self.initial_column, columns_number) if c not in self.excluded_range]
@@ -2901,6 +2901,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db, 'e.serrano')
+    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db, 'l.minguez')
     EditTagsCommercial_Window.show()
     sys.exit(app.exec())
