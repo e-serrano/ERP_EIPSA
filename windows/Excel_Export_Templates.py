@@ -362,7 +362,7 @@ class offer_flow:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -371,7 +371,7 @@ class offer_flow:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight"
+                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
                     ], axis=1,)
 
                 number_items = df["item_quantity"].sum()
@@ -864,7 +864,7 @@ class offer_short_flow_spanish:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -873,7 +873,7 @@ class offer_short_flow_spanish:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight"
+                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
                     ], axis=1,)
 
                 number_items = df["item_quantity"].sum()
@@ -1316,7 +1316,7 @@ class offer_short_flow_english:
 
                 # Setting the dataframe with the equipment data
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -1325,7 +1325,7 @@ class offer_short_flow_english:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight"
+                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
                     ], axis=1,)
 
                 number_items = df["item_quantity"].sum()
@@ -1816,7 +1816,7 @@ class offer_temp:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:45]
+                df = df.iloc[:, 1:49]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -1825,7 +1825,8 @@ class offer_temp:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -2310,7 +2311,7 @@ class offer_short_temp_spanish:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:45]
+                df = df.iloc[:, 1:49]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -2319,7 +2320,8 @@ class offer_short_temp_spanish:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -2759,7 +2761,7 @@ class offer_short_temp_english:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:45]
+                df = df.iloc[:, 1:49]
                 df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
@@ -2768,7 +2770,8 @@ class offer_short_temp_english:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -3255,14 +3258,15 @@ class offer_level:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -3750,14 +3754,15 @@ class offer_short_level_spanish:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -4194,14 +4199,15 @@ class offer_short_level_english:
                     columns.append(elt[0])
 
                 df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:38]
+                df = df.iloc[:, 1:42]
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
                 total_amount_material = (df["item_quantity"] * df["amount"]).sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -4705,7 +4711,7 @@ class offer_flow_temp:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:38]
+                df_flow = df_flow.iloc[:, 1:42]
                 df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
@@ -4718,7 +4724,7 @@ class offer_flow_temp:
                     ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp = df_temp.iloc[:, 1:43]
+                df_temp = df_temp.iloc[:, 1:49]
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
@@ -5270,6 +5276,7 @@ class offer_flow_temp:
                 del self.wb_commercial, self.wb_technical
 
         except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
@@ -5389,7 +5396,7 @@ class offer_flow_temp_level:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
             else:
                 df_flow = pd.DataFrame(data=data_tags_flow, columns=columns_flow)
-                df_flow = df_flow.iloc[:, 1:38]
+                df_flow = df_flow.iloc[:, 1:42]
                 df_flow["value_type"] = df_flow["item_type"].map(FLOW_VALUE_TYPE_MAP)
                 df_flow = df_flow.sort_values(by=["value_type", "tag"])
                 df_flow["amount"] = df_flow["amount"].apply(euros_to_float)
@@ -5398,11 +5405,11 @@ class offer_flow_temp_level:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight"
+                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
                     ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
-                df_temp = df_temp.iloc[:, 1:45]
+                df_temp = df_temp.iloc[:, 1:49]
                 df_temp["value_type"] = df_temp["item_type"].map(TEMP_VALUE_TYPE_MAP)
                 df_temp = df_temp.sort_values(by=["value_type", "tag"])
                 df_temp["amount"] = df_temp["amount"].apply(euros_to_float)
@@ -5411,19 +5418,21 @@ class offer_flow_temp_level:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
                 df_level = pd.DataFrame(data=data_tags_level, columns=columns_level)
-                df_level = df_level.iloc[:, 1:38]
+                df_level = df_level.iloc[:, 1:42]
                 df_level["value_type"] = df_level["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df_level = df_level.sort_values(by=["value_type", "tag"])
                 df_level["amount"] = df_level["amount"].apply(euros_to_float)
                 total_amount_material_level = df_level["amount"].sum()
                 df_level = df_level.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub"
+                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
@@ -7533,7 +7542,7 @@ class workshop_hours:
                 else:
                     cell.value = value
 
-        start_row = 5
+        start_row = 6
         sheet_name = "O-"  # Selecting template sheet
         ws = self.wb[sheet_name]
 

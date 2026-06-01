@@ -121,127 +121,143 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
         flange_material = data(index(row, 13))
         sch = data(index(row, 12))
-        design_flange = str(data(index(row, 61))).replace('.', ',') # pipe internal diameter
+        design_flange = str(data(index(row, 65))).replace('.', ',') # pipe internal diameter
         size = f"{data(index(row,9))} {data(index(row,10))} {data(index(row,11))}"
+        quantity_equipment = int(data(index(row, 35)))
 
         all_list_parts =[]
 
         # setting list for eache element [code_element, code_fab_element, trad_element, design_element, process_element, material_element, qty_element, code_purch_element]
-        code_orifice_flange = data(index(row, 162))
+        code_orifice_flange = data(index(row, 166))
         if code_orifice_flange:
             orifice_flange_list.append([
                 code_orifice_flange,
-                data(index(row, 174)), # code fab orifice flange
-                data(index(row, 198)), # trad orifice flange
+                data(index(row, 178)), # code fab orifice flange
+                data(index(row, 202)), # trad orifice flange
                 sch,
                 design_flange,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 186))) * int(data(index(row, 35))), # quantity orifice flange per equipment * number of equipments
-                data(index(row, 210)) # code purch orifice flange
+                int(data(index(row, 190))) * quantity_equipment, # quantity orifice flange per equipment * number of equipments
+                data(index(row, 214)) # code purch orifice flange
                 ])
             all_list_parts.append(orifice_flange_list)
 
-        code_line_flange = data(index(row, 163))
+        code_line_flange = data(index(row, 167))
         if code_line_flange:
             line_flange_list.append([
                 code_line_flange,
-                data(index(row, 175)), # code fab line flange
-                data(index(row, 199)), # trad line flange
+                data(index(row, 179)), # code fab line flange
+                data(index(row, 203)), # trad line flange
                 sch,
                 design_flange,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 187))) * int(data(index(row, 35))), # quantity line flange per equipment * number of equipments
-                data(index(row, 211)) # code purch line flange
+                int(data(index(row, 191))) * quantity_equipment, # quantity line flange per equipment * number of equipments
+                data(index(row, 215)) # code purch line flange
                 ])
             all_list_parts.append(line_flange_list)
 
-        code_gasket = data(index(row, 164))
+        code_gasket = data(index(row, 168))
         if code_gasket:
             gasket_list.append([
                 code_gasket,
-                data(index(row, 176)), # code fab gasket
-                data(index(row, 200)), # trad gasket
+                data(index(row, 180)), # code fab gasket
+                data(index(row, 204)), # trad gasket
                 size,
                 '',
                 '',
                 '',
-                int(data(index(row, 42))) * int(data(index(row, 35))), # quantity gasket per equipment * number of equipments
-                data(index(row, 212))]) # code purch gasket
+                int(data(index(row, 46))) * quantity_equipment, # quantity gasket per equipment * number of equipments
+                data(index(row, 216))]) # code purch gasket
             all_list_parts.append(gasket_list)
 
-        code_bolts = data(index(row, 165))
+        code_bolts = data(index(row, 169))
         if code_bolts:
             bolts_list.append([
                 code_bolts,
-                data(index(row, 177)), # code fab bolts
-                data(index(row, 201)), # trad bolts
+                data(index(row, 181)), # code fab bolts
+                data(index(row, 205)), # trad bolts
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
                 data(index(row, 24)) + " / " + data(index(row, 25)),
-                (int(data(index(row, 44))) if data(index(row, 44)) != '' else 0) * int(data(index(row, 35))), # quantity bolts per equipment * number of equipments
-                data(index(row, 213))]) # code purch bolts
+                (int(data(index(row, 48))) if data(index(row, 48)) != '' else 0) * quantity_equipment, # quantity bolts per equipment * number of equipments
+                data(index(row, 217))]) # code purch bolts
             all_list_parts.append(bolts_list)
 
-        code_extractor = data(index(row, 167))
+        code_plugs = data(index(row, 170))
+        if code_plugs != '':
+            plugs_list.append([
+                code_plugs,
+                data(index(row, 182)), # code fab plug
+                data(index(row, 206)), # trad plug
+                '',
+                '',
+                '',
+                data(index(row, 49)), # material plug
+                (int(data(index(row, 50))) if data(index(row, 50)) != '' else 0) * quantity_equipment, # quantity plugs per equipment * quantity of equipment
+                data(index(row, 218))
+                ])
+            all_list_parts.append(plugs_list)
+
+        code_extractor = data(index(row, 171))
         if code_extractor:
             extractor_list.append([
                 code_extractor,
-                data(index(row, 179)), # code fab extractor
-                data(index(row, 203)), # trad extractor
+                data(index(row, 183)), # code fab extractor
+                data(index(row, 207)), # trad extractor
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
-                data(index(row, 47)),
-                int(data(index(row, 49))) * int(data(index(row, 35))), # quantity extractor per equipment * number of equipments
-                data(index(row, 215)) # code purch extractor
+                data(index(row, 51)),
+                int(data(index(row, 53))) * quantity_equipment, # quantity extractor per equipment * number of equipments
+                data(index(row, 219)) # code purch extractor
                 ])
             all_list_parts.append(extractor_list)
 
-        code_plate = data(index(row, 168))
+        code_plate = data(index(row, 172))
         if code_plate:
             plate_list.append([
                 code_plate,
-                data(index(row, 180)), # code fab plate
-                data(index(row, 204)), # trad plate
+                data(index(row, 184)), # code fab plate
+                data(index(row, 208)), # trad plate
                 ('ESP ' + data(index(row, 21)) + 'mm'),
-                data(index(row, 62)),
+                data(index(row, 66)),
                 'ARAMCO' if data(index(row, 22)) =='ARA' else '',
                 data(index(row, 19)),
-                int(data(index(row, 28)) if data(index(row, 8)) == "MULTISTAGE RO" else 1) * int(data(index(row, 35))), # quantity of plates per equipment * number of equipments
-                data(index(row, 216)) # code purch plate
+                int(data(index(row, 28)) if data(index(row, 8)) == "MULTISTAGE RO" else 1) * quantity_equipment, # quantity of plates per equipment * number of equipments
+                data(index(row, 220)) # code purch plate
                 ])
             all_list_parts.append(plate_list)
 
-        code_nipple = data(index(row, 169))
+        code_nipple = data(index(row, 173))
         if code_nipple:
             nipple_list.append([
                 code_nipple,
-                data(index(row, 181)), # code fab nipple
-                data(index(row, 205)), # trad nipple
+                data(index(row, 185)), # code fab nipple
+                data(index(row, 209)), # trad nipple
                 '',
                 '',
                 '',
                 data(index(row, 13)),
-                int(data(index(row, 193))) * int(data(index(row, 35))), # quantity nipple per equipment * quantity of equipments
-                data(index(row, 217)) # code purch nipple
+                int(data(index(row, 197))) * quantity_equipment, # quantity nipple per equipment * quantity of equipments
+                data(index(row, 221)) # code purch nipple
                 ])
             all_list_parts.append(nipple_list)
 
-        code_handle = data(index(row, 170))
+        code_handle = data(index(row, 174))
         if code_handle and data(index(row, 21)) not in ['3', '1/8" (3)']:
             handle_list.append([
                 code_handle,
-                data(index(row, 182)), # code fab handle
-                data(index(row, 206)), # trad handle
-                '' if data(index(row, 11)) == 'RTJ' else (data(index(row, 64)) + "x" + data(index(row, 65)) + "x" + data(index(row, 66)) +' mm'),
+                data(index(row, 186)), # code fab handle
+                data(index(row, 210)), # trad handle
+                '' if data(index(row, 11)) == 'RTJ' else (data(index(row, 68)) + "x" + data(index(row, 69)) + "x" + data(index(row, 70)) +' mm'),
                 '' if data(index(row, 11)) == 'RTJ' else data(index(row, 22)),
                 '',
                 '316SS',
-                1 * int(data(index(row, 35))), # quantity of handles per equipment * quantity of equipments
-                data(index(row, 218)) # code purch handle
+                1 * quantity_equipment, # quantity of handles per equipment * quantity of equipments
+                data(index(row, 222)) # code purch handle
                 ])
             all_list_parts.append(handle_list)
 
@@ -254,57 +270,42 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 '',
                 '',
                 '316SS',
-                ((int(float(data(index(row, 64)))) - 30) if 'datos' not in data(index(row, 64)) else 0) * int(data(index(row, 35))), # length of bar handle per equipment * quantity of equipments
+                ((int(float(data(index(row, 68)))) - 30) if 'datos' not in data(index(row, 68)) else 0) * quantity_equipment, # length of bar handle per equipment * quantity of equipments
                 ''
                 ])
             all_list_parts.append(bar_handle_list)
 
-        code_chring = data(index(row, 171))
+        code_chring = data(index(row, 175))
         if code_chring:
             chring_list.append([
                 code_chring,
-                data(index(row, 183)), # code fab chring
-                data(index(row, 207)), # trad chring
+                data(index(row, 187)), # code fab chring
+                data(index(row, 211)), # trad chring
                 'ESP ' if data(index(row, 11)) == "RTJ" else 'ESP 38,5mm ACABADO',
-                'ø' + str(data(index(row, 62))),
+                'ø' + str(data(index(row, 66))),
                 '', #data(index(row, 37)),
                 data(index(row, 19)),
-                1 * int(data(index(row, 35))), # quantity chring per equipment * quantity of equipments
-                data(index(row, 219)) # code purch chring
+                1 * quantity_equipment, # quantity chring per equipment * quantity of equipments
+                data(index(row, 223)) # code purch chring
                 ])
             all_list_parts.append(chring_list)
 
-        code_plugs = data(index(row, 166))
-        if code_plugs != '':
-            plugs_list.append([
-                code_plugs,
-                data(index(row, 178)), # code fab plug
-                data(index(row, 202)), # trad plug
-                '',
-                '',
-                '',
-                data(index(row, 45)), # material plug
-                (int(data(index(row, 46))) if data(index(row, 46)) != '' else 0) * int(data(index(row, 35))), # quantity plugs per equipment * quantity of equipment
-                data(index(row, 214))
-                ])
-            all_list_parts.append(plugs_list)
-
-        code_tube = data(index(row, 172))
+        code_tube = data(index(row, 176))
         if code_tube:
             tube_list.append([
                 code_tube,
-                data(index(row, 184)), # code fab tube
-                data(index(row, 208)), # trad tube
+                data(index(row, 188)), # code fab tube
+                data(index(row, 212)), # trad tube
                 sch,
                 design_flange,
                 '',
                 data(index(row,15)),
-                float(data(index(row, 196))) * int(data(index(row, 35))), # quantity tube per equipment (length of tube) * quantity of equipments
-                data(index(row, 220)) # code purch tube
+                float(data(index(row, 200))) * quantity_equipment, # quantity tube per equipment (length of tube) * quantity of equipments
+                data(index(row, 224)) # code purch tube
                 ])
             all_list_parts.append(tube_list)
 
-        code_piece2 = data(index(row, 173))
+        code_piece2 = data(index(row, 177))
         if code_piece2:
             commands_thk = ("""
                 SELECT wall_thk
@@ -354,14 +355,14 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
             piece2_list.append([
                 code_piece2,
-                data(index(row, 185)), # code fab wedge
-                data(index(row, 209)), # trad wedge
+                data(index(row, 189)), # code fab wedge
+                data(index(row, 213)), # trad wedge
                 ('Th mín ' + thkmin + 'mm'),
                 '',
                 '',
                 materialpiece2,
-                1 * int(data(index(row, 35))), # quantity of wedge parts per equipment * quantity of equipments
-                data(index(row, 221)) # code purch wedge
+                1 * quantity_equipment, # quantity of wedge parts per equipment * quantity of equipments
+                data(index(row, 225)) # code purch wedge
                 ])
             all_list_parts.append(piece2_list)
 
@@ -376,30 +377,37 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
             columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
 
-            values_equipments = [data(index(row, 159)), data(index(row, 160)), data(index(row, 161)), "Q-CAUD",
-                                data(index(row, 162)), data(index(row, 186)), data(index(row, 163)), data(index(row, 187)),
-                                data(index(row, 164)), data(index(row, 188)), data(index(row, 165)), data(index(row, 189)),
+            values_equipments = [data(index(row, 163)), data(index(row, 164)), data(index(row, 165)), "Q-CAUD",
                                 data(index(row, 166)), data(index(row, 190)), data(index(row, 167)), data(index(row, 191)),
                                 data(index(row, 168)), data(index(row, 192)), data(index(row, 169)), data(index(row, 193)),
                                 data(index(row, 170)), data(index(row, 194)), data(index(row, 171)), data(index(row, 195)),
-                                data(index(row, 172)), data(index(row, 196)), data(index(row, 173)), data(index(row, 197))]
+                                data(index(row, 172)), data(index(row, 196)), data(index(row, 173)), data(index(row, 197)),
+                                data(index(row, 174)), data(index(row, 198)), data(index(row, 175)), data(index(row, 199)),
+                                data(index(row, 176)), data(index(row, 200)), data(index(row, 177)), data(index(row, 201))]
 
             values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
-                            data(index(row, 159)), data(index(row, 4)), data(index(row, 94)),
-                            data(index(row, 39)), data(index(row, 141))]
+                            data(index(row, 163)), data(index(row, 4)), data(index(row, 98)),
+                            data(index(row, 43)), data(index(row, 145))]
 
             columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
-            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
+            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else
+                                            (str(value) if isinstance(value, (int, float)) else
+                                            f"'{str(value)}'")
+                                            for value in values_equipments])
 
             columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else 
+                                    (str(value) if isinstance(value, (int, float)) else 
+                                    (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else 
+                                    f"'{str(value)}'"))
+                                    for value in values_tags])
 
             columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
             commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
             commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 159))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 163))}'"
 
             try:
                 with Database_Connection(config_database()) as conn:
@@ -415,7 +423,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 159))}'"
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 163))}'"
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(update_equipments)
@@ -657,76 +665,78 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
         all_list_parts =[]
 
         tw_type = data(index(row, 9))
+        quantity_equipment = int(data(index(row, 42)))
 
         # setting list for eache element [code_element, code_fab_element, trad_element, design_elemente, process_element, material_element, qty_element, code_purch_element]
-        code_bar = data(index(row, 143))
+        code_bar = data(index(row, 147))
         if code_bar:
             bar_list.append([
                 code_bar,
-                data(index(row, 155)),
-                data(index(row, 179)) if 'Helical' not in tw_type else 'VAINA HELICOIDAL' + (' BRIDADA ' + data(index(row, 10)) + ' ' + data(index(row, 11)) + ' ' + data(index(row, 12)) if tw_type == 'Flanged Helical' else ''),
+                data(index(row, 159)),
+                data(index(row, 183)) if 'Helical' not in tw_type else
+                    'VAINA HELICOIDAL' + (' BRIDADA ' + data(index(row, 10)) + ' ' + data(index(row, 11)) + ' ' + data(index(row, 12)) if tw_type == 'Flanged Helical' else ''),
                 ('U=' + data(index(row, 16)) + ' /L=' + data(index(row, 15)) if 'Stone' in tw_type or 'Helical' in tw_type
-                        else 'Barra ø=' + (data(index(row, 53)))),
+                        else 'Barra ø=' + (data(index(row, 57)))),
                 ('RAÍZ ø=' + data(index(row, 17))) if tw_type == 'Van-Stone TW' else '',
                 '',
                 data(index(row, 14)),
-                (float(data(index(row, 167))) if 'Helical' not in tw_type else 1) * int(data(index(row, 42))),
-                data(index(row, 191))
+                (float(data(index(row, 171))) if 'Helical' not in tw_type else 1) * quantity_equipment,
+                data(index(row, 195))
                 ])
             all_list_parts.append(bar_list)
 
-        code_tube = data(index(row, 144))
+        code_tube = data(index(row, 148))
         if code_tube:
             tube_list.append([
                 code_tube,
-                data(index(row, 156)),
-                data(index(row, 180)),
+                data(index(row, 160)),
+                data(index(row, 184)),
                 data(index(row, 38)),
                 '',
                 '',
                 data(index(row, 14)),
-                float(data(index(row, 168)) * int(data(index(row, 42)))),
-                data(index(row, 192))
+                float(data(index(row, 172)) * quantity_equipment),
+                data(index(row, 196))
                 ])
             all_list_parts.append(tube_list)
 
-        code_flange = data(index(row, 145))
+        code_flange = data(index(row, 148))
         if code_flange:
             tw_types_list = ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK']
             flange_list.append([
                 code_flange,
-                data(index(row, 157)),
-                data(index(row, 181)) if tw_type not in tw_types_list else '',
+                data(index(row, 161)),
+                data(index(row, 185)) if tw_type not in tw_types_list else '',
                 '',
                 '',
                 '',
                 (data(index(row, 35)) if tw_type == 'Van-Stone TW' else (data(index(row, 14)) if tw_type not in tw_types_list else '')),
-                (1 if tw_type not in tw_types_list else 0) * int(data(index(row, 42))),
-                data(index(row, 193))
+                (1 if tw_type not in tw_types_list else 0) * quantity_equipment,
+                data(index(row, 197))
                 ])
             all_list_parts.append(flange_list)
 
-        code_sensor = data(index(row, 146))
+        code_sensor = data(index(row, 150))
         if code_sensor:
             sensor_list.append([
                 code_sensor,
-                data(index(row, 158)),
-                data(index(row, 182)),
+                data(index(row, 162)),
+                data(index(row, 183)),
                 (data(index(row, 33)) + '-' + data(index(row, 32))) if code_sensor[:4] == 'Bime' else '',
                 (data(index(row, 27)) + '-' + data(index(row, 28))) if code_sensor[:4] == 'Bime' else '',
                 '',
-                'PLATINO' if data(index(row, 182))[:5] == 'PT100' else ('AC. INOX.' if data(index(row, 24)) == 'St.Steel' else data(index(row, 24))),
-                (1 if (data(index(row, 182))[:5] == 'PT100' or code_sensor[:4] == 'Bime') else ((float(data(index(row, 59)))/1000) if data(index(row, 59)) != '' else 0)) * int(data(index(row, 42))),
-                data(index(row, 194))
+                'PLATINO' if data(index(row, 183))[:5] == 'PT100' else ('AC. INOX.' if data(index(row, 24)) == 'St.Steel' else data(index(row, 24))),
+                (1 if (data(index(row, 183))[:5] == 'PT100' or code_sensor[:4] == 'Bime') else ((float(data(index(row, 63)))/1000) if data(index(row, 63)) != '' else 0)) * quantity_equipment,
+                data(index(row, 198))
                 ])
             all_list_parts.append(sensor_list)
 
-        code_head = data(index(row, 147))
+        code_head = data(index(row, 151))
         if code_head:
             head_list.append([
                 code_head,
-                data(index(row, 159)),
-                data(index(row, 183)),
+                data(index(row, 163)),
+                data(index(row, 187)),
                 data(index(row, 31)),
                 '',
                 data(index(row, 33)),
@@ -734,113 +744,113 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                     else ('AC.CARBONO' if data(index(row, 31))[-2:] == 'CS' 
                     else ('AC.INOXIDABLE' if data(index(row, 31))[-2:] == 'SS' 
                     else 'MATERIAL CABEZA NO DEFINIDO'))),
-                1 * int(data(index(row, 42))),
-                data(index(row, 194))
+                1 * quantity_equipment,
+                data(index(row, 198))
                 ])
             all_list_parts.append(head_list)
 
-        code_btb = data(index(row, 148))
+        code_btb = data(index(row, 152))
         if code_btb:
             btb_list.append([
                 code_btb,
-                data(index(row, 160)),
-                data(index(row, 184)),
+                data(index(row, 164)),
+                data(index(row, 188)),
                 ("RANGO " + data(index(row, 27)) + '-' + data(index(row, 28))) if code_btb[:2] == 'BI' else '',
                 '',
                 '',
                 data(index(row, 24)) if code_btb[:2] == 'BI' else ('CERÁMICO' if code_btb[:2] == 'CE' else ''),
-                float(data(index(row, 172))) * int(data(index(row, 42))),
-                data(index(row, 196))
+                float(data(index(row, 176))) * quantity_equipment,
+                data(index(row, 200))
                 ])
             all_list_parts.append(btb_list)
 
-        code_nipple = data(index(row, 149))
+        code_nipple = data(index(row, 153))
         if code_nipple:
             nipple_list.append([
                 code_nipple,
-                data(index(row, 161)),
-                data(index(row, 185)),
+                data(index(row, 165)),
+                data(index(row, 189)),
                 ('' if data(index(row, 30)) == 'N/A' or data(index(row, 30))=='' else data(index(row, 30))),
                 '',
                 '',
-                'A-105/A106' if data(index(row, 185))[data(index(row, 185)).find('('):data(index(row, 185)).find('(')+9] == '(CS)' else 'AISI-316',
-                1 * int(data(index(row, 42))),
-                data(index(row, 197))
+                'A-105/A106' if data(index(row, 189))[data(index(row, 189)).find('('):data(index(row, 189)).find('(')+9] == '(CS)' else 'AISI-316',
+                1 * quantity_equipment,
+                data(index(row, 201))
                 ])
             all_list_parts.append(nipple_list)
 
-        code_spring = data(index(row, 150))
+        code_spring = data(index(row, 154))
         if code_spring:
             spring_list.append([
                 code_spring,
-                data(index(row, 162)),
-                data(index(row, 186)),
-                '',
-                '',
-                '',
-                'AC.INOX',
-                1 * int(data(index(row, 42))),
-                data(index(row, 198))
-                ])
-            all_list_parts.append(spring_list)
-
-        code_plug = data(index(row, 152))
-        if code_plug:
-            plug_list.append([
-                code_plug,
-                data(index(row, 164)),
-                data(index(row, 188)),
-                '',
-                '',
-                '',
-                data(index(row, 188))[data(index(row, 188)).find('('):data(index(row, 188)).find('(')+9],
-                1 * int(data(index(row, 42))),
-                data(index(row, 200))
-                ])
-            all_list_parts.append(plug_list)
-
-        code_puntal = data(index(row, 151))
-        if code_puntal:
-            puntal_list.append([
-                code_puntal,
-                data(index(row, 163)),
-                data(index(row, 187)),
-                '',
-                '',
-                '',
-                data(index(row, 14)),
-                float(code_puntal[1:8])/1000 * int(data(index(row, 42))),
-                data(index(row, 199))
-                ])
-            all_list_parts.append(puntal_list)
-
-        code_tw = data(index(row, 153))
-        if code_tw and ('Van-Stone TW' in tw_type or 'Forged' in tw_type):
-            tw_list.append([
-                code_tw,
-                data(index(row, 165)),
-                data(index(row, 189)),
-                'U=' + data(index(row, 16)) + ' / L=' + data(index(row, 15)),
-                '',
-                '',
-                data(index(row, 14)),
-                float(data(index(row, 177))) * int(data(index(row, 42))),
-                data(index(row, 201))
-                ])
-            all_list_parts.append(tw_list)
-
-        code_extcable = data(index(row, 154))
-        if code_extcable != '':
-            extcable_list.append([
-                code_extcable,
                 data(index(row, 166)),
                 data(index(row, 190)),
                 '',
                 '',
                 '',
-                'AC. INOX.' if data(index(row, 24)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else data(index(row, 24)),
-                (float(data(index(row, 178))) if data(index(row, 178)) != '' else 0) * int(data(index(row, 42))),
+                'AC.INOX',
+                1 * quantity_equipment,
                 data(index(row, 202))
+                ])
+            all_list_parts.append(spring_list)
+
+        code_puntal = data(index(row, 155))
+        if code_puntal:
+            puntal_list.append([
+                code_puntal,
+                data(index(row, 167)),
+                data(index(row, 191)),
+                '',
+                '',
+                '',
+                data(index(row, 14)),
+                float(code_puntal[1:8])/1000 * quantity_equipment,
+                data(index(row, 203))
+                ])
+            all_list_parts.append(puntal_list)
+
+        code_plug = data(index(row, 156))
+        if code_plug:
+            plug_list.append([
+                code_plug,
+                data(index(row, 168)),
+                data(index(row, 192)),
+                '',
+                '',
+                '',
+                data(index(row, 192))[data(index(row, 192)).find('('):data(index(row, 192)).find('(')+9],
+                1 * quantity_equipment,
+                data(index(row, 204))
+                ])
+            all_list_parts.append(plug_list)
+
+        code_tw = data(index(row, 157))
+        if code_tw and ('Van-Stone TW' in tw_type or 'Forged' in tw_type):
+            tw_list.append([
+                code_tw,
+                data(index(row, 169)),
+                data(index(row, 193)),
+                'U=' + data(index(row, 16)) + ' / L=' + data(index(row, 15)),
+                '',
+                '',
+                data(index(row, 14)),
+                float(data(index(row, 181))) * quantity_equipment,
+                data(index(row, 205))
+                ])
+            all_list_parts.append(tw_list)
+
+        code_extcable = data(index(row, 158))
+        if code_extcable != '':
+            extcable_list.append([
+                code_extcable,
+                data(index(row, 170)),
+                data(index(row, 194)),
+                '',
+                '',
+                '',
+                'AC. INOX.' if data(index(row, 24)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else data(index(row, 24)),
+                (float(data(index(row, 182))) if data(index(row, 182)) != '' else 0) * quantity_equipment,
+                data(index(row, 206))
                 ])
             all_list_parts.append(extcable_list)
 
@@ -856,30 +866,37 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
             columns_tags = ["code", "equipment", "num_order", "order_material", "contractual_date", "inspection"]
 
-            values_equipments = [data(index(row, 140)), data(index(row, 141)), data(index(row, 142)), "T-TEMP",
-                                data(index(row, 143)), data(index(row, 167)), data(index(row, 144)), data(index(row, 168)),
-                                data(index(row, 145)), data(index(row, 169)), data(index(row, 146)), data(index(row, 170)),
+            values_equipments = [data(index(row, 144)), data(index(row, 145)), data(index(row, 146)), "T-TEMP",
                                 data(index(row, 147)), data(index(row, 171)), data(index(row, 148)), data(index(row, 172)),
                                 data(index(row, 149)), data(index(row, 173)), data(index(row, 150)), data(index(row, 174)),
                                 data(index(row, 151)), data(index(row, 175)), data(index(row, 152)), data(index(row, 176)),
-                                data(index(row, 152)), data(index(row, 177)), data(index(row, 154)), data(index(row, 178))]
+                                data(index(row, 153)), data(index(row, 177)), data(index(row, 154)), data(index(row, 178)),
+                                data(index(row, 155)), data(index(row, 179)), data(index(row, 156)), data(index(row, 180)),
+                                data(index(row, 157)), data(index(row, 181)), data(index(row, 158)), data(index(row, 182))]
 
             values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
-                            data(index(row, 140)), data(index(row, 4)), data(index(row, 66)),
-                            data(index(row, 43)), data(index(row, 121))]
+                            data(index(row, 144)), data(index(row, 4)), data(index(row, 70)),
+                            data(index(row, 50)), data(index(row, 122))]
 
             columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
-            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
+            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else
+                                            (str(value) if isinstance(value, (int, float)) else
+                                            f"'{str(value)}'")
+                                            for value in values_equipments])
 
             columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else
+                                        (str(value) if isinstance(value, (int, float)) else
+                                        (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate)
+                                        else f"'{str(value)}'"))
+                                        for value in values_tags])
 
             columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
             commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
             commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 140))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 144))}'"
             try:
                 with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
@@ -894,7 +911,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 139))}'"
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 144))}'"
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(update_equipments)
@@ -1054,8 +1071,9 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 if match:
                     quantity = int(match.group(1)) * qty
                     illuminator = "ILUMINADOR " + match.group(2).replace(" ", "")
+                    supply = "ILUMINADOR"
                     rows.append([
-                        code_ill, codefab_ill, illuminator, model, design, process, material, quantity
+                        code_ill, codefab_ill, illuminator, model, design, process, material, quantity, supply
                     ])
         return rows
 
@@ -1153,11 +1171,11 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
         if row is None:
             continue
 
-        code_scale = data(index(row, 90))
-        code_fab_scale = data(index(row, 91))
+        code_scale = data(index(row, 94))
+        code_fab_scale = data(index(row, 95))
 
-        code_float = data(index(row, 102))
-        codefab_float = data(index(row, 103))
+        code_float = data(index(row, 106))
+        codefab_float = data(index(row, 107))
 
         all_list_parts = []
 
@@ -1170,22 +1188,22 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
         cc_length = int(data(index(row, 17)))
 
         # setting list for eache element [code_element, code_fab_element, trad_element, design_elemente, process_element, material_element, qty_element, code_purch_element]
-        code_body = data(index(row, 69))
+        code_body = data(index(row, 73))
         if code_body:
             body_list.append([
                 code_body,
-                data(index(row, 70)),
-                data(index(row, 121)),
+                data(index(row, 74)),
+                data(index(row, 125)),
                 nipplehexdim,
                 '40x40' if model_value[2:3] != 'H' else ('100x50'if model_value[2:4] != 'HH' else '80x40'),
                 (nipplehexdim + '-M'),
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 71)),
-                data(index(row, 181))
+                data(index(row, 75)),
+                data(index(row, 185))
                 ])
             all_list_parts.append(body_list)
 
-        code_cover = data(index(row, 72))
+        code_cover = data(index(row, 76))
         if code_cover:
             commands_coverdim = ("""
                 SELECT *
@@ -1209,134 +1227,134 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
             cover_list.append([
                 code_cover,
-                data(index(row, 73)),
-                data(index(row, 122)),
+                data(index(row, 77)),
+                data(index(row, 126)),
                 ('L=' + str(length)),
                 '80x30' if model_value[2:4] != 'HH' else '90x40',
                 (str(bores) + ' taladros'),
                 'A-105' if data(index(row, 27)) == 'Carbon Steel' else data(index(row, 27)),
-                data(index(row, 74)),
-                data(index(row, 182))
+                data(index(row, 78)),
+                data(index(row, 186))
                 ])
             all_list_parts.append(cover_list)
 
-        code_glass = data(index(row, 99))
+        code_glass = data(index(row, 103))
         if code_glass:
             glass_list.append([
                 code_glass,
-                data(index(row, 100)),
-                data(index(row, 131)),
+                data(index(row, 104)),
+                data(index(row, 135)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '',
                 '',
                 'BOROSILICATO',
-                model.data(model.index(row, 101)),
-                model.data(model.index(row, 191))
+                model.data(model.index(row, 105)),
+                model.data(model.index(row, 195))
                 ])
             all_list_parts.append(glass_list)
 
-        code_gasket = data(index(row, 96))
+        code_gasket = data(index(row, 100))
         if code_gasket:
             gasket_list.append([
                 code_gasket,
-                data(index(row, 97)),
-                data(index(row, 130)),
+                data(index(row, 101)),
+                data(index(row, 134)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '',
                 '',
                 'GRAFOIL',
-                data(index(row, 98)),
-                data(index(row, 190))
+                data(index(row, 102)),
+                data(index(row, 194))
                 ])
             all_list_parts.append(gasket_list)
 
-        code_mica = data(index(row, 105))
+        code_mica = data(index(row, 109))
         if code_mica:
             mica_list.append([
                 code_mica,
-                data(index(row, 106)),
-                data(index(row, 133)),
+                data(index(row, 110)),
+                data(index(row, 137)),
                 'TRANSPARENCIA',
                 '',
                 '',
                 'MICA',
-                data(index(row, 107)),
-                data(index(row, 193))
+                data(index(row, 111)),
+                data(index(row, 197))
                 ])
             all_list_parts.append(mica_list)
 
-        code_bolts = data(index(row, 75))
+        code_bolts = data(index(row, 79))
         if code_bolts:
             bolts_list.append([
                 code_bolts,
-                data(index(row, 76)),
-                data(index(row, 123)),
+                data(index(row, 80)),
+                data(index(row, 127)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '' if model_value[2:4] == 'HH' else ('M10x132 mm' if level_type == 'Transparent' else ''),
                 '' if model_value[2:4] == 'HH' else ('cabeza exag 17 e/c' if level_type == 'Transparent' else ''),
                 'B7/2H' if level_type in ['Transparent','Reflex'] else data(index(row, 24)),
-                data(index(row, 77)),
-                data(index(row, 183))
+                data(index(row, 81)),
+                data(index(row, 187))
                 ])
             all_list_parts.append(bolts_list)
 
-        code_nipplehex = data(index(row, 78))
+        code_nipplehex = data(index(row, 82))
         if code_nipplehex:
             nipplehex_list.append([
                 code_nipplehex,
-                data(index(row, 79)),
-                data(index(row, 124)),
-                (str((cc_length-int(get_number_before_mm(data(index(row, 121))))-72)/2+22) + ' mm'),
+                data(index(row, 83)),
+                data(index(row, 128)),
+                (str((cc_length-int(get_number_before_mm(data(index(row, 125))))-72)/2+22) + ' mm'),
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)), 
-                data(index(row, 80)),
-                data(index(row, 184))
+                data(index(row, 84)),
+                data(index(row, 188))
                 ])
             all_list_parts.append(nipplehex_list)
 
-        code_valve = data(index(row, 81))
+        code_valve = data(index(row, 85))
         if code_valve:
             valve_list.append([
                 code_valve,
-                data(index(row, 82)),
-                data(index(row, 125)),
+                data(index(row, 86)),
+                data(index(row, 129)),
                 nipplehexdim[:4] + ' x ' + data(index(row, 20)),
                 nipplehexdim[-3:] + '-H',
                 '',
                 'A-105' if data(index(row, 18))[-2:] == 'NB' else '316 SS',
-                data(index(row, 83)),
-                data(index(row, 185))
+                data(index(row, 87)),
+                data(index(row, 189))
                 ])
             all_list_parts.append(valve_list)
 
-        code_flangevalve = data(index(row, 84))
+        code_flangevalve = data(index(row, 88))
         if code_flangevalve:
             flangevalve_list.append([
                 code_flangevalve,
-                data(index(row, 85)),
-                data(index(row, 126)),
+                data(index(row, 89)),
+                data(index(row, 130)),
                 '',
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 86)),
-                data(index(row, 186))
+                data(index(row, 90)),
+                data(index(row, 190))
                 ])
             all_list_parts.append(flangevalve_list)
 
-        code_dv = data(index(row, 87))
+        code_dv = data(index(row, 91))
         if code_dv:
             dv_list.append([
                 code_dv,
-                data(index(row, 88)),
-                data(index(row, 127)),
+                data(index(row, 92)),
+                data(index(row, 131)),
                 '',
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 89)),
-                data(index(row, 187))
+                data(index(row, 93)),
+                data(index(row, 191))
                 ])
             all_list_parts.append(dv_list)
 
@@ -1348,51 +1366,53 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                     '',
                     'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
                     2,
-                    'TA ' + data(index(row, 20)) + data(index(row, 21))
+                    'TA ' + data(index(row, 20)) + data(index(row, 21)),
+                    '',
+                    ''
                     ])
 
-        code_nippletube = data(index(row, 114))
+        code_nippletube = data(index(row, 118))
         if code_nippletube:
             nippletube_list.append([
                 code_nippletube,
-                data(index(row, 115)),
-                data(index(row, 136)),
+                data(index(row, 119)),
+                data(index(row, 140)),
                 '80 mm',
                 '',
                 '',
                 'A-106' if data(index(row, 10)) in ['Carbon Steel','ASTM A350 LF2 CL2'] else data(index(row, 10)),
-                data(index(row, 116)),
-                data(index(row, 196))
+                data(index(row, 120)),
+                data(index(row, 200))
                 ])
             all_list_parts.append(nippletube_list)
 
-        code_illuminator = data(index(row, 93))
+        code_illuminator = data(index(row, 97))
         if code_illuminator:
             illuminator_list.append([
                 code_illuminator,
-                data(index(row, 94)),
-                data(index(row, 129)),
+                data(index(row, 98)),
+                data(index(row, 133)),
                 '',
                 '',
                 '',
                 'HIERRO',
-                data(index(row, 95)),
-                data(index(row, 189))
+                data(index(row, 99)),
+                data(index(row, 193))
                 ])
             all_list_parts.append(illuminator_list)
 
-        code_antifrost = data(index(row, 117))
+        code_antifrost = data(index(row, 121))
         if code_antifrost:
             antifrost_list.append([
                 code_antifrost,
-                data(index(row, 118)),
-                data(index(row, 137)),
+                data(index(row, 122)),
+                data(index(row, 141)),
                 '',
                 '',
                 '',
                 'METACRILATO',
-                data(index(row, 119)),
-                data(index(row, 197))
+                data(index(row, 123)),
+                data(index(row, 201))
                 ])
             all_list_parts.append(antifrost_list)
 
@@ -1411,33 +1431,40 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
         columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
 
-        values_equipments = [data(index(row, 66)), data(index(row, 67)), data(index(row, 68)), "N-Niveles",
-                            data(index(row, 69)), data(index(row, 71)), data(index(row, 72)), data(index(row, 74)),
-                            data(index(row, 75)), data(index(row, 77)), data(index(row, 78)), data(index(row, 80)),
-                            data(index(row, 81)), data(index(row, 83)), data(index(row, 84)), data(index(row, 86)),
-                            data(index(row, 87)), data(index(row, 89)), data(index(row, 90)), data(index(row, 92)),
-                            data(index(row, 93)), data(index(row, 95)), data(index(row, 96)), data(index(row, 98)),
-                            data(index(row, 99)), data(index(row, 101)), data(index(row, 102)), data(index(row, 104)),
-                            data(index(row, 105)), data(index(row, 107)), data(index(row, 108)), data(index(row, 110)),
-                            data(index(row, 111)), data(index(row, 113)), data(index(row, 114)), data(index(row, 116)),
-                            data(index(row, 117)), data(index(row, 119))]
+        values_equipments = [data(index(row, 70)), data(index(row, 71)), data(index(row, 72)), "N-Niveles",
+                            data(index(row, 73)), data(index(row, 75)), data(index(row, 76)), data(index(row, 78)),
+                            data(index(row, 79)), data(index(row, 81)), data(index(row, 82)), data(index(row, 84)),
+                            data(index(row, 85)), data(index(row, 87)), data(index(row, 88)), data(index(row, 90)),
+                            data(index(row, 91)), data(index(row, 93)), data(index(row, 94)), data(index(row, 96)),
+                            data(index(row, 97)), data(index(row, 99)), data(index(row, 100)), data(index(row, 102)),
+                            data(index(row, 103)), data(index(row, 105)), data(index(row, 106)), data(index(row, 108)),
+                            data(index(row, 109)), data(index(row, 111)), data(index(row, 112)), data(index(row, 114)),
+                            data(index(row, 115)), data(index(row, 117)), data(index(row, 118)), data(index(row, 120)),
+                            data(index(row, 121)), data(index(row, 123))]
 
         values_tags = [data(index(row, 4)) + "-" + data(index(row, 8)) + "-" + data(index(row, 1)), 
-                        data(index(row, 66)), data(index(row, 4)), data(index(row, 48)),
-                        data(index(row, 39)), data(index(row, 62))]
+                        data(index(row, 70)), data(index(row, 4)), data(index(row, 52)),
+                        data(index(row, 42)), data(index(row, 66))]
 
         columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
-        values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
+        values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else
+                                        (str(value) if isinstance(value, (int, float)) else
+                                        f"'{str(value)}'")
+                                        for value in values_equipments])
 
         columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-        values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+        values_tags =  ", ".join(['NULL' if value == '' or value == PySide6.QtCore.QDate() else
+                                (str(value) if isinstance(value, (int, float)) else
+                                (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PySide6.QtCore.QDate) else
+                                f"'{str(value)}'"))
+                                for value in values_tags])
 
         columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
         commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
         commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-        check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 66))}'"
+        check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{data(index(row, 70))}'"
 
         if state == 'Order':
             try:
@@ -1454,7 +1481,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
 
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 66))}'"
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{data(index(row, 70))}'"
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
                             cur.execute(update_equipments)
@@ -1468,7 +1495,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                             results=cur.fetchall()
 
                     if len(results) == 0:
-                        list_part_modified = list_part[0].copy()
+                        list_part_modified = list_part[0][:8].copy()
                         list_part_modified[-1] = 'N-Niveles'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
@@ -1478,7 +1505,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                             conn.commit()
 
                     else:
-                        list_part_modified = list_part[0].copy()
+                        list_part_modified = list_part[0][:8].copy()
                         list_part_modified[-1] = 'N-Niveles'
                         values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
@@ -1705,25 +1732,25 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                     qtyvalve = 1
                     valve_model_list.append([tradcodvalve,schvalve,designvalve,processvalve,materialvalve,qtyvalve])
 
-                    list_1.append(['VOLANTE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
-                    list_2.append(['ARANDELA VÁLVULA','VÁLVULA 2V-210 - 1500#','','','AC. INOX',1])
-                    list_3.append(['VÁSTAGO','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1])
-                    list_4.append(['GUÍA VÁSTAGO/TUERCA (ø25 x LONG 37 mm) (EXAG 22 ec/ x 6 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1])
-                    list_5.append(['CAPELLI (HORQUILLA)','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
-                    list_6.append(['FLANGETE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
-                    list_7.append(['PRENSA (ø25 x LONG 20 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1])
-                    list_8.append(['EMPAQUETADURA','VÁLVULA 2V-210 - 1500#','','','GRAFITO',1])
-                    list_9.append(['TORNILLO CUADRADO (2 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',2])
-                    list_10.append(['TORNILLO REDONDO (4 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',4])
-                    list_11.append(['TUERCAS M10 2H','VÁLVULA 2V-210 - 1500#','','','A1942H',4])
-                    list_12.append(['JUNTA ESPIROMETÁLICA 42x30x3,2mm','VÁLVULA 2V-210 - 1500#','','','AISI-316 + GRAFITO',1])
-                    list_13.append(['CUERPO VÁLVULA 2V-210 - 1500#','','','',materialvalve,1])
-                    list_14.append(['ASIENTO (ø20 x 16 mm)','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1])
-                    list_15.append(['BRIDA VÁLVULA '+ description.split(' / ')[1].strip(),'VÁLVULA 2V-210 - 1500#','','',materialvalve,1]) if '# RF' in description else ''
-                    list_16.append(['TAPÓN PURGADOR 1/2" NPT-M','','','',materialvalve,1])
-                    list_17.append(['TORNILLO TAPÓN PURGADOR','','','','AC. INOX',1])
+                    list_1.append(['VOLANTE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1, ''])
+                    list_2.append(['ARANDELA VÁLVULA','VÁLVULA 2V-210 - 1500#','','','AC. INOX',1, ''])
+                    list_3.append(['VÁSTAGO','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1, ''])
+                    list_4.append(['GUÍA VÁSTAGO/TUERCA (ø25 x LONG 37 mm) (EXAG 22 ec/ x 6 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1, ''])
+                    list_5.append(['CAPELLI (HORQUILLA)','VÁLVULA 2V-210 - 1500#','','',materialvalve,1, ''])
+                    list_6.append(['FLANGETE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1, ''])
+                    list_7.append(['PRENSA (ø25 x LONG 20 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1, ''])
+                    list_8.append(['EMPAQUETADURA','VÁLVULA 2V-210 - 1500#','','','GRAFITO',1, ''])
+                    list_9.append(['TORNILLO CUADRADO (2 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',2, ''])
+                    list_10.append(['TORNILLO REDONDO (4 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',4, ''])
+                    list_11.append(['TUERCAS M10 2H','VÁLVULA 2V-210 - 1500#','','','A1942H',4, ''])
+                    list_12.append(['JUNTA ESPIROMETÁLICA 42x30x3,2mm','VÁLVULA 2V-210 - 1500#','','','AISI-316 + GRAFITO',1, ''])
+                    list_13.append(['CUERPO VÁLVULA 2V-210 - 1500#','','','',materialvalve,1, ''])
+                    list_14.append(['ASIENTO (ø20 x 16 mm)','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1, ''])
+                    list_15.append(['BRIDA VÁLVULA '+ description.split(' / ')[1].strip(),'VÁLVULA 2V-210 - 1500#','','',materialvalve,1, '']) if '# RF' in description else ''
+                    list_16.append(['TAPÓN PURGADOR 1/2" NPT-M','','','',materialvalve,1, ''])
+                    list_17.append(['TORNILLO TAPÓN PURGADOR','','','','AC. INOX',1, ''])
                     if len(description.split(' / ')) > 2: 
-                        list_18.append(['NIPLO ' + description.split(' / ')[2],'','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1]) 
+                        list_18.append(['NIPLO ' + description.split(' / ')[2],'','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1, '']) 
 
                     data_lists = [
                     (valve_model_list, "df_valvemodel"),
@@ -1747,15 +1774,15 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                     (list_18, "df_list18")]
 
             # Order for CN-32219
-                if 'CN-32219' in description:
-                    list_1.append(['BRIDA BLIND 4" 900# RTJ', 'ø293 x 53 mm', '', '', '321', 1])
-                    list_2.append(['TUBO 1/4" SCH 40S (ø13,5 x ESP 2,3 mm)','(2323x' + 1 +')+(1753x' + 1 + ')+(1183x' + 1 + ')', '', '', '321', str(round(5260 / 1000, 2))])
-                    list_3.append(['TUBO 3" SCH 80S','2664 x ' * 1, '', '', '321', str(round(2680 / 1000, 2))])
-                    list_4.append(['BARRA ø25 x LONG. 30 mm (1/4" NPT-H)','', '', '', '321', 1])
-                    list_5.append(['BARRA ø25 x LONG. 40 mm (1/4" NPT-H x 1/4" SW)','REDUCCIÓN 1/4"SW A 1/4" NPT-H', '', '', '321', 3])
-                    list_6.append(['ACCESORIO FIJACIÓN BARRA ø20 x LONG 34 mm', '', '', '', '321', 3])
-                    list_7.append(['CAP SOLDADO BARRA ø90 x LONG 67 mm', '', '', '', '321', 1])
-                    list_8.append(['EMPTAPÓN DE PURGA 1/4" NPT-M (EXAG. 17 e/c x LONG. 31 mm)AQUETADURA', 'EXAG. 17 e/c (ø20 mm)', '', '', '321', 1])
+                elif 'CN-32219' in description:
+                    list_1.append(['BRIDA BLIND 4" 900# RTJ', 'ø293 x 53 mm', '', '', '321', 1, ''])
+                    list_2.append(['TUBO 1/4" SCH 40S (ø13,5 x ESP 2,3 mm)','(2323x' + 1 +')+(1753x' + 1 + ')+(1183x' + 1 + ')', '', '', '321', str(round(5260 / 1000, 2)), ''])
+                    list_3.append(['TUBO 3" SCH 80S','2664 x ' * 1, '', '', '321', str(round(2680 / 1000, 2)), ''])
+                    list_4.append(['BARRA ø25 x LONG. 30 mm (1/4" NPT-H)','', '', '', '321', 1, ''])
+                    list_5.append(['BARRA ø25 x LONG. 40 mm (1/4" NPT-H x 1/4" SW)','REDUCCIÓN 1/4"SW A 1/4" NPT-H', '', '', '321', 3, ''])
+                    list_6.append(['ACCESORIO FIJACIÓN BARRA ø20 x LONG 34 mm', '', '', '', '321', 3, ''])
+                    list_7.append(['CAP SOLDADO BARRA ø90 x LONG 67 mm', '', '', '', '321', 1, ''])
+                    list_8.append(['EMPTAPÓN DE PURGA 1/4" NPT-M (EXAG. 17 e/c x LONG. 31 mm)AQUETADURA', 'EXAG. 17 e/c (ø20 mm)', '', '', '321', 1, ''])
 
                     data_lists = [
                     (list_1, "df_list1"),
@@ -1766,6 +1793,32 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                     (list_6, "df_list6"),
                     (list_7, "df_list7"),
                     (list_8, "df_list8")]
+
+                elif 'D-3355/2' in description:
+                    list_1.append(['BRIDA DE LÍNEA 5" 600# RF', 'ø331 x 51 mm', '', '', 'AISI-321', 1, ''])
+                    list_2.append(['TUBO 3" SCH XXS', str(len(id_list)) + 'x2430', '', '', 'AISI-321', 2.43, ''])
+                    list_3.append(['CAP 3" SCH XXS (ø88.89 mm X 64 mm)', 'LONGITUD 64 MM', '', '', 'AISI-321', 1, ''])
+                    list_4.append(['MANGUITO 1/4" NPT x 1/4" SW', 'ø25,4 x LONG 35 mm', '', '', 'AISI-321', 3, ''])
+                    list_5.append(['TAPÓM EXAGONAL 1/4" NPT-H (PARA MANGUITO DRENAJE)', 'ø29 x LONG 27 mm', '', '', 'AISI-321', 1, ''])
+                    list_6.append(['MANGUITO DE DRENAJE', 'ø25,4 x LONG 140 mm', 'exag. 25 e/c', '', 'AISI-321', 1, ''])
+                    list_7.append(['TAPÓN DE CONTACTO (VAINA EXTERIOR CON VAINA INTERIOR)', 'ø25 x LONG 42 mm', '', '', 'AISI-321', 3, ''])
+                    list_8.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x1134', '', '', 'AISI-321', 1.134, ''])
+                    list_9.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x1654', '', '', 'AISI-321', 1.654, ''])
+                    list_10.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x2174', '', '', 'AISI-321', 2.174, ''])
+                    list_11.append(['TAPOÓN CIERRES PARA TUBOS 1/4"', 'ø8,9 x LONG 6 MM', 'SALE DE VARILLA ø12', '', 'AISI-321', 3, ''])
+
+                    data_lists = [
+                    (list_1, "df_list1"),
+                    (list_2, "df_list2"),
+                    (list_3, "df_list3"),
+                    (list_4, "df_list4"),
+                    (list_5, "df_list5"),
+                    (list_6, "df_list6"),
+                    (list_7, "df_list7"),
+                    (list_8, "df_list8"),
+                    (list_9, "df_list9"),
+                    (list_10, "df_list10"),
+                    (list_11, "df_list11")]
 
                 else:
                     tradcod = str(description)
@@ -2094,98 +2147,99 @@ def flow_material_list(proxy, model):
 
         flange_material = data(index(row, 13))
         sch = data(index(row, 12))
-        design = str(data(index(row, 61))).replace('.', ',') # pipe internal diameter
+        design = str(data(index(row, 65))).replace('.', ',') # pipe internal diameter
         size = f"{data(index(row,9))} {data(index(row,10))} {data(index(row,11))}"
+        quantity_equipment = int(data(index(row, 35)))
 
-        code_orifice_flange = data(index(row, 162))
+        code_orifice_flange = data(index(row, 166))
         if code_orifice_flange:
             parts.append([
-                data(index(row, 198)), # trad orifice flange
+                data(index(row, 202)), # trad orifice flange
                 sch,
                 design,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 186))) * int(data(index(row, 35))), # quantity orifice flange per equipment * number of equipments
-                data(index(row, 210)) # code purch orifice flange
+                int(data(index(row, 190))) * quantity_equipment, # quantity orifice flange per equipment * number of equipments
+                data(index(row, 214)) # code purch orifice flange
             ])
 
-        code_line_flange = data(index(row,163))
+        code_line_flange = data(index(row,167))
         if code_line_flange:
             parts.append([
-                data(index(row, 199)), # trad line flange
+                data(index(row, 203)), # trad line flange
                 sch,
                 design,
                 "", #data(index(row, 37)),
                 flange_material,
-                int(data(index(row, 187))) * int(data(index(row, 35))), # quantity line flange per equipment * number of equipments
-                data(index(row, 211)) # code purch line flange
+                int(data(index(row, 191))) * quantity_equipment, # quantity line flange per equipment * number of equipments
+                data(index(row, 215)) # code purch line flange
             ])
 
-        code_gasket = data(index(row,164))
+        code_gasket = data(index(row,168))
         if code_gasket:
             parts.append([
-                data(index(row, 200)), # trad gasket
+                data(index(row, 204)), # trad gasket
                 size,
                 '',
                 '',
                 '',
-                int(data(index(row, 42))) * int(data(index(row, 35))), # quantity gasket per equipment * number of equipments
-                data(index(row, 212)) # code purch gasket
+                int(data(index(row, 46))) * quantity_equipment, # quantity gasket per equipment * number of equipments
+                data(index(row, 216)) # code purch gasket
             ]) 
 
-        code_bolts = data(index(row,165))
+        code_bolts = data(index(row,169))
         if code_bolts:
-            qty = int(data(index(row,44))) if data(index(row,44)) != '' else 0
+            qty = int(data(index(row,48))) if data(index(row,48)) != '' else 0
             parts.append([
-                data(index(row, 201)), # trad bolts
+                data(index(row, 205)), # trad bolts
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
                 data(index(row, 24)) + " / " + data(index(row, 25)),
-                qty * int(data(index(row, 35))), # quantity bolts per equipment * number of equipments
-                data(index(row, 213)) # code purch bolts
+                qty * quantity_equipment, # quantity bolts per equipment * number of equipments
+                data(index(row, 217)) # code purch bolts
             ])
 
-        code_plugs = data(index(row, 166))
+        code_plugs = data(index(row, 170))
         if code_plugs != '':
             parts.append([
-                data(index(row, 202)), # trad plug
+                data(index(row, 206)), # trad plug
                 '',
                 '',
                 '',
-                data(index(row, 45)), # material plug
-                (int(data(index(row, 46))) if data(index(row, 46)) != '' else 0) * int(data(index(row, 35))), # quantity plugs per equipment * quantity of equipment
-                data(index(row, 214))
+                data(index(row, 49)), # material plug
+                (int(data(index(row, 50))) if data(index(row, 50)) != '' else 0) * quantity_equipment, # quantity plugs per equipment * quantity of equipment
+                data(index(row, 218))
                 ])
 
-        code_extractor = data(index(row,167))
+        code_extractor = data(index(row,171))
         if code_extractor:
             parts.append([
-                data(index(row, 203)), # trad extractor
+                data(index(row, 207)), # trad extractor
                 size,
                 ('esp. placa ' + data(index(row, 21))),
                 '',
-                data(index(row, 47)),
-                int(data(index(row, 49))) * int(data(index(row, 35))), # quantity extractor per equipment * number of equipments
-                data(index(row, 215)) # code purch extractor
+                data(index(row, 51)),
+                int(data(index(row, 53))) * quantity_equipment, # quantity extractor per equipment * number of equipments
+                data(index(row, 219)) # code purch extractor
             ])
 
-        code_plate = data(index(row,168))
+        code_plate = data(index(row,172))
         if code_plate:
             qty = int(float(data(index(row,28)))) if data(index(row,8)) == "MULTISTAGE RO" else 1
             process = 'ARAMCO' if data(index(row,22)) == 'ARA' else ''
 
             parts.append([
-                data(index(row, 204)), # trad plate
+                data(index(row, 208)), # trad plate
                 ('ESP ' + data(index(row, 21)) + 'mm'),
-                data(index(row, 62)),
+                data(index(row, 66)),
                 process,
                 data(index(row, 19)),
-                qty * int(data(index(row, 35))), # quantity of plates per equipment * number of equipments
-                data(index(row, 216)) # code purch plate
+                qty * quantity_equipment, # quantity of plates per equipment * number of equipments
+                data(index(row, 220)) # code purch plate
             ])
 
-        code_handle = data(index(row,170))
+        code_handle = data(index(row,174))
         if code_handle and data(index(row,21)) not in ['3', '1/8" (3)']:
             if data(index(row,11)) == 'RTJ':
                 modelhandle = ''
@@ -2197,50 +2251,50 @@ def flow_material_list(proxy, model):
                     '',
                     '',
                     '316SS',
-                    ((int(float(data(index(row, 64)))) - 30) if 'datos' not in data(index(row, 64)) else 0) * int(data(index(row, 35))), # length of bar handle per equipment * quantity of equipments
+                    ((int(float(data(index(row, 68)))) - 30) if 'datos' not in data(index(row, 68)) else 0) * quantity_equipment, # length of bar handle per equipment * quantity of equipments
                     '' # code purch handle
                     ])
             else:
-                modelhandle = f"{data(index(row,64))}x{data(index(row,65))}x{data(index(row,66))} mm"
+                modelhandle = f"{data(index(row,68))}x{data(index(row,69))}x{data(index(row,70))} mm"
                 designhandle = data(index(row,22))
 
             parts.append([
-                data(index(row,206)), # trad handle
+                data(index(row,210)), # trad handle
                 modelhandle,
                 designhandle,
                 '',
                 '316SS',
-                1 * int(data(index(row, 35))), # quantity of handles per equipment * number of equipments
-                data(index(row,218)) # code purch handle
+                1 * quantity_equipment, # quantity of handles per equipment * number of equipments
+                data(index(row,222)) # code purch handle
             ])
 
-        code_ch_ring = data(index(row,171))
+        code_ch_ring = data(index(row,175))
         if code_ch_ring:
             schchring = 'ESP ' if data(index(row,11)) == "RTJ" else 'ESP 38,5mm ACABADO'
 
             parts.append([
-                data(index(row, 207)), # trad chring
+                data(index(row, 211)), # trad chring
                 schchring,
-                'ø' + str(data(index(row, 62))),
+                'ø' + str(data(index(row, 66))),
                 '', #data(index(row, 37)),
                 data(index(row, 19)),
-                1 * int(data(index(row, 35))), # quantity chring per equipment * quantity of equipments
-                data(index(row, 219)) # code purch chring
+                1 * quantity_equipment, # quantity chring per equipment * quantity of equipments
+                data(index(row, 223)) # code purch chring
             ])
 
-        code_tube = data(index(row,172))
+        code_tube = data(index(row,176))
         if code_tube:
             parts.append([
-                data(index(row, 208)), # trad tube
+                data(index(row, 212)), # trad tube
                 sch,
                 design,
                 '',
                 data(index(row,15)),
-                float(data(index(row, 196))) * int(data(index(row, 35))), # quantity tube per equipment (length of tube) * quantity of equipments
-                data(index(row, 220)) # code purch tube
+                float(data(index(row, 200))) * quantity_equipment, # quantity tube per equipment (length of tube) * quantity of equipments
+                data(index(row, 224)) # code purch tube
             ])
 
-        code_piece2 = data(index(row,173))
+        code_piece2 = data(index(row,177))
         if code_piece2:
             line_size = data(index(row,9))
             sch = data(index(row,12))
@@ -2315,13 +2369,13 @@ def flow_material_list(proxy, model):
             materialpiece2 = sheet_material_cache[flange_code]
 
             parts.append([
-                data(index(row, 209)), # trad wedge
+                data(index(row, 213)), # trad wedge
                 modelpiece2,
                 '',
                 '',
                 materialpiece2,
-                1 * int(data(index(row, 35))), # quantity of wedge parts per equipment * quantity of equipments
-                data(index(row, 221)) # code purch wedge
+                1 * quantity_equipment, # quantity of wedge parts per equipment * quantity of equipments
+                data(index(row, 225)) # code purch wedge
             ])
 
     df = pd.DataFrame(
@@ -2380,64 +2434,67 @@ def temp_material_list(proxy, model):
             continue
 
         tw_type = data(index(row, 9))
+        quantity_equipment = int(data(index(row, 42)))
 
-        code_bar = data(index(row, 143))
+        code_bar = data(index(row, 147))
         if code_bar :
             parts.append([
-                data(index(row, 179)) if 'Helical' not in tw_type else 'VAINA HELICOIDAL' + (' BRIDADA ' + data(index(row, 10)) + ' ' + data(index(row, 11)) + ' ' + data(index(row, 12)) if tw_type == 'Flanged Helical' else ''),
-                'U=' + data(index(row, 16)) + ' /L=' + data(index(row, 15)) if 'Stone' in tw_type or 'Helical' in tw_type else 'Barra ø=' + (data(index(row, 53))),
+                data(index(row, 183)) if 'Helical' not in tw_type else
+                    'VAINA HELICOIDAL' + (' BRIDADA ' + data(index(row, 10)) + ' ' + data(index(row, 11)) + ' ' + data(index(row, 12)) if tw_type == 'Flanged Helical' else ''),
+                'U=' + data(index(row, 16)) + ' /L=' + data(index(row, 15)) if ('Stone' in tw_type or 'Helical' in tw_type) else
+                    'Barra ø=' + (data(index(row, 57))),
                 'RAÍZ ø=' + data(index(row, 17)) if tw_type == 'Van-Stone TW' else '',
                 '',
                 data(index(row, 14)),
-                (float(data(index(row, 167))) if 'Helical' not in tw_type else 1)  * int(data(index(row, 42))),
-                data(index(row, 191))
+                (float(data(index(row, 171))) if 'Helical' not in tw_type else 1)  * quantity_equipment,
+                data(index(row, 195))
                 ])
 
-        code_tube = data(index(row, 144))
+        code_tube = data(index(row, 148))
         if code_tube:
             parts.append([
-                data(index(row, 180)),
+                data(index(row, 184)),
                 data(index(row, 38)),
                 '',
                 '',
                 data(index(row, 14)),
-                float(data(index(row, 168)))  * int(data(index(row, 42))),
-                data(index(row, 192))
+                float(data(index(row, 172)))  * quantity_equipment,
+                data(index(row, 197))
                 ])
 
-        code_flange = data(index(row, 145))
+        code_flange = data(index(row, 149))
         if code_flange:
             list_tw = ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK']
             parts.append([
-                data(index(row, 181)) if tw_type not in list_tw else '',
+                data(index(row, 185)) if tw_type not in list_tw else '',
                 '',
                 '',
                 '',
                 data(index(row, 35)) if tw_type == 'Van-Stone TW'
                     else (data(index(row, 14)) if tw_type not in list_tw else ''),
-                (1 if tw_type not in list_tw else 0) * int(data(index(row, 42))),
-                data(index(row, 193))
+                (1 if tw_type not in list_tw else 0) * quantity_equipment,
+                data(index(row, 197))
                 ])
 
-        code_sensor = data(index(row, 146))
+        code_sensor = data(index(row, 150))
         if code_sensor:
             parts.append([
-                data(index(row, 182)),
+                data(index(row, 186)),
                 data(index(row, 33)) + '-' + data(index(row, 32)) if code_sensor[:4] == 'Bime' else '',
                 data(index(row, 27)) + '-' + data(index(row, 28)) if code_sensor[:4] == 'Bime' else '',
-                'PLATINO' if data(index(row, 182))[:5] == 'PT100' else
+                'PLATINO' if data(index(row, 186))[:5] == 'PT100' else
                     ('AC. INOX.' if data(index(row, 24)) == 'St.Steel' else
                     data(index(row, 24))),
-                (1 if data(index(row, 182))[:5] == 'PT100' or code_sensor[:4] == 'Bime' else
-                    (float(data(index(row, 59)))/1000) if data(index(row, 59)) != '' else
-                    0) * int(data(index(row, 42))),
-                data(index(row, 194))
+                (1 if data(index(row, 186))[:5] == 'PT100' or code_sensor[:4] == 'Bime' else
+                    (float(data(index(row, 63)))/1000) if data(index(row, 63)) != '' else
+                    0) * quantity_equipment,
+                data(index(row, 198))
                 ])
 
-        code_head = data(index(row, 147))
+        code_head = data(index(row, 151))
         if code_head:
             parts.append([
-                data(index(row, 183)),
+                data(index(row, 187)),
                 data(index(row, 31)),
                 '',
                 data(index(row, 33)),
@@ -2445,25 +2502,25 @@ def temp_material_list(proxy, model):
                             else ('AC.CARBONO' if data(index(row, 31))[-2:] == 'CS' 
                             else ('AC.INOXIDABLE' if data(index(row, 31))[-2:] == 'SS' 
                             else 'MATERIAL CABEZA NO DEFINIDO'))),
-                1 * int(data(index(row, 42))),
-                data(index(row, 194))
+                1 * quantity_equipment,
+                data(index(row, 198))
                 ])
 
-        code_btb = data(index(row, 148))
+        code_btb = data(index(row, 152))
         if code_btb:
             parts.append([
-                data(index(row, 184)),
+                data(index(row, 188)),
                 ("RANGO " + data(index(row, 27)) + '-' + data(index(row, 28))) if code_btb[:2] == 'BI' else '',
                 '',
                 '',
                 data(index(row, 24)) if code_btb[:2] == 'BI' else ('CERÁMICO' if code_btb[:2] == 'CE' else ''),
-                float(data(index(row, 172))) * int(data(index(row, 42))),
-                data(index(row, 196))
+                float(data(index(row, 176))) * quantity_equipment,
+                data(index(row, 200))
                 ])
 
-        code_nipple = data(index(row, 149))
+        code_nipple = data(index(row, 153))
         if code_nipple:
-            trad = data(index(row, 185))
+            trad = data(index(row, 189))
             model = data(index(row, 30))
             parts.append([
                 trad,
@@ -2471,69 +2528,69 @@ def temp_material_list(proxy, model):
                 '',
                 '',
                 'A-105/A106' if trad[trad.find('('):trad.find('(')+9] == '(CS)' else 'AISI-316',
-                1 * int(data(index(row, 42))),
-                data(index(row, 197))
+                1 * quantity_equipment,
+                data(index(row, 201))
                 ])
 
-        code_spring = data(index(row, 150))
+        code_spring = data(index(row, 154))
         if code_spring:
             parts.append([
-                data(index(row, 186)),
+                data(index(row, 190)),
                 '',
                 '',
                 '',
                 'AC.INOX',
-                1 * int(data(index(row, 42))),
-                data(index(row, 198))
+                1 * quantity_equipment,
+                data(index(row, 202))
                 ])
 
-        code_plug = data(index(row, 152))
+        code_puntal = data(index(row, 155))
+        if code_puntal:
+            parts.append([
+                data(index(row, 191)),
+                '',
+                '',
+                '',
+                data(index(row, 14)),
+                (float(code_puntal[1:8])/1000 if code_puntal not in ['N/A', 'HO'] else 0) * quantity_equipment,
+                data(index(row, 203))
+                ])
+
+        code_plug = data(index(row, 156))
         if code_plug:
-            trad = data(index(row, 188))
+            trad = data(index(row, 192))
             parts.append([
                 trad,
                 '',
                 '',
                 '',
                 trad[trad.find('('):trad.find('(')+9],
-                1 * int(data(index(row, 42))),
-                data(index(row, 200))
+                1 * quantity_equipment,
+                data(index(row, 204))
                 ])
 
-        code_puntal = data(index(row, 151))
-        if code_puntal:
-            parts.append([
-                data(index(row, 187)),
-                '',
-                '',
-                '',
-                data(index(row, 14)),
-                (float(code_puntal[1:8])/1000 if code_puntal not in ['N/A', 'HO'] else 0) * int(data(index(row, 42))),
-                data(index(row, 199))
-                ])
-
-        code_tw = data(index(row, 153))
+        code_tw = data(index(row, 157))
         if code_tw and ('Van-Stone TW' in tw_type or 'Forged' in tw_type):
             parts.append([
-                data(index(row, 189)),
+                data(index(row, 193)),
                 'U=' + data(index(row, 16)) + ' / L=' + data(index(row, 15)),
                 '',
                 '',
                 data(index(row, 14)),
-                int(data(index(row, 177))) * int(data(index(row, 42))),
-                data(index(row, 201))
+                int(data(index(row, 181))) * quantity_equipment,
+                data(index(row, 205))
                 ])
 
-        code_extcable = data(index(row, 154))
+        code_extcable = data(index(row, 158))
         if code_extcable:
             parts.append([
-                data(index(row, 190)),
+                data(index(row, 194)),
                 '',
                 '',
                 '',
                 'AC. INOX.' if data(index(row, 24)) in ['AISI-304', 'AISI-310', 'AISI-316', 'AISI-321', 'St.Steel'] else data(index(row, 24)),
-                (float(data(index(row, 178))) if data(index(row, 178)) != '' else 0) * int(data(index(row, 42))),
-                data(index(row, 202))
+                (float(data(index(row, 182))) if data(index(row, 182)) != '' else 0) * quantity_equipment,
+                data(index(row, 206))
                 ])
 
     df = pd.DataFrame(
@@ -2620,30 +2677,30 @@ def level_material_list(proxy, model):
         nippletubedim = data(index(row, 33))[:8]
         cc_length = int(data(index(row, 17)))
 
-        code_body = data(index(row, 69))
+        code_body = data(index(row, 73))
         if code_body:
             if level_type in ['Transparent', 'Reflex']:
                 parts.append([
-                    data(index(row, 121)),
+                    data(index(row, 122)),
                     nipplehexdim,
                     '40x40' if model_value[2:3] != 'H' else ('100x50'if model_value[2:4] != 'HH' else '80x40'),
                     (nipplehexdim + '-M'),
                     'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                    data(index(row, 71)),
-                    data(index(row, 181))
+                    data(index(row, 75)),
+                    data(index(row, 185))
                     ])
             else:
                 parts.append([
-                    data(index(row, 121)),
+                    data(index(row, 125)),
                     '',
                     '',
                     '',
                     'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                    data(index(row, 71)),
-                    data(index(row, 181))
+                    data(index(row, 75)),
+                    data(index(row, 185))
                     ])
 
-        code_cover = data(index(row, 72))
+        code_cover = data(index(row, 76))
         if code_cover:
             commands_coverdim = ("""
                 SELECT *
@@ -2666,76 +2723,76 @@ def level_material_list(proxy, model):
                             + str(error), "critical")
 
             parts.append([
-                data(index(row, 122)),
+                data(index(row, 126)),
                 ('L=' + str(length)),
                 '80x30' if model_value[2:4] != 'HH' else '90x40',
                 (str(bores) + ' taladros'),
                 'A-105' if data(index(row, 27)) == 'Carbon Steel' else data(index(row, 27)),
-                data(index(row, 74)),
-                data(index(row, 182))
+                data(index(row, 78)),
+                data(index(row, 186))
                 ])
 
-        code_bolts = data(index(row, 75))
+        code_bolts = data(index(row, 79))
         if code_bolts :
             parts.append([
-                data(index(row, 123)),
+                data(index(row, 127)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '' if model_value[2:4] == 'HH' else ('M10x132 mm' if level_type == 'Transparent' else ''),
                 '' if model_value[2:4] == 'HH' else ('cabeza exag 17 e/c' if level_type == 'Transparent' else ''),
                 'B7/2H' if level_type in ['Transparent','Reflex'] else data(index(row, 24)),
-                data(index(row, 77)),
-                data(index(row, 183))
+                data(index(row, 81)),
+                data(index(row, 187))
                 ])
 
-        code_nipplehex = data(index(row, 78))
+        code_nipplehex = data(index(row, 82))
         if code_nipplehex:
             parts.append([
-                data(index(row, 124)),
-                (str((cc_length-int(get_number_before_mm(data(index(row, 121))))-72)/2+22) + ' mm'),
+                data(index(row, 128)),
+                (str((cc_length-int(get_number_before_mm(data(index(row, 125))))-72)/2+22) + ' mm'),
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 80)),
-                data(index(row, 184))
+                data(index(row, 84)),
+                data(index(row, 188))
                 ])
 
-        code_valve = data(index(row, 81))
+        code_valve = data(index(row, 85))
         if code_valve:
             parts.append([
-                data(index(row, 125)),
+                data(index(row, 129)),
                 nipplehexdim[:4] + ' x ' + data(index(row, 20)),
                 nipplehexdim[-3:] + '-H',
                 '',
                 'A-105' if data(index(row, 18))[-2:] == 'NB' else '316 SS',
-                data(index(row, 83)),
-                data(index(row, 185))
+                data(index(row, 87)),
+                data(index(row, 189))
                 ])
 
-        code_flangevalve = data(index(row, 84))
+        code_flangevalve = data(index(row, 88))
         if code_flangevalve:
             parts.append([
-                data(index(row, 126)),
+                data(index(row, 130)),
                 '',
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 86)),
-                data(index(row, 186))
+                data(index(row, 90)),
+                data(index(row, 190))
                 ])
 
-        code_dv = data(index(row, 87))
+        code_dv = data(index(row, 91))
         if code_dv:
             parts.append([
-                data(index(row, 127)),
+                data(index(row, 131)),
                 '',
                 '',
                 '',
                 'A-105' if data(index(row, 10)) == 'Carbon Steel' else data(index(row, 10)),
-                data(index(row, 89)),
-                data(index(row, 187))
+                data(index(row, 93)),
+                data(index(row, 191))
                 ])
 
-            if data(index(row, 127))[:3] == 'VÁL':
+            if data(index(row, 131))[:3] == 'VÁL':
                 parts.append([
                     'TAPÓN NORMAL ' + data(index(row, 20)) + data(index(row, 21)),
                     '',
@@ -2746,83 +2803,83 @@ def level_material_list(proxy, model):
                     'TA ' + data(index(row, 20)) + data(index(row, 21))
                     ])
 
-        code_gasket = data(index(row, 96))
+        code_gasket = data(index(row, 100))
         if code_gasket:
             parts.append([
-                data(index(row, 130)),
+                data(index(row, 134)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '',
                 '',
                 'GRAFOIL',
-                data(index(row, 98)),
-                data(index(row, 190))
+                data(index(row, 102)),
+                data(index(row, 194))
                 ])
 
-        code_glass = data(index(row, 99))
+        code_glass = data(index(row, 103))
         if code_glass:
             parts.append([
-                data(index(row, 131)),
+                data(index(row, 135)),
                 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN',
                 '',
                 '',
                 'BOROSILICATO',
-                data(index(row, 101)),
-                data(index(row, 191))
+                data(index(row, 105)),
+                data(index(row, 195))
                 ])
 
-        code_mica = data(index(row, 105))
+        code_mica = data(index(row, 109))
         if code_mica:
             parts.append([
-                data(index(row, 133)),
+                data(index(row, 137)),
                 'TRANSPARENCIA',
                 '',
                 '',
                 'MICA',
-                data(index(row, 107)),
-                data(index(row, 193))
+                data(index(row, 111)),
+                data(index(row, 197))
                 ])
 
-        code_nippletube = data(index(row, 114))
+        code_nippletube = data(index(row, 118))
         if code_nippletube:
             parts.append([
-                data(index(row, 136)),
+                data(index(row, 140)),
                 '80 mm',
                 '',
                 '',
                 'A-106' if data(index(row, 10)) in ['Carbon Steel','ASTM A350 LF2 CL2'] else data(index(row, 10)),
-                data(index(row, 116)),
-                data(index(row, 196))
+                data(index(row, 120)),
+                data(index(row, 200))
                 ])
 
-        code_antifrost = data(index(row, 117))
+        code_antifrost = data(index(row, 121))
         if code_antifrost:
             parts.append([
-                data(index(row, 137)),
+                data(index(row, 141)),
                 '',
                 '',
                 '',
                 'METACRILATO',
-                data(index(row, 119)),
-                data(index(row, 197))
+                data(index(row, 123)),
+                data(index(row, 201))
                 ])
 
-        code_illuminator = data(index(row, 93))
+        code_illuminator = data(index(row, 97))
         if code_illuminator:
             item = [
-                data(index(row, 129)),
+                data(index(row, 133)),
                 '',
                 '',
                 '',
                 'HIERRO',
-                data(index(row, 95)),
-                data(index(row, 189))
+                data(index(row, 99)),
+                data(index(row, 193))
                 ]
 
             for r in expand_illuminators_from_list(item):
                 parts.append(r)
 
-        code_scale = data(index(row, 90))
-        code_float = data(index(row, 102))
+        code_scale = data(index(row, 94))
+        code_float = data(index(row, 106))
 
     df = pd.DataFrame(
         parts,
@@ -2934,6 +2991,19 @@ def others_material_list(proxy, model):
             parts.append(['CAP SOLDADO BARRA ø90 x LONG 67 mm', '', '', '', '321', 1, ''])
             parts.append(['EMPTAPÓN DE PURGA 1/4" NPT-M (EXAG. 17 e/c x LONG. 31 mm)AQUETADURA', 'EXAG. 17 e/c (ø20 mm)', '', '', '321', 1, ''])
 
+        elif 'D-3355/2' in description:
+            parts.append(['BRIDA DE LÍNEA 5" 600# RF', 'ø331 x 51 mm', '', '', 'AISI-321', 1, ''])
+            parts.append(['TUBO 3" SCH XXS', str(len(id_list)) + 'x2430', '', '', 'AISI-321', 2.43, ''])
+            parts.append(['CAP 3" SCH XXS (ø88.89 mm X 64 mm)', 'LONGITUD 64 MM', '', '', 'AISI-321', 1, ''])
+            parts.append(['MANGUITO 1/4" NPT x 1/4" SW', 'ø25,4 x LONG 35 mm', '', '', 'AISI-321', 3, ''])
+            parts.append(['TAPÓM EXAGONAL 1/4" NPT-H (PARA MANGUITO DRENAJE)', 'ø29 x LONG 27 mm', '', '', 'AISI-321', 1, ''])
+            parts.append(['MANGUITO DE DRENAJE', 'ø25,4 x LONG 140 mm', 'exag. 25 e/c', '', 'AISI-321', 1, ''])
+            parts.append(['TAPÓN DE CONTACTO (VAINA EXTERIOR CON VAINA INTERIOR)', 'ø25 x LONG 42 mm', '', '', 'AISI-321', 3, ''])
+            parts.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x1134', '', '', 'AISI-321', 1.134, ''])
+            parts.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x1654', '', '', 'AISI-321', 1.654, ''])
+            parts.append(['TUBO 1/4" SCH 40S (ø13.5 X 2.3 mm ESP)', str(len(id_list)) + 'x2174', '', '', 'AISI-321', 2.174, ''])
+            parts.append(['TAPOÓN CIERRES PARA TUBOS 1/4"', 'ø8,9 x LONG 6 MM', 'SALE DE VARILLA ø12', '', 'AISI-321', 3, ''])
+
         else:
             parts.append([
                 str(description),
@@ -3011,7 +3081,7 @@ def general_material_list(proxy, model, variable, numoffer):
                 int(data(index(row, 10))) if data(index(row, 10)) != 'N/A' else data(index(row, 10)),
                 data(index(row, 11)),
                 data(index(row, 12)),
-                1 #* int(data(index(row, 34)))
+                1 * int(data(index(row, 35)))
                 ])
 
         if variable == 'Temperatura':
@@ -3024,7 +3094,7 @@ def general_material_list(proxy, model, variable, numoffer):
                 data(index(row, 11)) if data(index(row, 11)) != 'N/A' else data(index(row, 11)),
                 data(index(row, 12)),
                 data(index(row, 16)),
-                1
+                1 * int(data(index(row, 38)))
                 ])
 
         if variable == 'Nivel':
