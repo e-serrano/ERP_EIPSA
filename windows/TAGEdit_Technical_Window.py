@@ -2459,9 +2459,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     value = self.proxy.data(self.proxy.index(row, column))
                     if isinstance(value, QDate):
                         value = value.toString("dd/MM/yyyy")
-                    elif column in [46] and self.variable == 'Caudal':
+                    elif column in [49] and self.variable == 'Caudal':
                         value = int(value) if value != '' else 0
-                    elif column in [15,16,56,57,58,59] and self.variable == 'Temperatura':
+                    elif column in [15,16,59,60,61,62] and self.variable == 'Temperatura':
                         value = int(float(value)) if value != '' else 0
                     elif column in [17,18,19,20,21] and self.variable == 'Temperatura':
                         value = float(value.replace(',', '.')) if value not in ('', 'N/A', 'HOLD') else 0
