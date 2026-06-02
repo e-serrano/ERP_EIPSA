@@ -4835,7 +4835,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             elif self.table_toquery == "tags_data.tags_flow":
                             # Obtain the data from the database for flow tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
-                                    SELECT id_tag_flow, tag, item_tipe, line_size, rating, faching, schedule, flange_material, flange_type, tube_material,
+                                    SELECT id_tag_flow, tag, item_type, line_size, rating, facing, schedule, flange_material, flange_type, tube_material,
                                         tapping_size, tapping_number, tapping_orientation, gasket_material, pipe_int_diam, notes_equipment
                                     FROM tags_data.tags_flow
                                     WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
