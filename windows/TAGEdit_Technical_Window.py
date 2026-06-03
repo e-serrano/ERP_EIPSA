@@ -2336,13 +2336,22 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.tableEditTags.hideColumn(i)
 
     # Hidding amount columns
-        if self.username not in ['julian.martinez', 'j.martinez']:
+        if self.username not in ['j.martinez','julian.martinez']:
             if self.variable == 'Caudal':
-                self.tableEditTags.hideColumn(33)
+                self.tableEditTags.hideColumn(36)
+                self.tableEditTags.hideColumn(37)
+                self.tableEditTags.hideColumn(38)
+                self.tableEditTags.hideColumn(39)
             elif self.variable == 'Temperatura':
-                self.tableEditTags.hideColumn(40)
+                self.tableEditTags.hideColumn(43)
+                self.tableEditTags.hideColumn(44)
+                self.tableEditTags.hideColumn(45)
+                self.tableEditTags.hideColumn(46)
             elif self.variable == 'Nivel':
                 self.tableEditTags.hideColumn(36)
+                self.tableEditTags.hideColumn(37)
+                self.tableEditTags.hideColumn(38)
+                self.tableEditTags.hideColumn(39)
             elif self.variable == 'Otros':
                 self.tableEditTags.hideColumn(11)
 
@@ -2459,9 +2468,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     value = self.proxy.data(self.proxy.index(row, column))
                     if isinstance(value, QDate):
                         value = value.toString("dd/MM/yyyy")
-                    elif column in [49] and self.variable == 'Caudal':
+                    elif column in [50] and self.variable == 'Caudal':
                         value = int(value) if value != '' else 0
-                    elif column in [15,16,59,60,61,62] and self.variable == 'Temperatura':
+                    elif column in [15,16,60,61,62,63] and self.variable == 'Temperatura':
                         value = int(float(value)) if value != '' else 0
                     elif column in [17,18,19,20,21] and self.variable == 'Temperatura':
                         value = float(value.replace(',', '.')) if value not in ('', 'N/A', 'HOLD') else 0
@@ -3045,6 +3054,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('s.sanchez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
