@@ -1516,16 +1516,19 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(37)
                     self.tableEditTags.hideColumn(38)
                     self.tableEditTags.hideColumn(39)
+                    self.tableEditTags.hideColumn(40)
                 elif self.variable == 'Temperatura':
                     self.tableEditTags.hideColumn(43)
                     self.tableEditTags.hideColumn(44)
                     self.tableEditTags.hideColumn(45)
                     self.tableEditTags.hideColumn(46)
+                    self.tableEditTags.hideColumn(47)
                 elif self.variable == 'Nivel':
                     self.tableEditTags.hideColumn(36)
                     self.tableEditTags.hideColumn(37)
                     self.tableEditTags.hideColumn(38)
                     self.tableEditTags.hideColumn(39)
+                    self.tableEditTags.hideColumn(46)
                 elif self.variable == 'Otros':
                     self.tableEditTags.hideColumn(11)
 
@@ -2273,51 +2276,54 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
     # Hidding columns depending on variable
         if self.variable == 'Caudal':
-            for i in range(104, 108):
-                    self.tableEditTags.hideColumn(i)
-            for i in range(109, 113):
+            for i in range(113, 117):
                 self.tableEditTags.hideColumn(i)
-            for i in range(114, 119):
+            for i in range(118, 122):
                 self.tableEditTags.hideColumn(i)
-            for i in range(120, 127):
+            for i in range(123, 128):
                 self.tableEditTags.hideColumn(i)
-            for i in range(140, self.model.columnCount()):
+            for i in range(129, 136):
                 self.tableEditTags.hideColumn(i)
+            for i in range(150,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
+
+            self.tableEditTags.showColumn(160) # Dim drawing path column
+            self.tableEditTags.showColumn(161) # OF drawing path column
 
         elif self.variable == 'Temperatura':
-            if self.username not in ['j.martinez','julian.martinez']:
-                for i in range(84,88):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(89,93):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(94,99):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(100,107):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(125, self.model.columnCount()):
-                    self.tableEditTags.hideColumn(i)
+            for i in range(88,92):
+                self.tableEditTags.hideColumn(i)
+            for i in range(93,96):
+                self.tableEditTags.hideColumn(i)
+            for i in range(98,103):
+                self.tableEditTags.hideColumn(i)
+            for i in range(104,111):
+                self.tableEditTags.hideColumn(i)
+            for i in range(130,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
 
-                self.tableEditTags.showColumn(135) # Dim drawing path column
-                self.tableEditTags.showColumn(136) # OF drawing path column
-                self.tableEditTags.showColumn(137) # OF sensor drawing path column
+            self.tableEditTags.showColumn(140) # Dim drawing path column
+            self.tableEditTags.showColumn(141) # OF drawing path column
+            self.tableEditTags.showColumn(142) # OF sensor drawing path column
 
         elif self.variable == 'Nivel':
-            for i in range(66,138):
-                self.tableEditTags.hideColumn(i)
-            for i in range(140,144):
-                self.tableEditTags.hideColumn(i)
-            for i in range(145,149):
-                self.tableEditTags.hideColumn(i)
-            for i in range(150,155):
-                self.tableEditTags.hideColumn(i)
-            for i in range(156,163):
-                self.tableEditTags.hideColumn(i)
-            for i in range(164,166):
-                self.tableEditTags.hideColumn(i)
-            for i in range(167,169):
-                self.tableEditTags.hideColumn(i)
-            for i in range(170,self.model.columnCount()):
-                self.tableEditTags.hideColumn(i)
+            if self.username != 'e.serrano':
+                for i in range(70,142):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(144,148):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(149,153):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(154,159):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(160,167):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(168,170):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(171,173):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(174,self.model.columnCount()):
+                    self.tableEditTags.hideColumn(i)
 
         elif self.variable == 'Otros':
             for i in range(27,31):
@@ -2334,6 +2340,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.tableEditTags.hideColumn(i)
             for i in range(57,self.model.columnCount()):
                 self.tableEditTags.hideColumn(i)
+            if self.username not in ['j.martinez','julian.martinez']:
+                self.tableEditTags.showColumn(11)
 
     # Hidding amount columns
         if self.username not in ['j.martinez','julian.martinez']:
@@ -2342,16 +2350,19 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.tableEditTags.hideColumn(37)
                 self.tableEditTags.hideColumn(38)
                 self.tableEditTags.hideColumn(39)
+                self.tableEditTags.hideColumn(46)
             elif self.variable == 'Temperatura':
                 self.tableEditTags.hideColumn(43)
                 self.tableEditTags.hideColumn(44)
                 self.tableEditTags.hideColumn(45)
                 self.tableEditTags.hideColumn(46)
+                self.tableEditTags.hideColumn(47)
             elif self.variable == 'Nivel':
                 self.tableEditTags.hideColumn(36)
                 self.tableEditTags.hideColumn(37)
                 self.tableEditTags.hideColumn(38)
                 self.tableEditTags.hideColumn(39)
+                self.tableEditTags.hideColumn(46)
             elif self.variable == 'Otros':
                 self.tableEditTags.hideColumn(11)
 
