@@ -1279,13 +1279,16 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
             elif item.column() == 1:
                 name_pdf = item.text()
-                file_path = os.path.normpath("//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
+                file_path = os.path.normpath("//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES")
 
-                if os.path.isfile(file_path):
-                    try:
-                        os.startfile(file_path)
-                    except Exception as e:
-                        print(f"No se pudo abrir el archivo '{name_pdf}': {e}")
+                for file in sorted(os.listdir(file_path)):
+                    if name_pdf in file:
+                        full_path = os.path.join(file_path, file)
+                        if os.path.isfile(full_path):
+                            try:
+                                os.startfile(full_path)
+                            except Exception as e:
+                                print(f"No se pudo abrir el archivo '{name_pdf}': {e}")
 
 # Function to load form when selecting recor
     def loadform(self, item):
