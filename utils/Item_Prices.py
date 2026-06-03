@@ -51,11 +51,11 @@ def set_prices_flow(proxy, model):
             plate_thickness = str(data(index(row, 21)))
             gasket_material = str(data(index(row, 23)))
             bolting_material = str(data(index(row, 24))) + " / " + str(data(index(row, 25)))
-            bolting_size = str(data(index(row, 43)))
-            bolting_quantity = str(data(index(row, 44)))
-            plug_quantity = str(data(index(row, 45)))
-            jack_screw_size = str(data(index(row, 46)))
-            jack_screw_material = str(data(index(row, 47)))
+            bolting_size = str(data(index(row, 47)))
+            bolting_quantity = str(data(index(row, 48)))
+            plug_quantity = str(data(index(row, 50)))
+            jack_screw_size = str(data(index(row, 52)))
+            jack_screw_material = str(data(index(row, 51)))
 
             with Database_Connection(config_database()) as conn:
                 with conn.cursor() as cur:
@@ -371,7 +371,7 @@ def set_prices_temp(proxy, model):
             sensor = str(data(index(row, 22)))
             nipple_ext_material = str(data(index(row, 29)))
             head_case_material = str(data(index(row, 31)))
-            base_tw_diam = str(data(index(row, 50)))
+            base_tw_diam = str(data(index(row, 57)))
 
             material_code = validation_map_codes['material'].get(material_tw)
             head_code = validation_map_codes['head'].get(head_case_material)
