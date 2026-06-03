@@ -7,13 +7,11 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from datetime import *
 import PyPDF2
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -417,7 +415,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -606,7 +604,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         VerifSupplierInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
         # VerifSupplierInsert_Window.setMaximumSize(QtCore.QSize(800, 675))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         VerifSupplierInsert_Window.setWindowIcon(icon)
         VerifSupplierInsert_Window.setStyleSheet(
     "QPushButton {\n"
@@ -654,7 +652,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.toolPDF.setObjectName("PDF_Button")
         self.toolPDF.setToolTip("Combinar PDF")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
@@ -756,7 +754,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_AddSupplier.setObjectName("Button_AcceptFilter")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_AddSupplier.setIcon(icon2)
         self.Button_AddSupplier.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_2.addWidget(self.Button_AddSupplier, 2, 4, 1, 1)
@@ -841,7 +839,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Search.setObjectName("Button_AcceptFilter")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Search.setIcon(icon1)
         self.Button_Search.setIconSize(QtCore.QSize(20, 20))
         self.Button_Search.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -1038,7 +1036,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1066,7 +1064,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         if id_record != '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Este registro ya tiene datos. No puedes insertar")
@@ -1077,7 +1075,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         elif date_record == '' or (supplier == '' or (delivnote == '' or material == '')):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
@@ -1111,7 +1109,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Proveedores")
                 dlg.setText("Datos insertados con éxito")
@@ -1124,7 +1122,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1152,7 +1150,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         if id_record == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Selecciona un registro para editar")
@@ -1163,7 +1161,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         elif date_record == '' or (supplier == '' or (delivnote == '' or material == '')):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
@@ -1193,7 +1191,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Datos actualizados con éxito")
@@ -1217,7 +1215,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1265,7 +1263,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1337,7 +1335,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1365,7 +1363,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Nuevo proveedor')
         dlg.setLabelText('Introduce el nombre del proveedor:')
@@ -1393,7 +1391,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Nuevo proveedor")
                         dlg.setText("Datos insertados con éxito")
@@ -1406,7 +1404,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1421,7 +1419,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Nuevo proveedor")
                 dlg_error.setText("El nombre no puede estar vacío")
@@ -1489,7 +1487,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1587,7 +1585,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Combinar PDF")
                     dlg.setText(f'Archivos combinados guardados como:\n{pdf_merged}')
@@ -1597,7 +1595,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Combinar PDF")
                     dlg.setText('Operación cancelada al guardar el archivo.')
@@ -1608,7 +1606,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Combinar PDF")
                 dlg.setText('No se seleccionaron archivos.')
@@ -1619,7 +1617,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         except Exception as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Combinar PDF")
             dlg.setText(f'Ha ocurrido el siguiente error:\n{error}')
