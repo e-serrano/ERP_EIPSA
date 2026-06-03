@@ -2862,27 +2862,26 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to set prices
     def set_prices(self):
-        if self.username == 'e.serrano':
-            if self.proxy.rowCount() == 0:
-                MessageHelper.show_message("No hay datos cargados", "warning")
-            else:
-                if self.variable == 'Caudal':
-                    set_prices_flow(self.proxy, self.model)
-                elif self.variable == 'Temperatura' or self.variable2 == 'Temperatura':
-                    set_prices_temp(self.proxy, self.model)
-                elif self.variable == 'Nivel' or self.variable2 == 'Nivel':
-                    set_prices_level(self.proxy, self.model)
-            #     elif self.variable == 'Otros':
-            #         set_others_prices(self.proxy, self.model)
+        if self.proxy.rowCount() == 0:
+            MessageHelper.show_message("No hay datos cargados", "warning")
+        else:
+            if self.variable == 'Caudal':
+                set_prices_flow(self.proxy, self.model)
+            elif self.variable == 'Temperatura' or self.variable2 == 'Temperatura':
+                set_prices_temp(self.proxy, self.model)
+            elif self.variable == 'Nivel' or self.variable2 == 'Nivel':
+                set_prices_level(self.proxy, self.model)
+        #     elif self.variable == 'Otros':
+        #         set_others_prices(self.proxy, self.model)
 
-                if self.variable2 is not None:
-                    if self.variable2 == 'Temperatura':
-                        set_prices_temp(self.proxy2, self.model2)
-                    elif self.variable2 == 'Nivel':
-                        set_prices_level(self.proxy2, self.model2)
+            if self.variable2 is not None:
+                if self.variable2 == 'Temperatura':
+                    set_prices_temp(self.proxy2, self.model2)
+                elif self.variable2 == 'Nivel':
+                    set_prices_level(self.proxy2, self.model2)
 
-                self.query_tags()
-                MessageHelper.show_message("Precios establecidos correctamente", "info")
+            self.query_tags()
+            MessageHelper.show_message("Precios establecidos correctamente", "info")
 
 
 if __name__ == "__main__":
