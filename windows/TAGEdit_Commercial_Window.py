@@ -1399,7 +1399,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         queries = {
             "Caudal":  f'SELECT 1 FROM tags_data.tags_flow WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
             "Temperatura": f'SELECT 1 FROM tags_data.tags_temp WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
-            "Nivel": f'SELECT 1 FROM tags_data.tags_level_test WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
+            "Nivel": f'SELECT 1 FROM tags_data.tags_level WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
             "Otros": f'SELECT 1 FROM tags_data.tags_others WHERE UPPER("{field}") LIKE UPPER(%s) LIMIT 1',
         }
 
@@ -1430,14 +1430,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 table1, c1, d1, e1, headers1 = VARIABLE_TABLES[v1]
                 table2, c2, d2, e2, headers2 = VARIABLE_TABLES[v2]
-
-                table1 = ('tags_data.tags_flow_test' if (self.variable == "Caudal" and self.username == 'e.serrano') else
-                    ('tags_data.tags_temp_test' if (self.variable == "Temperatura" and self.username == 'e.serrano') else 
-                    ('tags_data.tags_level_test' if (self.variable == "Nivel" and self.username == 'e.serrano') else table1)))
-                
-                table2 = ('tags_data.tags_flow_test' if (self.variable2 == "Caudal" and self.username == 'e.serrano') else
-                    ('tags_data.tags_temp_test' if (self.variable2 == "Temperatura" and self.username == 'e.serrano') else 
-                    ('tags_data.tags_level_test' if (self.variable2 == "Nivel" and self.username == 'e.serrano') else table2)))
 
                 self.model.table_check = table1
                 self.model2.table_check = table2
@@ -1471,10 +1463,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 self.model.table_check = table
                 self.initial_column, self.column_difference, self.excluded_range = c, d, e
-
-                table = ('tags_data.tags_flow_test' if (variable == "Caudal" and self.username == 'e.serrano') else
-                    ('tags_data.tags_temp_test' if (variable == "Temperatura" and self.username == 'e.serrano') else 
-                    ('tags_data.tags_level_test' if (variable == "Nivel" and self.username == 'e.serrano') else table)))
 
                 self.tableEditTags.setModel(None)
                 self.proxy.setSourceModel(None)
