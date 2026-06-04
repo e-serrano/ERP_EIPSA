@@ -107,7 +107,7 @@ TEMP_HEADERS = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posici
 
 TEMP_COLUMNS = ["id_tag_temp", "tag", "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
 				"item_type", "tw_type", "size", "rating", "facing", "std_tw", "material_tw", "std_length", "ins_length",
-				"root_diam", "tip_diam", "bore_diam", "tip_thk", "radius_dim",
+				"root_diam", "tip_diam", "bore_diam", "radius_dim", "tip_thk",
 				"sensor_element", "wire_size", "sheath_stem_material", "sheath_stem_diam", "insulation", "temp_inf", "temp_sup",
 				"nipple_ext_material", "nipple_ext_length", "head_case_material", "head_certification", "elec_conn_case_diam", "tt_cerblock",
 				"material_flange_lj", "gasket_material", "puntal", "tube_t", "nace", "pipe_spec", "material_certificate", "item_quantity", "min_price", "medium_price", "pvp_price",
