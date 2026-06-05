@@ -2374,7 +2374,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 value = self.proxy_P.data(self.proxy_P.index(row, column))
                 if isinstance(value, QDate):
                     value = value.toString("dd/MM/yyyy")
-                elif column in range(45,55):
+                elif column in range(45,57):
                     value = int(value) if value != '' else 0
                 tag_data.append(value)
             final_data1.append(tag_data)
@@ -2392,7 +2392,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 value = self.proxy_O.data(self.proxy_O.index(row, column))
                 if isinstance(value, QDate):
                     value = value.toString("dd/MM/yyyy")
-                elif column in range(38,48):
+                elif column in range(38,50):
                     value = int(value) if value != '' else 0
                 tag_data.append(value)
             final_data2.append(tag_data)
@@ -2410,7 +2410,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
                 value = self.proxy_AL.data(self.proxy_AL.index(row, column))
                 if isinstance(value, QDate):
                     value = value.toString("dd/MM/yyyy")
-                elif column in range(6,16):
+                elif column in range(6,18):
                     value = int(value) if value != '' else 0
                 tag_data.append(value)
             final_data3.append(tag_data)
