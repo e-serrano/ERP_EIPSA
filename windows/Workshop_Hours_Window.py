@@ -36,6 +36,49 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+    def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors 
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
+        
+
+        # if index.column() == 0:  # Column to paint
+        last_column = index.model().columnCount() - 1
+        state_column_index = index.sibling(index.row(), last_column)  # Index for column to check text
+        value_check = str(state_column_index.data()).upper()  # Text for checking
+
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+            painter.setPen(option.palette.highlightedText().color())
+            painter.setBrush(option.palette.highlight())
+        else:
+            if 'TERMINADO' in value_check:
+                start_color = QtGui.QColor(95, 158, 47)  # Light Green
+                end_color = QtGui.QColor(95, 158, 47)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            else:
+                start_color = QtGui.QColor(255, 255, 255, 0)  # White
+                end_color = QtGui.QColor(255, 255, 255, 0)  # White
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+        super().paint(painter, option, index)
+
 class CustomProxyModel_P(QtCore.QSortFilterProxyModel):
     """
     A custom proxy model that filters table rows based on expressions set for specific columns.
@@ -1103,6 +1146,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         headers_AL = ['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Nº Eqs', 'Descripción', 'Notas',
                     'Almacén', 'Calidad', 'Empaquetado', 'Fresado', 'Montaje', 'Pirometría', 'CME', 'Soldadura', 'Tal. CNC', 'Tal. Prof.', 'Torno', 'Torno CNC','Obs.']
 
+        self.tableWorkshop_P.setItemDelegate(AlignDelegate(self.tableWorkshop_P))
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(self.model_P.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_P.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1116,6 +1160,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_P.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_P)
         self.model_P.dataChanged.connect(self.saveChanges)
 
+        self.tableWorkshop_O.setItemDelegate(AlignDelegate(self.tableWorkshop_O))
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_O.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -1131,8 +1176,9 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
         self.tableWorkshop_O.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_O)
         self.model_O.dataChanged.connect(self.saveChanges)
 
+        self.tableWorkshop_AL.setItemDelegate(AlignDelegate(self.tableWorkshop_AL))
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop_AL.horizontalHeader().setSectionResizeMode(self.model_AL.columnCount()-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop_AL.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableWorkshop_AL.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
