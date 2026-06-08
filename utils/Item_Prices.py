@@ -57,22 +57,23 @@ def set_prices_flow(proxy, model):
             jack_screw_size = str(data(index(row, 52)))
             jack_screw_material = str(data(index(row, 51)))
 
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT code_price FROM validation_data.flow_flange_material WHERE flange_material = %s", (flange_material,))
-                    flange_code = cur.fetchone()[0]
+            if item_type in ['F+P', 'M.RUN', 'RO']:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT code_price FROM validation_data.flow_flange_material WHERE flange_material = %s", (flange_material,))
+                        flange_code = cur.fetchone()[0]
 
-                    cur.execute("SELECT code_price FROM validation_data.flow_element_material WHERE element_material = %s", (element_material,))
-                    element_code = cur.fetchone()[0]
+                        cur.execute("SELECT code_price FROM validation_data.flow_element_material WHERE element_material = %s", (element_material,))
+                        element_code = cur.fetchone()[0]
 
-                    cur.execute("SELECT code_price FROM validation_data.flow_gasket_material WHERE gasket_material = %s", (gasket_material,))
-                    gasket_code = cur.fetchone()[0]
+                        cur.execute("SELECT code_price FROM validation_data.flow_gasket_material WHERE gasket_material = %s", (gasket_material,))
+                        gasket_code = cur.fetchone()[0]
 
-                    cur.execute("SELECT code_price FROM validation_data.flow_bolts_nuts_material WHERE bolts_nuts_material = %s", (bolting_material,))
-                    bolting_code = cur.fetchone()[0]
+                        cur.execute("SELECT code_price FROM validation_data.flow_bolts_nuts_material WHERE bolts_nuts_material = %s", (bolting_material,))
+                        bolting_code = cur.fetchone()[0]
 
-                    cur.execute("SELECT code_price FROM validation_data.flow_extractor_material WHERE extractor_material = %s", (jack_screw_material,))
-                    jack_screw_code = cur.fetchone()[0]
+                        cur.execute("SELECT code_price FROM validation_data.flow_extractor_material WHERE extractor_material = %s", (jack_screw_material,))
+                        jack_screw_code = cur.fetchone()[0]
 
             if (item_type == 'F+P' and
                 'NPT' in taps_size):
@@ -593,11 +594,12 @@ def set_prices_level(proxy, model):
             nipple_hex_size = '1/2"' if '1/2"' in nipple_hex else ('3/4"' if '3/4"' in nipple_hex else '')
             nipple_tub_size = '1/2"' if '1/2"' in nipple_tub else ('3/4"' if '3/4"' in nipple_tub else '')
 
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT code_price FROM validation_data.level_body_mat WHERE body_mat = %s", (body_material,))
-                    body_code = cur.fetchone()
-                    body_code = body_code[0] if body_code is not None else None
+            if item_type in ['Reflex', 'Transparent']:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT code_price FROM validation_data.level_body_mat WHERE body_mat = %s", (body_material,))
+                        body_code = cur.fetchone()
+                        body_code = body_code[0] if body_code is not None else None
 
             if (item_type in ['Reflex', 'Transparent'] and
                 body_code in valid_materials and
