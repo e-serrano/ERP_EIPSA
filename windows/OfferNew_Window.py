@@ -599,9 +599,7 @@ class Ui_New_Offer_Window(object):
         self.Client_NewOffer.addItems(list_clients)
 
         if self.username != 'a.calvo':
-            self.Mails_NewOffer.setText("copia:jj-franco@eipsa.es,ana-calvo@eipsa.es")
-        else:
-            self.Mails_NewOffer.setText("copia:jj-franco@eipsa.es")
+            self.Mails_NewOffer.setText("copia:ana-calvo@eipsa.es")
 
 # Function to load last offers numbers from database
     def load_offers_number(self):
