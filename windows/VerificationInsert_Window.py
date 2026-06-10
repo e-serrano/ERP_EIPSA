@@ -2827,21 +2827,49 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 "drawing_number" = %s
                                 """)
 
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                            # execution of commands
-                                cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
-                                results = cur.fetchall()
+                    if MessageHelper.ask_yes_no("¿Deseas abrir el plano dimensional?", "Confirmar acción"):
+                        order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
 
-                                MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
-                                            "Plano: " + dim_drawing_number + "\n"
-                                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+                    # Setting path to search documents
+                        num_order = self.num_order_value
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
+                        if self.num_order_value[:2] == "PA":
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
+                        elif not 'S00' in self.num_order_value:
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+                        else:
+                            num_order = self.num_order_value[:8]
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+
+                    # Loop in system folders to find correct one
+                        for folder in os.listdir(path):
+                            if num_order.replace("/", "-") in folder:
+                                folder_path = path / folder / "3-Fabricacion" / f"Planos Dimensionales"
+                                for root, dirs, files in os.walk(folder_path):
+                                # Loop in files to find the correct drawing
+                                    for filename in files:
+                                        if str(dim_drawing_number) in filename:
+                                            file_path = os.path.normpath(os.path.join(root, filename))
+                                            os.startfile(file_path)
+                                            return
+
+                    else:
+                        try:
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                # execution of commands
+                                    cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
+                                    results = cur.fetchall()
+
+                                    MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
+                                                "Plano: " + dim_drawing_number + "\n"
+                                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
 
             elif header_text in ['OF Equipo', 'OF Sensor']:
                 if item.text() != '':
@@ -2855,21 +2883,49 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 "drawing_number" = %s
                                 """)
 
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                            # execution of commands
-                                cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
-                                results = cur.fetchall()
+                    if MessageHelper.ask_yes_no("¿Deseas abrir el plano OF?", "Confirmar acción"):
+                        order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
 
-                                MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
-                                            "Plano: " + of_drawing_number + "\n"
-                                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+                    # Setting path to search documents
+                        num_order = self.num_order_value
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
+                        if self.num_order_value[:2] == "PA":
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
+                        elif not 'S00' in self.num_order_value:
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+                        else:
+                            num_order = self.num_order_value[:8]
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+
+                    # Loop in system folders to find correct one
+                        for folder in os.listdir(path):
+                            if num_order.replace("/", "-") in folder:
+                                folder_path = path / folder / "3-Fabricacion" / f"Planos OF"
+                                for root, dirs, files in os.walk(folder_path):
+                                # Loop in files to find the correct drawing
+                                    for filename in files:
+                                        if str(of_drawing_number) in filename:
+                                            file_path = os.path.normpath(os.path.join(root, filename))
+                                            os.startfile(file_path)
+                                            return
+
+                    else:
+                        try:
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                # execution of commands
+                                    cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
+                                    results = cur.fetchall()
+
+                                    MessageHelper.show_message("Pedido: " + self.num_order_value + "\n"
+                                                "Plano: " + of_drawing_number + "\n"
+                                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
 
         else:
             header_item = self.tableOthers.horizontalHeaderItem(item.column())
@@ -2946,21 +3002,50 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 "drawing_number" = %s
                                 """)
 
-                    try:
-                        with Database_Connection(config_database()) as conn:
-                            with conn.cursor() as cur:
-                            # execution of commands
-                                cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
-                                results = cur.fetchall()
+                    if MessageHelper.ask_yes_no("¿Deseas abrir el plano M?", "Confirmar acción"):
+                        order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
 
-                                MessageHelper.show_message("Pedido: " + num_order + "\n"
-                                            "Plano: " + m_drawing + "\n"
-                                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+                    # Setting path to search documents
+                        num_order = self.num_order_value
+                        path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                    + str(error), "critical")
+                        if self.num_order_value[:2] == "PA":
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos Almacen"
+                        elif not 'S00' in self.num_order_value:
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+                        else:
+                            num_order = self.num_order_value[:8]
+                            path = ORDERS_PATH / f"Año {order_year}" / f"{order_year} Pedidos"
+
+                    # Loop in system folders to find correct one
+                        m_drawing = m_drawing.split("/")[0]
+                        for folder in os.listdir(path):
+                            if num_order.replace("/", "-") in folder:
+                                folder_path = path / folder / "3-Fabricacion" / f"Planos M"
+                                for root, dirs, files in os.walk(folder_path):
+                                # Loop in files to find the correct drawing
+                                    for filename in files:
+                                        if str(m_drawing) in filename:
+                                            file_path = os.path.normpath(os.path.join(root, filename))
+                                            os.startfile(file_path)
+                                            return
+
+                    else:
+                        try:
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                # execution of commands
+                                    cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
+                                    results = cur.fetchall()
+
+                                    MessageHelper.show_message("Pedido: " + num_order + "\n"
+                                                "Plano: " + m_drawing + "\n"
+                                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""), "info")
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
 
                 elif item.column() == 2 and item.text()[:3] == 'OF-':
                     num_order = self.tableOthers.item(item.row(), 1).text()
