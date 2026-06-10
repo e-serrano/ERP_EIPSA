@@ -205,7 +205,7 @@ LEVEL_COLUMNS = ["id_tag_level", "tag", "tag_state", "num_offer", "num_order", "
 
 OTHERS_HEADERS = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
 				"Descripción", "Código Equipo",
-				"NACE", "Precio Min.", "Precio Medio", "Precio PVP", "Precio Final", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+				"NACE", "Precio Final", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
 				"Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
 				"Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
 				"Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
