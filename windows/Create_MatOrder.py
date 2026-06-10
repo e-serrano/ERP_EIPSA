@@ -700,7 +700,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 ])
             all_list_parts.append(tube_list)
 
-        code_flange = data(index(row, 148))
+        code_flange = data(index(row, 149))
         if code_flange:
             tw_types_list = ['Buttweld TW','Forged Flanged TW','Threaded Helical','Van-Stone Helical','VORTICRACK']
             flange_list.append([
@@ -721,12 +721,12 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             sensor_list.append([
                 code_sensor,
                 data(index(row, 162)),
-                data(index(row, 183)),
+                data(index(row, 186)),
                 (data(index(row, 33)) + '-' + data(index(row, 32))) if code_sensor[:4] == 'Bime' else '',
                 (data(index(row, 27)) + '-' + data(index(row, 28))) if code_sensor[:4] == 'Bime' else '',
                 '',
-                'PLATINO' if data(index(row, 183))[:5] == 'PT100' else ('AC. INOX.' if data(index(row, 24)) == 'St.Steel' else data(index(row, 24))),
-                (1 if (data(index(row, 183))[:5] == 'PT100' or code_sensor[:4] == 'Bime') else ((float(data(index(row, 63)))/1000) if data(index(row, 63)) != '' else 0)) * quantity_equipment,
+                'PLATINO' if data(index(row, 186))[:5] == 'PT100' else ('AC. INOX.' if data(index(row, 24)) == 'St.Steel' else data(index(row, 24))),
+                (1 if (data(index(row, 186))[:5] == 'PT100' or code_sensor[:4] == 'Bime') else ((float(data(index(row, 63)))/1000) if data(index(row, 63)) != '' else 0)) * quantity_equipment,
                 data(index(row, 198))
                 ])
             all_list_parts.append(sensor_list)
@@ -1962,12 +1962,13 @@ def material_list(proxy, model, variable, numoffer):
             if row is None:
                 continue
             # [type_value, tw_type_value, tw_material_value, size_value, rating_value, facing_value, insertion_value, qty_value]
+            row_data = [data(index(row, c)) for c in range(model.columnCount())]
             temp_list.append([
                 row_data[8],
                 row_data[9],
                 row_data[14],
                 row_data[10],
-                int(row_data[11]) if row_data[11] not in ['N/A', 'HOLD', 'OTHERS'] else row_data[11],
+                int(row_data[11]) if row_data[11] not in ['N/A', 'HOLD', 'OTHERS', 'NPT-M'] else row_data[11],
                 row_data[12],
                 row_data[16],
                 1 * int(row_data[42])
@@ -1978,6 +1979,7 @@ def material_list(proxy, model, variable, numoffer):
             row = row_map.get(element)
             if row is None:
                 continue
+            row_data = [data(index(row, c)) for c in range(model.columnCount())]
             type_value = row_data[8]
             if type_value == 'Magnetic':
                 # [type_value, body_material, conn_size, conn_rating, conn_facing, c-c_length, float_material, bolting_material, qty_value]
