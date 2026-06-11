@@ -3262,7 +3262,7 @@ class offer_level:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
+                total_amount_material = df["amount"].sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
@@ -3270,7 +3270,7 @@ class offer_level:
                     ],
                     axis=1,)
 
-                number_items = df["item_quantity"].sum()
+                number_items = df.shape[0]
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -3758,7 +3758,7 @@ class offer_short_level_spanish:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
+                total_amount_material = df["amount"].sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
@@ -3766,7 +3766,7 @@ class offer_short_level_spanish:
                     ],
                     axis=1,)
 
-                number_items = df["item_quantity"].sum()
+                number_items = df.shape[0]
                 documentation = number_items * 70
 
                 # Loading Excel Template
@@ -4203,7 +4203,7 @@ class offer_short_level_english:
                 df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
                 df = df.sort_values(by=["value_type", "tag"])
                 df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
+                total_amount_material = df["amount"].sum()
                 df = df.drop([
                         "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
                         "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
@@ -4211,7 +4211,7 @@ class offer_short_level_english:
                     ],
                     axis=1,)
 
-                number_items = df["item_quantity"].sum()
+                number_items = df.shape[0]
                 documentation = number_items * 70
 
                 # Loading Excel Template
