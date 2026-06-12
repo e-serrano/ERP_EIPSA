@@ -4700,7 +4700,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     SELECT id_tag_temp, tw_type, size, rating, facing, std_tw, material_tw, std_length,
                                             root_diam, tip_diam, bore_diam, tip_thk, base_tw_diam, notes_tw
                                     FROM tags_data.tags_temp
-                                    WHERE UPPER (num_order) ILIKE %s and tag_state = 'PURCHASED' and position NOT LIKE '%%ZZZ%%'
+                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
@@ -4838,7 +4838,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     SELECT id_tag_flow, tag, item_type, line_size, rating, facing, schedule, flange_material, flange_type, tube_material,
                                         tapping_size, tapping_number, tapping_orientation, gasket_material, pipe_int_diam, notes_equipment
                                     FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%%ZZZ%%'
+                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
