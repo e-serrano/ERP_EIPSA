@@ -5094,11 +5094,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         drawings_dict = {}
 
                                         for _, row in grouped_valves.iterrows():
-                                            material = 'A105' if row['description'].split('-')[1] == 'NB' else '316'
-                                            connection_1 = '3/4" NPT' if row['description'].split('-')[2] == '1N' else '1/2" NPT'
-                                            connection_2 = '3/4" NPT' if row['description'].split('-')[3] == '1N' else '1/2" NPT'
-                                            connection_3 = 'Flanged' if row['description'].split('-')[4] == 'F' else 'Welded'
-                                            vent_drain = 'Tapón purga' if row['description'].split('-')[5] == 'Q' else 'Tapón'
+                                            description_parts = row['description'].split(' / ')[0]
+
+                                            material = 'A105' if description_parts.split('-')[1] == 'NB' else '316'
+                                            connection_1 = '3/4" NPT' if description_parts.split('-')[2] == '1N' else '1/2" NPT'
+                                            connection_2 = '3/4" NPT' if description_parts.split('-')[3] == '1N' else '1/2" NPT'
+                                            connection_3 = 'Flanged' if description_parts.split('-')[4] == 'F' else 'Welded'
+                                            vent_drain = 'Tapón purga' if description_parts.split('-')[5] == 'Q' else 'Tapón'
+
                                             exterior_size = row['description'].split(' / ')[1]
 
                                             if connection_3 == 'Flanged':
