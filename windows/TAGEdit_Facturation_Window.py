@@ -1654,9 +1654,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 if self.variable == 'Caudal':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(9,40):
+                    for i in range(9,39):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(41,145):
+                    for i in range(40,145):
                         self.tableEditTags.hideColumn(i)
                     for i in range(161,columns_number):
                         self.tableEditTags.hideColumn(i)
@@ -1664,9 +1664,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 elif self.variable == 'Temperatura':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(9,47):
+                    for i in range(9,46):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(48,126):
+                    for i in range(47,126):
                         self.tableEditTags.hideColumn(i)
                     for i in range(140,columns_number):
                         self.tableEditTags.hideColumn(i)
@@ -1674,9 +1674,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 elif self.variable == 'Nivel':
                     for i in range(3,4):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(10,40):
+                    for i in range(10,39):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(43,66):
+                    for i in range(40,66):
                         self.tableEditTags.hideColumn(i)
                     self.tableEditTags.hideColumn(67)
                     for i in range(70,174):
