@@ -1,76 +1,109 @@
+import re
+import numpy as np
 import pandas as pd
-from openpyxl import load_workbook
+import psycopg2
+from math import exp
+from copy import deepcopy
+from datetime import *
+
+from PySide6 import QtWidgets
+
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle, Border, Side
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
-from openpyxl.utils import get_column_letter
-from copy import deepcopy
-from datetime import *
-from config.config_functions import config_database, get_path
-import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
-from PySide6 import QtGui, QtWidgets
-from math import exp
-import re
-import numpy as np
+from openpyxl.utils import get_column_letter
+from openpyxl.utils.dataframe import dataframe_to_rows
+
+from config.config_functions import config_database, get_path
+
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.worksheet.datavalidation import DataValidation
+
 
 
 PAY_TERMS_MAP = {
-    "100_delivery": {
-        "en": (
-            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-            "Payment method: bank transfer"
-        ),
-        "es": (
-            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-            "Método de pago: Transferencia bancaria."
-        )
-    },
-    "100_order": {
-        "en": (
-            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-            "Payment method: bank transfer"
-        ),
-        "es": (
-            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-            "Método de pago: Transferencia bancaria"
-        )
-    },
-    "90_10": {
-        "en": (
-            "PAYMENT TERMS:\n"
-            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved.\n"
-            "Bank Transfer: 60 days since invoice issue date."
-        ),
-        "es": (
-            "TERMINOS DE PAGO:\n"
-            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-            "Transferencia Bancaria: 60 días desde emisión de factura."
-        )
-    },
-    "50_50": {
-        "en": (
-            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-            "Payment method: bank transfer."
-        ),
-        "es": (
-            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-            "Método de pago: Transferencia bancaria."
-        )
-    },
-    "Others": {
-        "en": "PAYMENT TERMS TO BE DEFINED",
-        "es": "TERMINOS DE PAGO POR DEFINIR",
-        "style": {
-            "en": Font(name="Calibri", size=11, bold=True, color="FF0000"),
-            "es": Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000"),
-        }
-    }
-}
+                "100_delivery": {
+                    "en": (
+                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                        "Payment method: bank transfer"
+                    ),
+                    "es": (
+                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                        "Método de pago: Transferencia bancaria."
+                    )
+                },
+                "100_order": {
+                    "en": (
+                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                        "Payment method: bank transfer"
+                    ),
+                    "es": (
+                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                        "Método de pago: Transferencia bancaria"
+                    )
+                },
+                "90_10": {
+                    "en": (
+                        "PAYMENT TERMS:\n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved.\n"
+                        "Bank Transfer: 60 days since invoice issue date."
+                    ),
+                    "es": (
+                        "TERMINOS DE PAGO:\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
+                    )
+                },
+                "50_50": {
+                    "en": (
+                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                        "Payment method: bank transfer."
+                    ),
+                    "es": (
+                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                        "Método de pago: Transferencia bancaria."
+                    )
+                },
+                "Others": {
+                    "en": "PAYMENT TERMS TO BE DEFINED",
+                    "es": "TERMINOS DE PAGO POR DEFINIR",
+                    "style": {
+                        "en": Font(name="Calibri", size=11, bold=True, color="FF0000"),
+                        "es": Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000"),
+                    }
+                }
+            }
+
+TEMPLATE_CONFIG = {
+                "Flow": {
+                    "data_sheet": "FLOW ELEMENTS DATA",
+                    "templates": {
+                        "language": "PLANTILLA CORTA OFERTA CAUDAL.xlsx",
+                        "largo": "PLANTILLA OFERTA CAUDAL.xlsx",
+                        "short_en": "PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx",
+                    },
+                },
+                "Temperature": {
+                    "data_sheet": "TEMPERATURE ELEMENTS DATA",
+                    "templates": {
+                        "language": "PLANTILLA CORTA OFERTA TEMP.xlsx",
+                        "largo": "PLANTILLA OFERTA TEMPERATURA.xlsx",
+                        "short_en": "PLANTILLA CORTA OFERTA TEMP - ingles.xlsx",
+                    },
+                },
+                "Level": {
+                    "data_sheet": "LEVEL ELEMENTS DATA",
+                    "templates": {
+                        "language": "PLANTILLA CORTA OFERTA NIVEL.xlsx",
+                        "largo": "PLANTILLA OFERTA NIVEL.xlsx",
+                        "short_en": "PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx",
+                    },
+                },
+            }
 
 FLOW_EQ_TYPE_MAP = {
             1: "FLOW ELEMENTS DATA", 2: "NOZZLE ELEMENTS DATA",
@@ -125,6 +158,42 @@ FLOW_VALUE_TYPE_MAP = {
     key: group
     for group, keys in FLOW_VALUE_TYPE_GROUPS.items()
     for key in keys
+}
+
+FLOW_COLUMNS_MAPPING = {
+    "tag": "TAG",
+    "item_type": "TYPE",
+    "line_size": "LINE SIZE (in)",
+    "rating": "RATING",
+    "facing": "FACING",
+    "schedule": "SCH",
+    "flange_material": "FLANGE MATERIAL",
+    "tube_material": "TUBE MATERIAL",
+    "tapping_size": "TAPPING SIZE",
+    "tapping_number": "TAPPING Nº",
+    "element_material": "ELEMENT MATERIAL",
+    "plate_type": "BORE NUMBER",
+    "plate_thk": "PLATE THK (mm)",
+    "gasket_material": "GASKET MATERIAL",
+    "bolts_material": "BOLTS MATERIAL",
+    "nuts_material": "NUTS MATERIAL",
+    "valve_conn": "VALVE CONNECTIONS",
+    "valve_material_body": "VALVE MATERIAL BODY",
+    "stages_number": "NUMBER STAGES",
+    "paint_system": "PAINT SYSTEM",
+    "aprox_length": "APPROX LENGTH (mm)",
+    "nace": "NACE",
+    "material_certificate": "MATERIAL CERTIFICATE",
+    "item_quantity": "QUANTITY",
+    "amount": "UNIT PRICE (EUR)",
+    "offer_notes": "REMARKS",
+}
+
+FLOW_CELLS_STYLE = {
+    "header_cell_style": "AD1",
+    "amount_cell_style": "AC1",
+    "normal_cell_style": "X1",
+    "notes_cell_style": "AE1"
 }
 
 TEMP_EQ_TYPE_MAP = {
@@ -192,6 +261,46 @@ TEMP_VALUE_TYPE_MAP = {
     for key in keys
 }
 
+TEMP_COLUMNS_MAPPING = {
+    "tag": "TAG",
+    "item_type": "TYPE",
+    "tw_type": "TW TYPE",
+    "size":  "CONNECTION SIZE",
+    "rating": "CONNECTION RATING",
+    "facing": "CONNECTION FACING",
+    "material_tw": "MATERIAL",
+    "std_length": "TOTAL LENGTH (mm)",
+    "ins_length": "INSERTION LENGTH (mm)",
+    "root_diam": "øROOT (mm)",
+    "tip_diam": "øTIP (mm)",
+    "sensor_element": "SENSOR TYPE",
+    "sheath_stem_material": "ELEMENT MATERIAL",
+    "sheath_stem_diam": "øSENSOR (mm)",
+    "temp_inf": "TEMP INF (ºC)",
+    "temp_sup": "TEMP SUP (ºC)",
+    "nipple_ext_material": "EXTENSION MATERIAL",
+    "nipple_ext_length": "CABLE EXTENSION (mm)",
+    "head_case_material": "HEAD / CASE MATERIAL",
+    "elec_conn_case_diam": "ELEC CONN / CASE DIAM",
+    "tt_cerblock": "TRANSMITTER / TERMINAL BLOCK",
+    "material_flange_lj": "LAP JOINT FLANGE MATERIAL",
+    "gasket_material": "GASKET MATERIAL",
+    "puntal": "CAP MATERIAL",
+    "tube_t": "TUBE SIZE",
+    "nace": "NACE",
+    "material_certificate": "MATERIAL CERTIFICATE",
+    "item_quantity": "ITEM QUANTITY",
+    "amount": "UNIT PRICE (EUR)",
+    "offer_notes": "REMARKS"
+}
+
+TEMP_CELLS_STYLE = {
+    "header_cell_style": "AJ1",
+    "amount_cell_style": "AI1",
+    "normal_cell_style": "AD1",
+    "notes_cell_style": "AK1"
+}
+
 LEVEL_EQ_TYPE_MAP = {
             1: "LEVEL GAUGES ELEMENTS DATA", 2: "MAGNETIC ELEMENTS DATA"
         }
@@ -215,6 +324,42 @@ LEVEL_VALUE_TYPE_MAP = {
     key: group
     for group, keys in LEVEL_VALUE_TYPE_GROUPS.items()
     for key in keys
+}
+
+LEVEL_COLUMNS_MAPPING = {
+    "tag": "TAG",
+    "item_type": "TYPE",
+    "model_num": "MODEL",
+    "body_material": "BODY MATERIAL",
+    "proc_conn_size": "PROCESS CONNECTION SIZE",
+    "proc_conn_rating": "PROCESS CONNECTION RATING",
+    "proc_conn_facing": "PROCESS CONNECTION FACING",
+    "conn_type": "CONNECTION ARRANGEMENT",
+    "visibility": "VISIBLE LENGTH (mm)",
+    "cc_length": "C-C DISTANCE (mm)",
+    "valve_type": "VALVE TYPE",
+    "dv_conn": "DRAIN & VENT CONNECTION",
+    "dv_size": "DRAIN & VENT SIZE",
+    "dv_rating": "DRAIN & VENT RATING",
+    "dv_facing": "DRAIN & VENT FACING",
+    "gasket_mica": "GASKET",
+    "stud_nuts_material": "STUD & NUTS MATERIAL",
+    "illuminator": "ILLUMINATOR",
+    "float_material": "FLOAT MATERIAL",
+    "case_cover_material": "COVER MATERIAL",
+    "scale_type": "SCALE TYPE",
+    "ip_code": "MECHANICAL PROTECTION",
+    "antifrost": "NON-FROSTING BLOCK",
+    "nace": "NACE",
+    "amount": "UNIT PRICE (EUR)",
+    "offer_notes": "REMARKS",
+}
+
+LEVEL_CELLS_STYLE = {
+    "header_cell_style": "AH1",
+    "amount_cell_style": "AG1",
+    "normal_cell_style": "AB1",
+    "notes_cell_style": "AI1"
 }
 
 
@@ -274,6 +419,815 @@ def adjust_images(sheet):
         image.width -= 22
 
 
+def set_df_tags_offer(variable: str, data_tags: tuple, columns: list) -> tuple[pd.DataFrame, float, float, float]:
+    df = pd.DataFrame(data=data_tags, columns=columns)
+
+    mapping_by_variable = {
+    "Flow": FLOW_VALUE_TYPE_MAP,
+    "Temperature": TEMP_VALUE_TYPE_MAP,
+    "Level": LEVEL_VALUE_TYPE_MAP,
+}
+
+    mapping = mapping_by_variable.get(variable, {})
+
+    df["value_type"] = df["item_type"].map(mapping)
+    df = df.sort_values(by=["value_type", "tag"])
+
+    df["amount"] = (
+        df["amount"]
+        .fillna("0 €")
+        .astype(str)
+        .str.replace(".", "", regex=False)
+        .str.replace(",", ".", regex=False)
+        .str.replace(" €", "", regex=False)
+    )
+
+    df["amount"] = pd.to_numeric(df["amount"], errors="coerce").fillna(0.0)
+
+    total_amount_material = (df["item_quantity"] * df["amount"]).sum()
+    number_items = df["item_quantity"].sum()
+    documentation = number_items * 70
+
+    return df, total_amount_material, number_items, documentation
+
+def set_wb_offer(template_name: str, data_sheet: str, df: pd.DataFrame,
+                client: str, offername_commercial: str, num_ref: str,
+                project: str, date_offer: str, delivery_term: str, validity: str,
+                responsible: str, email: str, rev: str) -> tuple[Workbook, list]:
+    wb = load_workbook(str(get_path("Plantillas Exportación", template_name)))
+
+    # Editing sheet COVER
+    ws = wb["COVER"]
+    ws["E4"] = client
+    ws["E6"] = offername_commercial
+    ws["E8"] = num_ref
+    ws["E10"] = project
+    ws["E12"] = date_offer
+    ws["E14"] = delivery_term
+    ws["E16"] = validity + " days"
+    ws["C43"] = responsible
+    ws["C45"] = email
+
+    # Editing sheet EQUIPMENT DATA
+    sheets_confirmed = ["COVER", "1.2", "1.3", data_sheet, "NOTES"]
+
+    if int(rev) == 0:
+        for item_type in df["item_type"].unique():
+            sheets_confirmed.append(item_type)
+
+    return wb, sheets_confirmed
+
+def set_df_export_offer(variable: str, df: pd.DataFrame) -> tuple[list, list]:
+    eq_type_list = []
+    df_toexport_list = []
+
+    config_by_variable = {
+        "Flow": {
+            "eq_type_map": FLOW_EQ_TYPE_MAP,
+            "columns_drop_map": FLOW_COLUMNS_DROP_MAP,
+            "columns_mapping": FLOW_COLUMNS_MAPPING,
+            "default_eq_type": "MULTISTAGE RO ELEMENTS DATA",
+        },
+        "Temperature": {
+            "eq_type_map": TEMP_EQ_TYPE_MAP,
+            "columns_drop_map": TEMP_COLUMNS_DROP_MAP,
+            "columns_mapping": TEMP_COLUMNS_MAPPING,
+            "default_eq_type": "MULTI-T ELEMENTS DATA",
+        },
+        "Level": {
+            "eq_type_map": LEVEL_EQ_TYPE_MAP,
+            "columns_drop_map": LEVEL_COLUMNS_DROP_MAP,
+            "columns_mapping": LEVEL_COLUMNS_MAPPING,
+            "default_eq_type": "MAGNETIC ELEMENTS DATA",
+        },
+    }
+
+    config = config_by_variable.get(variable)
+
+    eq_type_map = config["eq_type_map"]
+    columns_drop_map = config["columns_drop_map"]
+    columns_mapping = config["columns_mapping"]
+    default_eq_type = config["default_eq_type"]
+
+    for value_type in df["value_type"].unique():
+        df_toexport = df[df["value_type"] == value_type]
+
+        df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
+        df_toexport.set_index("N°", inplace=True, drop=False)
+        df_toexport.index.name = None
+
+        df_toexport = df_toexport.drop(["value_type"], axis=1)
+
+        eq_type = eq_type_map.get(value_type, default_eq_type)
+        eq_type_list.append(eq_type)
+
+        cols_to_drop = columns_drop_map.get(eq_type, [])
+
+        df_toexport = (df_toexport
+                        .drop(cols_to_drop, axis=1, errors='ignore')
+                        .rename(columns=columns_mapping)
+                        )
+
+        df_toexport_list.append(df_toexport)
+
+    return eq_type_list, df_toexport_list
+
+def set_eq_data_sheet(variable: str, wb: Workbook, data_sheet: str, date_offer: str, num_ref: str,
+                    offername_commercial: str, revchanges: str, rev: str, df_toexport_list: list[pd.DataFrame],
+                    header_cell_style: str, amount_cell_style: str, normal_cell_style: str, eq_type_list: list[str],
+                    validity: str, notes_cell_style: str, delivery_time: str, notes: list[str], 
+                    number_items: float, total_amount_material: float, testinspection: str, documentation: float) -> tuple[Worksheet, int, int, int]:
+    ws = wb[data_sheet]
+    ws["G2"] = date_offer
+    ws["G3"] = num_ref
+    ws["G4"] = offername_commercial
+    if revchanges != "":
+        ws["G5"] = rev + " " + revchanges
+        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+    if int(rev) > 0:
+        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+            for cell in row:
+                cell.value = None
+                cell._style = ws["F1"]._style
+
+    last_row = ws.max_row
+
+    for df_toexport in df_toexport_list:
+        num_column_amount = df_toexport.columns.get_loc("UNIT PRICE (EUR)") + 1
+
+        for col_num, col_name in enumerate(df_toexport.columns, start=1):
+            cell = ws.cell(row=last_row + 1, column=col_num)
+            cell.value = col_name
+            cell._style = ws[header_cell_style]._style
+
+        last_row += 1
+
+        for index, row in df_toexport.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row + 1, column=col_num)
+                cell.value = value
+                if col_num == num_column_amount:
+                    cell._style = ws[amount_cell_style]._style
+                else:
+                    cell._style = ws[normal_cell_style]._style
+
+            last_row = ws.max_row
+
+        last_row +=2
+
+    if variable == 'Flow':
+        if "VENTURI ELEMENTS DATA" in eq_type_list:
+            ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+            ws[f"A{last_row+3}"]._style = ws["AE2"]._style
+
+    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
+    ws[f"A{last_row+4}"]._style = ws[notes_cell_style]._style
+    ws[f"A{last_row+5}"] = (
+        "DELIVERY TIME: "
+        + delivery_time
+        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
+    )
+    ws[f"A{last_row+5}"]._style = ws[notes_cell_style]._style
+
+    if notes != "":
+        if isinstance(notes, list):
+            line = last_row + 6
+            for note in notes:
+                ws[f"A{line}"] = note
+                ws[f"A{line}"]._style = ws[notes_cell_style]._style
+                line += 1
+        else:
+            line = last_row + 6
+            ws[f"A{line}"] = notes
+            ws[f"A{line}"]._style = ws[notes_cell_style]._style
+
+    ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
+    ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+
+    row_amount = last_row + 4
+
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+    ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
+    ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+    ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+    ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+    ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+
+    return ws, last_row, row_amount, num_column_amount 
+
+def set_offer_summary(ws: Worksheet, row_amount: int, num_column_amount: int, total_amount_material: float, testinspection: float, documentation: float) -> None:
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+    ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
+    ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+    ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+    ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+    ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+
+def set_summary_styles_flow(ws: Worksheet, last_row: int, row_amount: int, num_column_amount: int) -> None:
+    ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
+    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
+
+def set_summary_styles_temp(ws: Worksheet, last_row: int, row_amount: int, num_column_amount: int) -> None:
+    ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
+    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
+
+def set_summary_styles_level(ws: Worksheet, last_row: int, row_amount: int, num_column_amount: int) -> None:
+    ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
+    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
+    ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
+    ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
+    ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+    ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
+
+def set_notes_flow_long(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"] # Selecting  sheet
+
+    rich_string = CellRichText(
+    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B45"] = data_pay_terms["en"]
+    ws["B46"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B45"].font = data_pay_terms["style"]["en"]
+        ws["B46"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B48"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B49"] = rich_string
+
+    ws["A61"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_flow_short(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"] # Selecting  sheet
+
+    rich_string = CellRichText(
+    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B45"] = data_pay_terms["en"]
+    ws["B46"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B45"].font = data_pay_terms["style"]["en"]
+        ws["B46"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B42"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B43"] = rich_string
+
+    ws["A55"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_flow_short_esp(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"] # Selecting  sheet
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B10"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B16"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B30"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B30"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B28"] = rich_string
+
+    ws["A38"] = (
+        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_temp_long(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+
+    rich_string = CellRichText(
+    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B45"] = data_pay_terms["en"]
+    ws["B46"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B45"].font = data_pay_terms["style"]["en"]
+        ws["B46"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B48"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B49"] = rich_string
+
+    ws["A61"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_temp_short(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+
+    rich_string = CellRichText(
+    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B48"] = data_pay_terms["en"]
+    ws["B49"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B48"].font = data_pay_terms["style"]["en"]
+        ws["B49"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B42"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B43"] = rich_string
+
+    ws["A55"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_temp_short_esp(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B10"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B16"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B35"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B35"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B31"] = rich_string
+
+    ws["A41"] = (
+        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_level_long(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+
+    rich_string = CellRichText(
+    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B42"] = data_pay_terms["en"]
+    ws["B43"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B42"].font = data_pay_terms["style"]["en"]
+        ws["B43"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B45"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B46"] = rich_string
+
+    ws["A59"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_level_short(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+    
+    rich_string = CellRichText(
+    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
+    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B7"] = rich_string
+
+    rich_string = CellRichText(
+    'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
+    TextBlock(InlineFont(b=True), 'all equipment'),
+    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+    ws["B12"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B13"] = rich_string
+
+    rich_string = CellRichText(
+    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+    ws["B21"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B22"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+    ws["B41"] = data_pay_terms["en"]
+    ws["B42"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B41"].font = data_pay_terms["style"]["en"]
+        ws["B42"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    ws["B38"] = rich_string
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B39"] = rich_string
+
+    ws["A53"] = (
+        "If you require further information related with this offer, please do not hesitate to contact:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_notes_level_short_esp(wb: Workbook, delivery_time: str, pay_term: str, responsible: str, email: str) -> None:
+    ws = wb["NOTES"]
+
+    rich_string = CellRichText(
+    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+    ws["B6"] = rich_string
+
+    rich_string = CellRichText(
+    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
+    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+    ws["B10"] = rich_string
+
+    rich_string = CellRichText(
+    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+    ws["B16"] = rich_string
+
+    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+    ws["B29"] = data_pay_terms["es"]
+
+    # Apply style if exists
+    if "style" in data_pay_terms:
+        ws["B29"].font = data_pay_terms["style"]["es"]
+
+    rich_string = CellRichText(
+    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    ws["B27"] = rich_string
+
+    ws["A39"] = (
+        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+        + responsible
+        + "\n"
+        + email
+        + "\n"
+        "Telf.: (+34) 916.582.118"
+    )
+
+def set_footer_offer(date_offer: str, num_ref: str, wb: Workbook) -> None:
+    left_text = "Fecha/Date: " + date_offer
+    right_text = "Petición nº/Inquiry: " + num_ref
+
+    for sheet in wb.worksheets:
+        sheet.oddFooter.left.text = left_text
+        sheet.oddFooter.right.text = right_text
+        sheet.oddFooter.center.text = "Page &P de &N"
+
+        sheet.oddFooter.left.size = 9
+        sheet.oddFooter.right.size = 9
+        sheet.oddFooter.center.size = 9
+
 
 # Templates for orders
 class offer_flow:
@@ -293,7 +1247,9 @@ class offer_flow:
         revchanges (str): Details of changes made in the revision.
         notes (str): Additional notes, split by line.
     """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+    def __init__(self, numoffer, username, rev, project, delivery_term,
+                delivery_time, validity, pay_term, testinspection,
+                revchanges, notes, size, language=None):
         """
         Initializes the offer.
 
@@ -309,6 +1265,8 @@ class offer_flow:
             testinspection (str): Information about testing and inspection.
             revchanges (str): Details of changes made in the revision.
             notes (str): Additional notes, split by line.
+            size (str): Size of document template
+            language (str): Language of template
         """
 
         notes = notes.split('\n')
@@ -328,12 +1286,18 @@ class offer_flow:
                         WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
                         """
         query_tagsdata = """
-                        SELECT *
+                        SELECT tag, item_type, line_size, rating, 
+                                facing, schedule, flange_material, tube_material, 
+                                tapping_size, tapping_number, element_material, plate_type, 
+                                plate_thk, gasket_material, bolts_material, nuts_material, 
+                                valve_conn, valve_material_body, stages_number,
+                                aprox_length, nace, paint_system, material_certificate, item_quantity, 
+                                amount, offer_notes
                         FROM tags_data.tags_flow
                         WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
+                            UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
+                            AND
+                            "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
 
@@ -352,1382 +1316,249 @@ class offer_flow:
 
                     cur.execute(query_tagsdata, (numoffer,))
                     data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
-            else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                # Setting the dataframe with the equipment data
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ], axis=1,)
-
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA CAUDAL.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AC1"]._style
-                            else:
-                                cell._style = ws["X1"]._style
-
-                        last_row = ws.max_row
-
-                    if eq_type == "VENTURI ELEMENTS DATA":
-                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
-                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
-                    ws[f"A{last_row+5}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 6
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AE1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 6
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AE1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B45"] = data_pay_terms["en"]
-                ws["B46"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B45"].font = data_pay_terms["style"]["en"]
-                    ws["B46"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
-
-                ws["A61"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None 
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 8, 20)
-                    ws[f"M{last_row+5}"] = ""
-                    ws[f"N{last_row+5}"] = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"  # Selecting  sheet
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                    ws["B45"] = data_pay_terms["en"]
-                    ws["B46"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B45"].font = data_pay_terms["style"]["en"]
-                        ws["B46"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B48"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B49"] = rich_string
-
-                    ws["A61"] = (
-                        "If you require further information related with this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-                    
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
-
         except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+            MessageHelper.show_message("Ha ocurrido el siguiente error consultando datos:\n"
                         + str(error), 'critical')
 
-class offer_short_flow_spanish:
-    """
-    A class to manage export offer (short format in spanish) details for flow equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        notes = notes.split('\n')
-
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_flow
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
         try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
+            if not data_tags:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
+                return
+
+            columns = []
+            for elt in cur.description:
+                columns.append(elt[0])
+
+            df, total_amount_material, number_items, documentation = set_df_tags_offer('Flow', data_tags, columns)
+
+        # Loading Excel Template and set sheets and cover
+            config = TEMPLATE_CONFIG.get('Flow')
+
+            data_sheet = config["data_sheet"]
+
+            if language:
+                template_name = config["templates"]["language"]
+            elif size == "Largo":
+                template_name = config["templates"]["largo"]
             else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                # Setting the dataframe with the equipment data
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ], axis=1,)
-
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA CAUDAL.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AC1"]._style
-                            else:
-                                cell._style = ws["X1"]._style
-
-                        last_row = ws.max_row
-
-                    if eq_type == "VENTURI ELEMENTS DATA":
-                        ws[f"A{last_row+3}"] = "LOS PRECIOS INCLUYEN LA SECCIÓN CENTRAL INTEGRAL MECANIZADA Y TODAS LAS SOLDADURAS ESTRUCTURALES 100% RADIOGRAFIADAS"
-                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
-                    ws[f"A{last_row+4}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
-                    ws[f"A{last_row+5}"] = (
-                        "PLAZO DE ENTREGA: "
-                        + delivery_time
-                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO, ÚLTIMAS DOS SEMANAS DE DICIEMBRE Y FESTIVOS NACIONALES EXCLUIDOS)"
-                    )
-                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 6
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AE1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 6
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AE1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B10"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B30"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B30"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B28"] = rich_string
-
-                ws["A38"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"  # Selecting  sheet
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B10"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B16"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B30"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B30"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B28"] = rich_string
-
-                    ws["A38"] = (
-                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-                
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
-
-class offer_short_flow_english:
-    """
-    A class to manage export offer (short format in english) details for flow equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        notes = notes.split('\n')
-
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_flow
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
+                template_name = config["templates"]["short_en"]
+
+            wb_commercial, sheets_confirmed = set_wb_offer(
+                                                            template_name, data_sheet, df, client, offername_commercial, num_ref,
+                                                            project, date_offer, delivery_term, validity, responsible, email, rev
+                                                            )
+
+        # Create list of equipment types and dataframes to export
+            eq_type_list, df_toexport_list = set_df_export_offer('Flow', df)
+
+        # Set sheet of equipment data, styles and fill with values
+            header_cell_style = FLOW_CELLS_STYLE.get('header_cell_style')
+            amount_cell_style = FLOW_CELLS_STYLE.get('amount_cell_style')
+            normal_cell_style = FLOW_CELLS_STYLE.get('normal_cell_style')
+            notes_cell_style = FLOW_CELLS_STYLE.get('notes_cell_style')
+
+            ws, last_row, row_amount, num_column_amount = set_eq_data_sheet(
+                                                                            'Flow', wb_commercial, data_sheet, date_offer, num_ref,
+                                                                            offername_commercial, revchanges, rev, df_toexport_list,
+                                                                            header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
+                                                                            validity, notes_cell_style, delivery_time, notes, 
+                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            )
+
+            set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
+
+            set_summary_styles_flow(ws, last_row, row_amount, num_column_amount)
+
+        # Editing sheet NOTES
+            if language:
+                set_notes_flow_short_esp(wb_commercial, delivery_time, pay_term, responsible, email)
             else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
+                if size == "Largo":
+                    set_notes_flow_long(wb_commercial, delivery_time, pay_term, responsible, email)
+                else:
+                    set_notes_flow_short(wb_commercial, delivery_time, pay_term, responsible, email)
 
-                # Setting the dataframe with the equipment data
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(FLOW_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ], axis=1,)
+            for sheet in wb_commercial.sheetnames:
+                if sheet not in sheets_confirmed:
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
+            if int(rev) > 0:
+                sheets_confirmed = ["COVER", "1.2", "1.3", data_sheet, "NOTES"]
+                for sheet in sheets_confirmed:
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA CAUDAL - ingles.xlsx")))
+        # Setting footer of offer document
+            set_footer_offer(date_offer, num_ref, wb_commercial)
 
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
+        # Saving commercial offer document
+            path = save_excel_commercial(wb_commercial)
+            wb_commercial = None 
 
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+            # Creating the technical offer using the commercial one as template
+        #     self.wb_technical = load_workbook(path)
 
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
+        #     if int(rev) == 0:
+        #         sheet_name = "COVER"
+        #         ws = self.wb_technical[sheet_name]
+        #         ws["E6"] = offername_technical
 
-                dict_sheets_data = {}
+        #     for value_type in df["value_type"].unique():
+        #         eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
 
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
+        #         ws = self.wb_technical[eq_type]
+        #         if int(rev) == 0:
+        #             ws["G4"] = offername_technical
 
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
+        #         last_row = dict_sheets_data[eq_type][0]
+        #         num_column_amount = dict_sheets_data[eq_type][1]
 
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
+        #         # self.wb_technical[eq_type].delete_rows(last_row + 8, 20)
+        #         ws[f"M{last_row+5}"] = ""
+        #         ws[f"N{last_row+5}"] = ""
 
-                    cols_to_drop = FLOW_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
+        #         ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+        #         ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+        #         ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+        #         ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+        #         ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
 
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+        #         ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+        #         ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+        #         ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+        #         ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+        #         ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
+        #     # Deleting "Amount" column
+        #         self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
 
-                    last_row = ws.max_row
+        #     # Adjusting the print area
+        #         new_last_column = num_column_amount
+        #         last_print_row = 40
+        #         nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
+        #         self.wb_technical[eq_type].print_area = nuevo_rango_impresion
 
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
+        #         stamp_1 = self.wb_technical[eq_type]._images[1]
+        #         anchor_actual = stamp_1.anchor
 
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AC1"]._style
-                            else:
-                                cell._style = ws["X1"]._style
+        #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+        #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+        #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+        #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
 
-                        last_row = ws.max_row
+        #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+        #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
 
-                    if eq_type == "VENTURI ELEMENTS DATA":
-                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-                        ws[f"A{last_row+3}"]._style = ws["AE2"]._style
-                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+4}"]._style = ws["AE1"]._style
-                    ws[f"A{last_row+5}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+5}"]._style = ws["AE1"]._style
+        #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+        #         stamp_1.anchor = new_anchor
 
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 6
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AE1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 6
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AE1"]._style
+        #         stamp_2 = self.wb_technical[eq_type]._images[2]
+        #         anchor_actual = stamp_2.anchor
 
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
+        #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+        #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+        #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+        #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+        #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+        #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
+
+        #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+        #         stamp_2.anchor = new_anchor
+
+        #     if int(rev) == 0:
+        #         ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+        #         ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+        #         ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+
+        # # Editing sheet NOTES
+        #     if int(rev) == 0:
+        #         sheet_name = "NOTES"  # Selecting  sheet
+        #         ws = self.wb_technical[sheet_name]
+
+        #         rich_string = CellRichText(
+        #         'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+        #         TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+        #         ws["B6"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+        #         TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+        #         ws["B7"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+        #         TextBlock(InlineFont(b=True), 'all equipment'),
+        #         ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+        #         ws["B12"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+        #         TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+        #         TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+        #         ws["B13"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+        #         TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+        #         'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+        #         ws["B21"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+        #         TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+        #         TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+        #         ws["B22"] = rich_string
+
+        #         data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+        #         ws["B45"] = data_pay_terms["en"]
+        #         ws["B46"] = data_pay_terms["es"]
+
+        #         # Apply style if exists
+        #         if "style" in data_pay_terms:
+        #             ws["B45"].font = data_pay_terms["style"]["en"]
+        #             ws["B46"].font = data_pay_terms["style"]["es"]
+
+        #         rich_string = CellRichText(
+        #         'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+        #         TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+        #         ws["B48"] = rich_string
+
+        #         rich_string = CellRichText(
+        #         'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+        #         TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+        #         ws["B49"] = rich_string
+
+        #         ws["A61"] = (
+        #             "If you require further information related with this offer, please do not hesitate to contact:\n"
+        #             + responsible
+        #             + "\n"
+        #             + email
+        #             + "\n"
+        #             "Telf.: (+34) 916.582.118"
+        #         )
                 
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
+        #         std = self.wb_technical["1.3"]
+        #         self.wb_technical.remove(std)
 
-                    row_amount += 2
+        #     left_text = "Fecha/Date: " + date_offer
+        #     right_text = "Petición nº/Inquiry: " + num_ref
 
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+        #     for sheet in self.wb_technical.worksheets:
+        #         sheet.oddFooter.left.text = left_text
+        #         sheet.oddFooter.right.text = right_text
+        #         sheet.oddFooter.center.text = "Page &P de &N"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["Y1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["Z1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["W1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AB1"]._style
+        #         sheet.oddFooter.left.size = 9
+        #         sheet.oddFooter.right.size = 9
+        #         sheet.oddFooter.center.size = 9
 
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
+        #     save_excel_technical(self.wb_technical)
+        #     self.wb_technical = None
 
-                rich_string = CellRichText(
-                'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B45"] = data_pay_terms["en"]
-                ws["B46"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B45"].font = data_pay_terms["style"]["en"]
-                    ws["B46"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B42"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B43"] = rich_string
-
-                ws["A55"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-                
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None 
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = FLOW_EQ_TYPE_MAP.get(value_type, "MULTISTAGE RO ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 6, 20)
-                    ws[f"M{last_row+5}"] = ""
-                    ws[f"N{last_row+5}"] = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"  # Selecting  sheet
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B45"] = data_pay_terms["en"]
-                ws["B46"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B45"].font = data_pay_terms["style"]["en"]
-                    ws["B46"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B42"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B43"] = rich_string
-
-                    ws["A55"] = (
-                        "If you require further information related to this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
+            del wb_commercial #, self.wb_technical
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -1750,7 +1581,9 @@ class offer_temp:
         revchanges (str): Details of changes made in the revision.
         notes (str): Additional notes, split by line.
     """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+    def __init__(self, numoffer, username, rev, project, delivery_term,
+                delivery_time, validity, pay_term, testinspection,
+                revchanges, notes, size, language=None):
         """
         Initializes the offer.
 
@@ -1766,7 +1599,10 @@ class offer_temp:
             testinspection (str): Information about testing and inspection.
             revchanges (str): Details of changes made in the revision.
             notes (str): Additional notes, split by line.
+            size (str): Size of document template
+            language (str): Language of template
         """
+
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -1783,12 +1619,17 @@ class offer_temp:
                         WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
                         """
         query_tagsdata = """
-                        SELECT *
+                        SELECT
+                            tag, item_type, tw_type, size, rating, facing,
+                            material_tw, std_length, ins_length, root_diam, tip_diam, sensor_element, 
+                            sheath_stem_material, sheath_stem_diam, temp_inf, temp_sup, nipple_ext_material, nipple_ext_length, 
+                            head_case_material, elec_conn_case_diam, tt_cerblock, material_flange_lj, gasket_material, puntal, 
+                            tube_t, nace, material_certificate, item_quantity, amount, offer_notes
                         FROM tags_data.tags_temp
                         WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
+                            UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
+                            AND
+                            "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
 
@@ -1808,1368 +1649,242 @@ class offer_temp:
                     cur.execute(query_tagsdata, (numoffer,))
                     data_tags = cur.fetchall()
 
-            if len(data_tags) == 0:
+            if not data_tags:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
+                return
+
+            columns = []
+            for elt in cur.description:
+                columns.append(elt[0])
+
+            df, total_amount_material, number_items, documentation = set_df_tags_offer('Temperature', data_tags, columns)
+
+        # Loading Excel Template and set sheets and cover
+            config = TEMPLATE_CONFIG.get('Temperature')
+
+            data_sheet = config["data_sheet"]
+
+            if language:
+                template_name = config["templates"]["language"]
+            elif size == "Largo":
+                template_name = config["templates"]["largo"]
             else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
+                template_name = config["templates"]["short_en"]
 
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:49]
-                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
+            wb_commercial, sheets_confirmed = set_wb_offer(
+                                                            template_name, data_sheet, df, client, offername_commercial, num_ref,
+                                                            project, date_offer, delivery_term, validity, responsible, email, rev
+                                                            )
 
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
+        # Create list of equipment types and dataframes to export
+            eq_type_list, df_toexport_list = set_df_export_offer('Temperature', df)
 
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA TEMPERATURA.xlsx")))
+        # Set sheet of equipment data, styles and fill with values
+            header_cell_style = TEMP_CELLS_STYLE.get('header_cell_style')
+            amount_cell_style = TEMP_CELLS_STYLE.get('amount_cell_style')
+            normal_cell_style = TEMP_CELLS_STYLE.get('normal_cell_style')
+            notes_cell_style = TEMP_CELLS_STYLE.get('notes_cell_style')
 
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
+            ws, last_row, row_amount, num_column_amount = set_eq_data_sheet(
+                                                                            'Temperature', wb_commercial, data_sheet, date_offer, num_ref,
+                                                                            offername_commercial, revchanges, rev, df_toexport_list,
+                                                                            header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
+                                                                            validity, notes_cell_style, delivery_time, notes, 
+                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            )
 
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+            set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
 
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
+            set_summary_styles_temp(ws, last_row, row_amount, num_column_amount)
 
-                dict_sheets_data = {}
+        # Editing sheet NOTES
+            if language:
+                set_notes_temp_short_esp(wb_commercial, delivery_time, pay_term, responsible, email)
+            else:
+                if size == "Largo":
+                    set_notes_temp_long(wb_commercial, delivery_time, pay_term, responsible, email)
+                else:
+                    set_notes_temp_short(wb_commercial, delivery_time, pay_term, responsible, email)
 
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
+            for sheet in wb_commercial.sheetnames:
+                if sheet not in sheets_confirmed:
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
+            if int(rev) > 0:
+                sheets_confirmed = ["COVER", "1.2", "1.3", data_sheet, "NOTES"]
+                for sheet in sheets_confirmed:
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
+        # Setting footer of offer document
+            set_footer_offer(date_offer, num_ref, wb_commercial)
 
-                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AI1"]._style
-                            else:
-                                cell._style = ws["AD1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AK1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AK1"]._style
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B45"] = data_pay_terms["en"]
-                ws["B46"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B45"].font = data_pay_terms["style"]["en"]
-                    ws["B46"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
-
-                ws["A61"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None
+        # Saving commercial offer document
+            path = save_excel_commercial(wb_commercial)
+            wb_commercial = None 
 
                 # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
+            #     self.wb_technical = load_workbook(path)
 
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
+            #     if int(rev) == 0:
+            #         sheet_name = "COVER"
+            #         ws = self.wb_technical[sheet_name]
+            #         ws["E6"] = offername_technical
 
-                for value_type in df["value_type"].unique():
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
+            #     for value_type in df["value_type"].unique():
+            #         eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
 
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
+            #         ws = self.wb_technical[eq_type]
+            #         if int(rev) == 0:
+            #             ws["G4"] = offername_technical
 
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
+            #         last_row = dict_sheets_data[eq_type][0]
+            #         num_column_amount = dict_sheets_data[eq_type][1]
 
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+            #         # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
 
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
 
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
+            #     # Deleting "Amount" column
+            #         self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
 
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
+            #     # Adjusting the print area
+            #         new_last_column = num_column_amount
+            #         last_print_row = 40
+            #         nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
+            #         self.wb_technical[eq_type].print_area = nuevo_rango_impresion
 
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
+            #         stamp_1 = self.wb_technical[eq_type]._images[1]
+            #         anchor_actual = stamp_1.anchor
 
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
+            #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+            #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+            #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+            #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
 
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
+            #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+            #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
 
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
+            #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+            #         stamp_1.anchor = new_anchor
 
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
+            #         stamp_2 = self.wb_technical[eq_type]._images[2]
+            #         anchor_actual = stamp_2.anchor
 
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
+            #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+            #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+            #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+            #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
 
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
+            #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+            #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
 
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
+            #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+            #         stamp_2.anchor = new_anchor
 
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+            #     if int(rev) == 0:
+            #         ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+            #         ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+            #         ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
+            # # Editing sheet NOTES
+            #     if int(rev) == 0:
+            #         sheet_name = "NOTES"
+            #         ws = self.wb_technical[sheet_name]
 
-                    rich_string = CellRichText(
-                    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
+            #         rich_string = CellRichText(
+            #         'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+            #         TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+            #         ws["B6"] = rich_string
 
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
+            #         rich_string = CellRichText(
+            #         TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+            #         TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+            #         ws["B7"] = rich_string
 
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
+            #         rich_string = CellRichText(
+            #         'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+            #         TextBlock(InlineFont(b=True), 'all equipment'),
+            #         ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+            #         ws["B12"] = rich_string
 
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
+            #         rich_string = CellRichText(
+            #         'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+            #         TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+            #         TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+            #         ws["B13"] = rich_string
 
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
+            #         rich_string = CellRichText(
+            #         'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+            #         TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+            #         'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+            #         ws["B21"] = rich_string
 
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
+            #         rich_string = CellRichText(
+            #         'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+            #         TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+            #         TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+            #         ws["B22"] = rich_string
 
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+            #         data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
 
-                    ws["B45"] = data_pay_terms["en"]
-                    ws["B46"] = data_pay_terms["es"]
+            #         ws["B45"] = data_pay_terms["en"]
+            #         ws["B46"] = data_pay_terms["es"]
 
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B45"].font = data_pay_terms["style"]["en"]
-                        ws["B46"].font = data_pay_terms["style"]["es"]
+            #         # Apply style if exists
+            #         if "style" in data_pay_terms:
+            #             ws["B45"].font = data_pay_terms["style"]["en"]
+            #             ws["B46"].font = data_pay_terms["style"]["es"]
 
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B48"] = rich_string
+            #         rich_string = CellRichText(
+            #         'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+            #         TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+            #         ws["B48"] = rich_string
 
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B49"] = rich_string
+            #         rich_string = CellRichText(
+            #         'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+            #         TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+            #         ws["B49"] = rich_string
 
-                    ws["A61"] = (
-                        "If you require further information related with this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
+            #         ws["A61"] = (
+            #             "If you require further information related with this offer, please do not hesitate to contact:\n"
+            #             + responsible
+            #             + "\n"
+            #             + email
+            #             + "\n"
+            #             "Telf.: (+34) 916.582.118"
+            #         )
                     
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
+            #         std = self.wb_technical["1.3"]
+            #         self.wb_technical.remove(std)
 
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
+            #     left_text = "Fecha/Date: " + date_offer
+            #     right_text = "Petición nº/Inquiry: " + num_ref
 
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
+            #     for sheet in self.wb_technical.worksheets:
+            #         sheet.oddFooter.left.text = left_text
+            #         sheet.oddFooter.right.text = right_text
+            #         sheet.oddFooter.center.text = "Page &P de &N"
 
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
+            #         sheet.oddFooter.left.size = 9
+            #         sheet.oddFooter.right.size = 9
+            #         sheet.oddFooter.center.size = 9
 
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
+            #     save_excel_technical(self.wb_technical)
+            #     self.wb_technical = None
 
-                del self.wb_commercial, self.wb_technical
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
-
-class offer_short_temp_spanish:
-    """
-    A class to manage export offer (short format in spanish) details for temp equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_temp
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
-            else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:49]
-                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
-
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA TEMPERATURA.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AI1"]._style
-                            else:
-                                cell._style = ws["AD1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "PLAZO DE ENTREGA: "
-                        + delivery_time
-                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO, ÚLTIMAS DOS SEMANAS DE DICIEMBRE Y FESTIVOS NACIONALES EXCLUIDOS)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
-
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AK1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AK1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B10"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B35"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B35"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B31"] = rich_string
-
-                ws["A41"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B10"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B16"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                    ws["B35"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B35"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B31"] = rich_string
-
-                    ws["A41"] = (
-                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-                    
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
-
-class offer_short_temp_english:
-    """
-    A class to manage export offer (short format in english) details for temp equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        notes = notes.split('\n')
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_temp
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
-            else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:49]
-                df["value_type"] = df["item_type"].map(TEMP_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = (df["item_quantity"] * df["amount"]).sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order",
-                        "num_po", "position", "subposition",
-                        "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
-
-                number_items = df["item_quantity"].sum()
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA TEMPERATURA - ingles.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = TEMP_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AI1"]._style
-                            else:
-                                cell._style = ws["AD1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AK1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AK1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AK1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AK1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AG1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AH1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B48"] = data_pay_terms["en"]
-                ws["B49"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B48"].font = data_pay_terms["style"]["en"]
-                    ws["B49"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B42"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B43"] = rich_string
-
-                ws["A55"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = TEMP_EQ_TYPE_MAP.get(value_type, "MULTI-T ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                    ws["B48"] = data_pay_terms["en"]
-                    ws["B49"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B48"].font = data_pay_terms["style"]["en"]
-                        ws["B49"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B42"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B43"] = rich_string
-
-                    ws["A55"] = (
-                        "If you require further information related with this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-                    
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
+            del wb_commercial #, self.wb_technical
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3192,7 +1907,9 @@ class offer_level:
         revchanges (str): Details of changes made in the revision.
         notes (str): Additional notes, split by line.
     """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+    def __init__(self, numoffer, username, rev, project, delivery_term,
+                delivery_time, validity, pay_term, testinspection,
+                revchanges, notes, size, language=None):
         """
         Initializes the offer.
 
@@ -3225,12 +1942,18 @@ class offer_level:
                         WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
                         """
         query_tagsdata = """
-                        SELECT *
+                        SELECT 
+                            tag, item_type, model_num, body_material, proc_conn_size,
+                            proc_conn_rating, proc_conn_facing, conn_type, visibility, cc_length,
+                            valve_type, dv_conn, dv_size, dv_rating, dv_facing,
+                            gasket_mica, stud_nuts_material, illuminator, float_material, case_cover_material,
+                            scale_type, ip_code, antifrost, nace, amount, offer_notes
+                        
                         FROM tags_data.tags_level
                         WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
+                            UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
+                            AND
+                            "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
 
@@ -3250,1366 +1973,253 @@ class offer_level:
                     cur.execute(query_tagsdata, (numoffer,))
                     data_tags = cur.fetchall()
 
-            if len(data_tags) == 0:
+            if not data_tags:
                 MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
+                return
+
+            columns = []
+            for elt in cur.description:
+                columns.append(elt[0])
+
+            df = pd.DataFrame(data=data_tags, columns=columns)
+            df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
+            df = df.sort_values(by=["value_type", "tag"])
+            df["amount"] = df["amount"].apply(euros_to_float)
+            total_amount_material = df["amount"].sum()
+
+            number_items = df.shape[0]
+            documentation = number_items * 70
+
+        # Loading Excel Template and set sheets and cover
+            config = TEMPLATE_CONFIG.get('Level')
+
+            data_sheet = config["data_sheet"]
+
+            if language:
+                template_name = config["templates"]["language"]
+            elif size == "Largo":
+                template_name = config["templates"]["largo"]
             else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
+                template_name = config["templates"]["short_en"]
 
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
+            wb_commercial, sheets_confirmed = set_wb_offer(
+                                                            template_name, data_sheet, df, client, offername_commercial, num_ref,
+                                                            project, date_offer, delivery_term, validity, responsible, email, rev
+                                                            )
 
-                number_items = df.shape[0]
-                documentation = number_items * 70
+            eq_type_list, df_toexport_list = set_df_export_offer('Level', df)
 
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA OFERTA NIVEL.xlsx")))
+        # Set sheet of equipment data, styles and fill with values
+            header_cell_style = LEVEL_CELLS_STYLE.get('header_cell_style')
+            amount_cell_style = LEVEL_CELLS_STYLE.get('amount_cell_style')
+            normal_cell_style = LEVEL_CELLS_STYLE.get('normal_cell_style')
+            notes_cell_style = LEVEL_CELLS_STYLE.get('notes_cell_style')
 
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
+            ws, last_row, row_amount, num_column_amount = set_eq_data_sheet(
+                                                                            'Level', wb_commercial, data_sheet, date_offer, num_ref,
+                                                                            offername_commercial, revchanges, rev, df_toexport_list,
+                                                                            header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
+                                                                            validity, notes_cell_style, delivery_time, notes, 
+                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            )
 
-                # Editing sheet EQUIPMENT DATA
+            set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
+
+            set_summary_styles_temp(ws, last_row, row_amount, num_column_amount)
+
+        # Editing sheet NOTES
+            if language:
+                set_notes_level_short_esp(wb_commercial, delivery_time, pay_term, responsible, email)
+            else:
+                if size == "Largo":
+                    set_notes_level_long(wb_commercial, delivery_time, pay_term, responsible, email)
+                else:
+                    set_notes_level_short(wb_commercial, delivery_time, pay_term, responsible, email)
+
+            for sheet in self.wb_commercial.sheetnames:
+                if sheet not in sheets_confirmed:
+                    sheet_to_delete = self.wb_commercial[sheet]
+                    self.wb_commercial.remove(sheet_to_delete)
+
+            if int(rev) > 0:
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
-                            else:
-                                cell._style = ws["AB1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B42"] = data_pay_terms["en"]
-                ws["B43"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B42"].font = data_pay_terms["style"]["en"]
-                    ws["B43"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B45"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B46"] = rich_string
-
-                ws["A59"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None 
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                    ws["B42"] = data_pay_terms["en"]
-                    ws["B43"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B42"].font = data_pay_terms["style"]["en"]
-                        ws["B43"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B45"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B46"] = rich_string
-
-                    ws["A59"] = (
-                        "If you require further information related with this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
+                for sheet in sheets_confirmed:
+                    sheet_to_delete = self.wb_commercial[sheet]
+                    self.wb_commercial.remove(sheet_to_delete)
+
+        # Setting footer of offer document
+            set_footer_offer(date_offer, num_ref, wb_commercial)
+
+            path = save_excel_commercial(self.wb_commercial)
+            self.wb_commercial = None 
+
+            #     # Creating the technical offer using the commercial one as template
+            #     self.wb_technical = load_workbook(path)
+
+            #     if int(rev) == 0:
+            #         sheet_name = "COVER"
+            #         ws = self.wb_technical[sheet_name]
+            #         ws["E6"] = offername_technical
+
+            #     for value_type in df["value_type"].unique():
+            #         eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
+
+            #         ws = self.wb_technical[eq_type]
+            #         if int(rev) == 0:
+            #             ws["G4"] = offername_technical
+
+            #         last_row = dict_sheets_data[eq_type][0]
+            #         num_column_amount = dict_sheets_data[eq_type][1]
+
+            #         # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+            #         ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+            #         ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+            #         ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+            #         ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
+
+            #     # Deleting "Amount" column
+            #         self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
+
+            #     # Adjusting the print area
+            #         new_last_column = num_column_amount
+            #         last_print_row = 40
+            #         nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
+            #         self.wb_technical[eq_type].print_area = nuevo_rango_impresion
+
+            #         stamp_1 = self.wb_technical[eq_type]._images[1]
+            #         anchor_actual = stamp_1.anchor
+
+            #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+            #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+            #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+            #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
+
+            #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+            #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
+
+            #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+            #         stamp_1.anchor = new_anchor
+
+            #         stamp_2 = self.wb_technical[eq_type]._images[2]
+            #         anchor_actual = stamp_2.anchor
+
+            #         from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
+            #         from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
+            #         to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
+            #         to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
+
+            #         from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
+            #         to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
+
+            #         new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
+            #         stamp_2.anchor = new_anchor
+
+            #     if int(rev) == 0:
+            #         ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+            #         ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+            #         ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+
+            # # Editing sheet NOTES
+            #     if int(rev) == 0:
+            #         sheet_name = "NOTES"
+            #         ws = self.wb_technical[sheet_name]
+
+            #         rich_string = CellRichText(
+            #         'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
+            #         TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+            #         ws["B6"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+            #         TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+            #         ws["B7"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
+            #         TextBlock(InlineFont(b=True), 'all equipment'),
+            #         ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
+            #         ws["B12"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
+            #         TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+            #         TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
+            #         ws["B13"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+            #         TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+            #         'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+            #         ws["B21"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+            #         TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+            #         TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+            #         ws["B22"] = rich_string
+
+            #         data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
+
+            #         ws["B42"] = data_pay_terms["en"]
+            #         ws["B43"] = data_pay_terms["es"]
+
+            #         # Apply style if exists
+            #         if "style" in data_pay_terms:
+            #             ws["B42"].font = data_pay_terms["style"]["en"]
+            #             ws["B43"].font = data_pay_terms["style"]["es"]
+
+            #         rich_string = CellRichText(
+            #         'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+            #         TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+            #         ws["B45"] = rich_string
+
+            #         rich_string = CellRichText(
+            #         'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+            #         TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+            #         ws["B46"] = rich_string
+
+            #         ws["A59"] = (
+            #             "If you require further information related with this offer, please do not hesitate to contact:\n"
+            #             + responsible
+            #             + "\n"
+            #             + email
+            #             + "\n"
+            #             "Telf.: (+34) 916.582.118"
+            #         )
+
+            #         std = self.wb_technical["1.3"]
+            #         self.wb_technical.remove(std)
+
+            #     left_text = "Fecha/Date: " + date_offer
+            #     right_text = "Petición nº/Inquiry: " + num_ref
+
+            #     for sheet in self.wb_technical.worksheets:
+            #         sheet.oddFooter.left.text = left_text
+            #         sheet.oddFooter.right.text = right_text
+            #         sheet.oddFooter.center.text = "Page &P de &N"
+
+            #         sheet.oddFooter.left.size = 9
+            #         sheet.oddFooter.right.size = 9
+            #         sheet.oddFooter.center.size = 9
+
+            #     save_excel_technical(self.wb_technical)
+            #     self.wb_technical = None
+
+            del wb_commercial #, self.wb_technical
 
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), 'critical')
 
-class offer_short_level_spanish:
-    """
-    A class to manage export offer (short format in spanish) details for level equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        notes = notes.split('\n')
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_level
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
-            else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
-
-                number_items = df.shape[0]
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA NIVEL.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
-                            else:
-                                cell._style = ws["AB1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "PLAZO DE ENTREGA: "
-                        + delivery_time
-                        + " SEMANAS DESDE APROBACIÓN DE PLANOS (AGOSTO, ÚLTIMAS DOS SEMANAS DE DICIEMBRE Y FESTIVOS NACIONALES EXCLUIDOS)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B10"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-                ws["B29"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B29"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B27"] = rich_string
-
-                ws["A39"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None 
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B10"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B16"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-                    ws["B29"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B29"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B27"] = rich_string
-
-                    ws["A39"] = (
-                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
-
-class offer_short_level_english:
-    """
-    A class to manage export offer (short format in english) details for level equipments.
-    
-    Attributes:
-        numoffer (str): Offer number.
-        username (str): Name of the user creating the offer.
-        rev (str): Revision number of the offer.
-        project (str): Name of the project.
-        delivery_term (str): Delivery terms for the offer.
-        delivery_time (str): Expected delivery time.
-        validity (str): Validity period of the offer.
-        pay_term (str): Payment terms.
-        testinspection (str): Information about testing and inspection.
-        revchanges (str): Details of changes made in the revision.
-        notes (str): Additional notes, split by line.
-    """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
-        """
-        Initializes the offer.
-
-        Args:
-            numoffer (str): Offer number.
-            username (str): Name of the user creating the offer.
-            rev (str): Revision number of the offer.
-            project (str): Name of the project.
-            delivery_term (str): Delivery terms for the offer.
-            delivery_time (str): Expected delivery time.
-            validity (str): Validity period of the offer.
-            pay_term (str): Payment terms.
-            testinspection (str): Information about testing and inspection.
-            revchanges (str): Details of changes made in the revision.
-            notes (str): Additional notes, split by line.
-        """
-        notes = notes.split('\n')
-        date_offer = date.today().strftime("%d/%m/%Y")
-        offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
-        offername_technical = numoffer + "-" + "Technical.Rev" + rev
-
-        query_commercial = """
-                    SELECT name, surname, email
-                    FROM users_data.registration
-                    WHERE username = %s
-                    """
-        query_dataoffer = """
-                        SELECT client, num_ref_offer
-                        FROM offers
-                        WHERE UPPER (num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """
-        query_tagsdata = """
-                        SELECT *
-                        FROM tags_data.tags_level
-                        WHERE (
-                        UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        "tag_state" NOT IN ('PURCHASED','DELETED')
-                        )
-                        """
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query_dataoffer, (numoffer,))
-                    results_offer = cur.fetchall()
-                    client = results_offer[0][0]
-                    num_ref = results_offer[0][1]
-
-                    cur.execute(query_commercial, (username,))
-                    results_commercial = cur.fetchall()
-                    responsible = results_commercial[0][0] + " " + results_commercial[0][1]
-                    email = results_commercial[0][2]
-
-                    cur.execute(query_tagsdata, (numoffer,))
-                    data_tags = cur.fetchall()
-
-            if len(data_tags) == 0:
-                MessageHelper.show_message("No hay TAGS importados en la oferta", "warning")
-            else:
-                columns = []
-                for elt in cur.description:
-                    columns.append(elt[0])
-
-                df = pd.DataFrame(data=data_tags, columns=columns)
-                df = df.iloc[:, 1:42]
-                df["value_type"] = df["item_type"].map(LEVEL_VALUE_TYPE_MAP)
-                df = df.sort_values(by=["value_type", "tag"])
-                df["amount"] = df["amount"].apply(euros_to_float)
-                total_amount_material = df["amount"].sum()
-                df = df.drop([
-                        "tag_state", "num_offer", "num_order", "num_po", "position", "subposition",
-                        "proc_conn_type", "flags", "flange_type", "nipple_hex", "nipple_tub",
-                        "min_price", "medium_price", "pvp_price", "notes_prices"
-                    ],
-                    axis=1,)
-
-                number_items = df.shape[0]
-                documentation = number_items * 70
-
-                # Loading Excel Template
-                self.wb_commercial = load_workbook(str(get_path("Plantillas Exportación", "PLANTILLA CORTA OFERTA NIVEL - ingles.xlsx")))
-
-                # Editing sheet COVER
-                sheet_name = "COVER"
-                ws = self.wb_commercial[sheet_name]
-                ws["E4"] = client
-                ws["E6"] = offername_commercial
-                ws["E8"] = num_ref
-                ws["E10"] = project
-                ws["E12"] = date_offer
-                ws["E14"] = delivery_term
-                ws["E16"] = validity + " days"
-                ws["C43"] = responsible
-                ws["C45"] = email
-
-                # Editing sheet EQUIPMENT DATA
-                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-
-                if int(rev) == 0:
-                    for item_type in df["item_type"].unique():
-                        sheets_confirmed.append(item_type)
-
-                dict_sheets_data = {}
-
-                for value_type in df["value_type"].unique():
-                    df_toexport = df[df["value_type"] == value_type]
-                    df_toexport.insert(0, "N°", range(1, len(df_toexport) + 1))
-                    df_toexport.set_index("N°", inplace=True, drop=False)
-                    df_toexport.index.name = None
-                    df_toexport = df_toexport.drop(["value_type"], axis=1)
-
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    if eq_type not in sheets_confirmed:
-                        sheets_confirmed.append(eq_type)
-
-                    cols_to_drop = LEVEL_COLUMNS_DROP_MAP.get(eq_type, [])
-                    df_toexport = df_toexport.drop(cols_to_drop, axis=1, errors='ignore')
-
-                    ws = self.wb_commercial[eq_type]
-                    ws["G2"] = date_offer
-                    ws["G3"] = num_ref
-                    ws["G4"] = offername_commercial
-                    if revchanges != "":
-                        ws["G5"] = rev + " " + revchanges
-                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
-
-                    if int(rev) > 0:
-                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
-                            for cell in row:
-                                cell.value = None
-                                cell._style = ws["F1"]._style
-
-                    last_row = ws.max_row
-
-                    num_column_amount = df_toexport.columns.get_loc("amount") + 1
-
-                    for index, row in df_toexport.iterrows():  # Data in desired row
-                        for col_num, value in enumerate(row, start=1):
-                            cell = ws.cell(row=last_row + 1, column=col_num)
-                            cell.value = value
-                            if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
-                            else:
-                                cell._style = ws["AB1"]._style
-
-                        last_row = ws.max_row
-
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
-                        + delivery_time
-                        + " WEEKS SINCE DRAWING APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
-                    )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
-
-                    if notes != "":
-                        if isinstance(notes, list):
-                            line = last_row + 5
-                            for note in notes:
-                                ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
-                                line += 1
-                        else:
-                            line = last_row + 5
-                            ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
-
-                    dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-
-                row_amount = last_row + 4
-                for key, value in dict_sheets_data.items():
-                    parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-
-                    row_amount += 2
-
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
-                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
-
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
-
-            # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_commercial[sheet_name]
-
-                rich_string = CellRichText(
-                'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
-
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
-
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                ws["B12"] = rich_string
-
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                ws["B13"] = rich_string
-
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
-
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
-
-                data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                ws["B41"] = data_pay_terms["en"]
-                ws["B42"] = data_pay_terms["es"]
-
-                # Apply style if exists
-                if "style" in data_pay_terms:
-                    ws["B41"].font = data_pay_terms["style"]["en"]
-                    ws["B42"].font = data_pay_terms["style"]["es"]
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B38"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B39"] = rich_string
-
-                ws["A53"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                for sheet in self.wb_commercial.sheetnames:
-                    if sheet not in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                if int(rev) > 0:
-                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
-                    for sheet in sheets_confirmed:
-                        sheet_to_delete = self.wb_commercial[sheet]
-                        self.wb_commercial.remove(sheet_to_delete)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_commercial.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                path = save_excel_commercial(self.wb_commercial)
-                self.wb_commercial = None 
-
-                # Creating the technical offer using the commercial one as template
-                self.wb_technical = load_workbook(path)
-
-                if int(rev) == 0:
-                    sheet_name = "COVER"
-                    ws = self.wb_technical[sheet_name]
-                    ws["E6"] = offername_technical
-
-                for value_type in df["value_type"].unique():
-                    eq_type = LEVEL_EQ_TYPE_MAP.get(value_type, "MAGNETIC ELEMENTS DATA")
-
-                    ws = self.wb_technical[eq_type]
-                    if int(rev) == 0:
-                        ws["G4"] = offername_technical
-
-                    last_row = dict_sheets_data[eq_type][0]
-                    num_column_amount = dict_sheets_data[eq_type][1]
-
-                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
-
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
-                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
-
-                # Deleting "Amount" column
-                    self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
-
-                # Adjusting the print area
-                    new_last_column = num_column_amount
-                    last_print_row = 40
-                    nuevo_rango_impresion = f'A1:{get_column_letter(new_last_column)}{last_print_row}'
-                    self.wb_technical[eq_type].print_area = nuevo_rango_impresion
-
-                    stamp_1 = self.wb_technical[eq_type]._images[1]
-                    anchor_actual = stamp_1.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_1.anchor = new_anchor
-
-                    stamp_2 = self.wb_technical[eq_type]._images[2]
-                    anchor_actual = stamp_2.anchor
-
-                    from_col, from_col_off = anchor_actual._from.col, anchor_actual._from.colOff
-                    from_row, from_row_off = anchor_actual._from.row, anchor_actual._from.rowOff
-                    to_col, to_col_off = anchor_actual.to.col, anchor_actual.to.colOff
-                    to_row, to_row_off = anchor_actual.to.row, anchor_actual.to.rowOff
-
-                    from_cell = AnchorMarker(col=from_col - 1, colOff=from_col_off, row=from_row, rowOff=from_row_off)
-                    to_cell = AnchorMarker(col=to_col - 1, colOff=to_col_off, row=to_row, rowOff=to_row_off)
-
-                    new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
-                    stamp_2.anchor = new_anchor
-
-                if int(rev) == 0:
-                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-
-            # Editing sheet NOTES
-                if int(rev) == 0:
-                    sheet_name = "NOTES"
-                    ws = self.wb_technical[sheet_name]
-
-                    rich_string = CellRichText(
-                    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                    ws["B6"] = rich_string
-
-                    rich_string = CellRichText(
-                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                    ws["B7"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                    TextBlock(InlineFont(b=True), 'all equipment'),
-                    ' in the contract, as well as critical documentation (August, last two December weeks and national holidays excluded).')
-                    ws["B12"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto, las dos últimas semanas de diciembre y festivos nacionales excluidos).'))
-                    ws["B13"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                    ws["B21"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                    ws["B22"] = rich_string
-
-                    data_pay_terms = PAY_TERMS_MAP.get(pay_term, PAY_TERMS_MAP["Others"])
-
-                    ws["B41"] = data_pay_terms["en"]
-                    ws["B42"] = data_pay_terms["es"]
-
-                    # Apply style if exists
-                    if "style" in data_pay_terms:
-                        ws["B41"].font = data_pay_terms["style"]["en"]
-                        ws["B42"].font = data_pay_terms["style"]["es"]
-
-                    rich_string = CellRichText(
-                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                    ws["B38"] = rich_string
-
-                    rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                    ws["B39"] = rich_string
-
-                    ws["A53"] = (
-                        "If you require further information related with this offer, please do not hesitate to contact:\n"
-                        + responsible
-                        + "\n"
-                        + email
-                        + "\n"
-                        "Telf.: (+34) 916.582.118"
-                    )
-
-                    std = self.wb_technical["1.3"]
-                    self.wb_technical.remove(std)
-
-                left_text = "Fecha/Date: " + date_offer
-                right_text = "Petición nº/Inquiry: " + num_ref
-
-                for sheet in self.wb_technical.worksheets:
-                    sheet.oddFooter.left.text = left_text
-                    sheet.oddFooter.right.text = right_text
-                    sheet.oddFooter.center.text = "Page &P de &N"
-
-                    sheet.oddFooter.left.size = 9
-                    sheet.oddFooter.right.size = 9
-                    sheet.oddFooter.center.size = 9
-
-                save_excel_technical(self.wb_technical)
-                self.wb_technical = None
-
-                del self.wb_commercial, self.wb_technical
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
 
 class offer_flow_temp:
     """
@@ -4628,7 +2238,9 @@ class offer_flow_temp:
         revchanges (str): Details of changes made in the revision.
         notes (str): Additional notes, split by line.
     """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+    def __init__(self, numoffer, username, rev, project, delivery_term,
+                delivery_time, validity, pay_term, testinspection,
+                revchanges, notes, size, language=None):
         """
         Initializes the offer.
 
@@ -5297,7 +2909,9 @@ class offer_flow_temp_level:
         revchanges (str): Details of changes made in the revision.
         notes (str): Additional notes, split by line.
     """
-    def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+    def __init__(self, numoffer, username, rev, project, delivery_term,
+                delivery_time, validity, pay_term, testinspection,
+                revchanges, notes, size, language=None):
         """
         Initializes the offer.
 
