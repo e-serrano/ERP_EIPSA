@@ -597,22 +597,22 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(0.4, 0.3, '')
     pdf.fixed_height_multicell(4, 0.3, str(order_count) + " / " + f"{(order_count/offered_count):.1%}", fill=False)
 
-    df_graph_commercial_1 = df_graph_commercial_1[df_graph_commercial_1['Estado'] != 'Budgetary']
-    img_graph_1, img_graph_2 = graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2)
-    img_graph_3, img_graph_4 = graphs_calculation_report(df_graph_calculation_1, df_graph_calculation_2)
-    img_graph_5, img_graph_6 = graphs_orders_report(df_orders_data)
+    # df_graph_commercial_1 = df_graph_commercial_1[df_graph_commercial_1['Estado'] != 'Budgetary']
+    # img_graph_1, img_graph_2 = graphs_commercial_report(df_graph_commercial_1, df_graph_commercial_2)
+    # img_graph_3, img_graph_4 = graphs_calculation_report(df_graph_calculation_1, df_graph_calculation_2)
+    # img_graph_5, img_graph_6 = graphs_orders_report(df_orders_data)
 
-    y_position = 3
-    pdf.image(img_graph_1, x=0.5, y=y_position, w=8.5, h=4.5)
-    pdf.image(img_graph_3, x=10.6, y=y_position, w=8.5, h=4.5)
-    pdf.image(img_graph_5, x=20.7, y=y_position, w=8.5, h=4.5)
-    pdf.ln(5)
+    # y_position = 3
+    # pdf.image(img_graph_1, x=0.5, y=y_position, w=8.5, h=4.5)
+    # pdf.image(img_graph_3, x=10.6, y=y_position, w=8.5, h=4.5)
+    # pdf.image(img_graph_5, x=20.7, y=y_position, w=8.5, h=4.5)
+    # pdf.ln(5)
 
-    y_position = pdf.get_y()
-    pdf.image(img_graph_2, x=0.5, y=y_position, w=8.5, h=4.5)
-    pdf.image(img_graph_4, x=10.6, y=y_position, w=8.5, h=4.5)
-    pdf.image(img_graph_6, x=20.7, y=y_position, w=8.5, h=4.5)
-    pdf.ln(5)
+    # y_position = pdf.get_y()
+    # pdf.image(img_graph_2, x=0.5, y=y_position, w=8.5, h=4.5)
+    # pdf.image(img_graph_4, x=10.6, y=y_position, w=8.5, h=4.5)
+    # pdf.image(img_graph_6, x=20.7, y=y_position, w=8.5, h=4.5)
+    pdf.ln(1)
 
     pdf.set_fill_color(255, 255, 64)
     pdf.set_font('Helvetica', 'B', size=7)
@@ -984,7 +984,7 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
     pdf.ln()
 
-    pdf.set_fill_color(255, 105, 105)
+    pdf.set_fill_color(145, 214, 96)
     pdf.set_font('DejaVuSansCondensed', size=6)
     for _, row in df_more_30.iterrows():
         # getting the required height of the row
