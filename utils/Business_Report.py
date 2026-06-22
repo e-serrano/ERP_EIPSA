@@ -48,7 +48,7 @@ def report_offers():
         query_last_weekly_summary = ("""
                             SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
                             TO_CHAR(recep_date, 'DD/MM/YYYY') as recep_date, TO_CHAR(presentation_date, 'DD/MM/YYYY') as presentation_date, TO_CHAR(limit_date, 'DD/MM/YYYY') as limit_date,
-                            probability, '' as priority, material, items_number, offer_amount, actions, 'offers' AS source_table
+                            probability, material, items_number, offer_amount, tracking, actions, 'offers' AS source_table
                             FROM offers
                             WHERE register_date >= %s AND register_date <= %s
                             """)
@@ -56,7 +56,7 @@ def report_offers():
         query_active_summary = ("""
                             SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
                             TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
-                            probability, '' as priority, material, items_number, offer_amount, actions
+                            probability, material, items_number, offer_amount, tracking, actions
                             FROM offers
                             WHERE num_offer NOT LIKE '%B-%' AND state IN ('Registrada', 'En Estudio', 'Presentada')
                             ORDER BY state
@@ -65,7 +65,7 @@ def report_offers():
         query_active_budgetary_summary = ("""
                             SELECT num_offer, state, responsible, responsible_calculations, client, final_client,
                             TO_CHAR(recep_date, 'DD/MM/YYYY'), TO_CHAR(presentation_date, 'DD/MM/YYYY'), TO_CHAR(limit_date, 'DD/MM/YYYY'),
-                            probability, '' as priority, material, items_number, offer_amount, actions
+                            probability, material, items_number, offer_amount, tracking, actions
                             FROM offers
                             WHERE (num_offer LIKE '%B-%') AND (EXTRACT(YEAR FROM offers.register_date) = EXTRACT(YEAR FROM CURRENT_DATE))
                             ORDER BY state
@@ -131,7 +131,7 @@ def report_offers():
                 df_weekly = pd.DataFrame(results_weekly,
                 columns=['Nº Oferta', 'Estado', 'Responsable', 'Cálculos', 'Cliente', 'Cl. Final',
                 'Fecha Rec.', 'Fecha Pres.', 'Fecha Vto.',
-                'Prob.', 'Prior.', 'Material', 'Nº Eqs.', 'Importe', 'Acciones', 'Tabla']
+                'Prob.', 'Material', 'Nº Eqs.', 'Importe', 'Seguimiento', 'Acciones', 'Tabla']
                 )
 
                 df_weekly['Importe Euros'] = df_weekly['Importe']\
@@ -144,7 +144,7 @@ def report_offers():
                 results_active = cur.fetchall()
                 df_active = pd.DataFrame(results_active, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cálculos', 'Cliente', 'Cl. Final',
                 'Fecha Rec.', 'Fecha Pres.', 'Fecha Vto.',
-                'Prob.', 'Prior.', 'Material', 'Nº Eqs.', 'Importe', 'Acciones']
+                'Prob.', 'Material', 'Nº Eqs.', 'Importe', 'Seguimiento', 'Acciones']
                 )
 
                 df_active['Importe Euros'] = df_active['Importe']\
@@ -157,7 +157,7 @@ def report_offers():
                 results_active_budgetary = cur.fetchall()
                 df_active_budgetary = pd.DataFrame(results_active_budgetary, columns=['Nº Oferta', 'Estado', 'Responsable', 'Cálculos', 'Cliente', 'Cl. Final',
                 'Fecha Rec.', 'Fecha Pres.', 'Fecha Vto.',
-                'Prob.', 'Prior.', 'Material', 'Nº Eqs.', 'Importe', 'Acciones']
+                'Prob.', 'Material', 'Nº Eqs.', 'Importe', 'Seguimiento', 'Acciones']
                 )
 
                 df_active_budgetary['Importe Euros'] = df_active_budgetary['Importe']\
@@ -639,18 +639,18 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
     pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+    pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+    pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
     pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+    pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+    pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+    pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+    pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
     pdf.ln()
 
     pdf.set_font('DejaVuSansCondensed', size=6)
@@ -658,23 +658,24 @@ def generate_report_offers(start_date, end_date,
     for _, row in df_weekly.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
-        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+        h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
         h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+        h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+        row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
         # Setting values for table
         pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
         pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+        pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-        pdf.set_xy(x + 3, y)
+        pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+        pdf.set_xy(x + 2.75, y)
 
         x = pdf.get_x()
         y = pdf.get_y()
@@ -685,19 +686,23 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
         pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-        pdf.set_xy(x + 2.75, y)
+        pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+        pdf.set_xy(x + 2, y)
 
         pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(row['Nº Eqs.']), border=1, align='C')
-        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+        pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+        pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+        pdf.set_xy(x + 3.25, y)
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
         pdf.set_xy(x + 2.5, y)
 
         pdf.ln(row_height)
@@ -723,41 +728,42 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
         pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-        pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-        pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+        pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
         pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
         pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-        pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-        pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
         pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-        pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-        pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+        pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+        pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
         pdf.ln()
 
         pdf.set_font('DejaVuSansCondensed', size=6)
         for _, row in df_registered.iterrows():
             # getting the required height of the row
             line_h = pdf.font_size * 1.5
-            h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
             h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-            h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-            h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+            h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+            h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+            h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-            row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+            row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
             # Setting values for table
             pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
             pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
             pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-            pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+            pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-            pdf.set_xy(x + 3, y)
+            pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+            pdf.set_xy(x + 2.75, y)
 
             x = pdf.get_x()
             y = pdf.get_y()
@@ -768,19 +774,23 @@ def generate_report_offers(start_date, end_date,
             pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
             pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
             pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-            pdf.set_xy(x + 2.75, y)
+            pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+            pdf.set_xy(x + 2, y)
 
             pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-            pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+            pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+            pdf.set_xy(x + 3.25, y)
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
             pdf.set_xy(x + 2.5, y)
 
             pdf.ln(row_height)
@@ -805,18 +815,18 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
         pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-        pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-        pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+        pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+        pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
         pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
         pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
         pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-        pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-        pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+        pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
         pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-        pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-        pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+        pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+        pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+        pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
         pdf.ln()
 
         pdf.set_fill_color(255, 105, 105)
@@ -824,23 +834,24 @@ def generate_report_offers(start_date, end_date,
         for _, row in df_study.iterrows():
             # getting the required height of the row
             line_h = pdf.font_size * 1.5
-            h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+            h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
             h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-            h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-            h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+            h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+            h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+            h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-            row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+            row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
             # Setting values for table
             pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
             pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
             pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-            pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+            pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-            pdf.set_xy(x + 3, y)
+            pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+            pdf.set_xy(x + 2.75, y)
 
             x = pdf.get_x()
             y = pdf.get_y()
@@ -851,19 +862,23 @@ def generate_report_offers(start_date, end_date,
             pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
             pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C', fill=True if row['days_diff'] > 0 else False)
             pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-            pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-            pdf.set_xy(x + 2.75, y)
+            pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+            pdf.set_xy(x + 2, y)
 
             pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-            pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+            pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+            pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+            pdf.set_xy(x + 3.25, y)
+
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
             pdf.set_xy(x + 2.5, y)
 
             pdf.ln(row_height)
@@ -898,41 +913,42 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
     pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+    pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+    pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
     pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+    pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+    pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+    pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+    pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
     pdf.ln()
 
     pdf.set_font('DejaVuSansCondensed', size=6)
     for _, row in df_less_30.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
-        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+        h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
         h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+        h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+        row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
         # Setting values for table
         pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
         pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+        pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-        pdf.set_xy(x + 3, y)
+        pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+        pdf.set_xy(x + 2.75, y)
 
         x = pdf.get_x()
         y = pdf.get_y()
@@ -943,19 +959,23 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
         pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-        pdf.set_xy(x + 2.75, y)
+        pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+        pdf.set_xy(x + 2, y)
 
         pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+        pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+        pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+        pdf.set_xy(x + 3.25, y)
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
         pdf.set_xy(x + 2.5, y)
 
         pdf.ln(row_height)
@@ -970,18 +990,18 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
     pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+    pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+    pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
     pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+    pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+    pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+    pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+    pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
     pdf.ln()
 
     pdf.set_fill_color(145, 214, 96)
@@ -989,23 +1009,24 @@ def generate_report_offers(start_date, end_date,
     for _, row in df_more_30.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
-        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+        h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
         h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+        h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+        row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
         # Setting values for table
         pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
         pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+        pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-        pdf.set_xy(x + 3, y)
+        pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+        pdf.set_xy(x + 2.75, y)
 
         x = pdf.get_x()
         y = pdf.get_y()
@@ -1016,19 +1037,23 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C', fill=True)
         pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
         pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-        pdf.set_xy(x + 2.75, y)
+        pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+        pdf.set_xy(x + 2, y)
 
         pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+        pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+        pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+        pdf.set_xy(x + 3.25, y)
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
         pdf.set_xy(x + 2.5, y)
 
         pdf.ln(row_height)
@@ -1050,18 +1075,18 @@ def generate_report_offers(start_date, end_date,
     pdf.cell(1.5, 0.3, 'OFERTA', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'ESTADO', fill=True, border=1, align='C')
     pdf.cell(2, 0.3, 'RESP.', fill=True, border=1, align='C')
-    pdf.cell(1.5, 0.3, 'CALC.', fill=True, border=1, align='C')
-    pdf.cell(3, 0.3, 'CLIENTE', fill=True, border=1, align='C')
+    pdf.cell(1.25, 0.3, 'CALC.', fill=True, border=1, align='C')
+    pdf.cell(2.75, 0.3, 'CLIENTE', fill=True, border=1, align='C')
     pdf.cell(3.5, 0.3, 'CLIENTE FINAL', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. REC.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. PRES.', fill=True, border=1, align='C')
     pdf.cell(1.5, 0.3, 'F. VTO.', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'PROB.', fill=True, border=1, align='C')
-    pdf.cell(1, 0.3, 'PRIOR.', fill=True, border=1, align='C')
-    pdf.cell(2.75, 0.3, 'MATERIAL', fill=True, border=1, align='C')
+    pdf.cell(2, 0.3, 'MATERIAL', fill=True, border=1, align='C')
     pdf.cell(1, 0.3, 'Nº EQ.', fill=True, border=1, align='C')
-    pdf.cell(2.2, 0.3, 'IMPORTE', fill=True, border=1, align='C')
-    pdf.cell(3.25, 0.3, 'ACCIONES', fill=True, border=1, align='C')
+    pdf.cell(1.75, 0.3, 'IMPORTE', fill=True, border=1, align='C')
+    pdf.cell(3.25, 0.3, 'SEGUIMIENTO', fill=True, border=1, align='C')
+    pdf.cell(3, 0.3, 'ACCIONES', fill=True, border=1, align='C')
     pdf.ln()
 
     pdf.set_fill_color(255, 105, 105)
@@ -1069,23 +1094,24 @@ def generate_report_offers(start_date, end_date,
     for _, row in df_active_budgetary.iterrows():
         # getting the required height of the row
         line_h = pdf.font_size * 1.5
-        h_client = pdf.get_multicell_height(2.75, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
+        h_client = pdf.get_multicell_height(2.5, line_h, '' if row['Cliente'] is None else str(row['Cliente']))
         h_clfinal = pdf.get_multicell_height(3.25, line_h, '' if row['Cl. Final'] is None else str(row['Cl. Final']))
-        h_material = pdf.get_multicell_height(2.5, line_h, '' if row['Material'] is None else str(row['Material']))
-        h_actions = pdf.get_multicell_height(3, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_material = pdf.get_multicell_height(2, line_h, '' if row['Material'] is None else str(row['Material']))
+        h_actions = pdf.get_multicell_height(2.75, line_h, '' if row['Acciones'] is None else str(row['Acciones']))
+        h_tracking = pdf.get_multicell_height(2.75, line_h, '' if row['Seguimiento'] is None else str(row['Seguimiento']))
 
-        row_height = max(h_client, h_clfinal, h_material, h_actions, line_h)
+        row_height = max(h_client, h_clfinal, h_material, h_actions, h_tracking, line_h)
 
         # Setting values for table
         pdf.cell(1.5, row_height, '' if row['Nº Oferta'] is None else str(row['Nº Oferta']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Estado'] is None else str(row['Estado']), border=1, align='C')
         pdf.cell(2, row_height, '' if row['Responsable'] is None else str(row['Responsable']), border=1, align='C')
-        pdf.cell(1.5, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
+        pdf.cell(1.25, row_height, '' if row['Cálculos'] is None else str(row['Cálculos']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
-        pdf.set_xy(x + 3, y)
+        pdf.fixed_height_multicell(2.75, row_height, '' if row['Cliente'] is None else str(row['Cliente']), border=1)
+        pdf.set_xy(x + 2.75, y)
 
         x = pdf.get_x()
         y = pdf.get_y()
@@ -1096,19 +1122,23 @@ def generate_report_offers(start_date, end_date,
         pdf.cell(1.5, row_height, '' if row['Fecha Pres.'] is None else str(row['Fecha Pres.']), border=1, align='C')
         pdf.cell(1.5, row_height, '' if row['Fecha Vto.'] is None else str(row['Fecha Vto.']), border=1, align='C')
         pdf.cell(1, row_height, '' if row['Prob.'] is None else str(row['Prob.']), border=1, align='C')
-        pdf.cell(1, row_height, '' if row['Prior.'] is None else str(row['Prior.']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(2.75, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
-        pdf.set_xy(x + 2.75, y)
+        pdf.fixed_height_multicell(2, row_height, '' if row['Material'] is None else str(row['Material']), border=1)
+        pdf.set_xy(x + 2, y)
 
         pdf.cell(1, row_height, '' if row['Nº Eqs.'] is None else str(int(row['Nº Eqs.'])), border=1, align='C')
-        pdf.cell(2.2, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
+        pdf.cell(1.75, row_height, '' if row['Importe'] is None else str(row['Importe']), border=1, align='C')
 
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.fixed_height_multicell(3.25, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
+        pdf.fixed_height_multicell(3.25, row_height, '' if row['Seguimiento'] is None else str(row['Seguimiento']), border=1)
+        pdf.set_xy(x + 3.25, y)
+
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.fixed_height_multicell(3, row_height, '' if row['Acciones'] is None else str(row['Acciones']), border=1)
         pdf.set_xy(x + 2.5, y)
 
         pdf.ln(row_height)
