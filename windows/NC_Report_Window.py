@@ -727,7 +727,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
 
         self.model.setTable("verification.nc_report")
-        if self.username == 'j.martinez':
+        if self.username in ['j.martinez', 'g.lopez']:
             self.model.setFilter("audit IS NOT NULL")
         if self.username == 'm.gil':
             self.model.setFilter("cost IS NULL")

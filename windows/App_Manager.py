@@ -68,7 +68,6 @@ class Ui_App_Manager(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Manager.setWindowIcon(icon)
-        App_Manager.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Manager)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -309,6 +308,20 @@ class Ui_App_Manager(object):
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
         self.verticalLayout_3.addWidget(self.Button_QueryDoc)
+        self.Button_NCReports = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_NCReports.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_NCReports.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_NCReports.setFont(font)
+        self.Button_NCReports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_NCReports.setIcon(icon4)
+        self.Button_NCReports.setIconSize(QtCore.QSize(40, 40))
+        self.Button_NCReports.setObjectName("Button_NCReports")
+        self.verticalLayout_3.addWidget(self.Button_NCReports)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem5)
@@ -328,73 +341,73 @@ class Ui_App_Manager(object):
             self.tableOffer.setHorizontalHeaderItem(i, item)
         self.tableOffer.verticalHeader().setVisible(False)
         self.tableOffer.setSortingEnabled(False)
-        self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem6)
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-        self.Calendar.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-        self.Calendar.setSizePolicy(sizePolicy)
-        self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
-        self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
-        self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-        self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton {\n"
-"    color: white;\n"
-"    font-size:20px;\n"
-"    icon-size:30px 30px;\n"
-"    background-color:rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::hover {\n"
-"    background-color : #019ad2;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border: 3px solid;\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border: 2px solid;\n"
-"    border-color: rgb(3,174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QAbstractItemView:enabled{\n"
-"    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
-"}\n"
-"\n"
-"#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-"}\n"
-"#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-"\n"
-"}")
-        self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-        self.Calendar.setGridVisible(True)
-        self.Calendar.setNavigationBarVisible(True)
-        self.Calendar.setDateEditEnabled(True)
-        self.Calendar.setObjectName("Calendar")
-        self.Calendar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.BottomLayout.addWidget(self.Calendar)
+#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
+#         self.Calendar.setEnabled(True)
+#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+#         sizePolicy.setHorizontalStretch(0)
+#         sizePolicy.setVerticalStretch(0)
+#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
+#         self.Calendar.setSizePolicy(sizePolicy)
+#         self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
+#         self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
+#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
+#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
+# "background-color: rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QTableView{\n"
+# "    background-color: white;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton {\n"
+# "    color: white;\n"
+# "    font-size:20px;\n"
+# "    icon-size:30px 30px;\n"
+# "    background-color:rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::hover {\n"
+# "    background-color : #019ad2;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border: 3px solid;\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QSpinBox{\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border: 2px solid;\n"
+# "    border-color: rgb(3,174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QAbstractItemView:enabled{\n"
+# "    selection-background-color: rgb(3, 174, 236);\n"
+# "    selection-color: white;\n"
+# "}\n"
+# "\n"
+# "#qt_calendar_prevmonth {\n"
+# "    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+# "}\n"
+# "#qt_calendar_nextmonth {\n"
+# "    qproperty-icon: url(//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+# "\n"
+# "}")
+#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
+#         self.Calendar.setGridVisible(True)
+#         self.Calendar.setNavigationBarVisible(True)
+#         self.Calendar.setDateEditEnabled(True)
+#         self.Calendar.setObjectName("Calendar")
+#         self.Calendar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -421,6 +434,7 @@ class Ui_App_Manager(object):
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
+        self.Button_NCReports.clicked.connect(self.nc_report)
 
 
         commands_appcomercial = ("""
@@ -492,6 +506,7 @@ class Ui_App_Manager(object):
         self.Button_QueryOrder.setText(_translate("App_Manager", "   Consultar Pedidos"))
         self.Button_QueryTag.setText(_translate("App_Manager", "    Consultar TAG(s)"))
         self.Button_QueryDoc.setText(_translate("App_Manager", "    Consultar Docs."))
+        self.Button_NCReports.setText(_translate("App_Verification", "    Informes NC"))
         self.tableOffer.setSortingEnabled(True)
         item = self.tableOffer.horizontalHeaderItem(0)
         item.setText(_translate("App_Manager", "Nº Oferta"))
@@ -671,6 +686,23 @@ class Ui_App_Manager(object):
         self.ui=Ui_Edit_Offer_Window(self.username, num_offer)
         self.ui.setupUi(self.edit_offer_window)
         self.edit_offer_window.show()
+
+# Function to open window with nc reports
+    def nc_report(self):
+        """
+        Establishes a database connection and opens the NC report window for the current user.
+        """
+        from windows.NC_Report_Window import Ui_NC_Report_Window
+        dbparam = config_database()
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_nc = Create_DBconnection(user_database, password_database)
+        if not db_nc:
+            sys.exit()
+
+        self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
+        self.nc_window.showMaximized()
 
 
 # if __name__ == "__main__":
