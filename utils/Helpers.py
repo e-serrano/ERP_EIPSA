@@ -112,7 +112,7 @@ TEMP_COLUMNS = ["id_tag_temp", "tag", "tag_state", "num_offer", "num_order", "nu
 				"nipple_ext_material", "nipple_ext_length", "head_case_material", "head_certification", "elec_conn_case_diam", "tt_cerblock",
 				"material_flange_lj", "gasket_material", "puntal", "tube_t", "nace", "pipe_spec", "material_certificate", "item_quantity", "min_price", "medium_price", "pvp_price",
 				"amount", "notes_prices", "offer_notes", "commercial_changes", "contractual_date",
-				"stress", "geometry", "conical_length", "straigth_length", "calculation_notes", "plug", "base_tw_diam", "notes_tw", "notes_sensor",
+				"stress", "geometry", "conical_length", "straight_length", "calculation_notes", "plug", "base_tw_diam", "notes_tw", "notes_sensor",
 				"length_cut_tw", "dim_a_sensor", "dim_b_sensor", "dim_l_sensor", "dwg_notes", "technical_changes", "technical_notes",
 				"calc_num_doc_eipsa", "dwg_num_doc_eipsa", "equipment_state", "purchase_order", "purchase_order_date", "purchase_order_notes",
 				"dim_drawing", "dim_drawing_rev", "dim_drawing_date",
