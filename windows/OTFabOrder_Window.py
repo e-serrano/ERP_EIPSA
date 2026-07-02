@@ -73,14 +73,7 @@ class Ui_OTFabOrder_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OTFabOrder_Window.setWindowIcon(icon)
-        OTFabOrder_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        OTFabOrder_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
@@ -167,7 +160,7 @@ class Ui_OTFabOrder_Window(object):
         self.statusbar.setObjectName("statusbar")
         OTFabOrder_Window.setStatusBar(self.statusbar)
         self.tableOT.setSortingEnabled(True)
-        self.tableOT.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableOT.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid;}")
         # OTFabOrder_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(OTFabOrder_Window)
@@ -289,7 +282,31 @@ class Ui_OTFabOrder_Window(object):
         """
         data_dim = []
         data_of = []
+        data_materials = []
         data_trad = []
+
+        query_flange_materials = "SELECT flange_material, code_material FROM validation_data.flow_flange_material"
+        query_plate_materials = "SELECT element_material, code_material FROM validation_data.flow_element_material"
+        query_tw_materials = "SELECT tw_material, code_material FROM validation_data.temp_tw_material"
+        query_sensor_materials = "SELECT sheath_stem_material, code_material FROM validation_data.temp_sheath_stem_material"
+
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query_flange_materials)
+                results_flange = cur.fetchall()
+                df_materials_flange = pd.DataFrame(results_flange, columns=["material", "code"])
+
+                cur.execute(query_plate_materials)
+                results_plate = cur.fetchall()
+                df_materials_plate = pd.DataFrame(results_plate, columns=["material", "code"])
+
+                cur.execute(query_tw_materials)
+                results_tw = cur.fetchall()
+                df_materials_tw = pd.DataFrame(results_tw, columns=["material", "code"])
+
+                cur.execute(query_sensor_materials)
+                results_sensor = cur.fetchall()
+                df_materials_sensor = pd.DataFrame(results_sensor, columns=["material", "code"])
 
         for element in self.id_list:
             for row in range(self.model.rowCount()):
@@ -328,8 +345,16 @@ class Ui_OTFabOrder_Window(object):
                     trad_tube = self.model.data(self.model.index(target_row, 212))
                     codefab_piece2 = self.model.data(self.model.index(target_row, 189))
                     trad_piece2 = self.model.data(self.model.index(target_row, 213))
+
+                    flange_material = self.model.data(self.model.index(target_row, 13))
+                    flange_material_code = df_materials_flange.loc[df_materials_flange["material"] == flange_material, "code"].iloc[0] if not df_materials_flange.loc[df_materials_flange["material"] == flange_material, "code"].empty else None
+
+                    plate_material = self.model.data(self.model.index(target_row, 19))
+                    plate_material_code = df_materials_plate.loc[df_materials_plate["material"] == plate_material, "code"].iloc[0] if not df_materials_plate.loc[df_materials_plate["material"] == plate_material, "code"].empty else None
+
                     list_dim = [dim_dwg]
                     list_of = [num_of_plate]
+                    list_materials = [flange_material_code, plate_material_code]
                     list_trad = [codefab_eq, trad_eq, codefab_orifice_flange, trad_orifice_flange, codefab_line_flange,
                                         trad_line_flange, codefab_gasket, trad_gasket, codefab_bolts, trad_bolts,
                                         codefab_plugs, trad_plugs, codefab_extractor, trad_extractor, codefab_plate,
@@ -366,8 +391,16 @@ class Ui_OTFabOrder_Window(object):
                     trad_tw = self.model.data(self.model.index(target_row, 193))
                     codefab_cable = self.model.data(self.model.index(target_row, 170))
                     trad_cable = self.model.data(self.model.index(target_row, 194))
+
+                    tw_material = self.model.data(self.model.index(target_row, 14))
+                    tw_material_code = df_materials_tw.loc[df_materials_tw["material"] == tw_material, "code"].iloc[0] if not df_materials_tw.loc[df_materials_tw["material"] == tw_material, "code"].empty else None
+
+                    sensor_material = self.model.data(self.model.index(target_row, 24))
+                    sensor_material_code = df_materials_sensor.loc[df_materials_sensor["material"] == sensor_material, "code"].iloc[0] if not df_materials_sensor.loc[df_materials_sensor["material"] == sensor_material, "code"].empty else None
+
                     list_dim = [dim_dwg]
                     list_of = [num_of, num_of_sensor]
+                    list_materials = [tw_material_code, sensor_material_code]
                     list_trad = [codefab_eq, trad_eq, codefab_bar, trad_bar, codefab_tube,
                                         trad_tube, codefab_flange, trad_flange, codefab_sensor, trad_sensor,
                                         codefab_head, trad_head, codefab_btb, trad_btb, codefab_nipple,
@@ -413,8 +446,10 @@ class Ui_OTFabOrder_Window(object):
                     trad_niptub = self.model.data(self.model.index(target_row, 140))
                     codefab_antifrost = self.model.data(self.model.index(target_row, 122))
                     trad_antifrost = self.model.data(self.model.index(target_row, 141))
+                    body_material = self.model.data(self.model.index(target_row, 10))
                     list_dim = [dim_dwg]
                     list_of = [num_of]
+                    list_materials = [body_material]
                     list_trad = [codefab_eq, trad_eq, codefab_body, trad_body, codefab_cover,
                                         trad_cover, codefab_stud, trad_stud, codefab_niphex, trad_niphex,
                                         codefab_valve, trad_valve, codefab_flange, trad_flange, codefab_dv,
@@ -429,6 +464,8 @@ class Ui_OTFabOrder_Window(object):
                 data_of.append(list_of)
                 list_trad.insert(0, ped_type_tag)
                 data_trad.append(list_trad)
+                list_materials.insert(0, ped_type_tag)
+                data_materials.append(list_materials)
 
     # Setting trad data in the table
         df_trad = pd.DataFrame(data_trad)
@@ -459,6 +496,21 @@ class Ui_OTFabOrder_Window(object):
             it = QtWidgets.QTableWidgetItem(str(drawing))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 8, it)
+
+    # Setting materials in the table
+        df_materials = pd.DataFrame(data_materials)
+        for row in range (self.tableOT.rowCount()):
+            if "Plano Dimensional" in self.tableOT.item(row, 0).text():
+                drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
+            else:
+                if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
+                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                else:
+                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
+
+            it = QtWidgets.QTableWidgetItem(str(drawing))
+            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.tableOT.setItem(row, 10, it)
 
     # Executing queries to create or update OT records in database
         for row in range (self.tableOT.rowCount()):
