@@ -1352,6 +1352,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.model.setTable("purch_fact.supplies")
+        self.model.setFilter("reference NOT LIKE '%NO VALIDO%'")
         self.tableSupplies.setModel(None)
         self.tableSupplies.setModel(self.proxy)
         self.model.setSort(3, QtCore.Qt.SortOrder.AscendingOrder)
