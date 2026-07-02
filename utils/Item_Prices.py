@@ -377,13 +377,15 @@ def set_prices_temp(proxy, model):
             material_code = validation_map_codes['material'].get(material_tw)
             head_code = validation_map_codes['head'].get(head_case_material)
             nipple_code = validation_map_codes['nipple'].get(nipple_ext_material)
+            length_code = valid_length[bisect.bisect_left(valid_length, int(ins_length))] if int(ins_length) <= valid_length[-1] else None
 
             if (item_type in ('TW+TE', 'TW+TE+TIT', 'TW') and
                 tw_type in ['Flanged TW', 'Buttweld TW', 'Socket TW', 'Threaded TW'] and
+                material_code in valid_materials and
                 head_code in valid_heads and
-                nipple_code in valid_nipple):
+                nipple_code in valid_nipple and
+                length_code is not None):
 
-                length_code = valid_length[bisect.bisect_left(valid_length, int(ins_length))] if int(ins_length) <= valid_length[-1] else None
                 base_diam_code = '35' if int(base_tw_diam) <= 35 else base_tw_diam
 
                 code_bar = material_code + '-' + str(base_diam_code) + '-' + str(length_code)
