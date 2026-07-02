@@ -2025,7 +2025,7 @@ class offer_level:
 
             set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
 
-            set_summary_styles_temp(ws, last_row, row_amount, num_column_amount)
+            set_summary_styles_level(ws, last_row, row_amount, num_column_amount)
 
         # Editing sheet NOTES
             if language:
@@ -2036,22 +2036,22 @@ class offer_level:
                 else:
                     set_notes_level_short(wb_commercial, delivery_time, pay_term, responsible, email)
 
-            for sheet in self.wb_commercial.sheetnames:
+            for sheet in wb_commercial.sheetnames:
                 if sheet not in sheets_confirmed:
-                    sheet_to_delete = self.wb_commercial[sheet]
-                    self.wb_commercial.remove(sheet_to_delete)
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
             if int(rev) > 0:
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
                 for sheet in sheets_confirmed:
-                    sheet_to_delete = self.wb_commercial[sheet]
-                    self.wb_commercial.remove(sheet_to_delete)
+                    sheet_to_delete = wb_commercial[sheet]
+                    wb_commercial.remove(sheet_to_delete)
 
         # Setting footer of offer document
             set_footer_offer(date_offer, num_ref, wb_commercial)
 
-            path = save_excel_commercial(self.wb_commercial)
-            self.wb_commercial = None 
+            path = save_excel_commercial(wb_commercial)
+            wb_commercial = None 
 
             #     # Creating the technical offer using the commercial one as template
             #     self.wb_technical = load_workbook(path)
@@ -2332,7 +2332,7 @@ class offer_flow_temp:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "flange_type", "plate_std", "tapping_orientation",
-                        "pipe_spec", "aprox_weight"
+                        "pipe_spec", "aprox_weight", "min_price", "medium_price", "pvp_price", "notes_prices"
                     ], axis=1,)
 
                 df_temp = pd.DataFrame(data=data_tags_temp, columns=columns_temp)
@@ -2345,7 +2345,8 @@ class offer_flow_temp:
                         "tag_state", "num_offer", "num_order",
                         "num_po", "position", "subposition",
                         "std_tw", "insulation", "bore_diam",
-                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec"
+                        "tip_thk", "radius_dim", "wire_size", "head_certification", "pipe_spec",
+                        "min_price", "medium_price", "pvp_price", "notes_prices"
                     ],
                     axis=1,)
 
