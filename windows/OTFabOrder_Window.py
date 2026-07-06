@@ -17,8 +17,7 @@ from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -71,7 +70,7 @@ class Ui_OTFabOrder_Window(object):
         OTFabOrder_Window.resize(400, 561)
         OTFabOrder_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OTFabOrder_Window.setWindowIcon(icon)
         OTFabOrder_Window.setStyleSheet(
 "QPushButton {\n"
