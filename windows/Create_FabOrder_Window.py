@@ -70,14 +70,7 @@ class Ui_CreateFabOrder_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ElementsFabOrder_Window.setWindowIcon(icon)
-        ElementsFabOrder_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
+        ElementsFabOrder_Window.setStyleSheet(
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
