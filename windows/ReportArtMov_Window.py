@@ -851,11 +851,8 @@ class Ui_ArtMov_Window(object):
                 self.tableWidget.verticalHeader().hide()
                 self.tableWidget.setSortingEnabled(False)
                 self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-                if self.username == 'd.marquez':
-                    self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                    self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-                else:
-                    self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+                self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid; font-weight: bold; font-size: 10pt;}")
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
