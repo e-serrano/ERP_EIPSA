@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -19,8 +19,6 @@ from datetime import datetime
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -269,7 +267,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -509,7 +507,7 @@ class Ui_ArtMov_Window(object):
         ReportArtMov.resize(1165, 945)
         ReportArtMov.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ReportArtMov.setWindowIcon(icon)
         if self.username == 'd.marquez':
             ReportArtMov.setStyleSheet("QWidget {\n"
