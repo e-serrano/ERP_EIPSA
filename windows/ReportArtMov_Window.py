@@ -669,6 +669,11 @@ class Ui_ArtMov_Window(object):
         self.Button_Export.setMaximumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
         self.Button_Export.setObjectName("Button_Export")
         self.gridLayout1.addWidget(self.Button_Export, 0, 4, 1, 1)
+        self.Button_HistoricalSupply = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_HistoricalSupply.setMinimumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
+        self.Button_HistoricalSupply.setMaximumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
+        self.Button_HistoricalSupply.setObjectName("Button_HistoricalSupply")
+        self.gridLayout1.addWidget(self.Button_HistoricalSupply, 0, 5, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout1, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
@@ -743,6 +748,7 @@ class Ui_ArtMov_Window(object):
         self.ItemName_1.currentTextChanged.connect(self.loaddata)
         self.ItemName_2.currentTextChanged.connect(self.loaddata)
         self.Button_Export.clicked.connect(self.generate_excel)
+        self.Button_HistoricalSupply.clicked.connect(self.historical_supply)
 
         if self.ref_supply is not None:
             self.ItemName_1.setCurrentText(self.ref_supply)
@@ -768,6 +774,7 @@ class Ui_ArtMov_Window(object):
         self.label_item_2.setText(_translate("ReportArtMov", "Artículo 2"))
         self.label_Total.setText(_translate("ReportArtMov", "Total Cantidad"))
         self.Button_Export.setText(_translate("ReportArtMov", "Exportar"))
+        self.Button_HistoricalSupply.setText(_translate("Purchasing_Reports_Menu", "Hist. Artículo"))
 
 # Function to load data in table
     def loaddata(self):
@@ -795,7 +802,7 @@ class Ui_ArtMov_Window(object):
                 RIGHT JOIN purch_fact.client_ord_detail AS co_det ON supplies."id" = co_det."supply_id"
                 ORDER BY co_det."client_ord_header_id"
                 """
-        
+
         commands_supplies = None
 
         if not supply_name_2 and len(supply_name_1.split('|')) == 3:
@@ -918,7 +925,141 @@ class Ui_ArtMov_Window(object):
         popup_pos = self.tableWidget.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableWidget.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to export historical orders and quotations data of a supply
+    def historical_supply(self):
+        supply_name_1 = self.ItemName_1.currentText()
+        supply_reference_1 = supply_name_1.split('|')[0].strip()
+        supply_id_1 = supply_name_1.split('|')[-1].strip()
 
+        supply_name_2 = self.ItemName_2.currentText()
+        supply_reference_2 = supply_name_2.split('|')[0].strip()
+
+        query_supply = None
+        if not supply_name_2 and len(supply_name_1.split('|')) == 3:
+            query_supply = f"""
+                        SELECT id, reference, unit_value
+                        FROM purch_fact.supplies
+                        WHERE reference LIKE id='{int(supply_id_1)}'
+                        """
+        elif len(supply_name_1.split('|')) == 3 and len(supply_name_2.split('|')) == 3:
+            query_supply = f"""
+                        SELECT id, reference, unit_value
+                        FROM purch_fact.supplies
+                        WHERE reference BETWEEN LEAST('{supply_reference_1}', '{supply_reference_2}') AND GREATEST('{supply_reference_1}', '{supply_reference_2}')
+                        """
+            
+        if not query_supply:
+            return
+
+        query_orders = """
+                        SELECT
+                            orders.id AS order_id,
+                            details.supply_id,
+                            orders.order_date,
+                            orders.supplier_order_num,
+                            suppliers.name,
+                            SUM(details.unit_value) AS unit_value
+                        FROM purch_fact.supplier_ord_detail details
+                        JOIN purch_fact.supplier_ord_header orders
+                            ON orders.id = details.supplier_ord_header_id
+                        JOIN purch_fact.suppliers suppliers
+                            ON orders.supplier_id = suppliers.id
+                        WHERE EXTRACT(YEAR FROM orders.order_date) > 2022
+                        GROUP BY
+                            orders.id,
+                            details.supply_id,
+                            orders.order_date,
+                            orders.supplier_order_num,
+                            suppliers.name
+                    """
+
+        query_quotations = """
+                        SELECT
+                            quotation.id AS quotation_id,
+                            details.supply_id,
+                            quotation.quot_date,
+                            SUM(details.value) AS value
+                        FROM purch_fact.quotation_details details
+                        JOIN purch_fact.quotation_header quotation
+                            ON quotation.id = details.quot_header_id
+                        WHERE EXTRACT(YEAR FROM quotation.quot_date) > 2022
+                        GROUP BY
+                            quotation.id,
+                            details.supply_id,
+                            quotation.quot_date
+                    """
+
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query_supply)
+                results_supplies = cur.fetchall()
+
+                cur.execute(query_orders)
+                results_orders = cur.fetchall()
+
+                cur.execute(query_quotations)
+                results_quotations = cur.fetchall()
+
+        df_supplies = pd.DataFrame(results_supplies, columns=["ID", "Suministro", "Valor"])
+        ids = df_supplies["ID"]
+
+        df_orders = pd.DataFrame(results_orders, columns=["Order_ID", "ID", "Fecha pedido", "Nº Pedido", "Suministrador", "Valor Pedido"])
+        df_orders = df_orders[df_orders["ID"].isin(ids)].copy()
+
+        df_quotations = pd.DataFrame(results_quotations, columns=["Quotation_ID", "ID", "Fecha cotizacion", "Valor cotizacion"])
+        df_quotations = df_quotations[df_quotations["ID"].isin(ids)].copy()
+
+        df_orders = df_orders.sort_values(["ID", "Fecha pedido", "Order_ID"], ascending=[True, False, False])
+        df_orders["Fecha pedido"] = pd.to_datetime(df_orders["Fecha pedido"]).dt.strftime("%d/%m/%Y")
+        df_orders["pos"] = df_orders.groupby("ID").cumcount()
+
+        df_quotations = df_quotations.sort_values(["ID", "Fecha cotizacion", "Quotation_ID"], ascending=[True, False, False])
+        df_quotations["Fecha cotizacion"] = (pd.to_datetime(df_quotations["Fecha cotizacion"]).dt.strftime("%d/%m/%Y"))
+        df_quotations["pos"] = df_quotations.groupby("ID").cumcount()
+
+        orders = df_orders.set_index(["ID", "pos"])[
+            ["Fecha pedido", "Nº Pedido", "Suministrador", "Valor Pedido"]
+        ].unstack("pos")
+
+        orders.columns = orders.columns.swaplevel()
+        orders = orders.sort_index(axis=1)
+
+        orders.columns = [
+            f"{campo}_{pos+1}"
+            for pos, campo in orders.columns
+        ]
+
+        quotations = df_quotations.set_index(["ID", "pos"])[
+            ["Fecha cotizacion", "Valor cotizacion"]
+        ].unstack("pos")
+
+        quotations.columns = quotations.columns.swaplevel()
+        quotations = quotations.sort_index(axis=1)
+
+        quotations.columns = [
+            f"{campo}_{pos+1}"
+            for pos, campo in quotations.columns
+        ]
+
+        final_df = (
+            df_supplies
+            .merge(orders, on="ID", how="left")
+            .merge(quotations, on="ID", how="left")
+        )
+        
+        output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+        if output_path:
+            if not output_path.lower().endswith(".xlsx"):
+                output_path += ".xlsx"
+            wb = Workbook()
+            ws = wb.active
+
+            # Add data to Excel
+            for r_idx, row in enumerate(dataframe_to_rows(final_df, index=False, header=True), 1):
+                ws.append(row)
+
+            # Save Excel
+            wb.save(output_path)
 
 
 
