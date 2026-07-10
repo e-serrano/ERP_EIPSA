@@ -1384,7 +1384,7 @@ class offer_flow:
                     wb_commercial.remove(sheet_to_delete)
 
             if int(rev) > 0:
-                sheets_confirmed = ["COVER", "1.2", "1.3", data_sheet, "NOTES"]
+                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
                 for sheet in sheets_confirmed:
                     sheet_to_delete = wb_commercial[sheet]
                     wb_commercial.remove(sheet_to_delete)
@@ -1712,7 +1712,7 @@ class offer_temp:
                     wb_commercial.remove(sheet_to_delete)
 
             if int(rev) > 0:
-                sheets_confirmed = ["COVER", "1.2", "1.3", data_sheet, "NOTES"]
+                sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
                 for sheet in sheets_confirmed:
                     sheet_to_delete = wb_commercial[sheet]
                     wb_commercial.remove(sheet_to_delete)
