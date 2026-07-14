@@ -400,7 +400,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column_index in [9, 13, 15, 16]:
+        if column_index in [10, 14, 16, 17]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
@@ -414,7 +414,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column (int): The index of the column to sort.
             order (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column in [13, 15, 16]:
+        if column in [14, 16, 17]:
             row_count = self.rowCount()
 
             indexes = list(range(row_count))
@@ -440,7 +440,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             for row in hidden_rows:
                 self.setRowHidden(row, True)
 
-        elif column in [9]:
+        elif column in [10]:
             row_count = self.rowCount()
 
             indexes = list(range(row_count))
