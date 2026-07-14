@@ -113,8 +113,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
