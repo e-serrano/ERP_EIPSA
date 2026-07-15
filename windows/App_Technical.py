@@ -786,6 +786,21 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_FactoryTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_FactoryTimes.setObjectName("Button_FactoryTimes")
             self.verticalLayout_3.addWidget(self.Button_FactoryTimes)
+        elif self.username in ['j.martinez']:
+            self.Button_QueryOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_QueryOffer.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_QueryOffer.setMaximumSize(QtCore.QSize(200, 50))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_QueryOffer.setFont(font)
+            self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            icon5 = QtGui.QIcon()
+            icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_QueryOffer.setIcon(icon5)
+            self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
+            self.Button_QueryOffer.setObjectName("Button_QueryOffer")
+            self.verticalLayout_3.addWidget(self.Button_QueryOffer)
         else:
             self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_QueryTag.setMinimumSize(QtCore.QSize(200, 50))
@@ -955,6 +970,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if self.username in ['julian.martinez']:
             self.Button_FactoryTimes.clicked.connect(self.timesfactory)
             self.Button_Commercial.clicked.connect(self.commercial_menu)
+            self.Button_QueryOffer.clicked.connect(self.query_offer)
+        elif self.username in ['j.martinez']:
             self.Button_QueryOffer.clicked.connect(self.query_offer)
         else:
             self.Button_QueryTag.clicked.connect(self.query_tag)
