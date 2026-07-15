@@ -1033,17 +1033,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.PrincipalScreen.addItem(spacerItem4)
         self.MainLayout = QtWidgets.QVBoxLayout()
         self.MainLayout.setObjectName("MainLayout")
-        self.tableOffer = CustomTableWidget()
-        self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
-        self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setRowCount(0)
-        self.MainLayout.addWidget(self.tableOffer)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem5 = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         self.MainLayout.addItem(spacerItem5)
-        self.BottomLayout = QtWidgets.QHBoxLayout()
-        self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
-        self.BottomLayout.setObjectName("BottomLayout")
-        self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
@@ -1641,6 +1632,23 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+
+            if self.username == 'd.marquez':
+                self.imageLabel = QtWidgets.QLabel()
+                self.imageLabel.setMinimumSize(QtCore.QSize(500, 800))
+                self.imageLabel.setObjectName("imageLabel")
+                self.imageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+                pixmap = QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warning.png")))
+                self.imageLabel.setPixmap(
+                    pixmap.scaled(
+                        self.imageLabel.size(),
+                        QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                        QtCore.Qt.TransformationMode.SmoothTransformation
+                    )
+                )
+                self.MainLayout.addWidget(self.imageLabel)
+
         else:
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
