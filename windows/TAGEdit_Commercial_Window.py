@@ -29,7 +29,7 @@ from utils.Helpers import FLOW_HEADERS, TEMP_HEADERS, LEVEL_HEADERS, OTHERS_HEAD
 
 VARIABLE_TABLES = {
     "Caudal": ("tags_data.tags_flow", 44, 153, list(range(101, 107)) + [160, 161], FLOW_HEADERS), # table_check, initial_column, column_difference, excluded_range, headers
-    "Temperatura": ("tags_data.tags_temp", 47, 133, list(range(74, 82)) + [140, 141, 142], TEMP_HEADERS),
+    "Temperatura": ("tags_data.tags_temp", 51, 133, list(range(74, 82)) + [140, 141, 142], TEMP_HEADERS),
     "Nivel": ("tags_data.tags_level", 44, 177, range(0,1), LEVEL_HEADERS),
     "Otros": ("tags_data.tags_others", 15, 60, range(0,1), OTHERS_HEADERS),
 }
@@ -2391,6 +2391,33 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 if not output_path.lower().endswith(".xlsx"):
                     output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
+
+            if self.variable2:
+                final_data = []
+
+                visible_columns = [col for col in range(self.model2.columnCount()) if not self.tableEditTags2.isColumnHidden(col)]
+                visible_headers = self.model2.getColumnHeaders(visible_columns)
+                original_headers = [self.model2.record().fieldName(col) for col in visible_columns]
+                for row in range(self.proxy2.rowCount()):
+                    tag_data = []
+                    for column in visible_columns:
+                        value = self.proxy2.data(self.proxy2.index(row, column))
+                        if isinstance(value, QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        tag_data.append(value)
+                    final_data.append(tag_data)
+
+                final_data.insert(0, visible_headers)
+                final_data.insert(1, original_headers)
+                df = pd.DataFrame(final_data)
+                df.columns = df.iloc[0]
+                df = df[1:]
+
+                output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+                if output_path:
+                    if not output_path.lower().endswith(".xlsx"):
+                        output_path += ".xlsx"
+                    df.to_excel(output_path, index=False, header=True)
 
 # Function to import data from excel
     def importexcel(self):
