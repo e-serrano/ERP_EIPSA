@@ -30,6 +30,7 @@ from utils.Generate_Dim_Dwg import generate_dim_drawings
 from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
 from utils.Helpers import FLOW_HEADERS, TEMP_HEADERS, LEVEL_HEADERS, OTHERS_HEADERS
+from windows.Email_Styles import email_calculations
 
 class CheckboxWidget(QtWidgets.QWidget):
     """
@@ -858,6 +859,19 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "M_Drawing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.generate_dwg.setIcon(icon)
         self.generate_dwg.setIconSize(QtCore.QSize(25, 25))
+
+        if self.username in ['e.carrillo']:
+            self.hcabspacer7=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.hcab.addItem(self.hcabspacer7)
+            self.send_mail = QtWidgets.QToolButton(self.frame)
+            self.send_mail.setObjectName("send_mail_Button")
+            self.send_mail.setToolTip("Enviar correo")
+            self.hcab.addWidget(self.send_mail)
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Send_Mail.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.send_mail.setIcon(icon)
+            self.send_mail.setIconSize(QtCore.QSize(25, 25))
+            self.send_mail.clicked.connect(self.send_email_notification)
 
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
@@ -3048,6 +3062,65 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         else:
                             break
 
+# Function to send mail when calculations are completed
+    def send_email_notification(self):
+        """
+        Sends an email notification to inform that calculation has been completed.
+        Constructs the email content and sends it to the specified recipient.
+        """ 
+        self.numorder = self.Numorder_EditTags.text()
+
+        if self.numorder=="":
+            MessageHelper.show_message("Rellena el campo de número de pedido", "warning")
+
+        else:
+            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder) and self.username != 'j.martinez':
+                MessageHelper.show_message("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY", "warning")
+
+            else:
+                query_commercial = """SELECT offers."responsible", orders."num_offer"
+                                    FROM orders
+                                    INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                                    WHERE UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')"""
+
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_commercial,(self.numorder,))
+                        results_commercial=cur.fetchone()
+                        self.responsible = results_commercial[0]
+
+                to_users = [self.responsible, 'j.martinez', 's.sanchez', 'j.paredes']
+
+                query_emails = """SELECT email FROM users_data.registration WHERE username = ANY(%s)"""
+
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_emails, ([self.username],))
+                        results_emails = cur.fetchall()
+                        from_mail = results_emails[0][0]
+
+                        cur.execute(query_emails, (to_users,))
+                        results_emails = cur.fetchall()
+                        to_mails = [email[0] for email in results_emails]
+
+                dlg = QtWidgets.QInputDialog()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle('Calculos Completados')
+                dlg.setLabelText('Ruta:')
+
+                file_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con cálculos")
+
+                if file_path:
+                    try:
+                        email_notification = email_calculations(self.numorder, from_mail, to_mails, file_path)
+                        email_notification.send_email()
+                        MessageHelper.show_message(f"Correo enviado correctamente", "info")
+                    except Exception as e:
+                        MessageHelper.show_message(f"Error al enviar el correo: {str(e)}", "critical")
+
+
 
 if __name__ == "__main__":
     import sys
@@ -3065,6 +3138,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('s.sanchez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('e.carrillo',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
