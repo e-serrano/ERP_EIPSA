@@ -3115,7 +3115,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 if file_path:
                     try:
                         email_notification = email_calculations(self.numorder, from_mail, to_mails, file_path)
-                        email_notification.send_email()
+                        email_notification.preview_email()
                         MessageHelper.show_message(f"Correo enviado correctamente", "info")
                     except Exception as e:
                         MessageHelper.show_message(f"Error al enviar el correo: {str(e)}", "critical")
