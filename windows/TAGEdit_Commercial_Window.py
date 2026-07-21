@@ -2477,7 +2477,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 values = ', '.join([f"'{int(float(value))}'" if column in ['items_quantity', 'tapping_orientation', 'plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                                     else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                                     else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
-                                                    else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
+                                                    else ('NULL' if value == '' and column in ['num_order','rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
                                                     else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
                             # Creating the SET  and WHERE clause with proper formatting
@@ -2488,7 +2488,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 cur.execute(sql_update)
                         conn.commit()
 
-                    MessageHelper.show_message("Datos actualizados con éxito", "info")
+                    MessageHelper.show_message("Datos actualizados con éxito\nRecarga el pedido", "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
