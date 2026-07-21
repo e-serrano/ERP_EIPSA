@@ -830,24 +830,42 @@ class Ui_CreateTAGFlow_Window(object):
                                     %s,%s,%s,%s,%s)
                             """)
 
-            try:
-                with Database_Connection(config_database()) as conn:
-                    with conn.cursor() as cur:
-                        data = (tag,tag_state,numoffer,numorder,num_po,
-                                pos,subpos,typeF,linesize,rating,
-                                facing,schedule,flagemat,flangetype,tubemat,
-                                tapping,tapping_num,tapping_orient,
-                                elementmat,platetype,platethk,platestd,
-                                gasketmat,boltsmat,nutsmat,nace,numstages,pipespec,
-                                weight,length,notes,amount,1,)
-                        cur.execute(commands_inserttagflow,data)
-                    conn.commit()
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Insertar TAG')
+            dlg.setLabelText('Inserte cantidad:')
 
-                MessageHelper.show_message("Tag creado con éxito", "info")
+            while True:
+                clickedButton4 = dlg.exec()
+                if clickedButton4 == 1:
+                    quantity = dlg.textValue()
+                    if quantity != '':
+                        try:
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    data = (tag,tag_state,numoffer,numorder,num_po,
+                                            pos,subpos,typeF,linesize,rating,
+                                            facing,schedule,flagemat,flangetype,tubemat,
+                                            tapping,tapping_num,tapping_orient,
+                                            elementmat,platetype,platethk,platestd,
+                                            gasketmat,boltsmat,nutsmat,nace,numstages,pipespec,
+                                            weight,length,notes,amount,1,)
+                                    cur.execute(commands_inserttagflow,data)
+                                conn.commit()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                            + str(error), "critical")
+                            MessageHelper.show_message("Tag creado con éxito", "info")
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
+
+                        break
+
+                    MessageHelper.show_message("La cantidad no puede estar vacía", "warning")
+                else:
+                    break
 
 
     def queryoffernumber(self):
