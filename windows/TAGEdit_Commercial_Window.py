@@ -1422,9 +1422,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to configure table models based on the detected variable
     def configure_models(self, variable):
+        self.general_variable = variable
         try:
             self.variable2 = None
-            if variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
+            if self.general_variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
                 v1, v2 = variable.split("+")
                 self.variable, self.variable2 = v1, v2
 
@@ -1458,8 +1459,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.model2.setAllColumnHeaders(headers2)
 
             else:
-                self.variable = variable
-                table, c, d, e, headers = VARIABLE_TABLES[variable]
+                self.variable = self.general_variable
+                table, c, d, e, headers = VARIABLE_TABLES[self.variable]
 
                 self.model.table_check = table
                 self.initial_column, self.column_difference, self.excluded_range = c, d, e
@@ -2796,23 +2797,23 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                             if clickedButton == 1:
                                 numorder_pedmat = dlg.textValue()
-                                if self.variable == 'Caudal':
+                                if self.general_variable == 'Caudal':
                                     flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable == 'Temperatura':
+                                elif self.general_variable == 'Temperatura':
                                     temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable == 'Nivel':
+                                elif self.general_variable == 'Nivel':
                                     level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable == 'Otros':
+                                elif self.general_variable == 'Otros':
                                     others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable == 'Caudal+Temperatura':
+                                elif self.general_variable == 'Caudal+Temperatura':
                                     flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                    temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable == 'Caudal+Nivel':
+                                    temp_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                                elif self.general_variable == 'Caudal+Nivel':
                                     flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                    level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                elif self.variable =='Temperatura+Nivel':
+                                    level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                                elif self.general_variable =='Temperatura+Nivel':
                                     temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                                    level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                                    level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
                         break
                 break
             else:

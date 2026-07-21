@@ -1362,6 +1362,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.variable = self.detect_variable(field, self.numorder)
 
                 if self.variable == 'Caudal+Temp':
+                    self.general_variable = 'Caudal+Temperatura'
                     self.variable = 'Caudal'
                     self.variable2 = 'Temperatura'
                     self.model.setTable("tags_data.tags_flow")
@@ -2810,23 +2811,23 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 if clickedButton == 1:
                     numorder_pedmat = dlg.textValue()
-                    if self.variable == 'Caudal':
+                    if self.general_variable == 'Caudal':
                         flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable == 'Temperatura':
+                    elif self.general_variable == 'Temperatura':
                         temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable == 'Nivel':
+                    elif self.general_variable == 'Nivel':
                         level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable == 'Otros':
+                    elif self.general_variable == 'Otros':
                         others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable == 'Caudal+Temp':
+                    elif self.general_variable == 'Caudal+Temperatura':
                         flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable == 'Caudal+Nivel':
+                        temp_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                    elif self.general_variable == 'Caudal+Nivel':
                         flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.variable =='Temp+Nivel':
+                        level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                    elif self.general_variable =='Temperatura+Nivel':
                         temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                        level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
 
 # Function to insert components OF drawings
     def insert_of(self, numorder):
