@@ -7,11 +7,10 @@
 
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 import psycopg2
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGNiv_Window(object):
@@ -31,7 +30,7 @@ class Ui_CreateTAGNiv_Window(object):
         CreateTAGNiv_Window.setMaximumSize(QtCore.QSize(1400, 650))
         CreateTAGNiv_Window.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CreateTAGNiv_Window.setWindowIcon(icon)
         CreateTAGNiv_Window.setStyleSheet(
 "QPushButton {\n"
