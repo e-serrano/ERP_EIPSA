@@ -11,6 +11,7 @@ from PySide6.QtCore import QUrl
 from config.config_functions import config_database, get_path
 import psycopg2
 import locale
+from utils.Business_Report import report_offers
 from windows.PDF_Styles import supplier_order
 import datetime
 import os
@@ -3007,6 +3008,16 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         else:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Incluir sello certificados materiales?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result_stamp = dlg_yes_no.exec()
+
             num_order=self.NumOrder_SupplierOrder.text()
             date=self.Date_SupplierOrder.text()
             their_ref=self.TheirRef_SupplierOrder.text()
@@ -3132,10 +3143,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 x_position = pdf.get_x()
                 pdf.multi_cell(19.35, 0.3, coments) if coments is not None else pdf.cell(19.35, 0.3, coments)
 
-            # Restore original Y position after add content
-            pdf.set_y(y_position)
-            pdf.set_x(x_position + 19.35)
             pdf.ln(1)
+
+            if result_stamp == QtWidgets.QMessageBox.StandardButton.Yes:
+                x, y = pdf.get_x(), pdf.get_y()
+                pdf.image(str(get_path("Resources", "Iconos", "Supplier_Order_Stamp_3.png")), 5, y, 9.5, 2)
 
             pdf_buffer = pdf.output()
 
@@ -3229,10 +3241,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 x_position = pdf_verification.get_x()
                 pdf_verification.multi_cell(19.35, 0.3, coments) if coments is not None else pdf_verification.cell(19.35, 0.3, coments)
 
-            # Restore original Y position after add content
-            pdf_verification.set_y(y_position)
-            pdf_verification.set_x(x_position + 19.35)
             pdf_verification.ln(1)
+
+            if result_stamp == QtWidgets.QMessageBox.StandardButton.Yes:
+                x, y = pdf_verification.get_x(), pdf_verification.get_y()
+                pdf_verification.image(str(get_path("Resources", "Iconos", "Supplier_Order_Stamp_3.png")), 5, y, 9.5, 2)
 
             output_path = "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + "-" + supplier_name + ".pdf"
 
