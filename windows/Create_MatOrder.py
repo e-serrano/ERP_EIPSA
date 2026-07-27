@@ -825,7 +825,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
             all_list_parts.append(plug_list)
 
         code_tw = data(index(row, 157))
-        if code_tw and ('Van-Stone TW' in tw_type or 'Forged' in tw_type):
+        if code_tw and ('Van-Stone TW' in tw_type or 'Forged' in tw_type or 'VORTICRACK' in tw_type):
             tw_list.append([
                 code_tw,
                 data(index(row, 169)),
