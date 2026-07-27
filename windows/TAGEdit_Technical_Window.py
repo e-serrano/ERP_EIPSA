@@ -698,6 +698,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         super().__init__()
         self.username = username
         self.variable = ''
+        self.tabletags = None
 
         self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
@@ -1713,6 +1714,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model))
+            self.tableEditTags.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableEditTags, self.model, self.proxy)
 
             if self.variable2 is not None:
                 self.tableEditTags2.show()
@@ -1894,6 +1896,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model2))
 
                 self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
+                self.tableEditTags2.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableEditTags2, self.model2, self.proxy2)
             else:
                 self.tableEditTags2.hide()
 
@@ -2686,7 +2689,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             + str(error), "critical")
 
 # Function to enable copy and paste cells
-    def keyPressEvent(self, event):
+    def custom_keyPressEvent(self, event, table, model, proxy):
         """
         Handles custom key events for cell operations in the table.
 
@@ -2694,11 +2697,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             event (QtGui.QKeyEvent): The key event to handle.
         """
         if event.key() == QtCore.Qt.Key.Key_Delete:
-            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+            selected_indexes = table.selectionModel().selectedIndexes()
             if not selected_indexes:
                 return
             
-            model = self.tableEditTags.model()
+            model = table.model()
             model_indexes = [model.mapToSource(index) for index in selected_indexes]
 
             if isinstance(model, QtCore.QSortFilterProxyModel):
@@ -2711,7 +2714,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     model.setData(index, None)
 
         elif event.matches(QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+            selected_indexes = table.selectionModel().selectedIndexes()
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
@@ -2720,26 +2723,26 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 clipboard.setText(str(text))
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            self.model.dataChanged.disconnect(self.saveChanges)
-            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+            model.dataChanged.disconnect(self.saveChanges)
+            selected_indexes = table.selectionModel().selectedIndexes()
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = clipboard.text()
                 for index in selected_indexes:
                     current_row = index.row()
                     current_column = index.column()
-                    first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
+                    first_column_value = proxy.data(proxy.index(current_row, 0))
                     target_row = None
-                    for row in range(self.model.rowCount()):
-                        if self.model.data(self.model.index(row, 0)) == first_column_value:
+                    for row in range(model.rowCount()):
+                        if model.data(model.index(row, 0)) == first_column_value:
                             target_row = row
                             break
                     if target_row is not None:
-                        target_index = self.model.index(target_row, current_column)
-                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
-                self.model.submitAll()
+                        target_index = model.index(target_row, current_column)
+                        model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
+                model.submitAll()
 
-            self.model.dataChanged.connect(self.saveChanges)
+            model.dataChanged.connect(self.saveChanges)
 
         super().keyPressEvent(event)
 
