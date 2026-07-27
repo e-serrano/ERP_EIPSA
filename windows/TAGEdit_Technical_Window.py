@@ -564,7 +564,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.Signal(str)
 
-    def __init__(self, parent=None, column_range=None, table_check=None):
+    def __init__(self, username, parent=None, column_range=None, table_check=None, invoice_column = None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -573,10 +573,13 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             parent (QObject, optional): Parent object for the model. Defaults to None.
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
             table_check (str, optional): A text scpecifying the table selected. Defaults to None
+            invoice_column (int, optional): The index of the invoice column. Defaults to None.
         """
         super().__init__(parent)
         self.column_range = column_range
         self.table_check = table_check
+        self.username = username
+        self.invoice_column = invoice_column
 
     def setAllColumnHeaders(self, headers):
         """
@@ -636,39 +639,26 @@ class EditableTableModel2(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
 
-        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-
-        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            if index.column() == 0 or index.column() in self.column_range:
+        if self.username in ['j.martinez', 'j.valtierra']:
+            if index.column() in range (0,8) or index.column() in self.column_range:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
-    def getColumnHeaders(self, visible_columns):
-        """
-        Retrieve the headers for the specified visible columns.
+        else:
+            if index.column() in range (0,8) or index.column() in self.column_range or self.has_F(index):
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
-        Args:
-            visible_columns (list): List of column indices that are visible.
+    def has_F(self, index):
+        if self.invoice_column is None:
+            return False
 
-        Returns:
-            list: A list of column headers for the visible columns.
-        """
-        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
-        return column_headers
+        value = index.sibling(index.row(), self.invoice_column).data()
+        return value is not None and 'F' in str(value)
 
 class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
     """
@@ -702,7 +692,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
         self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
-        self.model2 = EditableTableModel2()
+        self.model2 = EditableTableModel2(self.username)
         self.proxy2 = CustomProxyModel2()
         self.db = db
         self.num_order_query = num_order
@@ -1734,8 +1724,18 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 for column in range(columns_number):
                     self.tableEditTags2.setItemDelegateForColumn(column, None)
 
-                if self.username in ['julian.martinez']:
-                    self.model.column_range = range(0,columns_number)
+                if self.variable2 == 'Caudal':
+                    self.model2.column_range = list(range(self.initial_column_, self.initial_column_ + 4)) + \
+                                                list(range(self.initial_column2_, self.initial_column2_ + 33)) + \
+                                                list(range(162, columns_number))
+                elif self.variable2 == 'Temperatura':
+                    self.model2.column_range = list(range(self.initial_column_, self.initial_column_ + 4)) + \
+                                                list(range(self.initial_column2_, self.initial_column2_ + 36)) + \
+                                                list(range(143, columns_number))
+                elif self.variable2 == 'Nivel':
+                    self.model2.column_range = list(range(self.initial_column_, self.initial_column_ + 4)) + \
+                                                list(range(self.initial_column2_, self.initial_column2_ + 36)) + \
+                                                list(range(143, columns_number))
                 else:
                     self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 4)) + list(range(self.initial_column2_,columns_number))
 
