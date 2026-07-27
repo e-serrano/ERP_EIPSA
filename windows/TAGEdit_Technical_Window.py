@@ -1865,7 +1865,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
                         self.tableEditTags2.setItemDelegateForColumn(i+15, self.combo_itemtype)
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[24]]))
-                    self.tableEditTags2.setItemDelegateForColumn(52, self.combo_itemtype)
+                    self.tableEditTags2.setItemDelegateForColumn(56, self.combo_itemtype)
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
                     self.tableEditTags2.setItemDelegateForColumn(121, self.combo_itemtype)
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_fab_state)
