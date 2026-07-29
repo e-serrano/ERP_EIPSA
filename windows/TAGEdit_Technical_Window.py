@@ -663,6 +663,19 @@ class EditableTableModel2(QtSql.QSqlTableModel):
         value = index.sibling(index.row(), self.invoice_column).data()
         return value is not None and 'F' in str(value)
 
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
 class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
     """
     A window for editing tags in the application for technical.
