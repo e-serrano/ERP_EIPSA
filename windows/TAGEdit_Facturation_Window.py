@@ -1770,9 +1770,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     if self.variable2 == 'Temperatura':
                         for i in range(3,4):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(9,47):
+                        for i in range(9,46):
                             self.tableEditTags2.hideColumn(i)
-                        for i in range(48,126):
+                        for i in range(47,126):
                             self.tableEditTags2.hideColumn(i)
                         for i in range(140,columns_number):
                             self.tableEditTags2.hideColumn(i)
