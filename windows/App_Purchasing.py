@@ -1035,6 +1035,11 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.MainLayout.setObjectName("MainLayout")
         spacerItem5 = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         self.MainLayout.addItem(spacerItem5)
+        self.imageLabel = QtWidgets.QLabel()
+        self.imageLabel.setMinimumSize(QtCore.QSize(500, 800))
+        self.imageLabel.setObjectName("imageLabel")
+        self.imageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.MainLayout.addWidget(self.imageLabel)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
@@ -1632,13 +1637,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-
             if self.username == 'd.marquez':
-                self.imageLabel = QtWidgets.QLabel()
-                self.imageLabel.setMinimumSize(QtCore.QSize(500, 800))
-                self.imageLabel.setObjectName("imageLabel")
-                self.imageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-
                 pixmap = QtGui.QPixmap(str(get_path("Resources", "Iconos", "Warning.png")))
                 self.imageLabel.setPixmap(
                     pixmap.scaled(
@@ -1647,9 +1646,9 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         QtCore.Qt.TransformationMode.SmoothTransformation
                     )
                 )
-                self.MainLayout.addWidget(self.imageLabel)
 
         else:
+            self.imageLabel.clear()
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
