@@ -3074,7 +3074,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 currency_total=float(currency_total)
                 currency_total=locale.format_string("%.2f", currency_total, grouping=True) + " " + currency_symbol
 
-                y_position = pdf.get_y()
+                if (y_position := pdf.get_y()) > 27:
+                    pdf.add_page()
                 pdf.set_font('DejaVuSansCondensed', '', 9)
                 pdf.cell(1, 0.53, position_text, align='C')
                 pdf.cell(0.2, 0.53, "")
