@@ -2361,6 +2361,33 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
+            if self.variable2:
+                final_data = []
+
+                visible_columns = [col for col in range(self.model2.columnCount()) if not self.tableEditTags2.isColumnHidden(col)]
+                visible_headers = self.model2.getColumnHeaders(visible_columns)
+                original_headers = [self.model2.record().fieldName(col) for col in visible_columns]
+                for row in range(self.proxy2.rowCount()):
+                    tag_data = []
+                    for column in visible_columns:
+                        value = self.proxy2.data(self.proxy2.index(row, column))
+                        if isinstance(value, QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        tag_data.append(value)
+                    final_data.append(tag_data)
+
+                final_data.insert(0, visible_headers)
+                final_data.insert(1, original_headers)
+                df = pd.DataFrame(final_data)
+                df.columns = df.iloc[0]
+                df = df[1:]
+
+                output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
+                if output_path:
+                    if not output_path.lower().endswith(".xlsx"):
+                        output_path += ".xlsx"
+                    df.to_excel(output_path, index=False, header=True)
+
 # Function to import data from excel
     def importexcel(self):
         input_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
