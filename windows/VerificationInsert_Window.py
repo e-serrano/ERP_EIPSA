@@ -1771,7 +1771,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         Inserts or updates data based on the order number format.
         """
-        if self.username in ['m.gil', 'e.munez']:
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             self.num_order_value = self.num_order.text().upper()
             if self.num_order_value != '':
                 if self.num_order_value[:3] != 'AL-':
@@ -2257,7 +2257,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         Args:
             numorder (str): The order number to process.
         """
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             if numorder == '':
                 MessageHelper.show_message("Introduce un número de pedido", "warning")
 
@@ -3158,7 +3158,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         Updates data to deverify.
         """
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             self.num_order_value = self.num_order.text().upper()
             if self.num_order_value != '':
                 if self.num_order_value[:3] != 'AL-':

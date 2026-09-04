@@ -1940,7 +1940,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         """
         Updates the expedition data
         """
-        if self.username in ['m.gil', 'e.munez']:
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             num_order = self.numorder
             verif_date = date.today().strftime("%d/%m/%Y")
             verif_state = 'Realizado Por Mario'
@@ -2199,7 +2199,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
                     cur.execute(commands_notification_neworder, data)
 
-                    data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
+                    data_2 = ('j.segura', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
                     cur.execute(commands_notification_neworder, data_2)
 
                     cur.execute(commands_select_exp, (num_order, ))

@@ -729,7 +729,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.model.setTable("verification.nc_report")
         if self.username in ['j.martinez', 'g.lopez']:
             self.model.setFilter("audit IS NOT NULL")
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             self.model.setFilter("cost IS NULL")
 
         self.tableReports.setModel(None)
@@ -788,7 +788,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
         self.tableReports.sortByColumn(0, Qt.SortOrder.DescendingOrder)
 
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             self.tableReports.hideColumn(3)
 
         self.tableReports.doubleClicked.connect(lambda index: self.item_double_clicked(index))
@@ -862,7 +862,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
         self.tableReports.sortByColumn(0, Qt.SortOrder.DescendingOrder)
 
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             self.tableReports.hideColumn(3)
 
         self.tableReports.doubleClicked.connect(lambda index: self.item_double_clicked(index))

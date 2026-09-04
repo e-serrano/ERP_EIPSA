@@ -1716,7 +1716,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                 warning_date = row.iloc[5]
                 warning_date = warning_date.date()
                 if warning_date < date.today():
-                    usernames = ['d.marquez', 'm.gil']
+                    usernames = ['d.marquez', 'm.gil', 'j.segura']
                     state = 'Pendiente'
                     message = (f"Número: {row.iloc[0]}\n"
                             f"Instrumento: {row.iloc[1]}\n"
