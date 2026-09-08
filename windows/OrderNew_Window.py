@@ -447,6 +447,8 @@ class Ui_New_Order_Window(object):
                             cur.execute(commands_neworder, data)
 
                             MessageHelper.show_message("Pedido creado con éxito", "info")
+                            MessageHelper.show_message('¡ATENCIÓN!\n' + 
+                                                        'Recuerda tener 1 línea por tag (cantidad: 1) con estado "PURCHASED"', "warning")
 
                             self.NumOrder_NewOrder.setText('')
                             self.NumOffer_NewOrder.setText('')
