@@ -13,6 +13,19 @@ import os
 from config.config_functions import get_path
 from utils.Show_Message import MessageHelper
 
+HEADERS = {
+    "Caudal": (["Tag", "PTTAG (Dim.)", "CFabPlaca", "QPlaca"], [1, 2]),
+    "Temperatura": (["Tag", "PTTAG (Dim.)", "CFabVaina", "QVaina", "CFabSensor", "QSensor"], [1, 2, 4]),
+    "Nivel": (["Tag", "PTTAG (Dim.)", "CFabEq", "CFabCuerpo", "QCuerpo", "CFabCubierta",
+                "QCubierta", "CFabTorn", "QTorn", "CFabNipHex", "QNipHex",
+                "CFabVálv", "QVálv", "CFabBrida", "QBrida", "CFabDV",
+                "QDV", "CFabEscala", "QEscala", "CFabIlum", "QIlum",
+                "CodFabJunta", "QJunta", "CFabVidrio", "QVidrio", "CFabFlot",
+                "QFlot", "CFabMica", "QMica", "CFabFlags", "QFlags",
+                "CodFabJuntaBrida", "QJuntaBrida", "CFabNipTub", "QNipTub",
+                "CFabFrost","QFrost"], [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35])
+}
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -124,21 +137,9 @@ class Ui_CreateFabOrder_Window(object):
         self.gridLayout_2.addItem(spacerItem3, 1, 2, 1, 1)
         spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem4, 2, 0, 1, 2)
-        if self.variable == "Caudal":
-            self.columns_number = 4
-            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabPlaca", "QPlaca"]
-        elif self.variable == "Temperatura":
-            self.columns_number = 6
-            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabVaina", "QVaina", "CFabSensor", "QSensor"]
-        elif self.variable == "Nivel":
-            self.columns_number = 37
-            headers_labels = ["Tag", "PTTAG (Dim.)", "CFabEq", "CFabCuerpo", "QCuerpo", "CFabCubierta",
-                                "QCubierta", "CFabTorn", "QTorn", "CFabNipHex", "QNipHex",
-                                "CFabVálv", "QVálv", "CFabBrida", "QBrida", "CFabDV",
-                                "QDV", "CFabEscala", "QEscala", "CFabIlum", "QIlum",
-                                "CodFabJunta", "QJunta", "CFabVidrio", "QVidrio", "CFabFlot",
-                                "QFlot", "CFabMica", "QMica", "CFabFlags", "QFlags",
-                                "CodFabJuntaBrida", "QJuntaBrida", "CFabNipTub", "QNipTub", "CFabFrost", "QFrost"]
+        if self.variable in HEADERS:
+            self.columns_number = len(HEADERS[self.variable])
+            headers_labels = HEADERS[self.variable][0]
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
         self.hLayout2.setSpacing(0)
@@ -244,15 +245,10 @@ class Ui_CreateFabOrder_Window(object):
                                         qty_float, codefab_mica, qty_mica, codefab_flags, qty_flags,
                                         codefab_gasketflange, qty_gasketflange, codefab_niptub, qty_niptub, codefab_antifrost, qty_antifrost])
 
-        self.tableElements.setRowCount(len(self.id_list) + 1)
+        self.tableElements.setRowCount(len(data_list) + 1)
         tablerow=1
 
-        if self.variable in ['Caudal']:
-            list_columns = [1, 2]
-        elif self.variable in ['Temperatura']:
-            list_columns = [1, 2, 4]
-        elif self.variable in ['Nivel']:
-            list_columns = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]
+        list_columns = HEADERS[self.variable][1]
 
     # fill the Qt Table with the results
         for column in range(self.columns_number):
