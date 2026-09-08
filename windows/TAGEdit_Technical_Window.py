@@ -1403,6 +1403,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 elif self.variable =='Caudal+Nivel':
                     table = "tags_data.tags_flow"
                     table2 = "tags_data.tags_level"
+                    self.general_variable = 'Caudal+Nivel'
                     self.variable = 'Caudal'
                     self.variable2 = 'Nivel'
 
@@ -1417,6 +1418,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 elif self.variable =='Temp+Nivel':
                     self.tabletags = "tags_data.tags_temp"
                     self.tabletags2 = "tags_data.tags_level"
+                    self.general_variable = 'Temp+Nivel'
                     self.variable = 'Temperatura'
                     self.variable2 = 'Nivel'
 
@@ -1429,6 +1431,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.initial_column_ = 39
                     self.initial_column2_ = 70
                 elif self.variable == 'Caudal':
+                    self.general_variable = 'Caudal'
                     self.tabletags = "tags_data.tags_flow"
                     self.model.setTable(self.tabletags)
                     self.model.table_check = self.tabletags
@@ -1436,6 +1439,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.initial_column2 = 111
                     self.model.invoice_column = 158
                 elif self.variable == 'Temperatura':
+                    self.general_variable = 'Temperatura'
                     self.tabletags = "tags_data.tags_temp"
                     self.model.setTable(self.tabletags)
                     self.model.table_check = self.tabletags
@@ -1443,6 +1447,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.initial_column2 = 86
                     self.model.invoice_column = 138
                 elif self.variable == 'Nivel':
+                    self.general_variable = 'Nivel'
                     if self.username != 'e.serrano':
                         self.tabletags = "tags_data.tags_level"
                         self.model.setTable(self.tabletags)
@@ -1458,6 +1463,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.initial_column2 = 66
                         self.model.invoice_column = 178
                 elif self.variable == 'Otros':
+                    self.general_variable = 'Otros'
                     self.tabletags = "tags_data.tags_others"
                     self.model.setTable(self.tabletags)
                     self.model.table_check = self.tabletags
@@ -2542,11 +2548,31 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             if self.proxy.rowCount() == 0:
                 MessageHelper.show_message("No hay datos cargados", "warning")
             else:
-                if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
-                    self.createfaborder_window=QtWidgets.QMainWindow()
-                    self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
-                    self.ui.setupUi(self.createfaborder_window)
-                    self.createfaborder_window.showMaximized()
+                if '+' in self.general_variable:
+                    while True:
+                        action, ok = QtWidgets.QInputDialog.getItem(None, "Generar OT", "Tienes 2 variables. ¿Cuál quieres?:",
+                                                                    self.general_variable.split('+'), 0, False)
+                        if ok and action:
+                            while True:
+                                self.createfaborder_window=QtWidgets.QMainWindow()
+                                position = self.general_variable.split('+').index(action)
+                                if position == 0:
+                                    self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+                                else:
+                                    self.ui=Ui_CreateFabOrder_Window(self.variable2, self.proxy2, self.model2)
+                                self.ui.setupUi(self.createfaborder_window)
+                                self.createfaborder_window.showMaximized()
+                                break
+                            break
+                        else:
+                            break
+
+                else:
+                    if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+                        self.createfaborder_window=QtWidgets.QMainWindow()
+                        self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+                        self.ui.setupUi(self.createfaborder_window)
+                        self.createfaborder_window.showMaximized()
 
 # Function to set inspection number
     def setinspection(self):
