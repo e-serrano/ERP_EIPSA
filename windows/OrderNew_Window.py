@@ -10,14 +10,11 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
 from config.config_functions import config_database, get_path
-import os
 import re
 from utils.MoneyChange import obtain_money_change
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Order_Window(object):
