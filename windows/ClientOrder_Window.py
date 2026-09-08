@@ -1810,6 +1810,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.Button_SeeOrder.setMaximumSize(QtCore.QSize(int(1775//self.scale), int(35//self.scale)))
         self.Button_SeeOrder.setObjectName("Button_SeeOrder")
         self.gridLayout_2.addWidget(self.Button_SeeOrder, 10, 5, 1, 4)
+        self.Button_DuplicateOrder = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DuplicateOrder.setMinimumSize(QtCore.QSize(int(175//self.scale), int(35//self.scale)))
+        self.Button_DuplicateOrder.setObjectName("Button_DuplicateOrder")
+        self.gridLayout_2.addWidget(self.Button_DuplicateOrder, 10, 10, 1, 6)
         self.tableRecord = CustomTableWidgetRecord()
         self.tableRecord.setObjectName("tableRecord")
         self.tableRecord.setColumnCount(11)
@@ -1988,6 +1992,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.Button_ModifyRecord.setText(_translate("ClientOrder_Window", "Modificar Reg."))
         self.Button_DeleteRecord.setText(_translate("ClientOrder_Window", "Eliminar Reg."))
         self.Button_SeeOrder.setText(_translate("ClientOrder_Window", "Ver Pedido"))
+        self.Button_DuplicateOrder.setText(_translate("ClientOrder_Window", "Duplicar Pedido"))
         item = self.tableClientOrderP.horizontalHeaderItem(0)
         item.setText(_translate("ClientOrder_Window", "ID"))
         item = self.tableClientOrderP.horizontalHeaderItem(1)
@@ -3164,6 +3169,89 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.ui=Ui_ClientOrderResume_Window(self.username, order_id)
             self.ui.setupUi(self.artmov_window)
             self.artmov_window.showMaximized()
+
+# Function to duplicate order
+    def duplicate_order(self):
+        query_selectorder=("""
+                            SELECT client_id, order_date, delivery_date, client_order_num, notes
+                            FROM purch_fact.client_ord_header
+                            WHERE id = %s
+                            """)
+
+        query_neworder=("""
+                        INSERT INTO purch_fact.client_ord_header (
+                        client_id, order_date, delivery_date, client_order_num, notes
+                        )
+                        VALUES(%s,%s,%s,%s,%s)
+                        """)
+
+        query_selectrecord=("""
+                            INSERT INTO purch_fact.client_ord_detail (
+                            SELECT client_ord_header_id, supply_id, quantity, deliv_quant_1, deliv_quant_2, deliv_quant_3, notes
+                            FROM purch_fact.client_ord_detail
+                            VALUES id = %s
+                            """)
+
+        query_newrecord = ("""
+                            INSERT INTO purch_fact.client_ord_detail (
+                            client_ord_header_id, supply_id, quantity, deliv_quant_1, deliv_quant_2, deliv_quant_3, notes
+                            )
+                            VALUES (%s,%s,%s,%s,%s,%s,%s)
+                            """)
+
+        order_id = self.label_IDOrder.text()
+
+        if order_id == "":
+            MessageHelper.show_message("No puedes duplicar un pedido sin seleccionarlo", "warning")
+
+        else:
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_selectorder, (order_id,))
+                        results_order = cur.fetchall()
+
+                        cur.execute(query_neworder, (results_order[0][0], results_order[0][1], results_order[0][2], results_order[0][3], results_order[0][4],))
+                    conn.commit()
+
+                    with conn.cursor() as cur:
+                        query_idorder = "SELECT id FROM purch_fact.client_ord_header ORDER BY id DESC LIMIT 1"
+                        cur.execute(query_idorder)
+                        result_idorder = cur.fetchall()
+
+                    # get id from table
+                        idorder = result_idorder[-1][0]
+                        self.label_IDOrder.setText(str(idorder))
+
+                        cur.execute(query_selectrecord, (idorder,))
+                        results_records = cur.fetchall()
+
+                        for item in results_records:
+                            data_record = (item[0], item[1], item[2], item[3], item[4], item[5], item[6])
+                            cur.execute(query_newrecord, data_record)
+
+                            query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
+                            cur.execute(query_supplyid, (item[1],))
+                            result_supplyid = cur.fetchone()
+
+                        # get id from table
+                            available_stock = result_supplyid[1]
+                            new_available_stock = str(float(available_stock) - float(item[2]))
+
+                            query_available_stock = ("""UPDATE purch_fact.supplies
+                                                    SET "available_stock" = %s 
+                                                    WHERE "id" = %s""")
+                            cur.execute(query_available_stock, (new_available_stock, item[1],))
+
+                    conn.commit()
+
+                MessageHelper.show_message("Pedido duplicado. Actualiza los datos correspondientes", "info")
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
+
+
 
 
 
