@@ -7,7 +7,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 from datetime import *
 import os
@@ -17,7 +17,10 @@ from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
-from config.config_functions import get_path
+from windows.overlay_pdf import general_dwg, general_dwg_landscape
+import os
+from pypdf import PdfWriter, PdfReader
+from copy import deepcopy
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -249,6 +252,7 @@ class Ui_OTFabOrder_Window(object):
             if not use_same_ot and i > 0:
                 self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
 
+        # Set the OT number and date for the current row
             it = QtWidgets.QTableWidgetItem(str(self.num_ot))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 4, it)
@@ -264,21 +268,13 @@ class Ui_OTFabOrder_Window(object):
         df = pd.DataFrame(data_elements)
         df = df.groupby([0])[1].sum().reset_index()
 
+    # Setting CantxOT in the table
         for row in range(self.tableOT.rowCount()):
             cant_ot = df[df.iloc[:, 0] == self.tableOT.item(row, 2).text()].iloc[:, 1].values[0]
             it = QtWidgets.QTableWidgetItem(str(round(cant_ot,3)))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 6, it)
 
-        self.tableOT.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableOT.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
-
-# Function to launch OT to database and generate document
-    def launch_ot(self):
-        """
-        Launches a fabrication order (OT) by processing data from the model and 
-        populating the order table with relevant attributes. Exports the final order table data to an Excel file, applying specific styles and formatting
-        """
         data_dim = []
         data_of = []
         data_materials = []
@@ -496,6 +492,19 @@ class Ui_OTFabOrder_Window(object):
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 8, it)
 
+    # Setting orientation in the table
+        for row in range (self.tableOT.rowCount()):
+            if self.variable == 'Caudal':
+                orientation = 'Horizontal'
+            elif self.variable == 'Temperatura':
+                orientation = 'Horizontal' if 'Dimensional' in self.tableOT.item(row, 0).text() else 'Vertical'
+            else:
+                orientation = ''
+
+            it = QtWidgets.QTableWidgetItem(str(orientation))
+            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.tableOT.setItem(row, 9, it)
+
     # Setting materials in the table
         df_materials = pd.DataFrame(data_materials)
         for row in range (self.tableOT.rowCount()):
@@ -510,6 +519,16 @@ class Ui_OTFabOrder_Window(object):
             it = QtWidgets.QTableWidgetItem(str(drawing))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 10, it)
+
+        self.tableOT.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOT.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function to launch OT to database and generate document
+    def launch_ot(self):
+        """
+        Launches a fabrication order (OT) by processing data from the model and 
+        populating the order table with relevant attributes. Exports the final order table data to an Excel file, applying specific styles and formatting
+        """
 
     # Executing queries to create or update OT records in database
         for row in range (self.tableOT.rowCount()):
@@ -569,13 +588,6 @@ class Ui_OTFabOrder_Window(object):
 
         df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','PLANO','ORIENTACION','MATERIAL'])
 
-        if self.variable == 'Caudal':
-            df_toexport['ORIENTACION'] = 'Horizontal'
-        elif self.variable == 'Temperatura':
-            df_toexport['ORIENTACION'] = df_toexport['ID'].astype(str).apply(lambda x: 'Horizontal' if 'Dimensional' in x else 'Vertical')
-        else:
-            df_toexport['ORIENTACION'] = ''
-
         output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
         if output_path:
             if not output_path.lower().endswith(".xlsx"):
@@ -615,7 +627,9 @@ class Ui_OTFabOrder_Window(object):
                 cell.style = otnum_style
 
             wb.save(output_path)
+            MessageHelper.show_message("Archivo Excel guardado con éxito", "info")
 
+        # Updating the OT number in the Excel file if it is not None or empty
             if self.num_ot is not None and self.num_ot != '':
                 excel_file_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
                 workbook = load_workbook(excel_file_path, keep_vba=True)
@@ -623,6 +637,46 @@ class Ui_OTFabOrder_Window(object):
                 worksheet['B2'].value = self.num_ot
                 workbook.save(excel_file_path)
 
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Quieres incluir marco y código de barras en planos ahora?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result_answer = dlg_yes_no.exec()
+
+            if result_answer == QtWidgets.QMessageBox.StandardButton.Yes:
+                folder_path = os.path.dirname(output_path)
+                df = pd.read_excel(output_path, dtype={'OT': str})
+                df = df.sort_values(by='PLANO')
+                df_unique = df.drop_duplicates(subset=["PLANO"])
+
+                for _, row in df_unique.iterrows():
+                    drawing_type = 'OF' if 'OF-' in row["PLANO"] else 'Dimensionales'
+
+                    drawing_path = os.path.join(folder_path, f"Planos {drawing_type}", f"{row['PLANO'].split('/')[0]}.pdf")
+                    drawing_path = os.path.normpath(drawing_path)
+                    if os.path.exists(drawing_path):
+                        writer = PdfWriter()
+                        reader = PdfReader(drawing_path)
+
+                        material_value = row['MATERIAL'] if 'MATERIAL' in df_unique.columns else None
+
+                        if row['ORIENTACION'] == 'Vertical':
+                            page_overlay = PdfReader(general_dwg(row['OT'], material_value)).pages[0]
+                        else:
+                            page_overlay = PdfReader(general_dwg_landscape(row['OT'], material_value)).pages[0]
+
+                        for page in reader.pages:
+                            overlay = deepcopy(page_overlay)
+                            page.merge_page(overlay)
+                            writer.add_page(page)
+
+                        writer.write(drawing_path)
+
+                MessageHelper.show_message("Planos Editados", "info")
 
 
 if __name__ == "__main__":
