@@ -430,7 +430,7 @@ class Ui_OrderActivation_Window(object):
                 with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
-                            cur.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
+                            cur.execute(commands_ultrasound, (extras_text.replace('\n', ','), numorder,))
 
                         cur.execute(commands_queryorder, (numorder,))
                         results_queryorder=cur.fetchall()
