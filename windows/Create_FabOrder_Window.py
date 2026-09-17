@@ -138,7 +138,7 @@ class Ui_CreateFabOrder_Window(object):
         spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem4, 2, 0, 1, 2)
         if self.variable in HEADERS:
-            self.columns_number = len(HEADERS[self.variable])
+            self.columns_number = len(HEADERS[self.variable][0])
             headers_labels = HEADERS[self.variable][0]
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
