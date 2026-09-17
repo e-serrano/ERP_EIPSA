@@ -312,7 +312,7 @@ class Ui_OTFabOrder_Window(object):
             if target_row is not None:
                 ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 8)) + '-' + self.model.data(self.model.index(target_row, 1))
                 if self.variable == 'Caudal':
-                    dim_dwg = self.model.data(self.model.index(target_row, 101))
+                    dim_dwg = self.model.data(self.model.index(target_row, 101)) + '-REV.' + self.model.data(self.model.index(target_row, 102))
                     num_of_plate = self.model.data(self.model.index(target_row, 104)) 
                     codefab_eq = self.model.data(self.model.index(target_row, 164))
                     trad_eq = self.model.data(self.model.index(target_row, 165))
@@ -357,7 +357,7 @@ class Ui_OTFabOrder_Window(object):
                                         codefab_chring, trad_chring, codefab_tube, trad_tube, codefab_piece2, trad_piece2]
 
                 elif self.variable == 'Temperatura':
-                    dim_dwg = self.model.data(self.model.index(target_row, 73))
+                    dim_dwg = self.model.data(self.model.index(target_row, 73)) + '-REV.' + self.model.data(self.model.index(target_row, 74))
                     num_of_sensor = self.model.data(self.model.index(target_row, 76))
                     num_of = self.model.data(self.model.index(target_row, 79))
                     codefab_eq = self.model.data(self.model.index(target_row, 145))
