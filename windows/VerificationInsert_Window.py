@@ -1326,9 +1326,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Deverify.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Deverify.setObjectName("Button_Deverify")
         self.gridLayout_2.addWidget(self.Button_Deverify, 5, 0, 1, 1)
-        params = config_database()
     # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
+        conn = Database_Connection(config_database())
         self.tableTags = CustomTableWidgetTags(db_conn=conn)
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
@@ -3232,7 +3231,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     conn.commit()
 
                         if column_index == 10 and self.tableTags.item(row_index, column_index).text() != '':
-                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos PH1\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph1_date = {test_date}, ph1_manometer = {manometer1}, ph1_pressure = {pressure1}, ph1_state = {state}, ph1_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
@@ -3240,7 +3239,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     conn.commit()
 
                         if column_index == 11 and self.tableTags.item(row_index, column_index).text() != '':
-                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
+                            if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos PH2\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_hydrotest = f"UPDATE {table_name} SET ph2_date = {test_date}, ph2_manometer = {manometer2}, ph2_pressure = {pressure2}, ph2_state = {state}, ph2_obs = {notes} WHERE {id_column} = {id_value}"
                                 with Database_Connection(config_database()) as conn:
                                     with conn.cursor() as cur:
@@ -3248,9 +3247,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     conn.commit()
 
                         if column_index == 12 and self.tableTags.item(row_index, column_index).text() != '':
-                            hn_liq1 = None
-                            hn_liq2 = None
-                            hn_liq3 = None
+                            hn_liq1 = 'NULL'
+                            hn_liq2 = 'NULL'
+                            hn_liq3 = 'NULL'
 
                             if MessageHelper.ask_yes_no(f"El tag {tag} ya tiene datos LP\n¿Estás seguro de que deseas desverificar?", "ERP EIPSA"):
                                 commands_liquidtest = f"UPDATE {table_name} SET lp_date = {test_date}, lp_hn_liq1 = {hn_liq1}, lp_hn_liq2 = {hn_liq2}, lp_hn_liq3 = {hn_liq3}, lp_state = {state}, lp_obs = {notes} WHERE {id_column} = {id_value}"
