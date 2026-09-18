@@ -230,6 +230,8 @@ class Ui_OTFabOrder_Window(object):
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")
 
+        tag_to_ot = {}
+
         it = QtWidgets.QTableWidgetItem(str(self.num_ot))
         it.setFlags(it.flags()) # & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 4, it)
@@ -238,12 +240,13 @@ class Ui_OTFabOrder_Window(object):
         it.setFlags(it.flags()) # & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 5, it)
 
+        tag_to_ot[self.tableOT.item(0, 1).text()] = self.num_ot
+
+    # Set the OT number and date for the current row of OF drawings
         for i in range(1,self.tableOT.rowCount()):
             text_col_0 = self.tableOT.item(i, 0).text()
+
             if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or 'RO' in text_col_0):
-                it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                self.tableOT.setItem(i, 5, it)
                 continue
 
             use_same_ot = (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
@@ -252,14 +255,34 @@ class Ui_OTFabOrder_Window(object):
             if not use_same_ot and i > 0:
                 self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
 
-        # Set the OT number and date for the current row
+        # Set the OT number for the current row
             it = QtWidgets.QTableWidgetItem(str(self.num_ot))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 4, it)
 
+        # Set the date for the current row
             it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 5, it)
+
+            tag_to_ot[self.tableOT.item(i, 1).text()] = self.num_ot
+
+    # Set the OT number and date for the current row of dimensional drawings
+        for i in range(0, self.tableOT.rowCount()):
+            text_col_0 = self.tableOT.item(i, 0).text()
+
+            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or "RO" in text_col_0):
+                tag = self.tableOT.item(i, 1).text()
+                ot = tag_to_ot.get(tag)
+
+                if ot:
+                    it = QtWidgets.QTableWidgetItem(ot)
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableOT.setItem(i, 4, it)
+
+                it = QtWidgets.QTableWidgetItem(date.today().strftime("%d/%m/%Y"))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(i, 5, it)
 
         data_elements = []
         for row in range(self.tableOT.rowCount()):
@@ -464,7 +487,7 @@ class Ui_OTFabOrder_Window(object):
 
     # Setting trad data in the table
         df_trad = pd.DataFrame(data_trad)
-        for row in range (self.tableOT.rowCount()):
+        for row in range(self.tableOT.rowCount()):
             rows_pedtypetag = df_trad[df_trad.iloc[:, 0] == self.tableOT.item(row, 1).text()]
             for idx, row_df in rows_pedtypetag.iterrows():
                 for column_codefab, value in row_df.items():
@@ -479,7 +502,7 @@ class Ui_OTFabOrder_Window(object):
     # Setting dimensional and OF drawings data in the table
         df_dim = pd.DataFrame(data_dim)
         df_of = pd.DataFrame(data_of)
-        for row in range (self.tableOT.rowCount()):
+        for row in range(self.tableOT.rowCount()):
             if "Plano Dimensional" in self.tableOT.item(row, 0).text():
                 drawing = df_dim[df_dim.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
             else:
@@ -493,7 +516,7 @@ class Ui_OTFabOrder_Window(object):
             self.tableOT.setItem(row, 8, it)
 
     # Setting orientation in the table
-        for row in range (self.tableOT.rowCount()):
+        for row in range(self.tableOT.rowCount()):
             if self.variable == 'Caudal':
                 orientation = 'Horizontal'
             elif self.variable == 'Temperatura':
@@ -507,11 +530,16 @@ class Ui_OTFabOrder_Window(object):
 
     # Setting materials in the table
         df_materials = pd.DataFrame(data_materials)
-        for row in range (self.tableOT.rowCount()):
+        for row in range(self.tableOT.rowCount()):
             if "Plano Dimensional" in self.tableOT.item(row, 0).text():
-                drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
+                if any(value in self.tableOT.item(row, 2).text() for value in ['-P-', '-RO-']):
+                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                else:
+                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
             else:
                 if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
+                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                elif any(value in self.tableOT.item(row, 1).text() for value in ['-P-', '-RO-']):
                     drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
                 else:
                     drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
@@ -531,7 +559,7 @@ class Ui_OTFabOrder_Window(object):
         """
 
     # Executing queries to create or update OT records in database
-        for row in range (self.tableOT.rowCount()):
+        for row in range(self.tableOT.rowCount()):
             check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{self.tableOT.item(row, 0).text()}'"
 
             commands_newot = ("""
