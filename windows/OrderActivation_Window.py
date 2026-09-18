@@ -386,6 +386,7 @@ class Ui_OrderActivation_Window(object):
                     if checkbox.checkState() == QtCore.Qt.CheckState.Checked]
 
         extras_text = '\n'.join(extras_list)
+        extras_text_formatted = extras_text.replace('Radiografías', 'RX').replace('Líquidos Penetrantes', 'LP').replace('\n', ',')
 
         docs_list = [label for checkbox, label in checkbox_docs_map.items()
                     if checkbox.checkState() == QtCore.Qt.CheckState.Checked]
@@ -430,7 +431,7 @@ class Ui_OrderActivation_Window(object):
                 with Database_Connection(config_database()) as conn:
                     with conn.cursor() as cur:
                         if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
-                            cur.execute(commands_ultrasound, (extras_text.replace('\n', ','), numorder,))
+                            cur.execute(commands_ultrasound, (extras_text_formatted, numorder,))
 
                         cur.execute(commands_queryorder, (numorder,))
                         results_queryorder=cur.fetchall()
@@ -479,6 +480,8 @@ class Ui_OrderActivation_Window(object):
                         mail.send_email()
 
                         MessageHelper.show_message("Pedido activado con éxito", "info")
+                        MessageHelper.show_message('¡ATENCIÓN!\n' + 
+                                                    'Recuerda tener 1 línea por tag (cantidad: 1) con estado "PURCHASED"', "warning")
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
