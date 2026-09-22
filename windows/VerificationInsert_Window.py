@@ -1327,7 +1327,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Deverify.setObjectName("Button_Deverify")
         self.gridLayout_2.addWidget(self.Button_Deverify, 5, 0, 1, 1)
     # connect to the PostgreSQL server
-        conn = Database_Connection(config_database())
+        conn = psycopg2.connect(**config_database())
         self.tableTags = CustomTableWidgetTags(db_conn=conn)
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
