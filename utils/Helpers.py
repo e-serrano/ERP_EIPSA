@@ -3,7 +3,7 @@ from config.config_functions import get_path
 FLOW_HEADERS = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
 				"Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Mat. Brida", "Tipo Brida",
 				"Mat. Tubo", "Tamaño Tomas", "Nº Tomas", "Orient. Tomas", "Mat. Elemento", "Tipo Placa",
-				"Esp. Placa", "Std Paca", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
+				"Esp. Placa", "Std Placa", "Mat. Junta", "Mat. Torn.", "Mat. Tuercas", "Con. Vlv.", "Mat. Cuerpo Vlv.",
 				"Nº Saltos", "Pipe Spec.", "Pintura", "Peso (mm)", "Long. (mm)", "NACE", "Cert. Material", "Cantidad Eqs.",
 				"Precio Min.", "Precio Medio", "Precio PVP", "Precio Final", "Notas Precio",
 				"Notas Oferta", "Cambios Com.", "Fecha Contr.", "øOrif. (mm)", "øD/V (mm)", "Cant. Juntas",
