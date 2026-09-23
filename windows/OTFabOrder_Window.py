@@ -539,7 +539,7 @@ class Ui_OTFabOrder_Window(object):
             else:
                 if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
                     drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
-                elif any(value in self.tableOT.item(row, 1).text() for value in ['-P-', '-RO-']):
+                elif any(value in self.tableOT.item(row, 1).text() for value in ['-P-', '-RO-', '-F+P-']):
                     drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
                 else:
                     drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
