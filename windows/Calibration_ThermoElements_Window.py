@@ -21,6 +21,7 @@ import pandas as pd
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 import shutil
+from dataclasses import dataclass
 
 
 def imagen_to_base64(imagen):
@@ -400,6 +401,40 @@ class EditableTableModel(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
+class EditableTableView(QtWidgets.QTableView):
+
+    copyRequested = QtCore.Signal()
+    pasteRequested = QtCore.Signal()
+    deleteRequested = QtCore.Signal()
+
+    def keyPressEvent(self, event):
+
+        if event.key() == Qt.Key.Key_Delete:
+            self.deleteRequested.emit()
+            return
+
+        if event.matches(QKeySequence.StandardKey.Copy):
+            self.copyRequested.emit()
+            return
+
+        if event.matches(QKeySequence.StandardKey.Paste):
+            self.pasteRequested.emit()
+            return
+
+        super().keyPressEvent(event)
+
+@dataclass
+class TableContext:
+    model: EditableTableModel
+    proxy: CustomProxyModel
+    checkbox_filters: dict
+    checkbox_states: dict
+    action_checkbox_map: dict
+    dict_ordersort: dict
+    dict_valuesuniques: dict
+    hiddencolumns: list
+
+
 class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
     """
     A window for editing calibrations in the application.
@@ -419,7 +454,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
     """
     def __init__(self, db, username):
         """
-        Initializes the Ui_EditTags_Technical_Window with the specified name and database connection.
+        Initializes the Ui_Calibration_ThermoElements_Window with the specified name and database connection.
 
         Args:
             username (str): username associated with the window.
@@ -427,18 +462,38 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         """
         super().__init__()
         self.username = username
+        self.db = db
+        self.variable = ''
+
         self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
-        self.db = db
+
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
-        self.variable = ''
+
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
         
         self.setupUi(self)
+        self.model.dataChanged.connect(self.saveChanges)
+
+        self.table_contexts = {
+                    self.tableEditCalibration: TableContext(
+                        model=self.model,
+                        proxy=self.proxy,
+                        checkbox_filters=self.checkbox_filters,
+                        checkbox_states=self.checkbox_states,
+                        action_checkbox_map=self.action_checkbox_map,
+                        dict_ordersort=self.dict_ordersort,
+                        dict_valuesuniques=self.dict_valuesuniques,
+                        hiddencolumns=self.hiddencolumns,
+                    ),
+                }
+
+    def _ctx(self, table) -> TableContext:
+        return self.table_contexts[table]
 
     def closeEvent(self, event):
         """
@@ -695,7 +750,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
-        self.tableEditCalibration=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditCalibration = EditableTableView()
         self.model = EditableTableModel(self.username)
         self.tableEditCalibration.setObjectName("tableEditCalibration")
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
@@ -758,6 +813,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.query_all_calibration)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
         self.query_calibration()
 
@@ -1037,6 +1093,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.selection_model = self.tableEditCalibration.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
+        self.tableEditCalibration.copyRequested.connect(lambda: self.copy_table(self.tableEditCalibration))
+        self.tableEditCalibration.pasteRequested.connect(lambda: self.paste_table(self.tableEditCalibration, self.model, self.proxy))
+        self.tableEditCalibration.deleteRequested.connect(lambda: self.delete_table(self.tableEditCalibration, self.model))
+
         self.tableEditCalibration.sortByColumn(7, Qt.SortOrder.DescendingOrder)
 
 # Function to load table and setting in the window
@@ -1104,6 +1164,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
         self.selection_model = self.tableEditCalibration.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableEditCalibration.copyRequested.connect(lambda: self.copy_table(self.tableEditCalibration))
+        self.tableEditCalibration.pasteRequested.connect(lambda: self.paste_table(self.tableEditCalibration, self.model, self.proxy))
+        self.tableEditCalibration.deleteRequested.connect(lambda: self.delete_table(self.tableEditCalibration, self.model))
 
         self.tableEditCalibration.sortByColumn(7, Qt.SortOrder.DescendingOrder)
 
@@ -1427,73 +1491,75 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     output_path += ".xlsx"
                 df.to_excel(output_path, index=False, header=True)
 
-# Function to enable copy and paste cells
-    def keyPressEvent(self, event):
-        """
-        Handles custom key events for cell operations in the table.
+# Function to copy data from selected cells
+    def copy_table(self, table):
+        selected_indexes = table.selectionModel().selectedIndexes()
 
-        Args:
-            event (QtGui.QKeyEvent): The key event to handle.
-        """
-        if event.key() == QtCore.Qt.Key.Key_Delete:
-            selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
-            if not selected_indexes:
-                return
-            
-            model = self.tableEditCalibration.model()
-            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+        if not selected_indexes:
+            return
+
+        clipboard = QtWidgets.QApplication.clipboard()
+        text = self.get_selected_text(selected_indexes)
+
+        if isinstance(text, QtCore.QDate):
+            text = text.toString("dd/MM/yyyy")
+
+        clipboard.setText(str(text))
+
+# Function to paste data from clipboard into selected cells
+    def paste_table(self, table, model, proxy):
+        selected_indexes = table.selectionModel().selectedIndexes()
+
+        if not selected_indexes:
+            return
+
+        text = QtWidgets.QApplication.clipboard().text()
+
+        model.dataChanged.disconnect(self.saveChanges)
+
+        model.blockSignals(True)
+        proxy.blockSignals(True)
+        table.setUpdatesEnabled(False)
+
+        try:
+            for proxy_index in selected_indexes:
+                source_index = proxy.mapToSource(proxy_index)
+
+                model.setData(
+                    source_index,
+                    text,
+                    QtCore.Qt.ItemDataRole.EditRole
+                )
+
+            model.submitAll()
+
+        finally:
+            model.blockSignals(False)
+            proxy.blockSignals(False)
+            table.setUpdatesEnabled(True)
+            model.dataChanged.connect(self.saveChanges)
+
+# Function to delete selected cells
+    def delete_table(self, table, model):
+        selected_indexes = table.selectionModel().selectedIndexes()
+
+        if not selected_indexes:
+            return
+
+        table_model = table.model()
+
+        if isinstance(table_model, QtCore.QSortFilterProxyModel):
+            model_indexes = [
+                table_model.mapToSource(index)
+                for index in selected_indexes
+            ]
 
             for index in model_indexes:
-                self.model.setData(index, None)
+                table_model.sourceModel().setData(index, None)
 
-        elif event.matches(QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
-            if not selected_indexes:
-                return
-            
-            model = self.tableEditCalibration.model()
-            model_indexes = [model.mapToSource(index) for index in selected_indexes]
-
-            mime_data = QMimeData()
-            data = bytearray()
-
-            for index in model_indexes:
-                data += str(self.model.data(index) if not isinstance(self.model.data(index), QtCore.QDate) else self.model.data(index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
-
-            mime_data.setData("text/plain", data)
-
-            clipboard = QApplication.clipboard()
-            clipboard.setMimeData(mime_data)
-
-        elif event.matches(QKeySequence.StandardKey.Paste):
-            if self.tableEditCalibration.selectionModel() != None:
-
-                clipboard = QApplication.clipboard()
-                mime_data = clipboard.mimeData()
-
-                if not mime_data.hasFormat("text/plain"):
-                    return
-
-                data = mime_data.data("text/plain").data()
-                values = data.split(b'\t')
-
-                selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
-                if not selected_indexes:
-                    return
-                
-                model = self.tableEditCalibration.model()
-                model_indexes = [model.mapToSource(index) for index in selected_indexes]
-
-                if len(values) == 2:
-                    for index in model_indexes:
-                        self.model.setData(index, values[0].decode('utf-8'))
-                else:
-                    for index, value in zip(model_indexes, values):
-                        self.model.setData(index, value.decode('utf-8'))
-
-            self.saveChanges()
-
-        super().keyPressEvent(event)
+        else:
+            for index in selected_indexes:
+                model.setData(index, None)
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
@@ -1506,7 +1572,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         Returns:
             str: A string containing the text from the selected cells.
         """
-        if len(indexes) == 1:  # For only one cell selected
+
+        if len(indexes) == 1: # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
             return cell_data
@@ -1522,11 +1589,11 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)  
+                    index = self.model.index(row, col)  # Obtain corresponding index
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
-                    cursor.insertText('\t')
-                cursor.insertText('\n')
+                    cursor.insertText('\t')  # Tab separating columns
+                cursor.insertText('\n')  # Line break at end of row
 
             return text_doc.toPlainText()
 
