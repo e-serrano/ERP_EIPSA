@@ -359,7 +359,7 @@ class Ui_New_Order_Window(object):
         if numorder=="" or (numoffer=="" or  (numref=="" or (initial_amount=="" or (num_items=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))))):
             self.label_error_neworder.setText('Rellene todos los campos y seleccione el tipo de moneda. Solo el campo notas pueden estar en blanco')
 
-        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3}[A-Za-z]*)$', numorder):
+        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3}(?:-S\d{2})?[A-Za-z]*)$', numorder):
             MessageHelper.show_message("El número de pedido debe tener el siguiente formato\n" +
                         "- P-XX/YYY-SZZ\n" + 
                         "- P-XX/YYY-SZZR\n" + 
