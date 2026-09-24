@@ -41,6 +41,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     tube_list = []
     piece2_list = []
     bar_handle_list = []
+    rtj_bolts = []
 
     proxy_data = proxy.data
     proxy_index = proxy.index
@@ -235,6 +236,38 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 row_data[220] # code purch plate
                 ])
             all_list_parts.append(plate_list)
+
+            if row_data[11] == 'RTJ':
+                commands_bolts_qty = ("""
+                                SELECT bolts_qty
+                                FROM validation_data.flow_rtj_plate_dimensions
+                                WHERE plate_size = %s
+                                """)
+
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_bolts_qty,(f"{row_data[9]} {row_data[10]}",))
+                            results = cur.fetchone()
+                            bolts_qty = results[0]
+    
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
+                if int(bolts_qty) != 0:
+                    rtj_bolts.append([
+                        'Tornillos Portaplacas RTJ',
+                        'Tornillos Portaplacas RTJ',
+                        'TORNILLOS PORTAPLACAS RTJ',
+                        '',
+                        '',
+                        '',
+                        'Estándar',
+                        (int(bolts_qty)) * quantity_equipment, # quantity bolts per equipment * number of equipments
+                        "TORNILLOS PORTAPLACAS RTJ"
+                        ]) # code purch bolts
+                    all_list_parts.append(rtj_bolts)
 
         code_nipple = row_data[173]
         if code_nipple:
