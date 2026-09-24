@@ -4,13 +4,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import configparser
 from datetime import *
 import os
 import re
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -344,7 +343,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         Dispatch_Window.resize(400, 561)
         Dispatch_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Dispatch_Window.setWindowIcon(icon)
         Dispatch_Window.setStyleSheet(
 "QPushButton {\n"
@@ -389,7 +388,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
@@ -398,7 +397,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.toolDispatchQuery = QtWidgets.QToolButton(self.frame)
         self.toolDispatchQuery.setObjectName("DispatchQuery_Button")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Table.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Table.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDispatchQuery.setIcon(icon2)
         self.toolDispatchQuery.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDispatchQuery)
@@ -838,7 +837,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
     # Load icon
         if not hasattr(self, 'icono_filter_active'):
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             self.icono_filter_active = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         
     # Select map and state related to model
@@ -865,7 +864,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -946,7 +945,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("Buscar")
         clickedButton = dlg.exec()
@@ -961,7 +960,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 

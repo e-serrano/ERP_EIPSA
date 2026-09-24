@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -22,8 +22,6 @@ import pandas as pd
 from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -375,7 +373,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         Workshop_Manometers_Thermoelements_Window.resize(790, 595)
         Workshop_Manometers_Thermoelements_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Manometers_Thermoelements_Window.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Manometers_Thermoelements_Window)
         self.centralwidget.setObjectName("centralwidget")
@@ -395,7 +393,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setToolTip("Borrar filtros")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -404,7 +402,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.toolExpData.setObjectName("ExpData_Button")
         self.toolExpData.setToolTip("Exportar Datos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpData.setIcon(icon)
         self.toolExpData.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpData)
@@ -414,7 +412,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.toolAdd.setObjectName("Add_Button")
         self.toolAdd.setToolTip("Crear Nueva")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolAdd.setIcon(icon)
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
@@ -424,7 +422,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.toolSeeAll.setObjectName("SeeAll_Button")
         self.toolSeeAll.setToolTip("Ver todos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolSeeAll.setIcon(icon)
         self.toolSeeAll.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolSeeAll)
@@ -836,7 +834,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -864,7 +862,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -935,7 +933,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -950,7 +948,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1157,7 +1155,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1234,7 +1232,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_yes_no.setWindowIcon(new_icon_yes_no)
             dlg_yes_no.setWindowTitle("ERP EIPSA")
             dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
@@ -1263,7 +1261,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Máquinas")
                     dlg.setText("Registros eliminados con éxito")
@@ -1276,7 +1274,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1300,7 +1298,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar")
             dlg.setText("No hay datos cargados")
@@ -1364,15 +1362,15 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
         pdf = CustomPDF('P', 'cm', 'A4')
 
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
         pdf.set_auto_page_break(auto=True)
         pdf.set_margins(1.5, 1.5)
 
         pdf.add_page()
 
-        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
+        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 0, 0, 10, 2)
         pdf.ln(1)
         pdf.set_font('Helvetica', 'B', 18)
         pdf.multi_cell(18, 1, "RELACION EQUIPOS CALIBRADOS MEDIANTE COMPROBACION CON PATRONES E.I.P.S.A.", align='C')
@@ -1428,7 +1426,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "CERT.pdf"))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)

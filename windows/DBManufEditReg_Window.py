@@ -8,14 +8,13 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import configparser
 from utils.Database_Manager import Create_DBconnection
 from PySide6.QtCore import Qt
 import os
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -192,7 +191,7 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
         DBEditRegManuff_Window.setObjectName("DBEditRegManuff_Window")
         DBEditRegManuff_Window.setMinimumSize(QtCore.QSize(1000, 725))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         DBEditRegManuff_Window.setWindowIcon(icon)
         DBEditRegManuff_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -512,7 +511,7 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
         # except (Exception, psycopg2.DatabaseError) as error:
         #     dlg = QtWidgets.QMessageBox()
         #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         #     dlg.setWindowIcon(new_icon)
         #     dlg.setWindowTitle("ERP EIPSA")
         #     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -603,7 +602,7 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Registros")
             dlg.setText("Datos insertados con éxito")
@@ -624,7 +623,7 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"

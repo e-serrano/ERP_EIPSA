@@ -10,8 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.OfferNew_Window import Ui_New_Offer_Window
 from windows.OfferNewReceived_Window import Ui_New_OfferReceived_Window
 import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_NewOffer_Menu(object):
@@ -39,7 +38,7 @@ class Ui_NewOffer_Menu(object):
         NewOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
         NewOffer_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         NewOffer_Menu.setWindowIcon(icon)
         NewOffer_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

@@ -8,8 +8,8 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
+from config.config_functions import get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TimerWindow(QtWidgets.QMainWindow):
@@ -38,7 +38,7 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         TimerWindow.resize(300, 336)
         TimerWindow.setMinimumSize(QtCore.QSize(1000, 700))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TimerWindow.setWindowIcon(icon)
         TimerWindow.setStyleSheet(
     "QPushButton {\n"
@@ -112,7 +112,7 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         # self.label.setMaximumSize(QtCore.QSize(250, 35))
         self.label.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.label.setObjectName("label")
-        font_id = QtGui.QFontDatabase.addApplicationFont(os.path.abspath(os.path.join(basedir, "Resources/Iconos/DS-DIGI.ttf")))
+        font_id = QtGui.QFontDatabase.addApplicationFont(str(get_path("Resources", "Iconos", "DS-DIGI.ttf")))
         if font_id != -1:
             font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
             font = QtGui.QFont(font_family, 350)

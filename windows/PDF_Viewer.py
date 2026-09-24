@@ -12,8 +12,7 @@ import shutil
 import win32api
 import psutil
 import time
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
@@ -34,7 +33,7 @@ class PDF_Viewer(QMainWindow):
         self.temp_file_path = None
 
         icon = QIcon()
-        icon.addPixmap(QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addPixmap(QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
         self.setWindowIcon(icon)
 
         self.ui.setupUi(self)
@@ -242,7 +241,7 @@ class PDF_Viewer(QMainWindow):
 
             dlg = QMessageBox()
             new_icon = QIcon()
-            new_icon.addPixmap(QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
+            new_icon.addPixmap(QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Imprimir pedido")
             dlg.setText("PDF generado con éxito")
@@ -266,7 +265,7 @@ class PDF_Viewer(QMainWindow):
         except Exception as e:
             dlg = QMessageBox()
             new_icon = QIcon()
-            new_icon.addPixmap(QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
+            new_icon.addPixmap(QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Imprimir pedido")
             print(e)

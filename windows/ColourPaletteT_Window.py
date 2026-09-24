@@ -1,8 +1,8 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
+from config.config_functions import get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -350,7 +350,7 @@ class Ui_PaletteColourT_Window(object):
         PaletteColourT_Window.resize(790, 595)
         PaletteColourT_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         PaletteColourT_Window.setWindowIcon(icon)
 
         self.central_widget = QtWidgets.QWidget()

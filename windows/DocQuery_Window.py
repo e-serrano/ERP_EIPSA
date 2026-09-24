@@ -16,7 +16,6 @@ import locale
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -276,7 +275,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         # Actualizar el ícono del encabezado
         header_item = self.horizontalHeaderItem(column_index)
         if self.rows_hidden[column_index]:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -459,7 +458,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         QueryDoc_Window.resize(845, 654)
         QueryDoc_Window.setMinimumSize(QtCore.QSize(1500, 790))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryDoc_Window.setWindowIcon(icon)
         QueryDoc_Window.setStyleSheet(
 "QPushButton {\n"
@@ -682,7 +681,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Documentación")
             dlg.setText(cell_content)

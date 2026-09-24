@@ -7,9 +7,7 @@
 
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_Verif_Tests_Menu(QtWidgets.QMainWindow):
@@ -39,7 +37,7 @@ class Ui_Verif_Tests_Menu(QtWidgets.QMainWindow):
         Verif_Tests_Menu.setMinimumSize(QtCore.QSize(280, 425))
         Verif_Tests_Menu.setMaximumSize(QtCore.QSize(280, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Tests_Menu.setWindowIcon(icon)
         Verif_Tests_Menu.setStyleSheet(
     "QPushButton {\n"

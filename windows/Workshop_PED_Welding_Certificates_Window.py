@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -23,8 +23,6 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from windows.PDF_Styles import welding_homologation
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -421,7 +419,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         Workshop_PED_Welding_Certificates_Window.resize(790, 595)
         Workshop_PED_Welding_Certificates_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_PED_Welding_Certificates_Window.setWindowIcon(icon)
         if self.username in ['m.gil', 'j.segura', 'd.marquez']:
             Workshop_PED_Welding_Certificates_Window.setStyleSheet(
@@ -455,7 +453,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setToolTip("Borrar filtros")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -464,7 +462,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         self.toolExpData.setObjectName("ExpData_Button")
         self.toolExpData.setToolTip("Exportar Datos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpData.setIcon(icon)
         self.toolExpData.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolExpData)
@@ -474,7 +472,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         self.toolAdd.setObjectName("Add_Button")
         self.toolAdd.setToolTip("Crear Nueva")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolAdd.setIcon(icon)
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
@@ -484,7 +482,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         self.toolPDF.setObjectName("PDF_Button")
         self.toolPDF.setToolTip("Insertar")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
@@ -843,7 +841,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the action (usually 'Select All').
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -871,7 +869,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
             action_name (str): The name of the checkbox.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -942,7 +940,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -957,7 +955,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
             # del self.proxy.filters[filterColumn]
             self.proxy.setFilter([stringAction], filterColumn, None)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1164,7 +1162,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1234,7 +1232,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_yes_no.setWindowIcon(new_icon_yes_no)
             dlg_yes_no.setWindowTitle("ERP EIPSA")
             dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
@@ -1313,7 +1311,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar")
             dlg.setText("No hay datos cargados")
@@ -1413,8 +1411,8 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
         pdf = welding_homologation()
         pdf.set_auto_page_break(auto=True, margin=1)
         pdf.add_page()
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
         pdf.set_font('Helvetica', 'B', 10)
         pdf.set_xy(16, 0.5)
         pdf.cell(3, 0.5, self.format_date_spanish(date.today()))
@@ -1458,7 +1456,7 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
 
         pdf_buffer = pdf.output()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp.pdf"))
 
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(pdf_buffer)

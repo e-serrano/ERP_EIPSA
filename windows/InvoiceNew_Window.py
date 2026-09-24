@@ -11,15 +11,13 @@ from PySide6.QtCore import QUrl
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
 import re
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Create_DBconnection
 import psycopg2
 import os
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
     """
@@ -246,7 +244,7 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -632,7 +630,7 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -2781,7 +2779,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_New.setObjectName("Button_New")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_New.setIcon(icon3)
         self.Button_New.setIconSize(QtCore.QSize(20, 20))
         self.Button_New.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -2830,7 +2828,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Up.setObjectName("Button_Up")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Arrow_Up.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Arrow_Up.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Up.setIcon(icon3)
         self.Button_Up.setIconSize(QtCore.QSize(20, 20))
         self.Button_Up.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -2879,7 +2877,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Down.setObjectName("Button_Down")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Arrow_Down.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Arrow_Down.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Down.setIcon(icon3)
         self.Button_Down.setIconSize(QtCore.QSize(20, 20))
         self.Button_Down.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -2929,7 +2927,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_SearchInvoice.setObjectName("Button_SearchInvoice")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_SearchInvoice.setIcon(icon4)
         self.Button_SearchInvoice.setIconSize(QtCore.QSize(20, 20))
         self.Button_SearchInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -2993,7 +2991,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 # "}")
 #         self.Button_AcceptFilter.setObjectName("Button_AcceptFilter")
 #         icon1 = QtGui.QIcon()
-#         icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Check.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#         icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Check.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #         self.Button_AcceptFilter.setIcon(icon1)
 #         self.Button_AcceptFilter.setIconSize(QtCore.QSize(20, 20))
 #         self.Button_AcceptFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -3042,7 +3040,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 # "}")
 #         self.Button_DeleteFilter.setObjectName("Button_DeleteFilter")
 #         icon2 = QtGui.QIcon()
-#         icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#         icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #         self.Button_DeleteFilter.setIcon(icon2)
 #         self.Button_DeleteFilter.setIconSize(QtCore.QSize(20, 20))
 #         self.Button_DeleteFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -3098,7 +3096,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3233,7 +3231,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3510,7 +3508,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("8Ha ocurrido el siguiente error:\n"
@@ -3562,7 +3560,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3591,7 +3589,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             if id_invoice == '':
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Emitir Factura")
                 dlg.setText("Selecciona una factura")
@@ -3663,7 +3661,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Factura en euros emitida con éxito")
@@ -3674,7 +3672,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -3688,7 +3686,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                 dlg_yes_no = QtWidgets.QMessageBox()
                 new_icon_yes_no = QtGui.QIcon()
-                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_yes_no.setWindowIcon(new_icon_yes_no)
                 dlg_yes_no.setWindowTitle("ERP EIPSA")
                 dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
@@ -3705,8 +3703,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                                 pdf = client_invoice(id_invoice, 'Yes')
                             else:
                                 pdf = client_invoice(id_invoice, 'No')
-                            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                            pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                            pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
                             pdf.set_auto_page_break(auto=True, margin=2)
                             pdf.add_page()
                             pdf.alias_nb_pages()
@@ -3885,7 +3883,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                             pdf_buffer = pdf.output()
 
-                            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
+                            temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp_invoice.pdf"))
 
                             with open(temp_file_path, "wb") as temp_file:
                                 temp_file.write(pdf_buffer)
@@ -3906,7 +3904,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except Exception as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("1Ha ocurrido el siguiente error:\n"
@@ -3927,7 +3925,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if id_invoice == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Emitir Factura")
             dlg.setText("Selecciona una factura")
@@ -3938,7 +3936,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         elif valcotdollar == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Emitir Factura")
             dlg.setText("Introduce un valor de cambio €-$")
@@ -4012,7 +4010,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Factura en euros emitida con éxito")
@@ -4023,7 +4021,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -4037,7 +4035,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_yes_no.setWindowIcon(new_icon_yes_no)
             dlg_yes_no.setWindowTitle("ERP EIPSA")
             dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
@@ -4054,8 +4052,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             pdf = client_invoice(id_invoice, 'Yes')
                         else:
                             pdf = client_invoice(id_invoice, 'No')
-                        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
                         pdf.set_auto_page_break(auto=True, margin=2)
                         pdf.add_page()
                         pdf.alias_nb_pages()
@@ -4233,7 +4231,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                         pdf_buffer = pdf.output()
 
-                        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
+                        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp_invoice.pdf"))
 
                         with open(temp_file_path, "wb") as temp_file:
                             temp_file.write(pdf_buffer)
@@ -4383,7 +4381,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("1Ha ocurrido el siguiente error:\n"
@@ -4442,7 +4440,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -4680,7 +4678,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -4709,7 +4707,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
@@ -4795,7 +4793,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("Buscar")
         clickedButton = dlg.exec()
@@ -4810,7 +4808,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             # del self.proxy_records.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn)
 
-            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
@@ -4934,7 +4932,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("2Ha ocurrido el siguiente error:\n"
@@ -5014,7 +5012,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if id_invoice == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Selecciona una factura para añadir registros")
@@ -5025,7 +5023,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         else:
             dlg3 = QtWidgets.QInputDialog()
             new_icon3 = QtGui.QIcon()
-            new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg3.setWindowIcon(new_icon3)
             dlg3.setWindowTitle('Facturación')
             dlg3.setLabelText('Introduce cuantos equipos quieres introducir:')
@@ -5059,7 +5057,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("Facturación")
                             dlg.setText("Datos insertados con éxito")
@@ -5070,7 +5068,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -5084,7 +5082,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         break
                     dlg_error = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg_error.setWindowIcon(new_icon)
                     dlg_error.setWindowTitle("Facturación")
                     dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
@@ -5177,7 +5175,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Este cliente no tiene un banco asignado\n"
@@ -5189,7 +5187,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -5235,7 +5233,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -5271,7 +5269,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if invoice_id == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Selecciona una factura")
@@ -5288,8 +5286,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         pdf = delivery_note(invoice_id, 'Yes')
                     else:
                         pdf = delivery_note(invoice_id, 'No')
-                    pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                    pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                    pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                    pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
                     pdf.set_auto_page_break(auto=True, margin=2)
                     pdf.add_page()
@@ -5360,7 +5358,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                     pdf_buffer = pdf.output()
 
-                    temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_delivnote.pdf"))))
+                    temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp_delivnote.pdf"))
 
                     with open(temp_file_path, "wb") as temp_file:
                         temp_file.write(pdf_buffer)
@@ -5475,7 +5473,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_yes_no.setWindowIcon(new_icon_yes_no)
             dlg_yes_no.setWindowTitle("ERP EIPSA")
             dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
@@ -5502,7 +5500,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Facturación")
                     dlg.setText("Registros eliminados con éxito")
@@ -5515,7 +5513,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"

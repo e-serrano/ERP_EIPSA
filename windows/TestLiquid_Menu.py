@@ -9,9 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from windows.TestLiquidInsert_Window import Ui_TestLiquidInsert_Window
 from windows.TestLiquidQuery_Window import Ui_TestLiquidQuery_Window
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_TestLiquid_Menu(object):
@@ -39,7 +37,7 @@ class Ui_TestLiquid_Menu(object):
         TestLiquid_Menu.setMinimumSize(QtCore.QSize(300, 300))
         TestLiquid_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TestLiquid_Menu.setWindowIcon(icon)
         TestLiquid_Menu.setStyleSheet(
     "QPushButton {\n"

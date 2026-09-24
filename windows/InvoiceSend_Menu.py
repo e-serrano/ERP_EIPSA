@@ -10,8 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.PAtoFactory_Window import Ui_PAtoFactory
 from windows.InvoiceSend_Window import Ui_InvoiceSend_Window
 import os
+from config.config_functions import get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_InvoiceSend_Menu(object):
@@ -30,7 +30,7 @@ class Ui_InvoiceSend_Menu(object):
         InvoiceSend_Menu.setMinimumSize(QtCore.QSize(300, 300))
         InvoiceSend_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         InvoiceSend_Menu.setWindowIcon(icon)
         InvoiceSend_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

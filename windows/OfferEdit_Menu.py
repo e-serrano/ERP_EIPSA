@@ -11,8 +11,8 @@ from windows.OfferSubmit_Window import Ui_SubmitOffer_Window
 from windows.OfferEdit_Window import Ui_Edit_Offer_Window
 from windows.OfferReceivedQuery_Window import Ui_QueryOfferReceived_Window
 import os
+from config.config_functions import get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOffer_Menu(object):
@@ -40,7 +40,7 @@ class Ui_EditOffer_Menu(object):
         EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 400))
         EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditOffer_Menu.setWindowIcon(icon)
         EditOffer_Menu.setStyleSheet(
 "QPushButton {\n"

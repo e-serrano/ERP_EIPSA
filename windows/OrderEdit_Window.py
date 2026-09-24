@@ -13,7 +13,6 @@ import os
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Order_Window(object):
@@ -32,7 +31,7 @@ class Ui_Edit_Order_Window(object):
         Edit_Order_Window.setMinimumSize(QtCore.QSize(680, 425))
         Edit_Order_Window.setMaximumSize(QtCore.QSize(680, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Edit_Order_Window.setWindowIcon(icon)
         Edit_Order_Window.setStyleSheet(
 "QPushButton {\n"

@@ -8,8 +8,8 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
+from config.config_functions import get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_StatsOffer_Menu(object):
@@ -28,7 +28,7 @@ class Ui_StatsOffer_Menu(object):
         StatsOffer_Menu.setMinimumSize(QtCore.QSize(300, 400))
         StatsOffer_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         StatsOffer_Menu.setWindowIcon(icon)
         StatsOffer_Menu.setStyleSheet(
 "QPushButton {\n"

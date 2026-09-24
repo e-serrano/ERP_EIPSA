@@ -9,10 +9,8 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 from utils.Database_Manager import Create_DBconnection
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
@@ -41,7 +39,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(1000, 350))
         Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(1000, 350))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Revisions_Menu.setWindowIcon(icon)
         Verif_Revisions_Menu.setStyleSheet(
 "QPushButton {\n"

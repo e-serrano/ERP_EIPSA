@@ -10,9 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Factory_Menu(QtWidgets.QMainWindow):
@@ -41,7 +40,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         Factory_Menu.setMinimumSize(QtCore.QSize(300, 600))
         Factory_Menu.setMaximumSize(QtCore.QSize(300, 600))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Factory_Menu.setWindowIcon(icon)
         Factory_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -215,14 +214,14 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Consultar tiempos')
         dlg.setLabelText('Inserte pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Consultar tiempos')
         dlg2.setLabelText('Inserte número OT:')
@@ -245,7 +244,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Consultar tiempos")
                                 dlg_error.setText("El pedido no puede estar vacío")
@@ -270,7 +269,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Consultar tiempos")
                                 dlg_error.setText("El número OT no puede estar vacío")
@@ -282,7 +281,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Consultar tiempos")
                 dlg_error.setText("Selecciona un tipo")
@@ -299,28 +298,28 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Anexos Nucleares')
         dlg.setLabelText('Inserte pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Anexos Nucleares')
         dlg2.setLabelText('CODIGO A.N.A.:')
 
         dlg3 = QtWidgets.QInputDialog()
         new_icon3 = QtGui.QIcon()
-        new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg3.setWindowIcon(new_icon3)
         dlg3.setWindowTitle('Anexos Nucleares')
         dlg3.setLabelText('PDO A.N.A.:')
 
         dlg4 = QtWidgets.QInputDialog()
         new_icon4 = QtGui.QIcon()
-        new_icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg4.setWindowIcon(new_icon4)
         dlg4.setWindowTitle('Anexos Nucleares')
         dlg4.setLabelText('Linea:')
@@ -356,7 +355,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                                                     break
                                                                 dlg_error = QtWidgets.QMessageBox()
                                                                 new_icon = QtGui.QIcon()
-                                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                                                 dlg_error.setWindowIcon(new_icon)
                                                                 dlg_error.setWindowTitle("Anexos Nucleares")
                                                                 dlg_error.setText("La línea no puede estar vacía")
@@ -368,7 +367,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                                         break
                                                     dlg_error = QtWidgets.QMessageBox()
                                                     new_icon = QtGui.QIcon()
-                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                                     dlg_error.setWindowIcon(new_icon)
                                                     dlg_error.setWindowTitle("Anexos Nucleares")
                                                     dlg_error.setText("El pedido A.N.A. no puede estar vacío")
@@ -380,7 +379,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                             break
                                         dlg_error = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg_error.setWindowIcon(new_icon)
                                         dlg_error.setWindowTitle("Anexos Nucleares")
                                         dlg_error.setText("El código A.N.A. no puede estar vacío")
@@ -392,7 +391,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                 break
                             dlg_error = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error.setWindowIcon(new_icon)
                             dlg_error.setWindowTitle("Anexos Nucleares")
                             dlg_error.setText("El número de pedido no puede estar vacío")
@@ -404,7 +403,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Anexos Nucleares")
                 dlg_error.setText("Selecciona un anexo")
@@ -421,7 +420,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Verificación')
         dlg.setLabelText('Introduce un pedido:')
@@ -439,7 +438,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Verificación")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")

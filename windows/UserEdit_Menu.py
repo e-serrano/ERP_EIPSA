@@ -10,8 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.UserRegistration_Window import Ui_RegistrationWindow
 from windows.UserDelete_Window import Ui_DeleteUser_Window
 import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_EditUser_Menu(object):
@@ -30,7 +29,7 @@ class Ui_EditUser_Menu(object):
         EditUser_Menu.setMinimumSize(QtCore.QSize(300, 340))
         EditUser_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditUser_Menu.setWindowIcon(icon)
         EditUser_Menu.setStyleSheet(
 "QPushButton {\n"

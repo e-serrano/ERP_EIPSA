@@ -9,12 +9,11 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import os
 import psycopg2
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import re
 import pandas as pd
 
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
@@ -42,7 +41,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
         PortalDoc_Menu.setMinimumSize(QtCore.QSize(300, 300))
         PortalDoc_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         PortalDoc_Menu.setWindowIcon(icon)
         PortalDoc_Menu.setStyleSheet(
 "QPushButton {\n"
@@ -163,14 +162,14 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
         """
         dlg1 = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg1.setWindowIcon(new_icon)
         dlg1.setWindowTitle('Creación Líneas')
         dlg1.setLabelText('Introduce un pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Creación Líneas')
         dlg2.setLabelText('Introduce una fecha (dd/mm/yyyy):')
@@ -200,7 +199,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -216,7 +215,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     if len(results) == 0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle('Creación Líneas')
                         dlg.setText('El pedido introducido no existe')
@@ -248,7 +247,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle('Creación Líneas')
                                         dlg.setText("Datos insertados con éxito")
@@ -259,7 +258,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
                                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -273,7 +272,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle('Creación Líneas')
                                 dlg_error.setText("La fecha no puede estar vacía o no es un valor válido")
@@ -286,7 +285,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                 else:
                     dlg_error = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg_error.setWindowIcon(new_icon)
                     dlg_error.setWindowTitle('Creación Líneas')
                     dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -305,14 +304,14 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
         """
         dlg1 = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg1.setWindowIcon(new_icon)
         dlg1.setWindowTitle('Activación Líneas / Portal')
         dlg1.setLabelText('Introduce un pedido:')
 
         dlg2 = QtWidgets.QInputDialog()
         new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg2.setWindowIcon(new_icon2)
         dlg2.setWindowTitle('Activación Líneas / Portal')
         dlg2.setLabelText('Introduce una fecha (dd/mm/yyyy):')
@@ -342,7 +341,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -358,7 +357,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     if len(results) == 0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle('Activación Líneas / Portal')
                         dlg.setText('El pedido introducido no existe')
@@ -390,7 +389,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle('Activación Líneas / Portal')
                                         dlg.setText("Datos insertados con éxito")
@@ -401,7 +400,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
                                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -415,7 +414,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle('Activación Líneas / Portal')
                                 dlg_error.setText("La fecha no puede estar vacía o no es un valor válido")
@@ -428,7 +427,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                 else:
                     dlg_error = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg_error.setWindowIcon(new_icon)
                     dlg_error.setWindowTitle('Activación Líneas / Portal')
                     dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -489,7 +488,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
 
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Datos actualizados con éxito")
@@ -500,7 +499,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("ERP EIPSA")
                             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -514,7 +513,7 @@ class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
                     break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Tag-Documentación")
                 dlg_error.setText("Selecciona un tipo de equipo")

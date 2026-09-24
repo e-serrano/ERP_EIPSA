@@ -18,8 +18,6 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from decimal import Decimal
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -278,7 +276,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -492,7 +490,7 @@ class Ui_QRCodes_Window(QtWidgets.QMainWindow):
         QRCodes_Window.resize(845, 590)
         QRCodes_Window.setMinimumSize(QtCore.QSize(1000, 590))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QRCodes_Window.setWindowIcon(icon)
         QRCodes_Window.setStyleSheet(
 "QPushButton {\n"

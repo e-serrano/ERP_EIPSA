@@ -12,9 +12,8 @@ from windows.TAGCreateFlow_Window import Ui_CreateTAGFlow_Window
 from windows.TAGCreateTemp_Window import Ui_CreateTAGTemp_Window
 from windows.TAGCreateLevel_Window import Ui_CreateTAGNiv_Window
 from windows.TAGCreateOthers_Window import Ui_CreateTAGOthers_Window
-import os
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 class Ui_TypeTagCreation_Menu(object):
     """
@@ -33,7 +32,7 @@ class Ui_TypeTagCreation_Menu(object):
         TypeTag_Menu.setMinimumSize(QtCore.QSize(300, 400))
         TypeTag_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TypeTag_Menu.setWindowIcon(icon)
         TypeTag_Menu.setStyleSheet(
 "QPushButton {\n"

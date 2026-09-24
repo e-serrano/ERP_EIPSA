@@ -11,10 +11,7 @@ from windows.TAGQueryFlow_Window import Ui_TAGQueryFlow_Window
 from windows.TAGQueryTemp_Window import Ui_TAGQueryTemp_Window
 from windows.TAGQueryLevel_Window import Ui_TAGQueryLevel_Window
 from windows.TAGQueryOthers_Window import Ui_TAGQueryOthers_Window
-
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_TAGQuery_Menu(object):
@@ -42,7 +39,7 @@ class Ui_TAGQuery_Menu(object):
         TAGQuery_Menu.setMinimumSize(QtCore.QSize(300, 400))
         TAGQuery_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TAGQuery_Menu.setWindowIcon(icon)
         TAGQuery_Menu.setStyleSheet(
 "QPushButton {\n"

@@ -4,9 +4,7 @@ from PySide6.QtCore import Qt
 from utils.Database_Manager import Create_DBconnection
 import configparser
 from datetime import *
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -183,7 +181,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         TechOffice_Window.resize(400, 561)
         TechOffice_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TechOffice_Window.setWindowIcon(icon)
         TechOffice_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

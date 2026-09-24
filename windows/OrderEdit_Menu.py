@@ -10,8 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.OrderActivation_Window import Ui_OrderActivation_Window
 from windows.OrderEdit_Window import Ui_Edit_Order_Window
 import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_EditOrder_Menu(object):
@@ -30,7 +29,7 @@ class Ui_EditOrder_Menu(object):
         EditOrder_Menu.setMinimumSize(QtCore.QSize(300, 300))
         EditOrder_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditOrder_Menu.setWindowIcon(icon)
         EditOrder_Menu.setStyleSheet(
 "QPushButton {\n"

@@ -11,11 +11,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from windows.OfferExport_Window import Ui_ExportOffer_Window
 from windows.OrderAccept_Window import Ui_OrderAccept_Window
 import os
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 from windows.Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class Ui_ExportDocs_Menu(object):
     """
@@ -43,7 +42,7 @@ class Ui_ExportDocs_Menu(object):
         ExportDocs_Menu.setMinimumSize(QtCore.QSize(300, 500))
         ExportDocs_Menu.setMaximumSize(QtCore.QSize(300, 500))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportDocs_Menu.setWindowIcon(icon)
         ExportDocs_Menu.setStyleSheet(
 "QPushButton {\n"
@@ -199,7 +198,7 @@ class Ui_ExportDocs_Menu(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Generar OVR')
         dlg.setLabelText('Introduce un pedido (P-XX/YYY):')
@@ -232,7 +231,7 @@ class Ui_ExportDocs_Menu(object):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg_error_db = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_error_db.setWindowIcon(new_icon)
                         dlg_error_db.setWindowTitle("ERP EIPSA")
                         dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -248,7 +247,7 @@ class Ui_ExportDocs_Menu(object):
                     if len(results) == 0:
                         dlg_no_order = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_no_order.setWindowIcon(new_icon)
                         dlg_no_order.setWindowTitle("Generar OVR")
                         dlg_no_order.setText("El número de pedido introducido no existe. Introduce un pedido válido")
@@ -262,7 +261,7 @@ class Ui_ExportDocs_Menu(object):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Generar OVR")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -279,7 +278,7 @@ class Ui_ExportDocs_Menu(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Situación Docs.')
         dlg.setLabelText('Introduce una referencia (Ej: 1023010920):')
@@ -315,7 +314,7 @@ class Ui_ExportDocs_Menu(object):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg_error_db = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_error_db.setWindowIcon(new_icon)
                         dlg_error_db.setWindowTitle("ERP EIPSA")
                         dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -331,7 +330,7 @@ class Ui_ExportDocs_Menu(object):
                     if len(results) == 0:
                         dlg_no_order = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_no_order.setWindowIcon(new_icon)
                         dlg_no_order.setWindowTitle("Situación Docs.")
                         dlg_no_order.setText("El número de referencia introducido no existe. Introduce una referencia válido")
@@ -347,7 +346,7 @@ class Ui_ExportDocs_Menu(object):
 
                             dlg_final= QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_final.setWindowIcon(new_icon)
                             dlg_final.setWindowTitle("Situación Docs.")
                             dlg_final.setText("Excel generado con éxito")
@@ -358,7 +357,7 @@ class Ui_ExportDocs_Menu(object):
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg_error_db = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error_db.setWindowIcon(new_icon)
                             dlg_error_db.setWindowTitle("ERP EIPSA")
                             dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -374,7 +373,7 @@ class Ui_ExportDocs_Menu(object):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Situación Docs.")
                 dlg_error.setText("La referencia no puede estar vacía. Introduce un valor válido.")
@@ -391,7 +390,7 @@ class Ui_ExportDocs_Menu(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('VPR')
         dlg.setLabelText('Introduce una referencia (Ej: 1023010920):')
@@ -425,7 +424,7 @@ class Ui_ExportDocs_Menu(object):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg_error_db = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_error_db.setWindowIcon(new_icon)
                         dlg_error_db.setWindowTitle("ERP EIPSA")
                         dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -441,7 +440,7 @@ class Ui_ExportDocs_Menu(object):
                     if len(results) == 0:
                         dlg_no_order = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_no_order.setWindowIcon(new_icon)
                         dlg_no_order.setWindowTitle("VPR")
                         dlg_no_order.setText("El número de referencia introducido no existe. Introduce una referencia válido")
@@ -457,7 +456,7 @@ class Ui_ExportDocs_Menu(object):
 
                             dlg_final= QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_final.setWindowIcon(new_icon)
                             dlg_final.setWindowTitle("VPR")
                             dlg_final.setText("Excel generado con éxito")
@@ -468,7 +467,7 @@ class Ui_ExportDocs_Menu(object):
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg_error_db = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg_error_db.setWindowIcon(new_icon)
                             dlg_error_db.setWindowTitle("ERP EIPSA")
                             dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -484,7 +483,7 @@ class Ui_ExportDocs_Menu(object):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("VPR")
                 dlg_error.setText("La referencia no puede estar vacía. Introduce un valor válido.")
@@ -501,7 +500,7 @@ class Ui_ExportDocs_Menu(object):
         """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Repuestos 2 años')
         dlg.setLabelText('Introduce un pedido (P-XX/YYY):')
@@ -534,7 +533,7 @@ class Ui_ExportDocs_Menu(object):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg_error_db = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_error_db.setWindowIcon(new_icon)
                         dlg_error_db.setWindowTitle("ERP EIPSA")
                         dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
@@ -550,7 +549,7 @@ class Ui_ExportDocs_Menu(object):
                     if len(results) == 0:
                         dlg_no_order = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg_no_order.setWindowIcon(new_icon)
                         dlg_no_order.setWindowTitle("Repuestos")
                         dlg_no_order.setText("El número de pedido introducido no existe. Introduce un pedido válido")
@@ -564,7 +563,7 @@ class Ui_ExportDocs_Menu(object):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Repuestos")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")

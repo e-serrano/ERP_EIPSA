@@ -9,7 +9,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 import re
 from utils.Database_Manager import Create_DBconnection
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import psycopg2
 import locale
 import os
@@ -18,7 +18,6 @@ from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 from PIL import Image, ExifTags
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
@@ -281,7 +280,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+            header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
 
@@ -517,7 +516,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         Verif_Flange_Information_Window.resize(790, 595)
         Verif_Flange_Information_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Flange_Information_Window.setWindowIcon(icon)
         Verif_Flange_Information_Window.setStyleSheet(
     "QComboBox {\n"
@@ -568,7 +567,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         self.toolPDF.setObjectName("PDF_Button")
         self.toolPDF.setToolTip("Imprimir PDF")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
@@ -895,7 +894,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -979,7 +978,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1071,7 +1070,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -1087,15 +1086,15 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         if len(results_flange) != 0:
             pdf = CustomPDF('P', 'cm', 'A4')
 
-            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+            pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+            pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
             pdf.set_auto_page_break(auto=True)
             pdf.set_margins(1.5, 1.5)
 
             pdf.add_page()
 
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo_email.png")), 1, 0.5, 3.5, 1)
+            pdf.image(str(get_path("Resources", "Iconos", "Logo_email.png")), 1, 0.5, 3.5, 1)
             pdf.image(self.image_path, 1.5, 1.5, 18, 9.5)
             pdf.ln(9.5)
             pdf.set_fill_color(191, 191, 191)
@@ -1224,11 +1223,11 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                     pdf.cell(1.38, 0.75, "", border=1)
                     pdf.ln()
 
-            # pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 26, 5, 3)
+            # pdf.image(str(get_path("Resources", "Iconos", "QualityControlStamp.png")), 14, 26, 5, 3)
 
             pdf_buffer = pdf.output()
 
-            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "flange.pdf"))))
+            temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "flange.pdf"))
 
             with open(temp_file_path, "wb") as temp_file:
                 temp_file.write(pdf_buffer)
@@ -1237,7 +1236,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         else:
             dlg_error = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_error.setWindowIcon(new_icon)
             dlg_error.setWindowTitle("Bridas")
             dlg_error.setText("Faltan campos por rellenar o no hay datos para esa brida")

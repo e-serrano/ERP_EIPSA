@@ -9,12 +9,10 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import os
 import re
 
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OF_DrawingInsertComp_Window(object):
@@ -44,7 +42,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
         OF_DrawingInsertComp_Window.setMinimumSize(QtCore.QSize(450, 325))
         OF_DrawingInsertComp_Window.setMaximumSize(QtCore.QSize(450, 325))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OF_DrawingInsertComp_Window.setWindowIcon(icon)
         OF_DrawingInsertComp_Window.setStyleSheet(
     "QPushButton {\n"
@@ -204,7 +202,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
         if num_order == "" or drawing == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Planos OF")
             dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
@@ -236,7 +234,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -252,7 +250,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                 if len(results) == 0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos OF")
                         dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
@@ -293,7 +291,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                                 cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg.setWindowIcon(new_icon)
                                 dlg.setWindowTitle("Planos OF")
                                 dlg.setText("Datos insertados con éxito")
@@ -304,7 +302,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                             else:
                                     dlg_yes_no = QtWidgets.QMessageBox()
                                     new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg_yes_no.setWindowIcon(new_icon_yes_no)
                                     dlg_yes_no.setWindowTitle("ERP EIPSA")
                                     dlg_yes_no.setText(f"Ya existe el plano {drawing}\n")
@@ -317,7 +315,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                             cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("Planos OF")
                             dlg.setText("Datos insertados con éxito")
@@ -333,7 +331,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos OF")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -380,7 +378,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                             cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("Planos OF")
                             dlg.setText("Datos insertados con éxito")
@@ -391,7 +389,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                         else:
                                 dlg_yes_no = QtWidgets.QMessageBox()
                                 new_icon_yes_no = QtGui.QIcon()
-                                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_yes_no.setWindowIcon(new_icon_yes_no)
                                 dlg_yes_no.setWindowTitle("ERP EIPSA")
                                 dlg_yes_no.setText(f"Ya existe el plano {drawing}\n")
@@ -404,7 +402,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                         cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("Planos OF")
                         dlg.setText("Datos insertados con éxito")
@@ -419,7 +417,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos OF")
                     dlg.setText("Ha ocurrido el siguiente error:\n"

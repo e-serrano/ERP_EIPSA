@@ -8,7 +8,7 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import os, io
 import datetime
 from fpdf import FPDF
@@ -17,7 +17,6 @@ import pandas as pd
 from pathlib import Path
 from pypdf import PdfReader, PdfWriter
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 class CustomPDF(FPDF):
     """
@@ -136,7 +135,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         Tests_Menu.setMinimumSize(QtCore.QSize(280, 475))
         Tests_Menu.setMaximumSize(QtCore.QSize(280, 475))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Tests_Menu.setWindowIcon(icon)
         Tests_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -201,7 +200,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_PMI.setFont(font)
         self.Button_PMI.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/PMI.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "PMI.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_PMI.setIcon(icon8)
         self.Button_PMI.setIconSize(QtCore.QSize(40, 40))
         self.Button_PMI.setObjectName("Button_PMI")
@@ -216,7 +215,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_XRay.setFont(font)
         self.Button_XRay.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/X-Ray.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon10.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "X-Ray.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_XRay.setIcon(icon10)
         self.Button_XRay.setIconSize(QtCore.QSize(40, 40))
         self.Button_XRay.setObjectName("Button_XRay")
@@ -231,7 +230,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_ultrasound.setFont(font)
         self.Button_ultrasound.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ultrasound.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "ultrasound.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ultrasound.setIcon(icon11)
         self.Button_ultrasound.setIconSize(QtCore.QSize(40, 40))
         self.Button_ultrasound.setObjectName("Button_ultrasound")
@@ -246,7 +245,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_tests.setFont(font)
         self.Button_tests.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Test_Menu_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Test_Menu_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_tests.setIcon(icon12)
         self.Button_tests.setIconSize(QtCore.QSize(40, 40))
         self.Button_tests.setObjectName("Button_tests")
@@ -262,7 +261,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_calibration_sheet.setFont(font)
         self.Button_calibration_sheet.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Caliber_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Caliber_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_calibration_sheet.setIcon(icon13)
         self.Button_calibration_sheet.setIconSize(QtCore.QSize(40, 40))
         self.Button_calibration_sheet.setObjectName("Button_calibration_sheet")
@@ -336,14 +335,14 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         """
         dlg1 = QtWidgets.QInputDialog()
         new_icon1 = QtGui.QIcon()
-        new_icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg1.setWindowIcon(new_icon1)
         dlg1.setWindowTitle('Radiografías')
         dlg1.setLabelText('Introduce un pedido:')
 
         dlg3 = QtWidgets.QInputDialog()
         new_icon3 = QtGui.QIcon()
-        new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg3.setWindowIcon(new_icon3)
         dlg3.setWindowTitle('Radiografías')
         dlg3.setLabelText('Introduce una fecha:')
@@ -375,7 +374,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -390,7 +389,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     if len(results) == 0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("El número de pedido no existe")
@@ -423,7 +422,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("Radiografías")
                                         dlg.setText("Datos insertados con éxito")
@@ -434,7 +433,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
                                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -448,7 +447,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Radiografías")
                                 dlg_error.setText("La fecha no puede estar vacía o no es un valor válido (dd/mm/yyyy o dd-mm-yyyy)")
@@ -460,7 +459,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Ultrasonidos")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -479,14 +478,14 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         """
         dlg1 = QtWidgets.QInputDialog()
         new_icon1 = QtGui.QIcon()
-        new_icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg1.setWindowIcon(new_icon1)
         dlg1.setWindowTitle('Ultrasonidos')
         dlg1.setLabelText('Introduce un pedido:')
 
         dlg3 = QtWidgets.QInputDialog()
         new_icon3 = QtGui.QIcon()
-        new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg3.setWindowIcon(new_icon3)
         dlg3.setWindowTitle('Ultrasonidos')
         dlg3.setLabelText('Introduce una fecha:')
@@ -518,7 +517,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -533,7 +532,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                     if len(results) == 0:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
                         dlg.setWindowTitle("ERP EIPSA")
                         dlg.setText("El número de pedido no existe")
@@ -566,7 +565,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("Ultrasonidos")
                                         dlg.setText("Datos insertados con éxito")
@@ -577,7 +576,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
                                         dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -591,7 +590,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                                     break
                                 dlg_error = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg_error.setWindowIcon(new_icon)
                                 dlg_error.setWindowTitle("Ultrasonidos")
                                 dlg_error.setText("La fecha no puede estar vacía o no es un valor válido (dd/mm/yyyy o dd-mm-yyyy)")
@@ -603,7 +602,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("Ultrasonidos")
                 dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
@@ -679,7 +678,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -699,15 +698,15 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
         pdf = CustomPDF('P', 'cm', 'A4')
 
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
 
         pdf.set_auto_page_break(auto=True)
         pdf.set_margins(2, 1)
 
         pdf.add_page()
 
-        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 2, 1, 8, 2)
+        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 2, 1, 8, 2)
         pdf.set_font('Helvetica', '', 6)
         pdf.set_xy(14.5, 1.4)
         pdf.multi_cell(5.1, 0.3, f"Pol.Ind. IGARSA - Naves 3, 4, 5, 6, 7 y 8\n"
@@ -772,7 +771,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         pdf.cell(4, 0.5, "Quality Department", align='C')
         pdf.ln()
 
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_calib_cert.pdf"))))
+        temp_file_path = str(get_path("Resources", "pdfviewer", "temp", "temp_calib_cert.pdf"))
         pdf.output(temp_file_path)
 
         reader = PdfReader(temp_file_path)
@@ -802,7 +801,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         fpdf = FPDF('P', 'cm', 'A4')
         fpdf.add_page()
         fpdf.set_font("helvetica", size=36)
-        fpdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityStamp.png")), 13, y_position - 2, 4, 2)
+        fpdf.image(str(get_path("Resources", "Iconos", "QualityStamp.png")), 13, y_position - 2, 4, 2)
         return io.BytesIO(fpdf.output())
 
 

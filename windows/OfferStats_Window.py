@@ -7,12 +7,11 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
-from config.config_functions import config_database
+from config.config_functions import config_database, get_path
 import pandas as pd
 import os
 from datetime import *
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
@@ -37,7 +36,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         StatsOffer_Window.resize(845, 590)
         StatsOffer_Window.setMinimumSize(QtCore.QSize(500, 300))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         StatsOffer_Window.setWindowIcon(icon)
         StatsOffer_Window.setStyleSheet(
 "QPushButton {\n"
@@ -207,7 +206,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_reg.setObjectName("show_reg")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_reg.setIcon(icon6)
         self.show_reg.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_reg, 4, 3, 1, 1)
@@ -272,7 +271,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_pres.setObjectName("show_pres")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_pres.setIcon(icon6)
         self.show_pres.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_pres, 5, 3, 1, 1)
@@ -337,7 +336,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_adj.setObjectName("show_adj")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_adj.setIcon(icon6)
         self.show_adj.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_adj, 6, 3, 1, 1)
@@ -402,7 +401,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_perd.setObjectName("show_perd")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_perd.setIcon(icon6)
         self.show_perd.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_perd, 7, 3, 1, 1)
@@ -467,7 +466,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_dec.setObjectName("show_dec")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_dec.setIcon(icon6)
         self.show_dec.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_dec, 8, 3, 1, 1)
@@ -532,7 +531,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_est.setObjectName("show_est")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_est.setIcon(icon6)
         self.show_est.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_est, 9, 3, 1, 1)
@@ -597,7 +596,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
         "}")
         self.show_rec.setObjectName("show_rec")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_rec.setIcon(icon6)
         self.show_rec.setIconSize(QtCore.QSize(20, 20))
         self.gridLayout_2.addWidget(self.show_rec, 10, 3, 1, 1)
@@ -642,7 +641,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
             print(error)
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
@@ -746,7 +745,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
             print(error)
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"

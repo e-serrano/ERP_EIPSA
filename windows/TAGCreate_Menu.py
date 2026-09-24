@@ -9,9 +9,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from windows.TAGImport_Window import Ui_ImportTAG_Window
 from windows.TAGTypeCreation_Menu import Ui_TypeTagCreation_Menu
-import os
-
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
+from config.config_functions import get_path
 
 
 class Ui_CreateTag_Menu(object):
@@ -30,7 +28,7 @@ class Ui_CreateTag_Menu(object):
         Create_Tag_Menu.setMinimumSize(QtCore.QSize(300, 340))
         Create_Tag_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Create_Tag_Menu.setWindowIcon(icon)
         Create_Tag_Menu.setStyleSheet(
 "QPushButton {\n"
