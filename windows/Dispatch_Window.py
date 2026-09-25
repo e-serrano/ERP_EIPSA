@@ -436,7 +436,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Dispatch_Window)
 
         self.model.setTable("purch_fact.invoice_header")
-        self.model.setFilter("date_dispatch IS NULL")
+        self.model.setFilter("date_dispatch IS NULL OR date_dispatch = ''")
         self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
         self.model.select()
 
