@@ -12,8 +12,6 @@ from config.config_functions import config_database, get_path
 from utils.Show_Message import MessageHelper
 from utils.Database_Manager import Database_Connection
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
-
 
 class Ui_Edit_OfferRec_Window(object):
     """

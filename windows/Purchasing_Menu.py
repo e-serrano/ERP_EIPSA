@@ -17,8 +17,6 @@ import os
 from utils.Database_Manager import Create_DBconnection
 from config.config_functions import config_database, get_path
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
-
 
 class Ui_Purchasing_Menu(object):
     """

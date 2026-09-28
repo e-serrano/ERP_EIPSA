@@ -17,8 +17,6 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 from utils.Emails import EmailOffer
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """

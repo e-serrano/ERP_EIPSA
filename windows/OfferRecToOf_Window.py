@@ -13,8 +13,6 @@ import os
 from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
-basedir = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP"
-
 
 class Ui_OfferRecToOf_Window(object):
     """
