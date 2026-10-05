@@ -1437,11 +1437,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         returned = self.get_tasks_for_date(creator, selected_date)
 
         if returned:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
             final_text=''
 
             for item in returned:
@@ -1450,10 +1445,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 task_text = "<br><br>-".join(tasks)
                 final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
 
-            dlg.setText(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>", "info")
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
@@ -1594,13 +1586,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.editofferform(item)
         elif item.column() in [8, 9, 10, 11]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
@@ -1682,19 +1668,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 offers_rec_delay=[x[0] for x in results]
 
                 if len(offers_rec_delay) != 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Hay " + str(len(offers_rec_delay)) + " ofertas para reclamar\n"
-                                "¿Quieres reclamarlas ahora?\n")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    result = dlg.exec()
-                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    if MessageHelper.ask_yes_no("Hay " + str(len(offers_rec_delay)) + " ofertas para reclamar\n"
+                                "¿Quieres reclamarlas ahora?\n", "ERP EIPSA"):
                         self.reclamation_offer()
-                    del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -1794,7 +1770,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
                                 conn.commit()
 
-                            MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Information, "info")
+                            MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         except (Exception, psycopg2.DatabaseError) as error:
                             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -1831,16 +1807,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             if ok and report:
                 while True:
                     if report == 'Ofertas':
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("¿Quieres generar el PDF?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no("¿Quieres generar el PDF?\n", "ERP EIPSA"):
                             report_offers()
 
                         del dlg_yes_no, new_icon_yes_no

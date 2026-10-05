@@ -1,5 +1,7 @@
 import psycopg2
 from config.config_functions import config_database
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 def delete_user_database(email):
     """
@@ -8,26 +10,25 @@ def delete_user_database(email):
     Args:
         email (str): The email of the user to be deleted.
     """
-    params = config_database()
-    conn = psycopg2.connect(**params)
-    cur = conn.cursor()
-
     command_check_user = ("""
                         SELECT * FROM users_data.registration
                         WHERE "email" = %s
                         """)
 
     # Check username with email 
-    cur.execute(command_check_user, (email,))
-    results=cur.fetchall()
+    with Database_Connection(config_database()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(command_check_user, (email,))
+            results=cur.fetchall()
+
     match=list(filter(lambda x:email in x, results))
     user_db=match[0][3]
 
     # Revoke all privileges and delete user from database
-    cur.execute("""
-        SELECT nspname FROM pg_catalog.pg_namespace;
-    """)
-    schemas = cur.fetchall()
+    with Database_Connection(config_database()) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT nspname FROM pg_catalog.pg_namespace;""")
+            schemas = cur.fetchall()
 
     commands_delete_privileges = []
 
@@ -40,10 +41,7 @@ def delete_user_database(email):
     commands_delete_privileges.append(f"DROP USER \"{user_db}\";")
 
     for command in commands_delete_privileges:
-        cur.execute(command)
-
-    conn.commit()
-
-    # Close connection
-    cur.close()
-    conn.close()
+        with Database_Connection(config_database()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(command)
+            conn.commit()

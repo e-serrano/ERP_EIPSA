@@ -39,69 +39,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class ImageCalendarWidget(QtWidgets.QCalendarWidget):
-    """
-    A custom QCalendarWidget that highlights specific dates by painting an image on the calendar cells.
-
-    This widget allows the user to set a list of dates (`task_dates`) and draws a custom image
-    on the corresponding calendar cells when these dates are displayed.
-
-    Attributes:
-    -----------
-    task_dates : list
-        A list of QDate objects that represent the dates on which the image will be displayed.
-    """
-    def __init__(self, parent=None):
-        """
-        Initializes the ImageCalendarWidget instance.
-
-        Args:
-        -----------
-        parent : QWidget, optional
-            The parent widget, if any. Defaults to None.
-
-        Initializes the `task_dates` attribute as an empty list.
-        """
-        super().__init__(parent)
-        self.task_dates = []
-
-    def set_task_dates(self, dates):
-        """
-        Sets the dates on which the custom image will be drawn and refreshes the calendar.
-
-        Args:
-        -----------
-        dates : list of QDate
-            A list of QDate objects representing the dates on which the image should appear.
-        """
-        self.task_dates = dates
-        self.updateCells()
-
-    def paintCell(self, painter, rect, date):
-        """
-        Customizes the painting of calendar cells to include a flag image on specific dates.
-
-        Args:
-        -----------
-        painter : QPainter
-            The QPainter object responsible for rendering the cell.
-        rect : QRect
-            The rectangular area of the cell to be painted.
-        date : QDate
-            The date associated with the cell being painted.
-        """
-        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
-
-        if date in self.task_dates:
-            image_path = str(get_path("Resources", "Iconos", "Flag.png"))
-            image = QtGui.QImage(image_path)
-            if not image.isNull():
-                image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
-                image_rect = image_scaled.rect()
-                image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
-                painter.drawImage(image_rect, image_scaled)
-
-
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
     Custom QTableWidget that supports filtering and sorting features.
@@ -918,7 +855,7 @@ class Ui_App_SubManager(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-        self.Calendar = ImageCalendarWidget(parent=self.frame)
+        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
         self.Calendar.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -998,10 +935,7 @@ class Ui_App_SubManager(object):
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.tableOffer.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.Button_Reports.clicked.connect(self.generate_report)
-        # self.Calendar.activated.connect(self.show_selected_date_tasks)
         # self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
-
-        # self.setup_task_dates()
 
         commands_appcomercial = ("""
                     SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material",
@@ -1185,56 +1119,6 @@ class Ui_App_SubManager(object):
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
 
-# Function to open window with tasks query
-    def querytask(self, date=None):
-        """
-        Opens a new window for querying tasks.
-
-        Args:
-            date (QDate, optional): The date to filter tasks. Defaults to None.
-        """
-        from windows.TaskQuery_Window import Ui_QueryTask_Window
-        self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
-        self.querytaskwindow.show()
-        self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
-
-# Function to add a new task
-    def newtask(self, date):
-        """
-        Opens a new window for creating a new task.
-
-        Args:
-            date (QDate): The date associated with the new task.
-        """
-        from windows.TaskAdd_Window import Ui_AddTask_Window
-        self.newtaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_AddTask_Window(self.name, date)
-        self.ui.setupUi(self.newtaskwindow)
-        self.newtaskwindow.show()
-        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
-
-# Function to open calendar menu
-    def show_context_menu(self, point):
-        """
-        Displays a context menu at the specified point in the calendar widget.
-        Provides options to add or edit tasks for the selected date.
-
-        Args:
-            point (QPoint): The location where the context menu will appear.
-        """
-        selected_date = self.Calendar.selectedDate()
-        menu = QMenu(self.centralwidget)
-
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
-        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-
-        action1 = menu.addAction("Agregar tareas")
-        action1.triggered.connect(lambda: self.newtask(selected_date))
-        action2 = menu.addAction("Editar tareas")
-        action2.triggered.connect(lambda: self.querytask(selected_date))
-
-        menu.exec(self.Calendar.mapToGlobal(point))
-
 # Function to open context menu when profile button is clicked
     def showMenu(self):
         """
@@ -1274,13 +1158,7 @@ class Ui_App_SubManager(object):
 
         elif item.column() in [9,10,11]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 # Function when double clicked cell is in first column
     def clientresume(self, item):
@@ -1296,167 +1174,6 @@ class Ui_App_SubManager(object):
         self.ui=Ui_ClientResume_Window(clientname)
         self.ui.setupUi(self.client_resume_window)
         self.client_resume_window.show()
-
-# Function to stablish dates with task assigned to put icon on calendar
-    def setup_task_dates(self):
-        """
-        Sets up task dates for the calendar widget.
-        Handles errors with a message box and updates the calendar with task dates.
-        """
-        commands_loaddatestasks_LB = ("""
-                    SELECT "task_date","task"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loaddatestasks_LB)
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            dates_with_tasks_raw=[x[0] for x in results]
-            dates_with_tasks=list(set(dates_with_tasks_raw))
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-        # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
-        task_dates = dates_with_tasks
-        self.Calendar.set_task_dates(task_dates)
-
-# Function to show tasks of the selected date
-    def show_selected_date_tasks(self):
-        """
-        Displays tasks for the selected date in a message box.
-        Handles errors with a message box.
-        """
-        self.click_count = 0
-        selected_date = self.Calendar.selectedDate()
-        if self.name == 'Carlos Crespo':
-            creator=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-        else:
-            creator=self.name[0] + self.name[self.name.find(' ')+1]
-        returned = self.get_tasks_for_date(creator, selected_date)
-
-        if returned:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            final_text=''
-
-            for item in returned:
-                responsible = item[0]
-                tasks = item [1]
-                task_text = "<br><br>-".join(tasks)
-                final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
-
-            dlg.setText(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
-
-# Function to obtain tasks associated to a date
-    def get_tasks_for_date(self, creator, date):
-        """
-        Retrieves tasks for a specific date.
-
-        Args:
-            creator (str): The creator or responsible person for the tasks.
-            date (QDate): The date for which tasks are being retrieved.
-
-        Returns:
-            list: A list of tasks for the specified date.
-        """
-        commands_loaddatestasks_LB = ("""
-                    SELECT "responsible","task_date","task","state","creator"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "task_date" IS NOT NULL
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loaddatestasks_LB)
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            dict_responsibles_tasks={}
-
-            for i in range(len(results)):
-                responsible=results[i][0]
-                key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
-                value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
-
-                if responsible not in dict_responsibles_tasks:
-                    dict_responsibles_tasks[responsible] = [{key: [value]}]
-
-                else:
-                    for item in dict_responsibles_tasks[responsible]:
-                        if key not in item:
-                            item[key] = [value]
-
-                        else:
-                            item[key].append(value)
-
-            value_to_return = []
-            for item in dict_responsibles_tasks.keys():
-                for element in dict_responsibles_tasks[item]:
-                    if date in element:
-                        value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
-
-            return value_to_return
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

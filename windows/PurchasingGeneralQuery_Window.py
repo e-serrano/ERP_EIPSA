@@ -14,6 +14,8 @@ import pandas as pd
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -672,16 +674,12 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
                         ORDER BY supplier_ord."order_date" DESC)
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_query_all)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_query_all)
+                    results=cur.fetchall()
+
             self.tableQueryPurchase.setRowCount(len(results))
             tablerow=0
 
@@ -704,24 +702,9 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
 
             self.tableQueryPurchase.hideColumn(0)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def query_filtered(self):
         """
@@ -749,18 +732,14 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
                         supplier_ord."deliv_date_1", supplier_ord."deliv_date_2", supplier_ord."deliv_date_3"
                         ORDER BY supplier_ord."order_date" DESC)
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(order,)
-            cur.execute(commands_query_filtered, data)
 
-            results=cur.fetchall()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(order,)
+                    cur.execute(commands_query_filtered, data)
+                    results=cur.fetchall()
+
             self.tableQueryPurchase.setRowCount(len(results))
             tablerow=0
 
@@ -783,25 +762,9 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
 
             self.tableQueryPurchase.hideColumn(0)
 
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def countSelectedCells(self):
         """
@@ -929,26 +892,10 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
 
                 writer._save()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("Datos exportados con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

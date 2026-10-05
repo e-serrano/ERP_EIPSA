@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QDate, QUrl
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from config.config_functions import config_database, get_path
 import psycopg2
 import locale
@@ -22,6 +22,7 @@ import pandas as pd
 from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 from PIL import Image, ExifTags
+from utils.Show_Message import MessageHelper
 
 
 
@@ -1026,15 +1027,8 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
         if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos cargados", "warning")
+
         else:
             final_data = []
 
@@ -1227,35 +1221,16 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                         INSERT INTO verification.handtools_workshop_revisions (handtool_id)
                         VALUES(%s)
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=(self.handtool_id,)
-            cur.execute(commands_new, data)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.handtool_id,)
+                    cur.execute(commands_new, data)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.query_revisions()
 
@@ -1287,36 +1262,15 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                     WHERE "id" = %s
                     """)
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_insert, (images_path, self.handtool_id,))
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_insert, (images_path, self.handtool_id,))
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Herramientas Taller")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.load_data()
 
@@ -1332,36 +1286,15 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                 WHERE "id" = %s
                 """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_insert, (self.handtool_characteristics.toPlainText(), self.handtool_id,))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_insert, (self.handtool_characteristics.toPlainText(), self.handtool_id,))
+                conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Herramientas Taller")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to load data
     def load_data(self):
@@ -1371,32 +1304,15 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         """
         query_handtool_data = ("""SELECT characteristics, image, brand, handtool_type, year, warehouse, TO_CHAR(next_revision,'DD/MM/YYYY') FROM verification.handtools_workshop WHERE id = %s""")
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_handtool_data, (self.handtool_id,))
-            results_handtool=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_handtool_data, (self.handtool_id,))
+                    results_handtool=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if results_handtool[0][1] is not None and results_handtool[0][1] != '':
             image_path = os.path.abspath(results_handtool[0][1])
@@ -1413,7 +1329,6 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
             self.handtool_image.setPixmap(pixmap)
             self.handtool_image.setScaledContents(True)
-
 
         self.handtool_characteristics.setText(results_handtool[0][0] if results_handtool[0][0] is not None else "")
         self.label_number.setText("NÚMERO: " + str(self.handtool_id))
@@ -1444,63 +1359,24 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                 id_values.append(value)
 
         if len(id_values) != 0:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                conn = None
+            if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    commands_delete = ("""DELETE FROM verification.handtools_workshop_revisions
-                                        WHERE id = %s""")
-                    for id_value in id_values:
-                        data = (id_value,)
-                        cur.execute(commands_delete, data)
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            commands_delete = ("""DELETE FROM verification.handtools_workshop_revisions
+                                                WHERE id = %s""")
+                            for id_value in id_values:
+                                data = (id_value,)
+                                cur.execute(commands_delete, data)
+                        conn.commit()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Revisiones Herramientas")
-                    dlg.setText("Registros eliminados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("Registros eliminados con éxito", "info")
 
                     self.query_revisions()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            del dlg_yes_no, new_icon_yes_no
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to correct image orientation
     def correct_image_orientation(self,image_path):
@@ -1541,34 +1417,18 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         query_handtool_data = ("""SELECT * FROM verification.handtools_workshop WHERE id = %s""")
         query_handtool_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.handtools_workshop_revisions WHERE handtool_id = %s""")
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_handtool_data, (self.handtool_id,))
-            results_handtool=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_handtool_data, (self.handtool_id,))
+                    results_handtool=cur.fetchall()
 
-            cur.execute(query_handtool_revision, (self.handtool_id,))
-            results_revisions=cur.fetchall()
+                    cur.execute(query_handtool_revision, (self.handtool_id,))
+                    results_revisions=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(results_handtool) != 0:
             pdf = CustomPDF('P', 'cm', 'A4')
@@ -1651,16 +1511,9 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
             self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
             self.pdf_viewer.showMaximized()
+
         else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Herramientas")
-            dlg_error.setText("No existe herramienta con ese número")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
+            MessageHelper.show_message("No existe herramienta con ese número", "warning")
 
 
 

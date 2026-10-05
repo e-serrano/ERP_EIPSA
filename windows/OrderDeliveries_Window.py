@@ -12,6 +12,8 @@ import pandas as pd
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -355,62 +357,8 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
         DeliveriesOrder_Window.setStatusBar(self.statusbar)
         self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        # commands_comboboxes1queryoffer = ("""
-        #                 SELECT *
-        #                 FROM product_type
-        #                 """)
-        # conn = None
-        # try:
-        # # read the connection parameters
-        #     params = config_database()
-        # # connect to the PostgreSQL server
-        #     conn = psycopg2.connect(**params)
-        #     cur = conn.cursor()
-        # # execution of commands one by one
-        #     cur.execute(commands_comboboxes1queryoffer)
-        #     results1=cur.fetchall()
-        # # close communication with the PostgreSQL database server
-        #     cur.close()
-        # # commit the changes
-        #     conn.commit()
-        # except (Exception, psycopg2.DatabaseError) as error:
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("ERP EIPSA")
-        #     dlg.setText("Ha ocurrido el siguiente error:\n"
-        #                 + str(error))
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #     dlg.exec()
-        #     del dlg, new_icon
-        # finally:
-        #     if conn is not None:
-        #         conn.close()
-
-        # list_material=[''] + list(set([x[1] for x in results1]))
-        # self.EqType_QueryOrder.addItems(sorted(list_material))
-
-        # list_months = [''] + [str(x) for x in range(1,13)]
-        # self.Month1_QueryOrder.addItems(list_months)
-        # self.Month2_QueryOrder.addItems(list_months)
-
         self.retranslateUi(DeliveriesOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(DeliveriesOrder_Window)
-        # self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        # self.Button_Query.clicked.connect(self.query_order) # type: ignore
-        # self.Button_Export.clicked.connect(self.export_data)  # type: ignore
-        # self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
-        # self.Numoffer_QueryOrder.returnPressed.connect(self.query_order)
-        # self.Ref_QueryOrder.returnPressed.connect(self.query_order)
-        # self.Client_QueryOrder.returnPressed.connect(self.query_order)
-        # self.Finalclient_QueryOrder.returnPressed.connect(self.query_order)
-        # self.Amount_QueryOrder.returnPressed.connect(self.query_order)
-        # self.EqType_QueryOrder.currentIndexChanged.connect(self.query_order)
-        # self.Month1_QueryOrder.currentIndexChanged.connect(self.query_order)
-        # self.Month2_QueryOrder.currentIndexChanged.connect(self.query_order)
-        # self.Year_QueryOrder.returnPressed.connect(self.query_order)
-        # self.tableQueryOrder.itemSelectionChanged.connect(self.countSelectedCells)
         self.tableQueryOrder.itemDoubleClicked.connect(self.expand_cell)
 
         self.query_order()
@@ -457,18 +405,13 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
                     )
                     ORDER BY dispatch."our_ref"
                     """)
-        
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(self.numorder,)
-            cur.execute(commands_queryorder, data)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.numorder,)
+                    cur.execute(commands_queryorder, data)
+                    results=cur.fetchall()
 
             self.tableQueryOrder.setRowCount(len(results))
             tablerow=0
@@ -490,24 +433,9 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
             self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableQueryOrder.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def expand_cell(self, item):
         """
@@ -519,13 +447,7 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [6]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pedidos")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
     def export_data(self):
         """

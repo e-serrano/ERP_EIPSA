@@ -15,7 +15,8 @@ import string
 import random
 import re
 import hashlib
-
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_ForgetPass_Window(object):
@@ -175,50 +176,25 @@ class Ui_ForgetPass_Window(object):
         Sends a temporary password to the user's email if found in the database.
         """
         recipient_email=self.email_forgetpass.text()
-    #SQL Query for loading existing data in database
+
         commands = ("""
                     SELECT *
                     FROM users_data.registration
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands)
-            results=cur.fetchall()
-            match=list(filter(lambda x:recipient_email in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands)
+                    results=cur.fetchall()
+                    match=list(filter(lambda x:recipient_email in x, results))
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-        
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
         if len(match)==0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Recordar contraseña")
-            dlg.setText("El correo introducido no se encuentra registrado en la base de datos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("El correo introducido no se encuentra registrado en la base de datos", "warning")
 
         else:
             try:
@@ -244,48 +220,24 @@ class Ui_ForgetPass_Window(object):
                     SET password = %s
                     WHERE username = %s
                     """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands, (hashed_password, user,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands, (hashed_password, user,))
+                        conn.commit()
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                            + str(error), "critical")
 
                 mail=email_password(recipient_email,user,temp_password)
                 mail.send_email()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Recordatorio contraseña")
-                dlg.setText("Correo enviado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Correo enviado con éxito", "info")
 
             except:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Recordatorio contraseña")
-                dlg.setText("No ha sido posible enviar el correo. Contacte con el administrador")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("No ha sido posible enviar el correo. Contacte con el administrador", "warning")
 
 
 # if __name__ == "__main__":

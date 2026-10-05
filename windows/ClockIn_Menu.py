@@ -11,6 +11,8 @@ import os
 import pandas as pd
 import psycopg2
 from config.config_functions import config_database, get_path
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -180,10 +182,6 @@ class Ui_ClockIn_Menu(QtWidgets.QMainWindow):
                 df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
                 df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
 
-                params = config_database()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
-
                 for index, row in df_final.iterrows():
                 # Create a list of pairs (column_name, column_value) for each column with value
                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -196,35 +194,17 @@ class Ui_ClockIn_Menu(QtWidgets.QMainWindow):
 
                     sql_insertion = f"INSERT INTO clock_in_times ({columns}) VALUES ({values})"
 
-                    cursor.execute(sql_insertion)
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(sql_insertion)
+                        conn.commit()
 
-                conn.commit()
-                cursor.close()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos importados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Datos importados con éxito", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to show calendar with clock-in hours
     def clockin(self):

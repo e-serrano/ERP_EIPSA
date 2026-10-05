@@ -3008,15 +3008,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             MessageHelper.show_message("Selecciona un pedido existente", 'warning')
 
         else:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Incluir sello certificados materiales?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result_stamp = dlg_yes_no.exec()
+            result_stamp = MessageHelper.ask_yes_no("¿Incluir sello certificados materiales?\n", "ERP EIPSA")
 
             num_order=self.NumOrder_SupplierOrder.text()
             date=self.Date_SupplierOrder.text()
@@ -3146,7 +3138,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             pdf.ln(1)
 
-            if result_stamp == QtWidgets.QMessageBox.StandardButton.Yes:
+            if result_stamp:
                 x, y = pdf.get_x(), pdf.get_y()
                 pdf.image(str(get_path("Resources", "Iconos", "Supplier_Order_Stamp_3.png")), 5, y, 9.5, 2)
 
@@ -3244,7 +3236,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             pdf_verification.ln(1)
 
-            if result_stamp == QtWidgets.QMessageBox.StandardButton.Yes:
+            if result_stamp:
                 x, y = pdf_verification.get_x(), pdf_verification.get_y()
                 pdf_verification.image(str(get_path("Resources", "Iconos", "Supplier_Order_Stamp_3.png")), 5, y, 9.5, 2)
 

@@ -12,6 +12,7 @@ from config.config_functions import config_database, get_path
 import psycopg2
 import pandas as pd
 from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -2659,56 +2660,20 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                 if clickedButton == 1:
                     delivnote_number = dlg.textValue()
                     if delivnote_number != '':
-                        conn = None
                         try:
-                        # read the connection parameters
-                            params = config_database()
-                        # connect to the PostgreSQL server
-                            conn = psycopg2.connect(**params)
-                            cur = conn.cursor()
-                        # execution of commands
-                            commands_update = f"""UPDATE purch_fact.invoice_header SET description_dispatch = '{description}' WHERE num_delivnote = '{delivnote_number}'"""
-                            cur.execute(commands_update)
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    commands_update = f"""UPDATE purch_fact.invoice_header SET description_dispatch = '{description}' WHERE num_delivnote = '{delivnote_number}'"""
+                                    cur.execute(commands_update)
+                                conn.commit()
 
-                        # close communication with the PostgreSQL database server
-                            cur.close()
-                        # commit the changes
-                            conn.commit()
-
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Descripción Albarán")
-                            dlg.setText("Descripción añadida")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg,new_icon
+                            MessageHelper.show_message("Descripción añadida", "info")
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                    + str(error), "critical")
                         break
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Descripción Albarán")
-                    dlg_error.setText("El número de albarán no puede estar vacío")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("El número de albarán no puede estar vacío", "warning")
                 else:
                     break
 

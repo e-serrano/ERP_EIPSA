@@ -13,7 +13,8 @@ import os
 import re
 from datetime import *
 import locale
-
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -710,20 +711,11 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                         ORDER BY tags."num_offer"
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute(query_material)
-            results=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_material)
+                    results=cur.fetchall()
 
             self.tableTags.setRowCount(len(results))
             self.tableTags.setColumnCount(15)
@@ -753,19 +745,8 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                 self.tableTags.hideColumn(6)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to query tags when filters are applied
     def querytags_filtered(self):
@@ -799,21 +780,12 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                         ORDER BY tags."tag"
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            data = (tag, item_type, size, f_material, e_material,)
-            cur.execute(query_material, data)
-            results=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data = (tag, item_type, size, f_material, e_material,)
+                    cur.execute(query_material, data)
+                    results=cur.fetchall()
 
             self.tableTags.setRowCount(len(results))
             self.tableTags.setColumnCount(15)
@@ -843,19 +815,8 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                 self.tableTags.hideColumn(6)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
@@ -894,26 +855,17 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                         ORDER BY element."element_material"
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute(query_type)
-            results_type=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_type)
+                    results_type=cur.fetchall()
 
-            cur.execute(query_f_material)
-            results_f_material=cur.fetchall()
+                    cur.execute(query_f_material)
+                    results_f_material=cur.fetchall()
 
-            cur.execute(query_e_material)
-            results_e_material=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    cur.execute(query_e_material)
+                    results_e_material=cur.fetchall()
 
             list_types = [x[0] for x in results_type]
             list_f_material = [x[0] for x  in results_f_material]
@@ -924,19 +876,8 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
             self.element_material.addItems([''] + list_e_material)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to open window with price history of tags
     def open_price_history(self):

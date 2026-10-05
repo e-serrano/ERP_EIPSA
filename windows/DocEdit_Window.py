@@ -11,7 +11,7 @@ from PySide6 import QtSql
 import re
 import configparser
 import locale
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PySide6.QtWidgets import QApplication
@@ -19,6 +19,7 @@ import os
 from config.config_functions import config_database, get_path
 import pandas as pd
 import psycopg2
+from utils.Show_Message import MessageHelper
 
 
 
@@ -135,179 +136,6 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
         painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
         super().paint(painter, option, index)
-
-# class CustomProxyModel(QtCore.QSortFilterProxyModel):
-#     """
-#     A custom proxy model that filters table rows based on expressions set for specific columns.
-
-#     Attributes:
-#         _filters (dict): A dictionary to store filter expressions for columns.
-#         header_names (dict): A dictionary to store header names for the table.
-
-#     Properties:
-#         filters: Getter for the current filter dictionary.
-
-#     """
-#     def __init__(self, parent=None):
-#         """
-#         Get the current filter expressions applied to columns.
-
-#         Returns:
-#             dict: Dictionary of column filters.
-#         """
-#         super().__init__(parent)
-#         self._filters = dict()
-#         self.header_names = {}
-
-#     @property
-#     def filters(self):
-#         """
-#         Get the current filter expressions applied to columns.
-
-#         Returns:
-#             dict: Dictionary of column filters.
-#         """
-#         return self._filters
-
-#     def setFilter(self, list_expresions, column, action_name=None):
-#         """
-#         Apply a filter expression to a specific column, or remove it if necessary.
-
-#         Args:
-#             expresion (str): The filter expression.
-#             column (int): The index of the column to apply the filter to.
-#             action_name (str, optional): Name of the action, can be empty. Defaults to None.
-#         """
-#         for expresion in list_expresions:
-#             if expresion or expresion == '':
-#                 if column in self.filters:
-#                     if action_name or action_name == '':
-#                         self.filters[column].remove(expresion)
-#                     else:
-#                         self.filters[column].append(expresion)
-#                 else:
-#                     self.filters[column] = [expresion]
-#             elif column in self.filters:
-#                 if action_name or action_name == '':
-#                     self.filters[column].remove(expresion)
-#                     if not self.filters[column]:
-#                         del self.filters[column]
-#                 else:
-#                     del self.filters[column]
-#         self.invalidateFilter()
-
-
-#     def filterAcceptsRow(self, source_row, source_parent):
-#         """
-#         Check if a row passes the filter criteria based on the column filters.
-
-#         Args:
-#             source_row (int): The row number in the source model.
-#             source_parent (QModelIndex): The parent index of the row.
-
-#         Returns:
-#             bool: True if the row meets the filter criteria, False otherwise.
-#         """
-#         for column, expresions in self.filters.items():
-#             text = self.sourceModel().index(source_row, column, source_parent).data()
-
-#             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
-#                 text = text.toString("yyyy-MM-dd")
-
-#             for expresion in expresions:
-#                 if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
-#                     if text == '':
-#                         break
-
-#                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
-#                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
-#                     expresion = expresion.toString("yyyy-MM-dd")
-#                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
-#                     if regex.match(str(text)).hasMatch():
-#                         break
-
-#                 else:
-#                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
-#                     if regex.match(str(text)).hasMatch():
-#                         break
-#             else:
-#                 return False
-#         return True
-
-# class EditableTableModel(QtSql.QSqlTableModel):
-#     """
-#     A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
-
-#     Signals:
-#         updateFailed (str): Signal emitted when an update to the model fails.
-#     """
-#     updateFailed = QtCore.Signal(str)
-#     def __init__(self, parent=None):
-#         """
-#         Initialize the model with user permissions
-#         """
-#         super().__init__(parent)
-#         self.originalData = {}
-#         self.relations={}
-
-#     def setAllColumnHeaders(self, headers):
-#         """
-#         Set headers for all columns in the model.
-
-#         Args:
-#             headers (list): A list of header names.
-#         """
-#         for column, header in enumerate(headers):
-#             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
-
-#     def setIndividualColumnHeader(self, column, header):
-#         """
-#         Set the header for a specific column.
-
-#         Args:
-#             column (int): The column index.
-#             header (str): The header name.
-#         """
-#         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
-
-#     def setIconColumnHeader(self, column, icon):
-#         """
-#         Set an icon in the header for a specific column.
-
-#         Args:
-#             column (int): The column index.
-#             icon (QIcon): The icon to display in the header.
-#         """
-#         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
-
-#     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-#         """
-#         Retrieve the header data for a specific section of the model.
-
-#         Args:
-#             section (int): The section index (column or row).
-#             orientation (Qt.Orientation): The orientation (horizontal or vertical).
-#             role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
-
-#         Returns:
-#             QVariant: The header data for the specified section.
-#         """
-#         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
-#             return super().headerData(section, orientation, role)
-#         return super().headerData(section, orientation, role)
-
-#     def flags(self, index):
-#         """
-#         Get the item flags for a given index, controlling editability and selection based on user permissions.
-
-#         Args:
-#             index (QModelIndex): The index of the item.
-
-#         Returns:
-#             Qt.ItemFlags: The flags for the specified item.
-#         """
-#         flags = super().flags(index)
-#         return flags | QtCore.Qt.ItemFlag.ItemIsEditable
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     """
@@ -1356,7 +1184,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                     return
 
                 if self.proxy.filters:
-                    print('a')
                     model_indexes = [self.proxy.mapToSource(index) for index in selected_indexes]
                     if len(values) == 2:
                         for index in model_indexes:
@@ -1365,7 +1192,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                         for index, value in zip(model_indexes, values):
                             self.proxy.sourceModel().setData(index, value.decode('utf-8'))
                 else:
-                    print('b')
                     model_indexes = selected_indexes
                     if len(values) == 2:
                         for index in model_indexes:
@@ -1512,9 +1338,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
         if fname:
 
-            params = config_database()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
             table_name = 'public.documentation'
 
         #Importing excel file into dataframe
@@ -1546,20 +1369,13 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                        cursor.execute(sql_update)
-                        conn.commit()
 
-                cursor.close()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(sql_update)
+                            conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos importados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Datos importados con éxito", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)

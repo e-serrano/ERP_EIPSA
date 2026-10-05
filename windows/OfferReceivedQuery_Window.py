@@ -703,14 +703,7 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [7]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas Recibidas")
-            dlg.setText(cell_content)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message(cell_content, "info")
         elif item.column() == 0:
             self.editofferform(item)
 

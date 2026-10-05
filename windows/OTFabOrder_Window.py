@@ -665,17 +665,7 @@ class Ui_OTFabOrder_Window(object):
                 worksheet['B2'].value = self.num_ot
                 workbook.save(excel_file_path)
 
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Quieres incluir marco y código de barras en planos ahora?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result_answer = dlg_yes_no.exec()
-
-            if result_answer == QtWidgets.QMessageBox.StandardButton.Yes:
+            if MessageHelper.ask_yes_no("¿Quieres incluir marco y código de barras en planos ahora?\n", "ERP EIPSA"):
                 folder_path = os.path.dirname(output_path)
                 df = pd.read_excel(output_path, dtype={'OT': str})
                 df = df.sort_values(by='PLANO')

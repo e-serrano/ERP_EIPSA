@@ -14,7 +14,8 @@ import pandas as pd
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
-
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -741,19 +742,14 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
                     received_offers."state" = %s
                     ORDER BY received_offers."id_offer")
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(self.year,self.year,self.responsible,self.state,self.year,self.year,self.responsible,self.state,)
+                    cur.execute(commands_queryoffer,data)
+                    results=cur.fetchall()
 
-            data=(self.year,self.year,self.responsible,self.state,self.year,self.year,self.responsible,self.state,)
-            cur.execute(commands_queryoffer,data)
-
-            results=cur.fetchall()
             self.tableQueryOffer.setRowCount(len(results))
             tablerow=0
 
@@ -777,26 +773,9 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableQueryOffer.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
     def countSelectedCells(self):
@@ -854,14 +833,7 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [9,16,17]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas")
-            dlg.setText(cell_content)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message(cell_content, "info")
 
 
     def export_data(self):
@@ -930,26 +902,10 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
 
                 writer._save()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("Datos exportados con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 
 #Function when clicking on table header

@@ -14,6 +14,8 @@ import pandas as pd
 import os
 from datetime import *
 from openpyxl.styles import NamedStyle
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -763,16 +765,12 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                     INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
                     ORDER BY orders."num_order"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryorder)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryorder)
+                    results=cur.fetchall()
 
             self.tableQueryOrder.setRowCount(len(results))
             tablerow=0
@@ -799,24 +797,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 self.tableQueryOrder.hideColumn(14)
                 self.tableQueryOrder.hideColumn(15)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to query orders when filters apply
     def query_order_filtered(self):
@@ -830,14 +813,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         year = int(self.Year_QueryOrder.text()) if self.Year_QueryOrder.text() != '' else None
 
         if month1=='' and month2!='':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
-            dlg.setText("No puede haber un segundo mes sin haber introducido un primer mes")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("No puede haber un segundo mes sin haber introducido un primer mes", "warning")
 
         else:
             self.tableQueryOrder.setRowCount(0)
@@ -887,25 +863,21 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                         (orders."order_year" = %s OR %s IS NULL)
                         ORDER BY orders."num_order"
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                if month1 == '' and month2 == '':
-                    data=(year,year)
-                    cur.execute(commands_queryorder, data)
-                elif month1 != '' and month2 == '':
-                    data=(month1,year,year)
-                    cur.execute(commands_queryorder_dates1, data)
-                elif month1 != '' and month2 != '':
-                    data=(month1,month2,year,year)
-                    cur.execute(commands_queryorder_dates2, data)
-                results=cur.fetchall()
-                
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        if month1 == '' and month2 == '':
+                            data=(year,year)
+                            cur.execute(commands_queryorder, data)
+                        elif month1 != '' and month2 == '':
+                            data=(month1,year,year)
+                            cur.execute(commands_queryorder_dates1, data)
+                        elif month1 != '' and month2 != '':
+                            data=(month1,month2,year,year)
+                            cur.execute(commands_queryorder_dates2, data)
+                        results=cur.fetchall()
+
                 self.tableQueryOrder.setRowCount(len(results))
                 tablerow=0
 
@@ -931,24 +903,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                     self.tableQueryOrder.hideColumn(14)
                     self.tableQueryOrder.hideColumn(15)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to count selected cells and sum values
     def countSelectedCells(self):
@@ -1083,26 +1040,10 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
 
                 writer._save()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
-            dlg.setText("Datos exportados con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Datos exportados con éxito", "info")
 
         else:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
-            dlg.setText("No hay datos para exportar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("No hay datos para exportar", "warning")
 
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
@@ -1117,13 +1058,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
 
         elif item.column() in [11,12,19,22,25]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pedidos")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 # Function when double clicked cell is in first column
     def order_deliveries(self, item):

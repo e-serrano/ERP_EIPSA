@@ -10,11 +10,12 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QMenu
 import sys
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 import datetime
 import locale
 import psycopg2
 from config.config_functions import config_database, get_path
+from utils.Show_Message import MessageHelper
 
 
 
@@ -661,21 +662,25 @@ class Ui_App_Verification(object):
         Open a new window for calibrating thermo elements.
         """
         from windows.Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
+
+        if hasattr(self, "calibration_window") and self.calibration_window is not None and self.calibration_window.isVisible():
+            if self.calibration_window.isMinimized():
+                self.calibration_window.showMaximized()
+
+            self.calibration_window.activateWindow()
+            self.calibration_window.raise_()
+            return
+
         dbparam = config_database()
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if self.calibration_window is None or not self.calibration_window.isVisible():
-            db_calibration = Create_DBconnection(user_database, password_database)
-            if not db_calibration:
-                sys.exit()
+        db_calibration = Create_DBconnection(user_database, password_database)
+        if not db_calibration:
+            sys.exit()
 
-            self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
-            self.calibration_window.showMaximized()
-        else:
-            self.calibration_window.raise_()
-            self.calibration_window.activateWindow()
-            self.calibration_window.setWindowState(self.edit_tags_app.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
+        self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
+        self.calibration_window.showMaximized()
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
@@ -763,15 +768,7 @@ class Ui_App_Verification(object):
                     self.ui.setupUi(self.testquery_window)
                     self.testquery_window.showMaximized()
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Verificación")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -834,52 +831,33 @@ class Ui_App_Verification(object):
                         WHERE description = 'Revisión' and machine_id = %s
                         ORDER BY rev_date DESC
                         """)
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_check_dates)
-            results_dates = cur.fetchall()
-            for item in results_dates:
-                rev_date = item[1]
-                if rev_date < datetime.date.today():
-                    if rev_date.weekday() == 5:  # saturday
-                        rev_date += datetime.timedelta(days=2)
-                    elif rev_date.weekday() == 6:  # sunday
-                        rev_date += datetime.timedelta(days=1)
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_check_dates)
+                    results_dates = cur.fetchall()
+                    for item in results_dates:
+                        rev_date = item[1]
+                        if rev_date < datetime.date.today():
+                            if rev_date.weekday() == 5:  # saturday
+                                rev_date += datetime.timedelta(days=2)
+                            elif rev_date.weekday() == 6:  # sunday
+                                rev_date += datetime.timedelta(days=1)
 
-                    cur.execute(commands_check_revhours, (item[0],))
-                    results_hours = cur.fetchall()
+                            cur.execute(commands_check_revhours, (item[0],))
+                            results_hours = cur.fetchall()
 
-                    hours_revision = results_hours[0][1]
-                    rev_date = rev_date.strftime("%d/%m/%Y")
+                            hours_revision = results_hours[0][1]
+                            rev_date = rev_date.strftime("%d/%m/%Y")
 
-                    data=[item[0],rev_date,hours_revision,"Revisión"]
-                    cur.execute(commands_insert_rev, data)
+                            data=[item[0],rev_date,hours_revision,"Revisión"]
+                            cur.execute(commands_insert_rev, data)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to open menu with different types of revisions
     def flanges_information(self):
@@ -910,47 +888,27 @@ class Ui_App_Verification(object):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tables_notifications)
+                    results=cur.fetchall()
+                    tables_names=[x[0] for x in results]
 
-            notifications = []
+                    notifications = []
 
-            for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
-                results=cur.fetchall()
+                    for table in tables_names:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
 
-                for x in results:
-                    notifications.append(x)
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                        for x in results:
+                            notifications.append(x)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()

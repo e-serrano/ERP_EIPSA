@@ -7,12 +7,12 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets, QtSql
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from config.config_functions import config_database, get_path
 import psycopg2
 import os
 import re
-
+from utils.Show_Message import MessageHelper
 
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
@@ -546,6 +546,7 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         """
         background_color = QtGui.QColor(255, 0, 0, 0) #Transparent
         id_supply = str(index.sibling(index.row(), 0).data()).upper()
+
         commands_queryquotations = ("""
                         SELECT purch_fact.quotation_details."value"
                         FROM purch_fact.quotation_details
@@ -553,34 +554,16 @@ class ColorDelegate(QtWidgets.QItemDelegate):
                         WHERE purch_fact.quotation_details.supply_id = %s
                         ORDER BY purch_fact.quotation_header.quot_date DESC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_queryquotations,(id_supply,))
-            results_quotations=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryquotations,(id_supply,))
+                    results_quotations=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         original_text = index.data()  # Text of cell to be painted
         value_check = results_quotations[0][0].replace(" €","").replace(".","").replace(",",".") if len(results_quotations) > 0 else None  # Text for checking
@@ -1119,34 +1102,15 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
         commands_comboboxes_measureunits= f"SELECT measure_unit FROM purch_fact.measure_units"
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_comboboxes_measureunits)
-            self.results_others=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_comboboxes_measureunits)
+                    self.results_others=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         # self.tableSupplies.currentChanged.connect(self.load_item_quotations)
         self.tableSupplies.doubleClicked.connect(self.edit_supply)
@@ -1245,103 +1209,46 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                         if clickedButton3 == 1:
                             description_text = dlg3.textValue()
                             if description_text != '':
-                                conn = None
                                 try:
-                                # read the connection parameters
-                                    params = config_database()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
                                     command_checksupply = ("""
-                                    SELECT reference FROM purch_fact.supplies WHERE reference = %s""")
+                                        SELECT reference FROM purch_fact.supplies WHERE reference = %s""")
                                     commands_newsupply = ("""
-                                    INSERT INTO purch_fact.supplies (reference, description) VALUES (%s, %s) 
-                                    """)
-                                    cur.execute(command_checksupply, (reference_text,))
-                                    results_check = cur.fetchall()
+                                        INSERT INTO purch_fact.supplies (reference, description) VALUES (%s, %s) 
+                                        """)
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(command_checksupply, (reference_text,))
+                                            results_check = cur.fetchall()
 
                                     if len(results_check) == 0:
-                                        cur.execute(commands_newsupply, (reference_text, description_text,))
-                                    # close communication with the PostgreSQL database server
-                                        cur.close()
-                                    # commit the changes
-                                        conn.commit()
+                                        with Database_Connection(config_database()) as conn:
+                                            with conn.cursor() as cur:
+                                                cur.execute(commands_newsupply, (reference_text, description_text,))
+                                            conn.commit()
 
                                         self.tableSupplies.selectionModel().clearSelection()
 
-                                        # for i in range(self.model.rowCount()):
-                                        #     index = self.model.index(i, 3)
-                                        #     item_text = self.model.data(index, QtCore.Qt.ItemDataRole.DisplayRole)
-                                        #     if item_text and reference_text.upper() in item_text.upper():
-                                        #         self.tableSupplies.selectRow(index.row())
-
-                                        #         new_selection = QtCore.QItemSelection(QtCore.QModelIndex(self.model.index(index.row(), 3)), QtCore.QModelIndex(self.model.index(index.row(), 3)))
-                                        #         self.tableSupplies.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
-                                        #         self.tableSupplies.setCurrentIndex(self.model.index(index.row(), 3))
-                                        #         return
-
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("Suministros")
-                                        dlg.setText("Datos insertados con éxito")
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                        dlg.exec()
-                                        del dlg,new_icon
+                                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                         self.loadtablesupplies()
+
                                         self.tableQuotations.setRowCount(0)
+
                                         self.position_table(reference_text)
 
                                     else:
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("Suministros")
-                                        dlg.setText("Ya existe un registro con esa referencia")
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                        dlg.exec()
-                                        del dlg,new_icon
+                                        MessageHelper.show_message("Ya existe un registro con esa referencia", "warning")
 
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Suministros")
-                            dlg_error.setText("La descripción no puede estar vacía")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+
+                            MessageHelper.show_message("La descripción no puede estar vacía", "warning")
                         else:
                             break
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Suministros")
-                dlg_error.setText("La referencia no puede estar vacía")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La referencia no puede estar vacía", "warning")
             else:
                 break
 
@@ -1436,34 +1343,16 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                         WHERE purch_fact.quotation_details.supply_id = %s
                         ORDER BY purch_fact.quotation_header.quot_date DESC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_queryquotations,(self.id_supply_toquery,))
-            results_quotations=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryquotations,(self.id_supply_toquery,))
+                    results_quotations=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableQuotations.setRowCount(len(results_quotations))
         tablerow=0
@@ -1506,14 +1395,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         if item.column() == 5:
             unit_value = item.text()
 
-            dlg = QtWidgets.QMessageBox(self)
-            dlg.setWindowTitle("Actualizar precio")
-            dlg.setText("¿Quieres actualizar el precio a " + item.text())
-            dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
-            button = dlg.exec()
-
-            if button == QtWidgets.QMessageBox.StandardButton.Yes:
+            if MessageHelper.ask_yes_no("¿Quieres actualizar el precio a " + item.text(), "Actualizar precio"):
                 commands_modifysupply = ("""
                             UPDATE purch_fact.supplies
                             SET "unit_value" = %s
@@ -1523,42 +1405,24 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                             SELECT reference FROM purch_fact.supplies
                             WHERE "id" = %s
                             """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    data=(unit_value,self.id_supply_toquery,)
-                    cur.execute(commands_modifysupply,data)
 
-                    data=(self.id_supply_toquery,)
-                    cur.execute(commands_reference,data)
-                    results=cur.fetchall()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            data=(unit_value,self.id_supply_toquery,)
+                            cur.execute(commands_modifysupply,data)
+
+                            data=(self.id_supply_toquery,)
+                            cur.execute(commands_reference,data)
+                            results=cur.fetchall()
+                        conn.commit()
 
                     self.loadtablesupplies()
                     self.position_table(results[0][0])
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("ERP EIPSA")
-                    dlg_error.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg_error.exec()
-                    del dlg_error, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1571,22 +1435,6 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableSupplies)
-
-        # valuesUnique_view = []
-        # # background_colors = set()
-        # for row in range(self.tableSupplies.model().rowCount()):
-        #     index = self.tableSupplies.model().index(row, self.logicalIndex)
-        #     value = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
-        #     background_color = index.data(QtCore.Qt.ItemDataRole.BackgroundRole)
-        #     if value not in valuesUnique_view:
-        #         if isinstance(value, QtCore.QDate):
-        #             value=value.toString("dd/MM/yyyy")
-        #         valuesUnique_view.append(value)
-        #     if background_color and isinstance(background_color, QtGui.QColor):
-        #         background_colors.add(background_color)
-
-        # valuesUnique_view = {self.tableSupplies.model().index(row, self.logicalIndex).data(QtCore.Qt.ItemDataRole.DisplayRole) for row in range(self.tableSupplies.model().rowCount())}
-        # valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
 
         valuesUnique_view = self.get_unique_values_from_db(self.tableSupplies.model(), self.logicalIndex)
         
@@ -1607,82 +1455,6 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered)
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
-
-        # color_submenu = QtWidgets.QMenu("Filtrar por Color de Fondo", self)
-        # color_signal_mapper = QtCore.QSignalMapper(self)
-
-        # for color in background_colors:
-        #     color_action = QtGui.QAction(color, self.tableSupplies)
-        #     # pixmap = QtGui.QPixmap(20, 20)
-        #     # pixmap.fill(color)
-        #     # color_action.setIcon(QtGui.QIcon(pixmap))
-        #     # color_signal_mapper.setMapping(color_action, color)
-        #     color_action.triggered.connect(lambda checked, col=color: self.proxy.setBackgroundColorFilter(col))
-        #     color_submenu.addAction(color_action)
-
-        # clear_color_filter_action = QtGui.QAction("Quitar Filtro de Color", self)
-        # clear_color_filter_action.triggered.connect(lambda: self.proxy.setBackgroundColorFilter(None))
-        # color_submenu.addAction(clear_color_filter_action)
-
-        # self.menuValues.addMenu(color_submenu)
-        # self.menuValues.addSeparator()
-
-        # scroll_menu = QtWidgets.QScrollArea()
-        # if self.username == 'd.marquez':
-        #     scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
-        # else:
-        #     scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
-        # scroll_menu.setWidgetResizable(True)
-        # scroll_widget = QtWidgets.QWidget(scroll_menu)
-        # scroll_menu.setWidget(scroll_widget)
-        # scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
-
-        # checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
-
-        # if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
-        #     checkbox_all_widget.setChecked(False)
-        # else:
-        #     checkbox_all_widget.setChecked(True)
-        
-        # checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
-
-        # scroll_layout.addWidget(checkbox_all_widget)
-        # self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
-
-        # if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
-        #     list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
-        # else:
-        #     list_uniquevalues = sorted(list(set(valuesUnique_view)))
-
-        # for actionName in list_uniquevalues:
-        #     checkbox_widget = QtWidgets.QCheckBox(str(actionName))
-
-        #     if self.logicalIndex not in self.checkbox_filters:
-        #         checkbox_widget.setChecked(True)
-        #     elif actionName not in self.checkbox_filters[self.logicalIndex]:
-        #         checkbox_widget.setChecked(False)
-        #     else:
-        #         checkbox_widget.setChecked(True)
-
-        #     checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
-
-        #     scroll_layout.addWidget(checkbox_widget)
-        #     self.action_checkbox_map[actionName] = checkbox_widget
-
-        # action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-        # action_scroll_menu.setDefaultWidget(scroll_menu)
-        # self.menuValues.addAction(action_scroll_menu)
-
-        # self.menuValues.addSeparator()
-
-        # accept_button = QtGui.QAction("ACEPTAR", self.tableSupplies)
-        # accept_button.triggered.connect(self.menu_acceptbutton_triggered)
-
-        # cancel_button = QtGui.QAction("CANCELAR", self.tableSupplies)
-        # cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
-
-        # self.menuValues.addAction(accept_button)
-        # self.menuValues.addAction(cancel_button)
 
         if self.username == 'd.marquez':
             self.menuValues.setStyleSheet("QMenu { color: white; }"
@@ -1957,53 +1729,25 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 if clickedButton3 == 1:
                     reference_supply = dlg3.textValue()
                     if reference_supply != '':
-                        conn = None
                         try:
-                        # read the connection parameters
-                            params = config_database()
-                        # connect to the PostgreSQL server
-                            conn = psycopg2.connect(**params)
-                            cur = conn.cursor()
-                        # execution of commands
-                            commands_modifysupply = ("""
-                                                    UPDATE purch_fact.supplies
-                                                    SET "reference" = %s
-                                                    WHERE "id" = %s
-                                                    """)
-                            cur.execute(commands_modifysupply, (reference_supply, id_supply,))
-
-                        # close communication with the PostgreSQL database server
-                            cur.close()
-                        # commit the changes
-                            conn.commit()
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    commands_modifysupply = ("""
+                                                            UPDATE purch_fact.supplies
+                                                            SET "reference" = %s
+                                                            WHERE "id" = %s
+                                                            """)
+                                    cur.execute(commands_modifysupply, (reference_supply, id_supply,))
+                                conn.commit()
 
                             self.loadtablesupplies()
                             self.position_table(reference_supply)
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
                         break
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Suministros")
-                    dlg_error.setText("El campo no puede estar vacío")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("El campo no puede estar vacío", "warning")
                 else:
                     break
 
@@ -2029,53 +1773,25 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 if clickedButton3 == 1:
                     description_supply = dlg3.textValue()
                     if description_supply != '':
-                        conn = None
                         try:
-                        # read the connection parameters
-                            params = config_database()
-                        # connect to the PostgreSQL server
-                            conn = psycopg2.connect(**params)
-                            cur = conn.cursor()
-                        # execution of commands
-                            commands_modifysupply = ("""
-                                                    UPDATE purch_fact.supplies
-                                                    SET "description" = %s
-                                                    WHERE "id" = %s
-                                                    """)
-                            cur.execute(commands_modifysupply, (description_supply, id_supply,))
-
-                        # close communication with the PostgreSQL database server
-                            cur.close()
-                        # commit the changes
-                            conn.commit()
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    commands_modifysupply = ("""
+                                                            UPDATE purch_fact.supplies
+                                                            SET "description" = %s
+                                                            WHERE "id" = %s
+                                                            """)
+                                    cur.execute(commands_modifysupply, (description_supply, id_supply,))
+                                conn.commit()
 
                             self.loadtablesupplies()
                             self.position_table(current_reference)
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
                         break
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Suministros")
-                    dlg_error.setText("El campo no puede estar vacío")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("El campo no puede estar vacío", "warning")
                 else:
                     break
 
@@ -2094,37 +1810,22 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         source_model = proxy_model.sourceModel()
         original_column_name = source_model.record().fieldName(logicalIndex)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute(f"SELECT DISTINCT {original_column_name} FROM purch_fact.supplies")
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(f"SELECT DISTINCT {original_column_name} FROM purch_fact.supplies")
+                    results=cur.fetchall()
 
             for x in results:
                 value = x[0]
                 if isinstance(value, QtCore.QDate):
                     value = value.toString("dd/MM/yyyy")
                 unique_values.append(str(value))
-        
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-        
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
+
         return sorted(unique_values)
 
 # Function to delete register of database
@@ -2153,61 +1854,22 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 id_values.append(value)
 
         if len(id_values) != 0:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                conn = None
+            if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n", "ERP EIPSA"):
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
                     for id_value in id_values:
                         commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
-                        cur.execute(commands_delete)
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_delete)
+                            conn.commit()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Suministros")
-                    dlg.setText("Registros eliminados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("Registros eliminados con éxito", "info")
 
                     self.loadtablesupplies()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            del dlg_yes_no, new_icon_yes_no
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to reload supplies table and come back to the selected reference
     def reloadsupplies(self):

@@ -8,7 +8,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import re
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from config.config_functions import config_database, get_path
 import psycopg2
 import locale
@@ -17,6 +17,7 @@ from datetime import *
 from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 from PIL import Image, ExifTags
+from utils.Show_Message import MessageHelper
 
 
 
@@ -793,30 +794,26 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         query_pipe_diam = ("""SELECT REPLACE(TO_CHAR(in_diam, 'FM999999999.00'), '.', ',') AS pipe_int_diam FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s""")
         query_bolts = ("""SELECT dim_torn FROM validation_data.flow_torn WHERE code_torn = %s""")
 
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.Facing_Flange.text() == 'RF':
-                cur.execute(query_flange_rf_data, (code_flange,))
-                results_flange=cur.fetchall()
-                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J", "Torn."]
-            elif self.Facing_Flange.text() == 'RTJ':
-                cur.execute(query_flange_rtj_data, (code_flange,))
-                results_flange=cur.fetchall()
-                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J", "Torn."]
-            else:
-                results_flange = None
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    if self.Facing_Flange.text() == 'RF':
+                        cur.execute(query_flange_rf_data, (code_flange,))
+                        results_flange=cur.fetchall()
+                        columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J", "Torn."]
+                    elif self.Facing_Flange.text() == 'RTJ':
+                        cur.execute(query_flange_rtj_data, (code_flange,))
+                        results_flange=cur.fetchall()
+                        columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J", "Torn."]
+                    else:
+                        results_flange = None
 
-            cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
-            results_pipe_diam=cur.fetchall()
+                    cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
+                    results_pipe_diam=cur.fetchall()
 
-            cur.execute(query_bolts, (self.Size_Flange.text() + " " + self.Rating_Flange.text() + " " + self.Facing_Flange.text() + " " + self.PlateThk_Flange.text() + " SQE",))
-            results_torn=cur.fetchall()
+                    cur.execute(query_bolts, (self.Size_Flange.text() + " " + self.Rating_Flange.text() + " " + self.Facing_Flange.text() + " " + self.PlateThk_Flange.text() + " SQE",))
+                    results_torn=cur.fetchall()
 
             if len(results_flange) != 0 and results_flange is not None:
                 self.tableInformation.setRowCount(len(results_flange[0]) + 2)
@@ -886,25 +883,9 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 else:
                     self.flange_image.setPixmap(QtGui.QPixmap())
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
@@ -952,44 +933,27 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         query_schedule_data = ("SELECT schedule FROM validation_data.flow_schedule ORDER BY schedule ASC")
         query_thk_data = ("SELECT plate_thk FROM validation_data.flow_plate_thk ORDER BY plate_thk ASC")
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_size_data)
-            results_size=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_size_data)
+                    results_size=cur.fetchall()
 
-            cur.execute(query_rating_data)
-            results_rating=cur.fetchall()
+                    cur.execute(query_rating_data)
+                    results_rating=cur.fetchall()
 
-            cur.execute(query_facing_data)
-            results_facing=cur.fetchall()
+                    cur.execute(query_facing_data)
+                    results_facing=cur.fetchall()
 
-            cur.execute(query_schedule_data)
-            results_schedule=cur.fetchall()
+                    cur.execute(query_schedule_data)
+                    results_schedule=cur.fetchall()
 
-            cur.execute(query_thk_data)
-            results_thk=cur.fetchall()
+                    cur.execute(query_thk_data)
+                    results_thk=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.Standard_Flange.addItems(['', 'B16.36','B16.47 SeriesA','B16.47 SeriesB','B16.5'])
         # self.Size_Flange.addItems([""] + [x[0] for x in results_size])
@@ -1047,41 +1011,22 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                                 FROM verification.flanges_verification WHERE code_flange = %s""")
         query_pipe_diam = ("""SELECT REPLACE(TO_CHAR(in_diam, 'FM999999999.00'), '.', ',') AS pipe_int_diam FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s""")
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.Facing_Flange.text() == 'RF':
-                cur.execute(query_flange_rf_data, (code_flange,))
-                results_flange=cur.fetchall()
-            elif self.Facing_Flange.text() == 'RTJ':
-                cur.execute(query_flange_rtj_data, (code_flange,))
-                results_flange=cur.fetchall()
-            
-            cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
-            results_pipe_diam=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    if self.Facing_Flange.text() == 'RF':
+                        cur.execute(query_flange_rf_data, (code_flange,))
+                        results_flange=cur.fetchall()
+                    elif self.Facing_Flange.text() == 'RTJ':
+                        cur.execute(query_flange_rtj_data, (code_flange,))
+                        results_flange=cur.fetchall()
 
-            # cur.execute(query_flange_revision, (self.flange_id,))
-            # results_revisions=cur.fetchall()
+                    cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
+                    results_pipe_diam=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(results_flange) != 0:
             pdf = CustomPDF('P', 'cm', 'A4')
@@ -1234,15 +1179,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
 
             os.startfile(temp_file_path)
         else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Bridas")
-            dlg_error.setText("Faltan campos por rellenar o no hay datos para esa brida")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
+            MessageHelper.show_message("Faltan campos por rellenar o no hay datos para esa brida", "warning")
 
 
 

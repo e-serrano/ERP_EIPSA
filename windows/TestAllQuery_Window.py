@@ -11,6 +11,8 @@ from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from datetime import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -1598,27 +1600,18 @@ class Ui_TestAllQuery_Window(QtWidgets.QMainWindow):
                         UNION
                         SELECT id, num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hardness, hardness_hb, ball, force, heat_number, test_state, obs, quantity FROM verification.test_hardness
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_hydro)
-            results_hydro=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_hydro)
+                    results_hydro=cur.fetchall()
 
-            cur.execute(query_liquid)
-            results_liquid=cur.fetchall()
+                    cur.execute(query_liquid)
+                    results_liquid=cur.fetchall()
 
-            cur.execute(query_hard)
-            results_hard=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    cur.execute(query_hard)
+                    results_hard=cur.fetchall()
 
             self.table_hydro.setRowCount(len(results_hydro))
             tablerow=0
@@ -1690,20 +1683,8 @@ class Ui_TestAllQuery_Window(QtWidgets.QMainWindow):
             self.table_hard.custom_sort_date(6, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function when header of hydro table is clicked
     def on_header_section_clicked_hydro(self, logical_index):
@@ -1748,13 +1729,7 @@ class Ui_TestAllQuery_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [2]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pruebas")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 
 

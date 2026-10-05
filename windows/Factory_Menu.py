@@ -11,6 +11,7 @@ import os
 import configparser
 from utils.Database_Manager import Create_DBconnection
 from config.config_functions import config_database, get_path
+from utils.Show_Message import MessageHelper
 
 
 
@@ -242,15 +243,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El pedido no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El pedido no puede estar vacío", "warning")
                             else:
                                 break
                         break
@@ -267,27 +260,11 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El número OT no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El número OT no puede estar vacío", "warning")
                             else:
                                 break
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Consultar tiempos")
-                dlg_error.setText("Selecciona un tipo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un tipo", "warning")
             else:
                 break
 
@@ -353,63 +330,23 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                                                                     excel_to_export = nuclear_annexes(annex_type, numorder, ana_code, ana_order, line_number)
                                                                     excel_to_export.save_excel_doc()
                                                                     break
-                                                                dlg_error = QtWidgets.QMessageBox()
-                                                                new_icon = QtGui.QIcon()
-                                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                                dlg_error.setWindowIcon(new_icon)
-                                                                dlg_error.setWindowTitle("Anexos Nucleares")
-                                                                dlg_error.setText("La línea no puede estar vacía")
-                                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                                dlg_error.exec()
-                                                                del dlg_error,new_icon
+                                                                MessageHelper.show_message("La línea no puede estar vacía", "warning")
                                                             else:
                                                                 break
                                                         break
-                                                    dlg_error = QtWidgets.QMessageBox()
-                                                    new_icon = QtGui.QIcon()
-                                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                    dlg_error.setWindowIcon(new_icon)
-                                                    dlg_error.setWindowTitle("Anexos Nucleares")
-                                                    dlg_error.setText("El pedido A.N.A. no puede estar vacío")
-                                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                    dlg_error.exec()
-                                                    del dlg_error,new_icon
+                                                    MessageHelper.show_message("El pedido A.N.A. no puede estar vacío", "warning")
                                                 else:
                                                     break
                                             break
-                                        dlg_error = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg_error.setWindowIcon(new_icon)
-                                        dlg_error.setWindowTitle("Anexos Nucleares")
-                                        dlg_error.setText("El código A.N.A. no puede estar vacío")
-                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                        dlg_error.exec()
-                                        del dlg_error,new_icon
+                                        MessageHelper.show_message("El código A.N.A. no puede estar vacío", "warning")
                                     else:
                                         break
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Anexos Nucleares")
-                            dlg_error.setText("El número de pedido no puede estar vacío")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                            MessageHelper.show_message("El número de pedido no puede estar vacío", "warning")
                         else:
                             break
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Anexos Nucleares")
-                dlg_error.setText("Selecciona un anexo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un anexo", "warning")
             else:
                 break
 
@@ -436,15 +373,7 @@ class Ui_Factory_Menu(QtWidgets.QMainWindow):
                     self.ui.setupUi(self.testquery_window)
                     self.testquery_window.showMaximized()
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Verificación")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 

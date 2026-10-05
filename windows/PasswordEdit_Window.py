@@ -12,6 +12,8 @@ import psycopg2
 from config.config_functions import config_database, get_path
 import os
 import hashlib
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -272,18 +274,11 @@ class Ui_EditPasswordWindow(object):
             self.label_error.setText('Las contraseñas no coinciden')
 
         elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', new_password):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Contraseña no válida")
-            dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
+            MessageHelper.show_message("·La contraseña debe tener al menos 8 caracteres\n"
                         "·Debe contener al menos una mayúscula\n"
                         "·Debe contener al menos una minúscula\n"
                         "·Debe contener al menos un número\n"
-                        "·Solo admite los siguientes caracteres especiales: ¡!¿?%&")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+                        "·Solo admite los siguientes caracteres especiales: ¡!¿?%&", "warning")
 
         else:
             password_bytes = new_password.encode('utf-8')
@@ -296,44 +291,20 @@ class Ui_EditPasswordWindow(object):
                         SET "password" = %s
                         WHERE "username" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data=(hashed_password,self.username,)
-                cur.execute(commands_editpassword,data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(hashed_password,self.username,)
+                        cur.execute(commands_editpassword,data)
+                    conn.commit()
 
             # showing success window
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Contraseña")
-                dlg.setText("Contraseña editada con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+                MessageHelper.show_message("Contraseña editada con éxito", "info")
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
 if __name__ == "__main__":

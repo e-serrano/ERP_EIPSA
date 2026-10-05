@@ -11,8 +11,9 @@ from PySide6.QtCore import Qt
 import psycopg2
 import sys
 from config.config_functions import config_database, get_path
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from datetime import *
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -446,16 +447,12 @@ class Ui_App_Manager(object):
                     ))
                     ORDER BY "num_offer"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_appcomercial)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_appcomercial)
+                    results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
 
@@ -474,24 +471,9 @@ class Ui_App_Manager(object):
             self.tableOffer.verticalHeader().hide()
             self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.showMessage("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 # Function to translate and updates the text of various UI elements
@@ -649,13 +631,7 @@ class Ui_App_Manager(object):
             self.editofferform(item)
         elif item.column() in [8,9,10]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Manager")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 # Function when double clicked cell is in first column
     def clientresume(self, item):

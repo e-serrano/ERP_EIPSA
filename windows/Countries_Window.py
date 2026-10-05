@@ -9,12 +9,13 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt, QDate
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from config.config_functions import config_database, get_path
 import psycopg2
 import configparser
 from datetime import *
 import os
+from utils.Show_Message import MessageHelper
 
 
 
@@ -464,45 +465,23 @@ class Ui_Countries_Window(QtWidgets.QMainWindow):
         unsubdate = self.UnsubDate_Countries.text() if self.UnsubDate_Countries.text() != '' else None
 
         if name in ['', ' ']:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("País Destino")
-            dlg.setText('Debes rellenar el campo de "Nombre" como mínimo')
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message('Debes rellenar el campo de "Nombre" como mínimo', "warning")
 
         else:
             commands_newcountry = ("""
                                 INSERT INTO purch_fact.destination_country ("name","agent","porc","subscribe_date","unsubscribe_date")
                                 VALUES (%s,%s,%s,%s,%s)
                                 """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(name, agent, porc, subdate, unsubdate)
-                cur.execute(commands_newcountry, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("País Destino")
-                dlg.setText("Datos insertados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(name, agent, porc, subdate, unsubdate)
+                        cur.execute(commands_newcountry, data)
+
+                    conn.commit()
+
+                MessageHelper.show_message("Datos insertados con éxito", "info")
 
                 self.label_empty.setText('')
                 self.Name_Countries.setText('')
@@ -514,19 +493,8 @@ class Ui_Countries_Window(QtWidgets.QMainWindow):
                 self.query_Countries()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to delete country record
     def deletecountry(self):
@@ -536,45 +504,22 @@ class Ui_Countries_Window(QtWidgets.QMainWindow):
         id_country = self.label_empty.text()
 
         if id_country == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("País Destino")
-            dlg.setText("Debes seleccionar un registro")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Debes seleccionar un registro", "warning")
 
         else:
             command_deletecountry = ("""
                                 DELETE FROM purch_fact.destination_country
                                 WHERE "id" =  %s
                                 """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(id_country)
-                cur.execute(command_deletecountry, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("País Destino")
-                dlg.setText("Datos eliminados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(id_country)
+                        cur.execute(command_deletecountry, data)
+                    conn.commit()
+
+                MessageHelper.show_message("Datos eliminados con éxito", "info")
 
                 self.label_empty.setText('')
                 self.Name_Countries.setText('')
@@ -586,19 +531,8 @@ class Ui_Countries_Window(QtWidgets.QMainWindow):
                 self.query_Countries()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to get data from record
     def getdata(self):

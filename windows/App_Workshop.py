@@ -11,10 +11,10 @@ from windows.PasswordEdit_Window import Ui_EditPasswordWindow
 from PySide6.QtWidgets import QMenu
 from config.config_functions import config_database, get_path
 import psycopg2
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from utils.Business_Report import report_offers, report_orders, report_projects
 import sys
-
+from utils.Show_Message import MessageHelper
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -817,15 +817,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El pedido no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El pedido no puede estar vacío", "warning")
                             else:
                                 break
                         break
@@ -842,27 +834,11 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El número OT no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El número OT no puede estar vacío", "warning")
                             else:
                                 break
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Consultar tiempos")
-                dlg_error.setText("Selecciona un tipo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un tipo", "warning")
             else:
                 break
 
@@ -899,47 +875,27 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tables_notifications)
-            results=cur.fetchall()
-            tables_names=[x[0] for x in results]
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tables_notifications)
+                    results=cur.fetchall()
+                    tables_names=[x[0] for x in results]
 
-            notifications = []
+                    notifications = []
 
-            for table in tables_names:
-                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
-                cur.execute(commands_notifications)
-                results=cur.fetchall()
+                    for table in tables_names:
+                        commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                        cur.execute(commands_notifications)
+                        results=cur.fetchall()
 
-                for x in results:
-                    notifications.append(x)
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                        for x in results:
+                            notifications.append(x)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
         if len(notifications) != 0:
             icon13 = QtGui.QIcon()
@@ -1013,15 +969,7 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
                     self.ui.setupUi(self.testquery_window)
                     self.testquery_window.showMaximized()
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Verificación")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -1068,19 +1016,8 @@ class Ui_App_Workshop(QtWidgets.QMainWindow):
             if ok and report:
                 while True:
                     if report == 'Ofertas':
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("¿Quieres generar el PDF?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no("¿Quieres generar el PDF?\n", "ERP EIPSA"):
                             report_offers()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                         from windows.Report_Offers_View import Ui_Report_Offers_View
 

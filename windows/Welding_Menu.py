@@ -18,7 +18,8 @@ from windows.PDF_Styles import welding_homologation
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_Welding_Menu(QtWidgets.QMainWindow):
@@ -238,38 +239,18 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
                         HAVING (personal."code" = 13 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '012 TIG + ELECTRODO (GTAW + SMAW)', '013 TIG + HILO (GTAW + GMAW)')) OR (personal."code" = 67 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '013 TIG + HILO (GTAW + GMAW)'))
                         ORDER BY personal."name", operations."name_eipsa", personal."code"
                         """)
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_welding)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_welding)
+                    results = cur.fetchall()
 
             df = pd.DataFrame(results, columns=["name", "max_date", "operation", "hom_date", "remaining_days", "prev_hom"])
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         pdf = welding_homologation()
         pdf.set_auto_page_break(auto=True, margin=1)
@@ -343,37 +324,18 @@ class Ui_Welding_Menu(QtWidgets.QMainWindow):
                         WHERE imp_ot."operations_id" in (11,12,13)
                         ORDER BY imp_ot."date_ot"
                         """)
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_welding)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_welding)
+                    results = cur.fetchall()
 
             df = pd.DataFrame(results, columns=["Fecha", "OT", "Nº Pedido", "Personal", "Operación"])
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
             output_path, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Guardar Excel", "", "Archivos de Excel (*.xlsx)")
             if output_path:

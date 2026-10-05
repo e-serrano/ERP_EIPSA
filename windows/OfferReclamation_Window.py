@@ -859,13 +859,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         """
         if item.column() in [7]:
             cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Reclamación Ofertas")
-            dlg.setText(cell_content)
-            dlg.exec()
+            MessageHelper.show_message(cell_content, "info")
 
 # Function when clicking on table ¡ header
     def on_header_section_clicked(self, logical_index):

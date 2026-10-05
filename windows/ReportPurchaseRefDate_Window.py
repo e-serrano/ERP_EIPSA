@@ -16,6 +16,8 @@ from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from datetime import datetime
+from utils.Show_Message import MessageHelper
+from utils.Database_Manager import Database_Connection
 
 
 
@@ -711,34 +713,16 @@ class Ui_ReportPurRefDate_Window(object):
         QtCore.QMetaObject.connectSlotsByName(ReportPurRefDate_Window)
 
         commands_supplies = "SELECT * FROM purch_fact.supplies"
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_supplies)
-            results_supplies=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_supplies)
+                    results_supplies=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_supplies=[x[3] + ' | ' + x[4] + ' | ' +  str(x[0]) for x in results_supplies]
         self.ItemName.addItems([''] + sorted(list_supplies))
@@ -808,29 +792,21 @@ class Ui_ReportPurRefDate_Window(object):
                     RIGHT JOIN ({query2}) AS query2 ON query1."supplier_ord_header_id" = query2."supplier_ord_header_id"
                     ORDER BY query2."reference"
                     """
+
             commands_supplies = f"""
                                 SELECT query3."name", TO_CHAR(query3."order_date", 'DD/MM/YYYY') AS formatted_date, query3."supplier_order_num", query3."quantity", query3."unit_value", CAST(("quantity"*CAST(query3."unit_value" AS numeric)) AS money) AS SBTOT
                                 FROM ({query3}) AS query3
                                 WHERE (query3."id"='{int(supply_id)}')
                                 ORDER BY query3."order_date" DESC
                                 """
-            conn = None
 
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_supplies)
-                results=cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_supplies)
+                        results=cur.fetchall()
 
                 self.df = pd.DataFrame(results, columns=["Nombre", "Fecha Pedido", "Nº Pedido", "Cantidad", "Total", "Subtotal"])
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
                 self.tableWidget.setRowCount(len(results))
                 tablerow=0
@@ -863,19 +839,8 @@ class Ui_ReportPurRefDate_Window(object):
                     self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.calculate_total()
 

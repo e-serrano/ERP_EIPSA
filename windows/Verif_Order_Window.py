@@ -1999,25 +1999,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         if item.text() != '':
             if item.column() == 2: # Msgbox for tag
                 cell_content = item.text()
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Verificación")
-                dlg.setText(cell_content)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(cell_content, "info")
 
             elif item.column() == 3: # Msgbox for description
                 cell_content = item.text()
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Verificación")
-                dlg.setText(cell_content)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message(cell_content, "info")
 
             elif item.column() == 15: # Open image
                 item_id = self.table_tags.item(item.row(), 0).text()
@@ -2054,19 +2040,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             cur.execute(query)
                             results=cur.fetchall()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Prueba Hidrostática 1")
-                    dlg.setText("TAG: " + results[0][0] + "\n"
+                    MessageHelper.show_message("TAG: " + results[0][0] + "\n"
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "Manómetro: " + results[0][2] + "\n"
                                 "Presión: " + results[0][3] + "\n"
-                                "Obs.: " + results[0][4])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                                "Obs.: " + results[0][4], "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2086,19 +2064,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             cur.execute(query)
                             results=cur.fetchall()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Prueba Hidrostática 2")
-                    dlg.setText("TAG: " + results[0][0] + "\n"
+                    MessageHelper.show_message("TAG: " + results[0][0] + "\n"
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "Manómetro: " + results[0][2] + "\n"
                                 "Presión: " + results[0][3] + "\n"
-                                "Obs.: " + results[0][4])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                                "Obs.: " + results[0][4], "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -2119,21 +2089,13 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             cur.execute(query)
                             results=cur.fetchall()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Líquidos Penetrantes")
-                    dlg.setText("TAG: " + results[0][0] + "\n"
+                    MessageHelper.show_message("TAG: " + results[0][0] + "\n"
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "9PR5: " + results[0][2] + "\n"
                                 "9D1B: " + results[0][3] + "\n"
                                 "996PB: " + results[0][4] + "\n"
                                 + results[0][6] + "\n"
-                                "Obs.: " + results[0][5])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                                "Obs.: " + results[0][5], "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"

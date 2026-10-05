@@ -11,6 +11,7 @@ import sys
 import pandas as pd
 from utils.Database_Manager import Create_DBconnection
 from utils.Business_Report import report_offers, report_orders
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -1118,19 +1119,8 @@ class Ui_Purchasing_Order_Control_Window(QtWidgets.QMainWindow):
             if ok and report:
                 while True:
                     if report == 'Ofertas':
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("¿Quieres generar el PDF?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if MessageHelper.ask_yes_no("¿Quieres generar el PDF?\n", "ERP EIPSA"):
                             report_offers()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                         from windows.Report_Offers_View import Ui_Report_Offers_View
 

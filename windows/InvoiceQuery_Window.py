@@ -12,8 +12,9 @@ from config.config_functions import config_database, get_path
 import os
 from datetime import *
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 import locale
+from utils.Show_Message import MessageHelper
 
 
 
@@ -635,16 +636,11 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
                         ORDER BY invoice."num_invoice"
                         """)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_queryinvoice)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_queryinvoice)
+                    results=cur.fetchall()
             self.tableQueryInvoice.setRowCount(len(results))
             tablerow=0
 
@@ -666,26 +662,9 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
             self.tableQueryInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableQueryInvoice.horizontalHeader().setSectionResizeMode(20, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to conver money strings to float
     def euro_string_to_float(self, euro_str):

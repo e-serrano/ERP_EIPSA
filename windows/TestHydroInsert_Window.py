@@ -12,6 +12,8 @@ import psycopg2
 import os
 import re
 from datetime import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -61,26 +63,18 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 id_color, red, green, blue = result
                 colors_dict[id_color] = QtGui.QColor(red, green, blue)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             # Handle the error appropriately
             pass
@@ -863,41 +857,19 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                         )
                         ORDER BY orders."num_order"
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_material,(self.num_order_value,))
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_material,(self.num_order_value,))
+                    results=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(results) == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("EL número de pedido no existe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("EL número de pedido no existe", "warning")
 
         else:
             query_flow = ('''
@@ -920,22 +892,21 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 FROM tags_data.tags_others
                 WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
                 ''')
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_flow,(self.num_order_value,))
-                results_flow=cur.fetchall()
-                cur.execute(query_temp,(self.num_order_value,))
-                results_temp=cur.fetchall()
-                cur.execute(query_level,(self.num_order_value,))
-                results_level=cur.fetchall()
-                cur.execute(query_others,(self.num_order_value,))
-                results_others=cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_flow,(self.num_order_value,))
+                        results_flow=cur.fetchall()
+
+                        cur.execute(query_temp,(self.num_order_value,))
+                        results_temp=cur.fetchall()
+
+                        cur.execute(query_level,(self.num_order_value,))
+                        results_level=cur.fetchall()
+
+                        cur.execute(query_others,(self.num_order_value,))
+                        results_others=cur.fetchall()
 
                 if len(results_flow) != 0:
                     material = 'Caudal'
@@ -948,33 +919,12 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 else:
                     material = ''
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
-            conn = None
             if material != '':
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
                     if material == 'Caudal':
                         self.table_name = "tags_data.tags_flow"
                         self.column_id = "id_tag_flow"
@@ -1000,13 +950,10 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                         self.num_columns = 17
                         column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2']
 
-                    cur.execute(commands_tags)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_tags)
+                            results=cur.fetchall()
 
                     self.tableTags.setRowCount(len(results))
                     self.tableTags.setColumnCount(self.num_columns)
@@ -1037,19 +984,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.hideColumn(1)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to activate or deactivate all checkboxes in table
     def toggle_checkboxes(self, state):
@@ -1088,26 +1024,10 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         pressure2 = self.presure_test2.text()
 
         if num_order == '' or (test_date1 == '' or (manometer1 == '' or pressure1 == '')):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', test_date1):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             if self.num_columns != 0:
@@ -1120,117 +1040,79 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                             id_list.append([int(self.tableTags.item(row, 1).text()), date_test, self.tableTags.item(row, 2).text()])
 
                 if len(id_list) == 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("No has seleccionado ningún TAG")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
+
                 else:
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
                         for element in id_list:
                             if element[1] == '':
-                                commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
-                                cur.execute(commands_hydrotest)
+                                with Database_Connection(config_database()) as conn:
+                                    with conn.cursor() as cur:
+                                        commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
+                                        cur.execute(commands_hydrotest)
+                                    conn.commit()
 
                                 if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
                                     query_hn_liq = ("""
-                                    SELECT liquid, heat_number FROM verification.liquid_heat_number
-                                    """)
-                                    cur.execute(query_hn_liq)
-                                    results_hn=cur.fetchall()
-                                    match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
-                                    match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
-                                    match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+                                        SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                        """)
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(query_hn_liq)
+                                            results_hn=cur.fetchall()
+                                            match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                            match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                            match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
 
                                     hn_liq1=match_liq1[0][1]
                                     hn_liq2=match_liq2[0][1]
                                     hn_liq3=match_liq3[0][1]
-                                    commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
-                                    cur.execute(commands_liquidtest)
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
+                                            cur.execute(commands_liquidtest)
+                                        conn.commit()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Prueba Hidrostática")
-                                dlg.setText("Datos insertados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg,new_icon
+                                MessageHelper.show_message("Datos insertados con éxito", "info")
+
                             else:
-                                dlg_yes_no = QtWidgets.QMessageBox()
-                                new_icon_yes_no = QtGui.QIcon()
-                                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                dlg_yes_no.setText(f"El tag {element[2]} ya tiene datos\n"
-                                                    "¿Estás seguro de que deseas sobreescribir los datos?")
-                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                result = dlg_yes_no.exec()
-
-                                if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                    commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
-                                    cur.execute(commands_hydrotest)
+                                if MessageHelper.ask_yes_no(f"El tag {element[2]} ya tiene datos\n"
+                                                    "¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
+                                            cur.execute(commands_hydrotest)
+                                        conn.commit()
 
                                     if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
                                         query_hn_liq = ("""
-                                        SELECT liquid, heat_number FROM verification.liquid_heat_number
-                                        """)
-                                        cur.execute(query_hn_liq)
-                                        results_hn=cur.fetchall()
-                                        match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
-                                        match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
-                                        match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+                                            SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                            """)
+                                        with Database_Connection(config_database()) as conn:
+                                            with conn.cursor() as cur:
+                                                cur.execute(query_hn_liq)
+                                                results_hn=cur.fetchall()
+                                                match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                                match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                                match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
 
                                         hn_liq1=match_liq1[0][1]
                                         hn_liq2=match_liq2[0][1]
                                         hn_liq3=match_liq3[0][1]
-                                        commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
-                                        cur.execute(commands_liquidtest)
 
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("Prueba Hidrostática")
-                                    dlg.setText("Datos insertados con éxito")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                    dlg.exec()
-                                    del dlg,new_icon
-                                del dlg_yes_no, new_icon_yes_no
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                        with Database_Connection(config_database()) as conn:
+                                            with conn.cursor() as cur:
+                                                commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
+                                                cur.execute(commands_liquidtest)
+                                            conn.commit()
+
+                                    MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         self.querytags()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
             else:
                 dlg = QtWidgets.QInputDialog()
@@ -1239,13 +1121,6 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle('Prueba Hidrostática')
                 dlg.setLabelText('Introduce un TAG:')
-
-                # dlg2 = QtWidgets.QInputDialog()
-                # new_icon2 = QtGui.QIcon()
-                # new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                # dlg2.setWindowIcon(new_icon2)
-                # dlg2.setWindowTitle('Prueba Hidrostática')
-                # dlg2.setLabelText('Introduce una descripción:')
 
                 dlg3 = QtWidgets.QInputDialog()
                 new_icon3 = QtGui.QIcon()
@@ -1269,98 +1144,52 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                                             if clickedButton3 == 1:
                                                 qty = dlg3.textValue()
                                                 if qty != '' and (qty.isdigit() and int(qty) > 0):
-                                                    conn = None
                                                     try:
-                                                    # read the connection parameters
-                                                        params = config_database()
-                                                    # connect to the PostgreSQL server
-                                                        conn = psycopg2.connect(**params)
-                                                        cur = conn.cursor()
-                                                    # execution of commands
-                                                        commands_inserthydrotest = f"""INSERT INTO verification.test_hydro (num_order, tag, item_type, test1_date, manometer1, pressure1, test1_state, obs1, test2_date, manometer2, pressure2, test2_state, obs2, quantity) 
-                                                                        VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{manometer1}', '{pressure1}', '{test_state1}', '{notes1}', {test_date2}, '{manometer2}', '{pressure2}', '{test_state2}', '{notes2}', '{qty}')"""
-                                                        cur.execute(commands_inserthydrotest)
+                                                        with Database_Connection(config_database()) as conn:
+                                                            with conn.cursor() as cur:
+                                                                commands_inserthydrotest = f"""INSERT INTO verification.test_hydro (num_order, tag, item_type, test1_date, manometer1, pressure1, test1_state, obs1, test2_date, manometer2, pressure2, test2_state, obs2, quantity) 
+                                                                                VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{manometer1}', '{pressure1}', '{test_state1}', '{notes1}', {test_date2}, '{manometer2}', '{pressure2}', '{test_state2}', '{notes2}', '{qty}')"""
+                                                                cur.execute(commands_inserthydrotest)
+                                                            conn.commit()
 
                                                         if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
                                                             query_hn_liq = ("""
-                                                            SELECT liquid, heat_number FROM verification.liquid_heat_number
-                                                            """)
-                                                            cur.execute(query_hn_liq)
-                                                            results_hn=cur.fetchall()
-                                                            match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
-                                                            match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
-                                                            match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+                                                                SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                                                """)
+                                                            with Database_Connection(config_database()) as conn:
+                                                                with conn.cursor() as cur:
+                                                                    cur.execute(query_hn_liq)
+                                                                    results_hn=cur.fetchall()
+                                                                    match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                                                    match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                                                    match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
 
                                                             hn_liq1=match_liq1[0][1]
                                                             hn_liq2=match_liq2[0][1]
                                                             hn_liq3=match_liq3[0][1]
-                                                            commands_liquidtest = f"""INSERT INTO verification.test_liquid (num_order, tag, item_type, test_date, hn_liq1, hn_liq2, hn_liq3,test_state, obs, quantity)
-                                                                                    VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{hn_liq1}', '{hn_liq2}', '{hn_liq3}', '{test_state1}', '{notes1}', '{qty}')"""
-                                                            cur.execute(commands_liquidtest)
 
-                                                    # close communication with the PostgreSQL database server
-                                                        cur.close()
-                                                    # commit the changes
-                                                        conn.commit()
+                                                            with Database_Connection(config_database()) as conn:
+                                                                with conn.cursor() as cur:
+                                                                    commands_liquidtest = f"""INSERT INTO verification.test_liquid (num_order, tag, item_type, test_date, hn_liq1, hn_liq2, hn_liq3,test_state, obs, quantity)
+                                                                                            VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{hn_liq1}', '{hn_liq2}', '{hn_liq3}', '{test_state1}', '{notes1}', '{qty}')"""
+                                                                    cur.execute(commands_liquidtest)
+                                                                conn.commit()
 
-                                                        dlg = QtWidgets.QMessageBox()
-                                                        new_icon = QtGui.QIcon()
-                                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                        dlg.setWindowIcon(new_icon)
-                                                        dlg.setWindowTitle("Prueba Hidrostática")
-                                                        dlg.setText("Datos insertados con éxito")
-                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                                        dlg.exec()
-                                                        del dlg,new_icon
+                                                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                                     except (Exception, psycopg2.DatabaseError) as error:
-                                                        dlg = QtWidgets.QMessageBox()
-                                                        new_icon = QtGui.QIcon()
-                                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                        dlg.setWindowIcon(new_icon)
-                                                        dlg.setWindowTitle("ERP EIPSA")
-                                                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                                    + str(error))
-                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                                        dlg.exec()
-                                                        del dlg, new_icon
-                                                    finally:
-                                                        if conn is not None:
-                                                            conn.close()
+                                                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                                    + str(error), "critical")
                                                     break
-                                                dlg_error = QtWidgets.QMessageBox()
-                                                new_icon = QtGui.QIcon()
-                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                dlg_error.setWindowIcon(new_icon)
-                                                dlg_error.setWindowTitle("Prueba Hidrostática")
-                                                dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
-                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                dlg_error.exec()
-                                                del dlg_error,new_icon
+                                                MessageHelper.show_message("La cantidad no puede estar vacía o no es un valor válido", "warning")
                                             else:
                                                 break
                                         break
-                                    dlg_error = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_error.setWindowIcon(new_icon)
-                                    dlg_error.setWindowTitle("Prueba Hidrostática")
-                                    dlg_error.setText("La descripción no puede estar vacía.")
-                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_error.exec()
-                                    del dlg_error,new_icon
+                                    MessageHelper.show_message("La descripción no puede estar vacía.", "warning")
                                 else:
                                     break
                             break
-                        dlg_error = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error.setWindowIcon(new_icon)
-                        dlg_error.setWindowTitle("Prueba Hidrostática")
-                        dlg_error.setText("El TAG no puede estar vacío. Introduce un valor válido.")
-                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_error.exec()
-                        del dlg_error,new_icon
+                        MessageHelper.show_message("El TAG no puede estar vacío. Introduce un valor válido.", "warning")
                     else:
                         break
 
@@ -1430,39 +1259,25 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                             FROM verification.parts_verification
                             ORDER BY "part"
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_manometers)
-            results_manometers=cur.fetchall()
-            list_manometers = [x[0] for x in results_manometers]
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_manometers)
+                    results_manometers=cur.fetchall()
+                    list_manometers = [x[0] for x in results_manometers]
 
-            cur.execute(query_states)
-            results_states=cur.fetchall()
-            list_states = [x[0] for x in results_states]
+                    cur.execute(query_states)
+                    results_states=cur.fetchall()
+                    list_states = [x[0] for x in results_states]
 
-            cur.execute(query_parts)
-            results_parts=cur.fetchall()
-            self.list_parts = [x[0] for x in results_parts]
+                    cur.execute(query_parts)
+                    results_parts=cur.fetchall()
+                    self.list_parts = [x[0] for x in results_parts]
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.manometer_test1.addItems(list_manometers)
         self.manometer_test2.addItems([''] + list_manometers)
@@ -1494,32 +1309,21 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             text (str): The state whose color should be applied to the text.
         """
         colors_dict = {}
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 state, red, green, blue = result
                 colors_dict[state] = [red, green, blue]
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if text in colors_dict:
             text_color = colors_dict[text]
@@ -1537,32 +1341,21 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             text (str): The state whose color should be applied to the text.
         """
         colors_dict = {}
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 state, red, green, blue = result
                 colors_dict[state] = [red, green, blue]
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if text in colors_dict:
             text_color = colors_dict[text]

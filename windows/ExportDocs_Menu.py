@@ -14,6 +14,8 @@ import os
 from config.config_functions import config_database, get_path
 import psycopg2
 from windows.Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_ExportDocs_Menu(object):
@@ -213,61 +215,25 @@ class Ui_ExportDocs_Menu(object):
                             FROM orders
                             WHERE "num_order" LIKE ('%%'||%s||'%%')
                             """)
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_checkorder,(num_order,))
-                        results=cur.fetchall()
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_checkorder,(num_order,))
+                                results=cur.fetchall()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg_error_db = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error_db.setWindowIcon(new_icon)
-                        dlg_error_db.setWindowTitle("ERP EIPSA")
-                        dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg_error_db.exec()
-                        del dlg_error_db, new_icon
-
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     if len(results) == 0:
-                        dlg_no_order = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_no_order.setWindowIcon(new_icon)
-                        dlg_no_order.setWindowTitle("Generar OVR")
-                        dlg_no_order.setText("El número de pedido introducido no existe. Introduce un pedido válido")
-                        dlg_no_order.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_no_order.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("El número de pedido introducido no existe. Introduce un pedido válido", "warning")
                         break
 
                     else:
                         order_ovr(num_order)
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Generar OVR")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -294,49 +260,20 @@ class Ui_ExportDocs_Menu(object):
                             INNER JOIN offers ON orders."num_offer" = offers."num_offer"
                             WHERE "num_ref_order" LIKE (%s||'%%')
                             """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_checkorder,(num_order,))
-                        results=cur.fetchall()
 
-                        project = results[0][0]
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                    try:
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_checkorder,(num_order,))
+                                results=cur.fetchall()
+                                project = results[0][0]
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg_error_db = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error_db.setWindowIcon(new_icon)
-                        dlg_error_db.setWindowTitle("ERP EIPSA")
-                        dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg_error_db.exec()
-                        del dlg_error_db, new_icon
-
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     if len(results) == 0:
-                        dlg_no_order = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_no_order.setWindowIcon(new_icon)
-                        dlg_no_order.setWindowTitle("Situación Docs.")
-                        dlg_no_order.setText("El número de referencia introducido no existe. Introduce una referencia válido")
-                        dlg_no_order.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_no_order.exec()
-                        del dlg_no_order, new_icon
+                        MessageHelper.show_message("El número de referencia introducido no existe. Introduce una referencia válido", "warning")
                         break
 
                     else:
@@ -344,42 +281,14 @@ class Ui_ExportDocs_Menu(object):
                             excel_to_export = doc_situation(num_order, project)
                             excel_to_export.save_excel_doc()
 
-                            dlg_final= QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_final.setWindowIcon(new_icon)
-                            dlg_final.setWindowTitle("Situación Docs.")
-                            dlg_final.setText("Excel generado con éxito")
-                            dlg_final.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg_final.exec()
-                            del dlg_final, new_icon
-                        
-                        except (Exception, psycopg2.DatabaseError) as error:
-                            dlg_error_db = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error_db.setWindowIcon(new_icon)
-                            dlg_error_db.setWindowTitle("ERP EIPSA")
-                            dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg_error_db.exec()
-                            del dlg_error_db, new_icon
+                            MessageHelper.show_message("Excel generado con éxito", "info")
 
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
 
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Situación Docs.")
-                dlg_error.setText("La referencia no puede estar vacía. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La referencia no puede estar vacía. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -405,48 +314,22 @@ class Ui_ExportDocs_Menu(object):
                             FROM orders
                             WHERE "num_ref_order" LIKE (%s||'%%')
                             """)
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_checkorder,(num_ref,))
-                        results=cur.fetchall()
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_checkorder,(num_ref,))
+                                results=cur.fetchall()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg_error_db = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error_db.setWindowIcon(new_icon)
-                        dlg_error_db.setWindowTitle("ERP EIPSA")
-                        dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg_error_db.exec()
-                        del dlg_error_db, new_icon
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     finally:
                         if conn is not None:
                             conn.close()
 
                     if len(results) == 0:
-                        dlg_no_order = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_no_order.setWindowIcon(new_icon)
-                        dlg_no_order.setWindowTitle("VPR")
-                        dlg_no_order.setText("El número de referencia introducido no existe. Introduce una referencia válido")
-                        dlg_no_order.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_no_order.exec()
-                        del dlg_no_order, new_icon
+                        MessageHelper.show_message("El número de referencia introducido no existe. Introduce una referencia válido", "warning")
                         break
 
                     else:
@@ -454,42 +337,14 @@ class Ui_ExportDocs_Menu(object):
                             excel_to_export = vendor_progress_report(num_ref)
                             excel_to_export.save_excel_doc()
 
-                            dlg_final= QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_final.setWindowIcon(new_icon)
-                            dlg_final.setWindowTitle("VPR")
-                            dlg_final.setText("Excel generado con éxito")
-                            dlg_final.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg_final.exec()
-                            del dlg_final, new_icon
-                        
-                        except (Exception, psycopg2.DatabaseError) as error:
-                            dlg_error_db = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error_db.setWindowIcon(new_icon)
-                            dlg_error_db.setWindowTitle("ERP EIPSA")
-                            dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg_error_db.exec()
-                            del dlg_error_db, new_icon
+                            MessageHelper.show_message("Excel generado con éxito", "info")
 
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
 
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("VPR")
-                dlg_error.setText("La referencia no puede estar vacía. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La referencia no puede estar vacía. Introduce un valor válido.", "warning")
             else:
                 break
 
@@ -515,61 +370,25 @@ class Ui_ExportDocs_Menu(object):
                             FROM orders
                             WHERE "num_order" LIKE ('%%'||%s||'%%')
                             """)
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_checkorder,(num_order,))
-                        results=cur.fetchall()
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_checkorder,(num_order,))
+                                results=cur.fetchall()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg_error_db = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error_db.setWindowIcon(new_icon)
-                        dlg_error_db.setWindowTitle("ERP EIPSA")
-                        dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg_error_db.exec()
-                        del dlg_error_db, new_icon
-
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     if len(results) == 0:
-                        dlg_no_order = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_no_order.setWindowIcon(new_icon)
-                        dlg_no_order.setWindowTitle("Repuestos")
-                        dlg_no_order.setText("El número de pedido introducido no existe. Introduce un pedido válido")
-                        dlg_no_order.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_no_order.exec()
-                        del dlg, new_icon
+                        MessageHelper.show_message("El número de pedido introducido no existe. Introduce un pedido válido", "warning")
                         break
 
                     else:
                         spares_two_years(num_order)
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Repuestos")
-                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
             else:
                 break
 

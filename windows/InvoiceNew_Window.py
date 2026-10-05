@@ -12,11 +12,12 @@ from PySide6 import QtSql
 from PySide6.QtCore import Qt
 import re
 from config.config_functions import config_database, get_path
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 import psycopg2
 import os
 import pandas as pd
 from windows.PDF_Viewer import PDF_Viewer
+from utils.Show_Message import MessageHelper
 
 
 class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
@@ -82,49 +83,6 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
-
-    #     scroll_menu = QtWidgets.QScrollArea()
-    #     scroll_menu.setWidgetResizable(True)
-    #     scroll_widget = QtWidgets.QWidget(scroll_menu)
-    #     scroll_menu.setWidget(scroll_widget)
-    #     scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
-
-    #     checkboxes = []
-
-    #     select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
-    #     if column_index in self.checkbox_states:
-    #         select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
-    #     else:
-    #         select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
-    #     scroll_layout.addWidget(select_all_checkbox)
-    #     checkboxes.append(select_all_checkbox)
-
-    #     unique_values = self.get_unique_values(column_index)
-    #     filtered_values = self.get_filtered_values()
-
-    #     for value in sorted(unique_values):
-    #         checkbox = QtWidgets.QCheckBox(value)
-    #         if select_all_checkbox.isChecked(): 
-    #             checkbox.setCheckState(QtCore.Qt.CheckState(2))
-    #         else:
-    #             if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
-    #                 checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
-    #             elif filtered_values is None or value in filtered_values[column_index]:
-    #                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
-    #             else:
-    #                 checkbox.setCheckState(QtCore.Qt.CheckState(0))
-    #         scroll_layout.addWidget(checkbox)
-    #         checkboxes.append(checkbox)
-
-    #     select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
-
-    #     for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
-    #         checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
-
-    # # Action for drop down menu and adding scroll area as widget
-    #     action_scroll_menu = QtWidgets.QWidgetAction(menu)
-    #     action_scroll_menu.setDefaultWidget(scroll_menu)
-    #     menu.addAction(action_scroll_menu)
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
@@ -2932,119 +2890,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_SearchInvoice.setIconSize(QtCore.QSize(20, 20))
         self.Button_SearchInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_bottom.addWidget(self.Button_SearchInvoice, 0, 3, 1, 1)
-#         self.label_filter = QtWidgets.QLabel(parent=self.frame)
-#         self.label_filter.setMinimumSize(QtCore.QSize(50, 25))
-#         self.label_filter.setMaximumSize(QtCore.QSize(50, 25))
-#         font = QtGui.QFont()
-#         font.setPointSize(11)
-#         font.setBold(True)
-#         self.label_filter.setFont(font)
-#         self.label_filter.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
-#         self.label_filter.setObjectName("label_filter")
-#         self.gridLayout_bottom.addWidget(self.label_filter, 0, 3, 1, 1)
-#         self.Filter_Invoice = QtWidgets.QLineEdit(parent=self.frame)
-#         self.Filter_Invoice.setMinimumSize(QtCore.QSize(100, 25))
-#         self.Filter_Invoice.setMaximumSize(QtCore.QSize(100, 25))
-#         self.Filter_Invoice.setObjectName("Filter_Invoice")
-#         self.gridLayout_bottom.addWidget(self.Filter_Invoice, 0, 4, 1, 1)
-#         self.Button_AcceptFilter = QtWidgets.QPushButton(parent=self.frame)
-#         self.Button_AcceptFilter.setMinimumSize(QtCore.QSize(30, 25))
-#         self.Button_AcceptFilter.setMaximumSize(QtCore.QSize(30, 25))
-#         self.Button_AcceptFilter.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-#         self.Button_AcceptFilter.setAutoDefault(True)
-#         self.Button_AcceptFilter.setStyleSheet("QPushButton {\n"
-# "background-color: #33bdef;\n"
-# "  border: 1px solid transparent;\n"
-# "  border-radius: 3px;\n"
-# "  color: #fff;\n"
-# "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-# "  font-size: 15px;\n"
-# "  font-weight: 800;\n"
-# "  line-height: 1.15385;\n"
-# "  margin: 0;\n"
-# "  outline: none;\n"
-# "  padding: 8px .8em;\n"
-# "  text-align: center;\n"
-# "  text-decoration: none;\n"
-# "  vertical-align: baseline;\n"
-# "  white-space: nowrap;\n"
-# "}\n"
-# "\n"
-# "QPushButton:hover {\n"
-# "    background-color: #019ad2;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "}\n"
-# "\n"
-# "QPushButton:pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QPushButton:focus{\n"
-# "    background-color: #019ad2;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "}\n"
-# "\n"
-# "QPushButton:focus:pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}")
-#         self.Button_AcceptFilter.setObjectName("Button_AcceptFilter")
-#         icon1 = QtGui.QIcon()
-#         icon1.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Check.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-#         self.Button_AcceptFilter.setIcon(icon1)
-#         self.Button_AcceptFilter.setIconSize(QtCore.QSize(20, 20))
-#         self.Button_AcceptFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-#         self.gridLayout_bottom.addWidget(self.Button_AcceptFilter, 0, 5, 1, 1)
-#         self.Button_DeleteFilter = QtWidgets.QPushButton(parent=self.frame)
-#         self.Button_DeleteFilter.setMinimumSize(QtCore.QSize(30, 25))
-#         self.Button_DeleteFilter.setMaximumSize(QtCore.QSize(30, 25))
-#         self.Button_DeleteFilter.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-#         self.Button_DeleteFilter.setAutoDefault(True)
-#         self.Button_DeleteFilter.setStyleSheet("QPushButton {\n"
-# "background-color: #33bdef;\n"
-# "  border: 1px solid transparent;\n"
-# "  border-radius: 3px;\n"
-# "  color: #fff;\n"
-# "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-# "  font-size: 15px;\n"
-# "  font-weight: 800;\n"
-# "  line-height: 1.15385;\n"
-# "  margin: 0;\n"
-# "  outline: none;\n"
-# "  padding: 8px .8em;\n"
-# "  text-align: center;\n"
-# "  text-decoration: none;\n"
-# "  vertical-align: baseline;\n"
-# "  white-space: nowrap;\n"
-# "}\n"
-# "\n"
-# "QPushButton:hover {\n"
-# "    background-color: #019ad2;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "}\n"
-# "\n"
-# "QPushButton:pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QPushButton:focus{\n"
-# "    background-color: #019ad2;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "}\n"
-# "\n"
-# "QPushButton:focus:pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}")
-#         self.Button_DeleteFilter.setObjectName("Button_DeleteFilter")
-#         icon2 = QtGui.QIcon()
-#         icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-#         self.Button_DeleteFilter.setIcon(icon2)
-#         self.Button_DeleteFilter.setIconSize(QtCore.QSize(20, 20))
-#         self.Button_DeleteFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-#         self.gridLayout_bottom.addWidget(self.Button_DeleteFilter, 0, 6, 1, 1)
         self.label_filter_xxx = QtWidgets.QLabel(parent=self.frame)
         self.label_filter_xxx.setMinimumSize(QtCore.QSize(0, 25))
         self.label_filter_xxx.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -3077,36 +2922,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         commands_clients = "SELECT * FROM purch_fact.clients ORDER BY name"
         commands_destcountry = "SELECT * FROM purch_fact.destination_country ORDER BY name"
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clients)
-            results_clients=cur.fetchall()
-            cur.execute(commands_destcountry)
-            results_destcountry=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_clients)
+                    results_clients=cur.fetchall()
+                    cur.execute(commands_destcountry)
+                    results_destcountry=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_clients=[x[2] for x in results_clients]
         list_destcountry=[x[1] for x in results_destcountry]
@@ -3138,12 +2965,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_Down.clicked.connect(self.go_bottom)
         self.Button_SearchInvoice.clicked.connect(lambda: self.search_invoice(Invoice_Window))
 
-        # self.Button_AcceptFilter.clicked.connect(self.filterinvoicetable)
-        # self.Filter_Invoice.returnPressed.connect(self.filterinvoicetable)
-        # self.Button_DeleteFilter.clicked.connect(self.loadinvoicetable)
-
-        # self.Filter_Invoice.textChanged.connect(self.position_table)
-
     # Adding function when editing the value of currency change €/$
         self.ValCotDollar_Invoice.returnPressed.connect(self.calculate_totalorder)
         self.ValCotDollar_Invoice.editingFinished.connect(self.calculate_totalorder)
@@ -3154,7 +2975,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.DelivNote_Invoice.editingFinished.connect(self.save_data_on_database)
         self.TheirRef_Invoice.editingFinished.connect(self.save_data_on_database)
         self.Destination_Invoice.editingFinished.connect(self.save_data_on_database)
-        # self.Comment_Invoice.editingFinished.connect(self.save_data_on_database)
         self.OurRef_Invoice.editingFinished.connect(self.save_data_on_database)
         self.Transport_Invoice.editingFinished.connect(self.save_data_on_database)
         self.PayDate_Invoice.editingFinished.connect(self.save_data_on_database)
@@ -3192,15 +3012,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         self.PayDate_Invoice.editingFinished.connect(self.save_data_on_database)
 
-        # delete_action_record = QtGui.QAction("Eliminar Fila", self)
-        # delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
-
-        # self.context_menu_row = QtWidgets.QMenu(self)
-        # self.context_menu_row.addAction(delete_action_record)
-        
-        # self.tableRecords.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        # self.tableRecords.addActions([delete_action_record])
-
         self.loadinvoicetable()
 
         self.label_IDInvoice.setText('NUEVA')
@@ -3214,38 +3025,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         FROM purch_fact.invoice_header AS invoice
                         WHERE invoice."num_invoice" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_querytableinvoice, (self.numinvoice,))
-                results_invoices=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_querytableinvoice, (self.numinvoice,))
+                        results_invoices=cur.fetchall()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.label_IDInvoice.setText(str(results_invoices[0][0]))
-
-            # self.Filter_Invoice.textChanged.connect(self.position_table(self.numinvoice))
 
             self.loadforminvoice(None, self.label_IDInvoice.text())
 
@@ -3472,56 +3263,35 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
                             "total_qty_elements" = %s, "client_group" = %s, "destination_dispatch" = %s
                             WHERE "id" = %s""")
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_clientsid, (client,))
-                results_clients_id=cur.fetchall()
-                id_client = results_clients_id[0][0] if len(results_clients_id) != 0 else None
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_clientsid, (client,))
+                        results_clients_id=cur.fetchall()
+                        id_client = results_clients_id[0][0] if len(results_clients_id) != 0 else None
 
-                cur.execute(commands_destcountryid, (destination_country,))
-                results_destcountry_id=cur.fetchall()
-                id_dest_country = results_destcountry_id[0][0] if len(results_destcountry_id) != 0 else None
+                        cur.execute(commands_destcountryid, (destination_country,))
+                        results_destcountry_id=cur.fetchall()
+                        id_dest_country = results_destcountry_id[0][0] if len(results_destcountry_id) != 0 else None
 
-                data = (invoice_number, delivnote_number, invoice_date, id_client, our_ref, their_ref,
-                        comment, destination, transport, application, id_dest_country,
-                        gross_weight, net_weight, dimensions, merc_type, paydate,
-                        txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
-                        con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
-                        con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
-                        data_adic1, data_adic2, iva, cl_delivnote,
-                        date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
-                        city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                        total_qty_elements, client_group, destination_dispatch, id_invoice)
-                cur.execute(commands_submit_invoice, data)
+                        data = (invoice_number, delivnote_number, invoice_date, id_client, our_ref, their_ref,
+                                comment, destination, transport, application, id_dest_country,
+                                gross_weight, net_weight, dimensions, merc_type, paydate,
+                                txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
+                                con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
+                                con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
+                                data_adic1, data_adic2, iva, cl_delivnote,
+                                date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
+                                city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
+                                total_qty_elements, client_group, destination_dispatch, id_invoice)
+                        cur.execute(commands_submit_invoice, data)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("8Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            # self.loadinvoicetable()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to create new invoice
     def createinvoice(self, invoice_date=None):
@@ -3533,44 +3303,27 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         VALUES (%s,%s)
                         """)
         query_idinvoice = "SELECT id, num_invoice FROM purch_fact.invoice_header ORDER BY id"
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(query_idinvoice)
-            result_idorder = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_idinvoice)
+                    result_idorder = cur.fetchall()
 
-            idinvoice = int(result_idorder[-1][0]) + 1
-            numinvoice = result_idorder[-1][1].split("/")[0] + "/" + '{:03}'.format(int(result_idorder[-1][1].split("/")[1]) + 1)
+                    idinvoice = int(result_idorder[-1][0]) + 1
+                    numinvoice = result_idorder[-1][1].split("/")[0] + "/" + '{:03}'.format(int(result_idorder[-1][1].split("/")[1]) + 1)
 
-            data = (numinvoice,invoice_date,)
-            cur.execute(commands_insert_invoice, data)
+                    data = (numinvoice,invoice_date,)
+                    cur.execute(commands_insert_invoice, data)
 
-        # get id from table
-            self.label_IDInvoice.setText(str(idinvoice))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                # get id from table
+                    self.label_IDInvoice.setText(str(idinvoice))
+
+                conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.loadinvoicetable()
         self.loadrecordstable()
@@ -3587,15 +3340,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         try:
             if id_invoice == '':
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Emitir Factura")
-                dlg.setText("Selecciona una factura")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
+                MessageHelper.show_message("Selecciona una factura", "warning")
             else:
                 gross_weight = self.GrossWeight_Invoice.text()
                 net_weight = self.NetWeight_Invoice.text()
@@ -3637,64 +3382,27 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                                 "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
                                 "total_qty_elements" = %s
                                 WHERE "id" = %s""")
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    data = (gross_weight, net_weight, dimensions, merc_type,
-                            txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
-                            con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
-                            data_adic1, data_adic2, iva, cl_delivnote,
-                            date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
-                            city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                            total_qty_elements, id_invoice)
-                    cur.execute(commands_submit_invoice, data)
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            data = (gross_weight, net_weight, dimensions, merc_type,
+                                    txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
+                                    con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
+                                    data_adic1, data_adic2, iva, cl_delivnote,
+                                    date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
+                                    city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
+                                    total_qty_elements, id_invoice)
+                            cur.execute(commands_submit_invoice, data)
+                        conn.commit()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Factura en euros emitida con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Factura en euros emitida con éxito", "information")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
-                dlg_yes_no = QtWidgets.QMessageBox()
-                new_icon_yes_no = QtGui.QIcon()
-                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
-                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                result = dlg_yes_no.exec()
-
-                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                if MessageHelper.ask_yes_no("¿Quieres imprimir la factura?\n", "ERP EIPSA"):
                     from windows.PDF_Styles import client_invoice
                     while True:
                         answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
@@ -3897,21 +3605,11 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         else:
                             break
 
-                del dlg_yes_no, new_icon_yes_no
-
                 self.loadinvoicetable()
 
         except Exception as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("1Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("1Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to submit dollar invoice
     def submitdollarinvoice(self):
@@ -3923,26 +3621,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         valcotdollar = self.ValCotDollar_Invoice.text()
 
         if id_invoice == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Emitir Factura")
-            dlg.setText("Selecciona una factura")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Selecciona una factura", "warning")
 
         elif valcotdollar == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Emitir Factura")
-            dlg.setText("Introduce un valor de cambio €-$")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+            MessageHelper.show_message("Introduce un valor de cambio €-$", "warning")
 
         else:
             self.calculate_totalorder()
@@ -3986,64 +3668,27 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
                             "total_qty_elements" = %s
                             WHERE "id" = %s""")
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (gross_weight, net_weight, dimensions, merc_type,
-                        txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
-                        con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
-                        data_adic1, data_adic2, iva, cl_delivnote,
-                        date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
-                        city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                        total_qty_elements, id_invoice)
-                cur.execute(commands_submit_invoice, data)
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data = (gross_weight, net_weight, dimensions, merc_type,
+                                txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
+                                con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
+                                data_adic1, data_adic2, iva, cl_delivnote,
+                                date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
+                                city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
+                                total_qty_elements, id_invoice)
+                        cur.execute(commands_submit_invoice, data)
+                    conn.commit()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Factura en euros emitida con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Factura en euros emitida con éxito", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+            if MessageHelper.ask_yes_no("¿Quieres imprimir la factura?\n", "ERP EIPSA"):
                 from windows.PDF_Styles import client_invoice
                 while True:
                     answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
@@ -4245,8 +3890,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     else:
                         break
 
-            del dlg_yes_no, new_icon_yes_no
-
             self.loadinvoicetable()
 
 # Function to search invoice
@@ -4346,19 +3989,13 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             LEFT OUTER JOIN purch_fact.destination_country AS country ON fact.id_dest_country = country.id
                             ORDER BY fact.num_invoice ASC"""
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_invoice)
-            results_invoice=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_invoice)
+                    results_invoice=cur.fetchall()
 
             self.tableInvoice.setRowCount(len(results_invoice))
-            
             tablerow=0
 
         # fill the Qt Table with the query results
@@ -4374,24 +4011,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 self.tableInvoice.setItemDelegateForRow(tablerow, AlignDelegate(self.tableInvoice))
                 tablerow+=1
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("1Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("1Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -4405,76 +4027,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         self.tableInvoice.currentCellChanged.connect(self.loadforminvoice)
         self.tableInvoice.cellClicked.connect(self.loadforminvoice)
-
-# Function to filter invoice table
-    def filterinvoicetable(self):
-        """
-        Queries the database for filtered invoices, configures and populates tables with the query results, 
-        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
-        """
-        filter = self.Filter_Invoice.text()
-        commands_querytableinvoice = ("""
-                        SELECT invoice."id", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
-                        clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
-                        invoice."application", dest_country."name", TO_CHAR(invoice."pay_date",'DD-MM-YYYY'), invoice."client_group"
-                        FROM purch_fact.invoice_header AS invoice
-                        JOIN purch_fact.clients AS clients ON invoice."id_client" = clients."id"
-                        JOIN purch_fact.destination_country AS dest_country ON invoice."id_dest_country" = dest_country."id"
-                        WHERE invoice."num_invoice" LIKE ('%%'||%s||'%%')
-                        ORDER BY invoice."id"
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytableinvoice, (filter,))
-            results_invoices=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        self.tableInvoice.setRowCount(len(results_invoices))
-        tablerow=0
-
-        font = QtGui.QFont()
-        font.setPointSize(int(10))
-
-    # fill the Qt Table with the query results
-        for row in results_invoices:
-            for column in range(13):
-                value = row[column]
-                if value is None:
-                    value = ''
-                it = QtWidgets.QTableWidgetItem(str(value))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                it.setFont(font)
-                self.tableInvoice.setItem(tablerow, column, it)
-
-            self.tableInvoice.setItemDelegateForRow(tablerow, AlignDelegate(self.tableInvoice))
-            tablerow+=1
-
-        self.tableInvoice.verticalHeader().hide()
-        self.tableInvoice.setSortingEnabled(False)
-        self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function to load records table
     def loadrecordstable(self):
@@ -4821,74 +4373,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             item (QTableWidgetItem, optional): Table item containing the row of the invoice. Defaults to None.
             ID_invoice (str, optional): ID of the invoice to load if no table item is provided. Defaults to None.
         """
-        # self.block_signals(True)
-
-        # if current is None:
-        #     invoice_id = ID_invoice
-        #     source_index = self.obtain_source_index(ID_invoice)
-        #     if source_index is None:
-        #         return
-        # else:
-        #     source_index = self.proxy_invoices.mapToSource(current)
-
-        # invoice_id = self.model_invoice.data(self.model_invoice.index(source_index.row(), 0))
-
-        # self.InvoiceNumber_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 1)))
-        # self.DelivNote_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 2)))
-        # self.Date_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 3)).toString("dd/MM/yyyy"))
-        # self.Client_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 4)))
-        # self.OurRef_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 5)))
-        # self.TheirRef_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 6)))
-        # self.Comment_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 7)))
-        # self.Destination_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 8)))
-        # self.Transport_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 9)))
-        # self.Application_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 10)))
-        # self.DestCountry_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 11)))
-        # self.GrossWeight_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 12)))
-        # self.NetWeight_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 13)))
-        # self.Dimensions_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 14)))
-        # self.MercType_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 15)))
-        # self.TxtCon1_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 16)))
-        # self.TxtCon2_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 17)))
-        # self.TxtCon3_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 18)))
-        # self.TxtCon4_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 19)))
-        # self.TxtCon5_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 20)))
-        # self.Con1Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 21))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 21)) is not None else '')
-        # self.Con2Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 22))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 22)) is not None else '')
-        # self.Con3Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 23))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 23)) is not None else '')
-        # self.Con4Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 24))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 24)) is not None else '')
-        # self.Con5Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 25))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 25)) is not None else '')
-        # self.Con1Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 26))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 26)) is not None else '')
-        # self.Con2Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 27))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 27)) is not None else '')
-        # self.Con3Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 28))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 28)) is not None else '')
-        # self.Con4Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 29))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 29)) is not None else '')
-        # self.Con5Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 30))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 30)) is not None else '')
-        # self.ValCotDollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 31))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 31)) is not None else '')
-        # self.AditData1_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 32)))
-        # self.AditData2_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 33)))
-        # self.Qty_Elements.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 34))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 34)) is not None else '')
-        # self.TaxBase_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)).replace(".","").replace(",",".")[:self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)).find(" €")]) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)) is not None else '')
-        # self.IVACL_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 36))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 36)) is not None else '')
-        # self.ClAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 37)))
-        # self.DateAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 38)).toString("dd/MM/yyyy"))
-        # self.AtteAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 39)))
-        # self.DestAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 40)))
-        # self.AddressAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 41)))
-        # self.ZCAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 42)))
-        # self.CityAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 43)))
-        # self.ProvinceAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 44)))
-        # self.CountryAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 45)))
-        # self.ObsAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 46)))
-        # self.AgInterm.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 47)))
-        # self.AgIntermOk.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 48)).toString("dd/MM/yyyy"))
-        # self.AgIntermState.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 49)))
-        # self.label_ClientGroup.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 50)))
-        # self.PayDate_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 51)).toString("dd/MM/yyyy"))
-
-        # self.block_signals(False)
-        
-        # self.label_IDInvoice.setText(str(invoice_id))
-
         if current_row is not None:
             self.block_signals(True)
             data_order=[]
@@ -4915,34 +4399,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             LEFT OUTER JOIN purch_fact.destination_country AS country ON invoice.id_dest_country = country.id
                             WHERE invoice.id = %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_querytableinvoices,(data_order[0],))
-                results_invoices=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_querytableinvoices,(data_order[0],))
+                        results_invoices=cur.fetchall()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("2Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.InvoiceNumber_Invoice.setText(str(results_invoices[0][0]))
             self.DelivNote_Invoice.setText(str(results_invoices[0][1]) if results_invoices[0][1] is not None else '')
@@ -5010,15 +4476,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         id_invoice = self.label_IDInvoice.text()
 
         if id_invoice == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona una factura para añadir registros")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona una factura para añadir registros", "warning")
 
         else:
             dlg3 = QtWidgets.QInputDialog()
@@ -5033,62 +4491,25 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 if clickedButton3 == 1:
                     qty = dlg3.textValue()
                     if qty != '' and (qty.isdigit() and int(qty) > 0):
-                        conn = None
                         try:
-                        # read the connection parameters
-                            params = config_database()
-                        # connect to the PostgreSQL server
-                            conn = psycopg2.connect(**params)
-                            cur = conn.cursor()
-
-                        # execution of commands
                             for i in range(int(qty)):
                                 commands_insert_record = ("""
                                     INSERT INTO purch_fact.invoice_detail ("invoice_header_id")
                                     VALUES (%s)
                                     """)
                                 data = (id_invoice,)
-                                cur.execute(commands_insert_record, data)
+                                with Database_Connection(config_database()) as conn:
+                                    with conn.cursor() as cur:
+                                        cur.execute(commands_insert_record, data)
+                                    conn.commit()
 
-                        # close communication with the PostgreSQL database server
-                            cur.close()
-                        # commit the changes
-                            conn.commit()
-
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Facturación")
-                            dlg.setText("Datos insertados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg,new_icon
+                            MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         except (Exception, psycopg2.DatabaseError) as error:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                        + str(error))
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                            dlg.exec()
-                            del dlg, new_icon
-                        finally:
-                            if conn is not None:
-                                conn.close()
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                        + str(error), "critical")
                         break
-                    dlg_error = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg_error.setWindowIcon(new_icon)
-                    dlg_error.setWindowTitle("Facturación")
-                    dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
-                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg_error.exec()
-                    del dlg_error,new_icon
+                    MessageHelper.show_message("La cantidad no puede estar vacía o no es un valor válido", "warning")
                 else:
                     break
 
@@ -5151,55 +4572,25 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         JOIN purch_fact.banks ON (clients.bank_id = banks.id)
                         WHERE clients.name = %s
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_clientsdata,(client_name,))
-            results_clientsdata=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
 
-            # self.AgInterm.setText(results_clientsdata[0][0])
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_clientsdata,(client_name,))
+                    results_clientsdata=cur.fetchall()
+
             if len(results_clientsdata) != 0:
                 self.label_ClientGroup.setText(results_clientsdata[0][1])
                 self.IVACL_Invoice.setText(results_clientsdata[0][2] if results_clientsdata[0][2] not in ['COM', 'EXENTO', 'EXP'] else '0')
                 self.AditData1_Invoice.setText(results_clientsdata[0][3])
                 self.AditData2_Invoice.setText(results_clientsdata[0][4])
             else:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Este cliente no tiene un banco asignado\n"
-                            + "Los datos correspondientes no se cargarán")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Este cliente no tiene un banco asignado\n"
+                            + "Los datos correspondientes no se cargarán", "warning")
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        # self.save_data_on_database()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function when destination country combobox is changed
     def destcountrychange(self):
@@ -5214,39 +4605,20 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             FROM purch_fact.destination_country AS dest_country
                             WHERE dest_country.name = %s
                             """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_destcountry,(dest_country_name,))
-                results_destcountrydata=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
-                self.AgInterm.setText(results_destcountrydata[0][0])
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_destcountry,(dest_country_name,))
+                        results_destcountrydata=cur.fetchall()
+                    self.AgInterm.setText(results_destcountrydata[0][0])
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
         else:
             self.AgInterm.setText('')
-        # self.save_data_on_database()
+
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
@@ -5267,15 +4639,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         invoice_id = self.label_IDInvoice.text()
 
         if invoice_id == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona una factura")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona una factura", "warning")
 
         else:
             from windows.PDF_Styles import delivery_note
@@ -5381,23 +4745,11 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         table_name='purch_fact.invoice_detail'
 
         if id_invoice == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona una factura para importar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Selecciona una factura para importar", "warning")
 
         else:
             fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
             if fname:
-                params = config_database()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
-
             #Importing excel file into dataframe
                 df_table = pd.read_excel(fname, na_values=['N/A'], skiprows=14, keep_default_na=False)
                 df_table.insert(0, 'invoice_header_id', id_invoice)
@@ -5422,28 +4774,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                         # Creating insertion query and executing it
                             sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                            cursor.execute(sql_insertion)
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(sql_insertion)
+                                conn.commit()
 
-                    cursor.close()
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos importados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Datos importados con éxito", "info")
 
                     self.loadrecordstable()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to delete register of database
     def delete_register(self, table, name):
@@ -5471,61 +4813,22 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 id_values.append(value)
 
         if len(id_values) != 0:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                conn = None
+            if MessageHelper.ask_yes_no("¿Estás seguro de que deseas eliminar los registros?\n","ERP EIPSA"):
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
                     for id_value in id_values:
-                        commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
-                        cur.execute(commands_delete)
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
+                                cur.execute(commands_delete)
+                            conn.commit()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Facturación")
-                    dlg.setText("Registros eliminados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                    MessageHelper.show_message("Registros eliminados con éxito", "info")
 
                     self.loadrecordstable()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            del dlg_yes_no, new_icon_yes_no
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
     def load_item_records(self, current:QtCore.QModelIndex):
         source_index = self.proxy_invoices.mapToSource(current)
@@ -5597,26 +4900,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         return None
 
-# Function to move table to specific item by text search
-    def position_table(self, invoice_tocheck = None):
-        """
-        Selects and scrolls to the row in the Invoice Header table based on the input position.
-        """
-        if invoice_tocheck is None:
-            text_position = self.Filter_Invoice.text()
-        else:
-            text_position = invoice_tocheck
-
-        self.tableInvoice.clearSelection()
-
-        for i in range(self.tableInvoice.rowCount()):
-            item = self.tableInvoice.item(i, 1)
-            if item is not None and text_position.upper() in item.text().upper():
-                item.setSelected(True)
-                self.tableInvoice.scrollToItem(item)
-                self.loadforminvoice(item.row())
-                return
-
 # Function to go to first register
     def go_top(self):
         """
@@ -5646,16 +4929,13 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         if import_file:
             df_invoice = pd.read_excel(import_file, na_values=['N/A'], keep_default_na=False)
 
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, name FROM purch_fact.clients")
-            results_clients = cursor.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT id, name FROM purch_fact.clients")
+                    results_clients = cur.fetchall()
 
-            cursor.execute("SELECT id, name FROM purch_fact.destination_country")
-            results_countries = cursor.fetchall()
+                    cur.execute("SELECT id, name FROM purch_fact.destination_country")
+                    results_countries = cur.fetchall()
 
             table_clients = pd.DataFrame(results_clients, columns=['id_client', 'name_client'])
             table_countries = pd.DataFrame(results_countries, columns=['id_dest_country', 'name_country'])
@@ -5687,39 +4967,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
                     # Creating insertion query and executing it
                         sql_insertion = f"INSERT INTO purch_fact.invoice_header ({columns}) VALUES ({values})"
-                        cursor.execute(sql_insertion)
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(sql_insertion)
+                            conn.commit()
 
-                cursor.close()
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos importados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("Datos importados con éxito", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//ERP-EIPSA-DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
 
             self.loadinvoicetable()
-
-
 
 
 

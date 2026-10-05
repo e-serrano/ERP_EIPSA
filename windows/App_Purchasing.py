@@ -1545,15 +1545,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El pedido no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El pedido no puede estar vacío", "warning")
                             else:
                                 break
                         break
@@ -1570,27 +1562,11 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                                     self.ui.setupUi(self.timesfab_window)
                                     self.timesfab_window.showMaximized()
                                     break
-                                dlg_error = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_error.setWindowIcon(new_icon)
-                                dlg_error.setWindowTitle("Consultar tiempos")
-                                dlg_error.setText("El número OT no puede estar vacío")
-                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_error.exec()
-                                del dlg_error,new_icon
+                                MessageHelper.show_message("El número OT no puede estar vacío", "warning")
                             else:
                                 break
                         break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Consultar tiempos")
-                dlg_error.setText("Selecciona un tipo")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("Selecciona un tipo", "warning")
             else:
                 break
 

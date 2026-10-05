@@ -12,6 +12,8 @@ import psycopg2
 import os
 import re
 from datetime import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -608,16 +610,13 @@ class Ui_OfferQueryActive_Window(QtWidgets.QMainWindow):
                     ))
                     ORDER BY "num_offer"
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_appcomercial)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_appcomercial)
+                    results=cur.fetchall()
+
             self.tableOffer.setRowCount(len(results))
             tablerow=0
 
@@ -636,24 +635,9 @@ class Ui_OfferQueryActive_Window(QtWidgets.QMainWindow):
             self.tableOffer.verticalHeader().hide()
             self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableOffer.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
 

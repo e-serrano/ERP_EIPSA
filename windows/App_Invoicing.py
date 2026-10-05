@@ -23,6 +23,7 @@ from windows.PDF_Viewer import PDF_Viewer
 from windows.PDF_Styles import pending_invoices, ag_int_liquid
 import math
 from config.config_keys import ACCESS_INVOICING_FILE, ACCESS_INVOICING_PWD
+from utils.Show_Message import MessageHelper
 
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
@@ -737,126 +738,91 @@ class Ui_App_Invoicing(object):
                         if clickedButton2 == 1:
                             date_2 = dlg2.textValue()
                             if date_2 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_2):
-                                conn = None
                                 try:
-                                # read the connection parameters
-                                    params = config_database()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    commands_pendinginvoices = (""" SELECT clients."code", clients."name", invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), 
-                                                                    TO_CHAR(DATE (
-                                                                        CASE
-                                                                            WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
-                                                                            ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                        END || '-' ||
-                                                                        CASE
-                                                                            WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
-                                                                            ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                        END || '-' ||
-                                                                        CASE
-                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
-                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                            ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
-                                                                        END
-                                                                    ),'dd/MM/yyyy') AS exp_date,
-                                                                    invoice."obs_delivnote",
-                                                                    CAST(invoice."tax_base_amount" + (invoice."tax_base_amount" * invoice."iva"/100) AS NUMERIC) AS total_fact,
-                                                                    CASE
-                                                                        WHEN invoice."pay_date" IS NOT NULL THEN DATE (
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            commands_pendinginvoices = (""" SELECT clients."code", clients."name", invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), 
+                                                                            TO_CHAR(DATE (
+                                                                                CASE
+                                                                                    WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                                    ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                END || '-' ||
+                                                                                CASE
+                                                                                    WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                                    ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                END || '-' ||
+                                                                                CASE
+                                                                                    WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                    WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                                    WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                    ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                                END
+                                                                            ),'dd/MM/yyyy') AS exp_date,
+                                                                            invoice."obs_delivnote",
+                                                                            CAST(invoice."tax_base_amount" + (invoice."tax_base_amount" * invoice."iva"/100) AS NUMERIC) AS total_fact,
                                                                             CASE
-                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
-                                                                                ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                            END || '-' ||
-                                                                            CASE
-                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
-                                                                                ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                            END || '-' ||
-                                                                            CASE
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                                ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
-                                                                            END
-                                                                            ) - invoice."pay_date"
-                                                                        ELSE DATE (
-                                                                            CASE
-                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
-                                                                                ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                            END || '-' ||
-                                                                            CASE
-                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
-                                                                                ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
-                                                                            END || '-' ||
-                                                                            CASE
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
-                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
-                                                                                ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
-                                                                            END
-                                                                            ) - CURRENT_DATE
-                                                                    END AS difference
-                                                                FROM 
-                                                                    purch_fact.invoice_header AS invoice
-                                                                    INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
-                                                                    INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
-                                                                WHERE 
-                                                                    invoice."pay_date" IS NULL 
-                                                                    AND invoice."date_invoice" BETWEEN %s AND %s
-                                                                """)
+                                                                                WHEN invoice."pay_date" IS NOT NULL THEN DATE (
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                                        ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                    END || '-' ||
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                                        ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                    END || '-' ||
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                        ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                                    END
+                                                                                    ) - invoice."pay_date"
+                                                                                ELSE DATE (
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                                        ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                    END || '-' ||
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                                        ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                                    END || '-' ||
+                                                                                    CASE
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                                        WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                        ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                                    END
+                                                                                    ) - CURRENT_DATE
+                                                                            END AS difference
+                                                                        FROM 
+                                                                            purch_fact.invoice_header AS invoice
+                                                                            INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
+                                                                            INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
+                                                                        WHERE 
+                                                                            invoice."pay_date" IS NULL 
+                                                                            AND invoice."date_invoice" BETWEEN %s AND %s
+                                                                        """)
 
-                                    data = (date_1, date_2,)
-                                    cur.execute(commands_pendinginvoices, data)
+                                            data = (date_1, date_2,)
+                                            cur.execute(commands_pendinginvoices, data)
 
-                                    results = cur.fetchall()
-                                    df = pd.DataFrame(results, columns=["code", "name", "num_invoice", "date_invoice", "exp_date", "obs_delivnote", "total_invoice", "difference"])
-
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
+                                            results = cur.fetchall()
+                                            df = pd.DataFrame(results, columns=["code", "name", "num_invoice", "date_invoice", "exp_date", "obs_delivnote", "total_invoice", "difference"])
 
                                     self.generate_pending_invoices_pdf(df)
 
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    print(error)
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
                                 finally:
                                     if conn is not None:
                                         conn.close()
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Facturas Pendientes")
-                            dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                            MessageHelper.show_message("La fecha no puede estar vacío y debe tener un formato válido.", "warning")
                         else:
                             break
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Facturas Pendientes")
-                dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La fecha no puede estar vacío y debe tener un formato válido.", "warning")
             else:
                 break
 
@@ -890,79 +856,41 @@ class Ui_App_Invoicing(object):
                         if clickedButton2 == 1:
                             date_2 = dlg2.textValue()
                             if date_2 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_2):
-                                conn = None
                                 try:
-                                # read the connection parameters
-                                    params = config_database()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    commands_ag_int = (""" SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), CAST(invoice."tax_base_amount" AS NUMERIC),
-                                                                    invoice."aginterm", invoice."aginterm_state",
-                                                                    CAST(country."porc" AS NUMERIC), clients."name"
-                                                                FROM 
-                                                                    purch_fact.invoice_header AS invoice
-                                                                    INNER JOIN purch_fact.destination_country AS country ON (invoice."id_dest_country" = country."id")
-                                                                    INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
-                                                                    INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
-                                                                WHERE 
-                                                                    invoice."pay_date" IS NULL 
-                                                                    AND invoice."date_invoice" BETWEEN %s AND %s
-                                                                    AND invoice."aginterm" <> ''
-                                                                ORDER BY clients."name"
-                                                                """)
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            commands_ag_int = (""" SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), CAST(invoice."tax_base_amount" AS NUMERIC),
+                                                                            invoice."aginterm", invoice."aginterm_state",
+                                                                            CAST(country."porc" AS NUMERIC), clients."name"
+                                                                        FROM 
+                                                                            purch_fact.invoice_header AS invoice
+                                                                            INNER JOIN purch_fact.destination_country AS country ON (invoice."id_dest_country" = country."id")
+                                                                            INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
+                                                                            INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
+                                                                        WHERE 
+                                                                            invoice."pay_date" IS NULL 
+                                                                            AND invoice."date_invoice" BETWEEN %s AND %s
+                                                                            AND invoice."aginterm" <> ''
+                                                                        ORDER BY clients."name"
+                                                                        """)
 
-                                    data = (date_1, date_2,)
-                                    cur.execute(commands_ag_int, data)
+                                            data = (date_1, date_2,)
+                                            cur.execute(commands_ag_int, data)
 
-                                    results = cur.fetchall()
-                                    df = pd.DataFrame(results, columns=["num_invoice", "date_invoice", "tax_base", "agint", "agint_state", "porc", "name"])
-
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
+                                            results = cur.fetchall()
+                                            df = pd.DataFrame(results, columns=["num_invoice", "date_invoice", "tax_base", "agint", "agint_state", "porc", "name"])
 
                                     self.generate_ag_int_pdf(df)
 
                                 except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    print(error)
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
                                 break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Agte. Interm. Liquidación")
-                            dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                            MessageHelper.show_message("La fecha no puede estar vacío y debe tener un formato válido.", "warning")
                         else:
                             break
                     break
-                dlg_error = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Agte. Interm. Liquidación")
-                dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
-                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_error.exec()
-                del dlg_error,new_icon
+                MessageHelper.show_message("La fecha no puede estar vacío y debe tener un formato válido.", "warning")
             else:
                 break
 

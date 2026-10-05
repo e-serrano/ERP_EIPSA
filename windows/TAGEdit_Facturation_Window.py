@@ -175,16 +175,8 @@ class FreezeTableWidget(QtWidgets.QTableView):
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 class FreezeTableWidget2(QtWidgets.QTableView):
     """
@@ -338,16 +330,8 @@ class FreezeTableWidget2(QtWidgets.QTableView):
                     os.startfile(file_path)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -2702,38 +2686,30 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             elif self.variable == 'Otros':
                 table_name = "tags_data.tags_others"
                 id_column = 'id_tag_others'
-            
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data=(num_invoice,)
-                cur.execute(commands_check_invoice,data)
-                results_check = cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(num_invoice,)
+                        cur.execute(commands_check_invoice,data)
+                        results_check = cur.fetchall()
 
                 if len(results_check) == 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ese nº de factura no está registrado\n"
-                                "¿Quieres que se cree con el siguiente nº correspondiente?")
-                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    result = dlg.exec()
-                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                        cur.execute(commands_last_invoice)
-                        commands_last_invoice = cur.fetchall()
+                    if MessageHelper.ask_yes_no("Ese nº de factura no está registrado\n"
+                                "¿Quieres que se cree con el siguiente nº correspondiente?", "ERP EIPSA"):
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_last_invoice)
+                                commands_last_invoice = cur.fetchall()
 
                         num_invoice =  commands_last_invoice[0][0][:5] + '{:03}'.format(int(commands_last_invoice[0][0][-3:]) + 1)
 
-                        cur.execute(commands_insert_invoice, (num_invoice,1,1,))
-                        cur.execute(commands_check_invoice, (num_invoice,))
-                        results_check_invoicenew = cur.fetchall()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_insert_invoice, (num_invoice,1,1,))
+                                cur.execute(commands_check_invoice, (num_invoice,))
+                                results_check_invoicenew = cur.fetchall()
+                            conn.commit()
 
                         id_num_invoice = results_check_invoicenew[0][0]
 
@@ -2760,8 +2736,11 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 price_item = 0 if price_item in ['None',''] else float(price_item.replace(' €','').replace('.','').replace(',','.'))
                                 item_list.append([description_item, price_item, qty_item])
 
-                                commands_block_tag = f"UPDATE {table_name} SET invoice_state = 'Facturado' WHERE {id_column} = {self.model.data(self.model.index(target_row, 0))}"
-                                cur.execute(commands_block_tag)
+                                with Database_Connection(config_database()) as conn:
+                                    with conn.cursor() as cur:
+                                        commands_block_tag = f"UPDATE {table_name} SET invoice_state = 'Facturado' WHERE {id_column} = {self.model.data(self.model.index(target_row, 0))}"
+                                        cur.execute(commands_block_tag)
+                                    conn.commit()
 
                         data_frames_with_data = []
 
@@ -2775,29 +2754,15 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             df_combined = pd.concat(data_frames_with_data, ignore_index=True)
 
                         for row in df_combined.itertuples():
-                            data = (id_num_invoice, row._1, row._2, row._3)
-                            cur.execute(commands_insert_record,data)
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    data = (id_num_invoice, row._1, row._2, row._3)
+                                    cur.execute(commands_insert_record,data)
+                                conn.commit()
 
-                    conn.commit()
-                    cur.close()
-                    del dlg, new_icon
-
-                else:
-                    print('insertar datos en factura')
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 # Function to open equipment photos
     def open_pics(self, index, variable):

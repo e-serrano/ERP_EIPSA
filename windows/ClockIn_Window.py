@@ -5,6 +5,8 @@ from datetime import *
 from config.config_functions import config_database, get_path
 import psycopg2
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
@@ -62,40 +64,20 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                         FROM clock_in_times
                         WHERE "workday" = %s AND "worker_id" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(date.toPython(),self.worker_id,)
-                cur.execute(commands_dates, data)
-                results=cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(date.toPython(),self.worker_id,)
+                        cur.execute(commands_dates, data)
+                        results=cur.fetchall()
 
-                type_day = results[0][0]
-                time_result = str(timedelta(seconds=results[0][1].seconds))
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        type_day = results[0][0]
+                        time_result = str(timedelta(seconds=results[0][1].seconds))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             text = ("" + "\n" + '' if type_day in ['FESTIVO','AUSENTE'] else "" + "\n" + str(time_result)) +"\n" + type_day
             font = painter.font()
@@ -186,17 +168,13 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                     WHERE (EXTRACT(YEAR FROM workday) = %s AND EXTRACT(WEEK FROM workday) = %s AND worker_id = %s)
                     GROUP BY year, week
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(year, week, self.worker_id)
-                cur.execute(commands, data)
-                results=cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(year, week, self.worker_id)
+                        cur.execute(commands, data)
+                        results=cur.fetchall()
 
                 if len(results) != 0 :
                     days_working = int(results[0][3])
@@ -211,25 +189,9 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
                     week_data[week] = [total_seconds, days_working]
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         self.week_data = week_data
 
@@ -269,35 +231,17 @@ class MyCalendarApp(QMainWindow):
                         FROM users_data.registration
                         WHERE username = %s
                         """)
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_userlogin,(self.username,))
-            results = cur.fetchall()
-            self.worker_id = results[0][0]
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_userlogin,(self.username,))
+                    results = cur.fetchall()
+                    self.worker_id = results[0][0]
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.Calendar = ImageCalendarWidget(self.worker_id, self)
         self.Calendar.setEnabled(True)
@@ -393,40 +337,20 @@ class MyCalendarApp(QMainWindow):
                         FROM clock_in_times
                         WHERE "worker_id" = %s
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(personal_id,)
-            cur.execute(commands, data)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(personal_id,)
+                    cur.execute(commands, data)
+                    results=cur.fetchall()
 
-            dates_clockin = [x[0] for x in results]
-    # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
+                    dates_clockin = [x[0] for x in results]
             return dates_clockin
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
 
+        except (Exception, psycopg2.DatabaseError) as error:
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def show_selected_date(self):
         """
@@ -439,11 +363,6 @@ class MyCalendarApp(QMainWindow):
         returned = self.get_times_date(self.worker_id, selected_date)
 
         if returned:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
             final_text=''
 
             for item in returned:
@@ -455,10 +374,7 @@ class MyCalendarApp(QMainWindow):
 
                 final_text += "<br><br>" + f"Fichaje 1: {mark_1}<br>" + f"Fichaje 2: {mark_2}<br>" + f"Fichaje 3: {mark_3}<br>" + f"Fichaje 4: {mark_4}<br>"
 
-            dlg.setText(f"<html><body>Fichajes para la fecha {self.Calendar.selectedDate().toString('dd-MM-yyyy')} ({day_type}){final_text}</body></html>")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message(f"<html><body>Fichajes para la fecha {self.Calendar.selectedDate().toString('dd-MM-yyyy')} ({day_type}){final_text}</body></html>", "info")
 
     def get_times_date(self, id, date):
         """
@@ -481,39 +397,19 @@ class MyCalendarApp(QMainWindow):
                         AND
                         workday = %s)
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(id, date,)
-            cur.execute(commands, data)
-            results=cur.fetchall()
 
-    # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(id, date,)
+                    cur.execute(commands, data)
+                    results=cur.fetchall()
 
             return results
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 # if __name__ == "__main__":

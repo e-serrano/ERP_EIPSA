@@ -970,21 +970,13 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                         FROM verification.delivnote_suppliers AS suppliers
                         ORDER BY suppliers."date_delivnote", suppliers."supplier_order_num"
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_material)
-            results=cur.fetchall()
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_material)
+                    results=cur.fetchall()
+                conn.commit()
 
             self.tableRecords.setRowCount(len(results))
             self.tableRecords.setColumnCount(8)
@@ -1015,19 +1007,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             self.tableRecords.custom_sort(2, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to insert data record
     def insert(self):

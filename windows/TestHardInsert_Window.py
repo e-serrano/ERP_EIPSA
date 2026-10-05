@@ -12,6 +12,8 @@ import psycopg2
 import os
 import re
 from datetime import *
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -61,29 +63,20 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 id_color, red, green, blue = result
                 colors_dict[id_color] = QtGui.QColor(red, green, blue)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
         finally:
             if conn is not None:
                 conn.close()
@@ -757,42 +750,22 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
         query_ball_force = ("""
                         SELECT variable, value FROM verification.ball_force_values
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_ball_force)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_ball_force)
+                    results=cur.fetchall()
 
             match_ball = list(filter(lambda x: x[0] == 'ball', results))
             match_force = list(filter(lambda x: x[0] == 'force', results))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
 
             self.ball.setText(match_ball[0][1])
             self.force.setText(match_force[0][1])
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.retranslateUi(TestHardInsert_Window)
         QtCore.QMetaObject.connectSlotsByName(TestHardInsert_Window)
@@ -847,41 +820,18 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                             )
                             ORDER BY orders."num_order"
                             """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_material,(self.num_order_value,))
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_material,(self.num_order_value,))
+                    results=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(results) == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("EL número de pedido no existe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("El número de pedido no existe", "warning")
 
         else:
             query_flow = ('''
@@ -904,22 +854,21 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                 FROM tags_data.tags_others
                 WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
                 ''')
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_flow,(self.num_order_value,))
-                results_flow=cur.fetchall()
-                cur.execute(query_temp,(self.num_order_value,))
-                results_temp=cur.fetchall()
-                cur.execute(query_level,(self.num_order_value,))
-                results_level=cur.fetchall()
-                cur.execute(query_others,(self.num_order_value,))
-                results_others=cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_flow,(self.num_order_value,))
+                        results_flow=cur.fetchall()
+
+                        cur.execute(query_temp,(self.num_order_value,))
+                        results_temp=cur.fetchall()
+
+                        cur.execute(query_level,(self.num_order_value,))
+                        results_level=cur.fetchall()
+
+                        cur.execute(query_others,(self.num_order_value,))
+                        results_others=cur.fetchall()
 
                 if len(results_flow) != 0:
                     material = 'Caudal'
@@ -932,33 +881,12 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                 else:
                     material = ''
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
-            conn = None
             if material != '':
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
                     if material == 'Caudal':
                         self.table_name = "tags_data.tags_flow"
                         self.column_id = "id_tag_flow"
@@ -984,13 +912,10 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                         self.num_columns = 15
                         column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Equipo', 'Fecha', 'Dureza', 'Dureza HB', 'Bola', 'Carga', 'Colada', 'Estado', 'Observaciones']
 
-                    cur.execute(commands_tags)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_tags)
+                            results=cur.fetchall()
 
                     self.tableTags.setRowCount(len(results))
                     self.tableTags.setColumnCount(self.num_columns)
@@ -1021,19 +946,8 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.hideColumn(1)
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to activate or deactivate all checkboxes in table
     def toggle_checkboxes(self, state):
@@ -1076,75 +990,29 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
             self.table_name = 'no_table'
 
         if num_order == '' or (test_date == '' or (ball == '' or (force == '' or (hn == '' or (hardness == '' or hardness_hb == ''))))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', test_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         elif self.table_name == 'no_table':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("No hay tablas para esos valores de bola y carga. Los valores permitidos son:\n"
+            MessageHelper.show_message("No hay tablas para esos valores de bola y carga. Los valores permitidos son:\n"
                         "Bola: 2.5\n"
-                        "Carga: 62.5 ó 187.5")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+                        "Carga: 62.5 ó 187.5", "warning")
 
         else:
             if self.table_name in ['verification.hardness_table_5', 'verification.hardness_table_6']:
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    commands_hardness = f"SELECT hardness_hb FROM {self.table_name} WHERE hardness = '{hardness}'"
-                    cur.execute(commands_hardness)
-                    results = cur.fetchall()
-
-                    hardness_hb = results[0][0]
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            commands_hardness = f"SELECT hardness_hb FROM {self.table_name} WHERE hardness = '{hardness}'"
+                            cur.execute(commands_hardness)
+                            results = cur.fetchall()
+                            hardness_hb = results[0][0]
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
             if self.num_columns != 0:
                 id_list =[]
@@ -1156,91 +1024,42 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                             id_list.append([int(self.tableTags.item(row, 1).text()), date_test, self.tableTags.item(row, 2).text()])
 
                 if len(id_list) == 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("No has seleccionado ningún TAG")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                    MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
+
                 else:
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
                         for element in id_list:
                             if element[1] == '':
-                                commands_hardtest = f"UPDATE {self.table_name} SET hard_date = '{test_date}', hard_hardness = '{hardness}', hard_hardness_hb = '{hardness_hb}', hard_ball = '{ball}', hard_force = '{force}', hard_hn = '{hn}', hard_state = '{test_state}', hard_obs = '{notes}' WHERE {self.column_id} = {element[0]}"
-                                cur.execute(commands_hardtest)
+                                with Database_Connection(config_database()) as conn:
+                                    with conn.cursor() as cur:
+                                        commands_hardtest = f"UPDATE {self.table_name} SET hard_date = '{test_date}', hard_hardness = '{hardness}', hard_hardness_hb = '{hardness_hb}', hard_ball = '{ball}', hard_force = '{force}', hard_hn = '{hn}', hard_state = '{test_state}', hard_obs = '{notes}' WHERE {self.column_id} = {element[0]}"
+                                        cur.execute(commands_hardtest)
+                                    conn.commit()
 
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Prueba Dureza")
-                                dlg.setText("Datos insertados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg,new_icon
+                                MessageHelper.show_message("Datos insertados con éxito", "info")
+
                             else:
-                                dlg_yes_no = QtWidgets.QMessageBox()
-                                new_icon_yes_no = QtGui.QIcon()
-                                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                dlg_yes_no.setText(f"El tag {element[2]} ya tiene datos\n"
-                                                    "¿Estás seguro de que deseas sobreescribir los datos?")
-                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                                result = dlg_yes_no.exec()
 
-                                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                if MessageHelper.ask_yes_no(f"El tag {element[2]} ya tiene datos\n"
+                                                    "¿Estás seguro de que deseas sobreescribir los datos?", "ERP EIPSA"):
                                     commands_hardtest = f"UPDATE {self.table_name} SET hard_date = '{test_date}', hard_hardness = '{hardness}', hard_hardness_hb = '{hardness_hb}', hard_ball = '{ball}', hard_force = '{force}', hard_hn = '{hn}', hard_state = '{test_state}', hard_obs = '{notes}' WHERE {self.column_id} = {element[0]}"
                                     cur.execute(commands_hardtest)
 
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("Prueba Dureza")
-                                    dlg.setText("Datos insertados con éxito")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                    dlg.exec()
-                                    del dlg,new_icon
-                                del dlg_yes_no, new_icon_yes_no
+                                    MessageHelper.show_message("Datos insertados con éxito", "info")
 
-                        commands_ball = f"UPDATE verification.ball_force_values SET value = '{ball}' WHERE variable = 'ball'"
-                        commands_force = f"UPDATE verification.ball_force_values SET value = '{force}' WHERE variable = 'force'"
-                        cur.execute(commands_ball)
-                        cur.execute(commands_force)
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                commands_ball = f"UPDATE verification.ball_force_values SET value = '{ball}' WHERE variable = 'ball'"
+                                commands_force = f"UPDATE verification.ball_force_values SET value = '{force}' WHERE variable = 'force'"
+                                cur.execute(commands_ball)
+                                cur.execute(commands_force)
+                            conn.commit()
 
                         self.querytags()
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
             else:
                 dlg = QtWidgets.QInputDialog()
@@ -1249,13 +1068,6 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle('Prueba Dureza')
                 dlg.setLabelText('Introduce un TAG:')
-
-                # dlg2 = QtWidgets.QInputDialog()
-                # new_icon2 = QtGui.QIcon()
-                # new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                # dlg2.setWindowIcon(new_icon2)
-                # dlg2.setWindowTitle('Prueba Dureza')
-                # dlg2.setLabelText('Introduce una descripción:')
 
                 dlg3 = QtWidgets.QInputDialog()
                 new_icon3 = QtGui.QIcon()
@@ -1279,81 +1091,29 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                                             if clickedButton3 == 1:
                                                 qty = dlg3.textValue()
                                                 if qty != '' and (qty.isdigit() and int(qty) > 0):
-                                                    conn = None
                                                     try:
-                                                    # read the connection parameters
-                                                        params = config_database()
-                                                    # connect to the PostgreSQL server
-                                                        conn = psycopg2.connect(**params)
-                                                        cur = conn.cursor()
-                                                    # execution of commands
-                                                        commands_inserthardtest = ("""INSERT INTO verification.test_hardness (num_order, tag, item_type, test_date, hardness, hardness_hb, ball, force, heat_number, test_state, obs, quantity) 
-                                                                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-                                                        cur.execute(commands_inserthardtest, (num_order, tag, item_type, test_date, hardness, hardness_hb, ball, force, hn, test_state, notes, qty,))
+                                                        with Database_Connection(config_database()) as conn:
+                                                            with conn.cursor() as cur:
+                                                                commands_inserthardtest = ("""INSERT INTO verification.test_hardness (num_order, tag, item_type, test_date, hardness, hardness_hb, ball, force, heat_number, test_state, obs, quantity) 
+                                                                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
+                                                                cur.execute(commands_inserthardtest, (num_order, tag, item_type, test_date, hardness, hardness_hb, ball, force, hn, test_state, notes, qty,))
+                                                            conn.commit()
 
-                                                    # close communication with the PostgreSQL database server
-                                                        cur.close()
-                                                    # commit the changes
-                                                        conn.commit()
-
-                                                        dlg = QtWidgets.QMessageBox()
-                                                        new_icon = QtGui.QIcon()
-                                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                        dlg.setWindowIcon(new_icon)
-                                                        dlg.setWindowTitle("Prueba Dureza")
-                                                        dlg.setText("Datos insertados con éxito")
-                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                                        dlg.exec()
-                                                        del dlg,new_icon
+                                                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                                     except (Exception, psycopg2.DatabaseError) as error:
-                                                        dlg = QtWidgets.QMessageBox()
-                                                        new_icon = QtGui.QIcon()
-                                                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                        dlg.setWindowIcon(new_icon)
-                                                        dlg.setWindowTitle("ERP EIPSA")
-                                                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                                    + str(error))
-                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                                        dlg.exec()
-                                                        del dlg, new_icon
-                                                    finally:
-                                                        if conn is not None:
-                                                            conn.close()
+                                                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                                    + str(error), "critical")
                                                     break
-                                                dlg_error = QtWidgets.QMessageBox()
-                                                new_icon = QtGui.QIcon()
-                                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                dlg_error.setWindowIcon(new_icon)
-                                                dlg_error.setWindowTitle("Prueba Dureza")
-                                                dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
-                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                                dlg_error.exec()
-                                                del dlg_error,new_icon
+                                                MessageHelper.show_message("La cantidad no puede estar vacía o no es un valor válido", "warning")
                                             else:
                                                 break
                                         break
-                                    dlg_error = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_error.setWindowIcon(new_icon)
-                                    dlg_error.setWindowTitle("Prueba Dureza")
-                                    dlg_error.setText("La descripción no puede estar vacía.")
-                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg_error.exec()
-                                    del dlg_error,new_icon
+                                    MessageHelper.show_message("La descripción no puede estar vacía.", "warning")
                                 else:
                                     break
                             break
-                        dlg_error = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error.setWindowIcon(new_icon)
-                        dlg_error.setWindowTitle("Prueba Dureza")
-                        dlg_error.setText("El TAG no puede estar vacío. Introduce un valor válido.")
-                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_error.exec()
-                        del dlg_error,new_icon
+                        MessageHelper.show_message("El TAG no puede estar vacío. Introduce un valor válido.", "warning")
                     else:
                         break
 
@@ -1414,35 +1174,21 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
                             FROM verification.parts_verification
                             ORDER BY "part"
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_states)
-            results_states=cur.fetchall()
-            list_states = [x[0] for x in results_states]
 
-            cur.execute(query_parts)
-            results_parts=cur.fetchall()
-            self.list_parts = [x[0] for x in results_parts]
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_states)
+                    results_states=cur.fetchall()
+                    list_states = [x[0] for x in results_states]
+
+                    cur.execute(query_parts)
+                    results_parts=cur.fetchall()
+                    self.list_parts = [x[0] for x in results_parts]
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.state_test.setItemDelegate(ColorDelegate())
         self.state_test.addItems(list_states)
@@ -1469,32 +1215,21 @@ class Ui_TestHardInsert_Window(QtWidgets.QMainWindow):
             text (str): The state whose color should be applied to the text.
         """
         colors_dict = {}
-        conn = None
+
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 state, red, green, blue = result
                 colors_dict[state] = [red, green, blue]
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
         if text in colors_dict:
             text_color = colors_dict[text]

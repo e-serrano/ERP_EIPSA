@@ -2359,7 +2359,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                                 if self.fname_images:
                                     if len(selected_indexes) == 0:
-                                        MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Warning, "warning")
+                                        MessageHelper.show_message("No has seleccionado ningún TAG", "warning")
 
                                     else:
                                         if len(selected_indexes) != len(self.fname_images):
@@ -2659,7 +2659,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     "Observaciones: " + results[0][1], "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Critical, "critical")
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                                                + str(error), "critical")
 
             elif header_text == 'Fecha OF Equipo':
                 if item.text() != '':

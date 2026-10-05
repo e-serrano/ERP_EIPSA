@@ -15,6 +15,8 @@ from matplotlib.figure import Figure
 from matplotlib import ticker
 from windows.ClientResume_Window import Ui_ClientResume_Window
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -196,16 +198,12 @@ class Ui_ClientsGeneralResume_Window(object):
                                     ) AS d ON all_clients."client" = d."client"
                                     ORDER BY all_clients."client";
                                 """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loadtableresume)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_loadtableresume)
+                    results=cur.fetchall()
 
             self.tableClientsResume.setRowCount(len(results))
             tablerow=0
@@ -229,24 +227,10 @@ class Ui_ClientsGeneralResume_Window(object):
 
             self.tableClientsResume.verticalHeader().hide()
             self.tableClientsResume.setItemDelegate(AlignDelegate(self.tableClientsResume))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.retranslateUi(ClientsGeneralResume_Window)
         QtCore.QMetaObject.connectSlotsByName(ClientsGeneralResume_Window)
@@ -297,35 +281,17 @@ class Ui_ClientsGeneralResume_Window(object):
                         "state"='Adjudicada')
                         GROUP BY product_type."variable"
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=("AC", date.today().year,)
-            cur.execute(commands_graph, data)
-            results2=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=("AC", date.today().year,)
+                    cur.execute(commands_graph, data)
+                    results2=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         count=[x[0] for x in results2]
         labels=[x[1] for x in results2]

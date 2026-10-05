@@ -15,6 +15,8 @@ from config.config_functions import config_database, get_path
 from datetime import *
 import numpy as np
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -71,36 +73,19 @@ class Ui_GraphsOffer_Window(object):
                         GROUP BY "offer_month"
                         ORDER BY "offer_month"
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_offered_month, (date.today().year,))
-                results_offered_month=cur.fetchall()
-                cur.execute(commands_sold_month, (date.today().year,))
-                results_sold_month=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_offered_month, (date.today().year,))
+                        results_offered_month=cur.fetchall()
+
+                        cur.execute(commands_sold_month, (date.today().year,))
+                        results_sold_month=cur.fetchall()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critcal")
 
             months_offered_month=[int(x[0]) for x in results_offered_month]
             amounts_offered_month=[float(x[1]) for x in results_offered_month]
@@ -151,38 +136,21 @@ class Ui_GraphsOffer_Window(object):
                         GROUP BY "offer_year"
                         ORDER BY "offer_year"
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_offered_year)
-                results_offered_year=cur.fetchall()
-                cur.execute(commands_sold_year)
-                results_sold_year=cur.fetchall()
-                results_offered_year=list(filter(lambda x:None not in x, results_offered_year))
-                results_sold_year=list(filter(lambda x:None not in x, results_sold_year))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_offered_year)
+                        results_offered_year=cur.fetchall()
+
+                        cur.execute(commands_sold_year)
+                        results_sold_year=cur.fetchall()
+                        results_offered_year=list(filter(lambda x:None not in x, results_offered_year))
+                        results_sold_year=list(filter(lambda x:None not in x, results_sold_year))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             years_offered=[int(x[0]) for x in results_offered_year]
             amounts_offered_year=[float(x[1]) for x in results_offered_year]
@@ -243,36 +211,19 @@ class Ui_GraphsOffer_Window(object):
                         "nac_ext"='Exterior')
                         GROUP BY product_type."variable"
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_national, (date.today().year,))
-                results_national=cur.fetchall()
-                cur.execute(commands_external, (date.today().year,))
-                results_external=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_national, (date.today().year,))
+                        results_national=cur.fetchall()
+
+                        cur.execute(commands_external, (date.today().year,))
+                        results_external=cur.fetchall()
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             count=[x[0] for x in results_national]
             labels=[x[1] for x in results_national]

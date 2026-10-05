@@ -13,6 +13,8 @@ from config.config_functions import config_database, get_path
 import os
 import re
 from utils.MoneyChange import obtain_money_change
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_SubmitOffer_Window(object):
@@ -226,25 +228,10 @@ class Ui_SubmitOffer_Window(object):
         actual_date = date.today().strftime("%d/%m/%Y")
 
         if numoffer=="" or (initial_amount=="" or (presentation_date=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Registrar Oferta")
-            dlg.setText("Rellene todos los campos y seleccione una divisa para el importe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Rellene todos los campos y seleccione una divisa para el importe", "warning")
 
         elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', presentation_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy", "warning")
 
         else:
             if self.dollarmoney.isChecked()==True:
@@ -261,48 +248,21 @@ class Ui_SubmitOffer_Window(object):
                         FROM offers
                         WHERE "num_offer" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checkoffer,(numoffer,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numoffer in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkoffer,(numoffer,))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:numoffer in x, results))
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if len(match)==0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Registrar Oferta")
-                    dlg.setText("El número de oferta introducido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-            
+                MessageHelper.show_message("El número de oferta introducido no existe", "warning")
+
             else:
                 commands_notesoffer = ("""
                         SELECT notes
@@ -314,55 +274,31 @@ class Ui_SubmitOffer_Window(object):
                             SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s, "last_update"=%s, "notes"=%s
                             WHERE "num_offer"=%s
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_notesoffer, (numoffer,))
-                    results = cur.fetchall()
-                    notes = results[0][0]
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_notesoffer, (numoffer,))
+                            results = cur.fetchall()
+                            notes = results[0][0]
 
                     if self.dollarmoney.isChecked()==True:
                         notes += ' // IMPORTE DE OFERTA EN DOLARES (' + initial_amount + '). Tipo de cambio: ' + str(round(change_type, 2)) + '$ - 1€ ' + actual_date
 
-                    data=(amount,state,presentation_date,presentation_date,notes,numoffer,)
-                    cur.execute(commands_submitoffer, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            data=(amount,state,presentation_date,presentation_date,notes,numoffer,)
+                            cur.execute(commands_submitoffer, data)
+                        conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Presentar Oferta")
-                    dlg.setText("Oferta presentada con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
+                    MessageHelper.show_message("Oferta presentada con éxito", "info")
 
                     self.Offer_Submit.setText('')
                     self.Amount_Submit.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 # Function to convert dollars to euros
     def dollars_to_euros(self, dollar_amount):

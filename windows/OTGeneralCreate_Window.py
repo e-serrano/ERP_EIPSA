@@ -11,7 +11,8 @@ from config.config_functions import config_database, get_path
 import psycopg2
 import os
 from datetime import *
-
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
@@ -133,18 +134,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         Args:
             column_index (int): The index of the column from which to delete the filter.
         """
-        # if column_index in self.column_filters:
-        #     del self.column_filters[column_index]
-        # if column_index in self.checkbox_states:
-        #     del self.checkbox_states[column_index]
-        # if column_index in self.rows_hidden:
-        #     for item in self.rows_hidden[column_index]:
-        #         self.setRowHidden(item, False)
-        #         if item in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.remove(item)
-        #     del self.rows_hidden[column_index]
-        # header_item = self.horizontalHeaderItem(column_index)
-        # header_item.setIcon(QtGui.QIcon())
 
         if column_index not in self.column_filters:
             return  # No hay filtro para eliminar
@@ -203,73 +192,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
             filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
         """
-        # if column_index not in self.column_filters:
-        #     self.column_filters[column_index] = set()
 
-        # if text_filter is None:
-        #     if value is None:
-        #         self.column_filters[column_index] = set()
-        #     elif checked:
-        #         self.column_filters[column_index].add(value)
-        #     elif value in self.column_filters[column_index]:
-        #         self.column_filters[column_index].remove(value)
-
-        # rows_to_hide = set()
-        # for row in range(self.rowCount()):
-        #     show_row = True
-
-        #     # Check filters for all columns
-        #     for col, filters in self.column_filters.items():
-        #         item = self.item(row, col)
-        #         if item:
-        #             item_value = item.text()
-        #             if text_filter is None:
-        #                 if filters and item_value not in filters:
-        #                     show_row = False
-        #                     break
-
-        # # Filtering by text
-        #     if text_filter is not None:
-        #         filter_dialog.accept()
-        #         item = self.item(row, column_index)
-        #         if item:
-        #             if text_filter.upper() in item.text().upper():
-        #                 self.column_filters[column_index].add(item.text())
-        #             else:
-        #                 show_row = False
-
-        #     if not show_row:
-        #         if row not in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.add(row)
-        #             rows_to_hide.add(row)
-        #     else:
-        #         if row in self.general_rows_to_hide:
-        #             self.general_rows_to_hide.remove(row)
-
-        # # Update hidden rows for this column depending on checkboxes
-        # if checked and text_filter is None:
-        #     if column_index not in self.rows_hidden:
-        #         self.rows_hidden[column_index] = set(rows_to_hide)
-        #     else:
-        #         self.rows_hidden[column_index].update(rows_to_hide)
-
-        # # Update hidden rows for this column depending on filtered text
-        # if text_filter is not None and value is None:
-        #     if column_index not in self.rows_hidden:
-        #         self.rows_hidden[column_index] = set(rows_to_hide)
-        #     else:
-        #         self.rows_hidden[column_index].update(rows_to_hide)
-
-        # # Iterate over all rows to hide them as necessary
-        # for row in range(self.rowCount()):
-        #     self.setRowHidden(row, row in self.general_rows_to_hide)
-
-        # header_item = self.horizontalHeaderItem(column_index)
-        # if len(self.general_rows_to_hide) > 0:
-        #     header_item.setIcon(QtGui.QIcon(str(get_path("Resources", "Iconos", "Filter_Active.png"))))
-        # else:
-        #     header_item.setIcon(QtGui.QIcon())
-        
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -831,15 +754,7 @@ class Ui_OTGeneralCreate_Window(object):
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         if code == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Los campos deben estar rellenos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            MessageHelper.show_message("Los campos deben estar rellenos", "warning")
 
         else:
             commands_checkOT = ("""SELECT "id" FROM fabrication.fab_order
@@ -856,61 +771,40 @@ class Ui_OTGeneralCreate_Window(object):
                                 ORDER BY "ot_num" DESC
                                 """
 
-            conn = None
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data=(code,)
-                cur.execute(commands_checkOT,data)
-                results_check = cur.fetchall()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(code,)
+                        cur.execute(commands_checkOT,data)
+                        results_check = cur.fetchall()
 
                 if len(results_check) > 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ese nº de OT ya está registrado\n"
-                                "¿Quieres que lo cree con el siguiente nº correspondiente?")
-                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    result = dlg.exec()
-                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                        cur.execute(commands_lastOT)
-                        results_last_ot = cur.fetchall()
+                    if MessageHelper.ask_yes_no("Ese nº de OT ya está registrado\n"
+                                "¿Quieres que lo cree con el siguiente nº correspondiente?", "ERP EIPSA"):
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_lastOT)
+                                results_last_ot = cur.fetchall()
 
                         new_code = str(int(results_last_ot[0][0]) + 1)
                         new_id = order + '-' + new_code
 
-                        data=(new_id, order, detail, qty_element, new_code, qty_ot, actual_date, equipment)
-                        cur.execute(commands_OTGeneralCreate,data)
-                    del dlg, new_icon
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                data=(new_id, order, detail, qty_element, new_code, qty_ot, actual_date, equipment)
+                                cur.execute(commands_OTGeneralCreate,data)
+                            conn.commit()
 
                 else:
-                    data=(id, order, detail, qty_element, code, qty_ot, actual_date, equipment)
-                    cur.execute(commands_OTGeneralCreate,data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            data=(id, order, detail, qty_element, code, qty_ot, actual_date, equipment)
+                            cur.execute(commands_OTGeneralCreate,data)
+                        conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
         self.loadtable()
 
@@ -919,7 +813,6 @@ class Ui_OTGeneralCreate_Window(object):
         """
         Modifies the corresponding entry after validating form inputs.
         """
-
         code = self.lineEdit_Code.text()
         order = self.lineEdit_Order.text()
         qty_ot = self.lineEdit_Qty.text()
@@ -931,35 +824,17 @@ class Ui_OTGeneralCreate_Window(object):
                                     SET "id" = %s, "tag" = %s, "element" = %s, "qty_ot" = %s, "type_equipment" = %s
                                     WHERE "ot_num" = %s
                                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            data=(id, order, detail, qty_ot, equipment, code)
-            cur.execute(commands_OTGeneralEdit,data)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(id, order, detail, qty_ot, equipment, code)
+                    cur.execute(commands_OTGeneralEdit,data)
+                conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.loadtable()
 
@@ -1004,23 +879,15 @@ class Ui_OTGeneralCreate_Window(object):
                                 ORDER BY "tag" DESC
                                 """
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(query_tablechanges)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tablechanges)
+                    results=cur.fetchall()
 
-            cur.execute(query_warehouse)
-            results_warehouse=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                    cur.execute(query_warehouse)
+                    results_warehouse=cur.fetchall()
+                conn.commit()
 
             self.tableWidget.setRowCount(len(results))
             tablerow=0
@@ -1044,19 +911,8 @@ class Ui_OTGeneralCreate_Window(object):
             self.tableWidget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.lineEdit_Code.setText(str(int(results[0][1]) + 1))
 

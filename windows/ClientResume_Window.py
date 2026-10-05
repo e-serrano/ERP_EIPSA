@@ -15,6 +15,8 @@ from matplotlib import ticker
 from datetime import *
 import numpy as np
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -163,34 +165,16 @@ class Ui_ClientResume_Window(object):
         self.gridLayout2 = None
 
         commands_loadyears = f"SELECT client, offer_year FROM offers WHERE client = '{self.clientname}'"
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_loadyears)
-            results_years=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_loadyears)
+                    results_years=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_years = [''] + list(set([str(x[1]) for x in results_years]))
         self.year1_CustomerResume.addItems(sorted(list_years))
@@ -229,15 +213,7 @@ class Ui_ClientResume_Window(object):
             year2 = int(self.year2_CustomerResume.currentText())
 
             if year2 < year1:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El segundo año no puede ser menor que el primero")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
+                MessageHelper.show_message("El segundo año no puede ser menor que el primero", "warning")
 
             else:
                 num_results = year2 - year1
@@ -539,38 +515,20 @@ class Ui_ClientResume_Window(object):
                         "offer_year" = '{year1 + i}' )
                         GROUP BY "client"
                         """
-                    conn = None
+
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(commands_offered)
-                        results_offered=cur.fetchall()
-                        cur.execute(commands_awarded)
-                        results_awarded=cur.fetchall()
-                        cur.execute(commands_dismissed)
-                        results_dismissed=cur.fetchall()
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_offered)
+                                results_offered=cur.fetchall()
+                                cur.execute(commands_awarded)
+                                results_awarded=cur.fetchall()
+                                cur.execute(commands_dismissed)
+                                results_dismissed=cur.fetchall()
+
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
                     of_of = results_offered[0][1] if not len(results_offered) == 0 else 0
                     ofadj = results_awarded[0][1] if not len(results_awarded) == 0 else 0
@@ -787,39 +745,21 @@ class Ui_ClientResume_Window(object):
                             GROUP BY "offer_year"
                             ORDER BY "offer_year"
                             """
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_offered_year)
-                    results_general_offered_year=cur.fetchall()
-                    cur.execute(commands_sold_year)
-                    results_general_sold_year=cur.fetchall()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_offered_year)
+                            results_general_offered_year=cur.fetchall()
+                            cur.execute(commands_sold_year)
+                            results_general_sold_year=cur.fetchall()
                     
                     results_offered_year=list(filter(lambda x:None not in x, results_general_offered_year))
                     results_sold_year=list(filter(lambda x:None not in x, results_general_sold_year))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 bar_width = 0.35
 
@@ -864,7 +804,7 @@ class Ui_ClientResume_Window(object):
 
                 self.widget_2 = QtWidgets.QWidget(parent=self.frame)
                 self.widget_2.setStyleSheet("border-color: rgb(0, 0, 0);\n"
-        "border: 1px solid")
+                    "border: 1px solid")
                 self.widget_2.setObjectName("widget_2")
                 self.hLayout.addWidget(self.widget_2)
                 self.gridLayout_Frame.addLayout(self.hLayout, 5, 0, 1, 1)

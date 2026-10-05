@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6 import QtSql
 from PySide6.QtCore import Qt
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from datetime import *
 import re
 from PySide6.QtWidgets import QApplication
@@ -11,6 +11,7 @@ import sys
 from config.config_functions import config_database, get_path
 import psycopg2
 import pandas as pd
+from utils.Show_Message import MessageHelper
 
 
 
@@ -59,17 +60,12 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 order, color_w, color_a = result
@@ -89,10 +85,6 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
                 colors_dict[order] = (color_w, color_a)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             # Handle the error appropriately
             pass
@@ -1457,19 +1449,11 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
 
             conn = None
             try:
-                # read the connection parameters
-                params = config_database()
-                # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-                # execution of commands
-                commands_colors = "UPDATE orders SET bg_color = %s WHERE num_order = %s"
-                cur.execute(commands_colors, (hex_color, value,))
-
-                # close communication with the PostgreSQL database server
-                cur.close()
-                # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        commands_colors = "UPDATE orders SET bg_color = %s WHERE num_order = %s"
+                        cur.execute(commands_colors, (hex_color, value,))
+                    conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
                 # Handle the error appropriately
                 pass

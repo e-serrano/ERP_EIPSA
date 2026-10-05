@@ -12,6 +12,8 @@ import psycopg2
 import os
 import locale
 import re
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -42,32 +44,20 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         """
         colors_dict = {}
 
-        conn = None
         try:
-            # read the connection parameters
-            params = config_database()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+                    cur.execute(commands_colors)
+                    results = cur.fetchall()
 
             for result in results:
                 state, red, green, blue = result
                 colors_dict[state] = QtGui.QColor(red, green, blue)
 
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error"
+                                        + str(error), "critical")
 
         return colors_dict
 
@@ -723,21 +713,12 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
                         UNION
                         SELECT id, num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hn_liq1, hn_liq2, hn_liq3, test_state, obs, quantity FROM verification.test_liquid WHERE EXTRACT(YEAR FROM test_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tags)
-            results=cur.fetchall()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tags)
+                    results=cur.fetchall()
 
             self.tableTags.setRowCount(len(results))
             tablerow=0
@@ -765,19 +746,8 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
             self.tableTags.custom_sort_date(6, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
     def querytags_all(self):
         """
@@ -796,21 +766,12 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
                         UNION
                         SELECT id, num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hn_liq1, hn_liq2, hn_liq3, test_state, obs, quantity FROM verification.test_liquid
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_tags)
-            results=cur.fetchall()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_tags)
+                    results=cur.fetchall()
 
             self.tableTags.setRowCount(len(results))
             tablerow=0
@@ -838,19 +799,8 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
             self.tableTags.custom_sort_date(6, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
@@ -915,13 +865,7 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
             item (QTableWidgetItem): The table item to be expanded.
         """
         cell_content = item.text()
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("Pruebas")
-        dlg.setText(cell_content)
-        dlg.exec()
+        MessageHelper.show_message(cell_content, "info")
 
     def countSelectedCells(self):
         """

@@ -11,7 +11,8 @@ from config.config_functions import config_database, get_path
 import psycopg2
 import os
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -592,27 +593,17 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         """
         self.tableNotifications.setRowCount(0)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
             notifications = []
-
             commands_notifications = f" SELECT id, message, notes, state FROM notifications.notifications_orders WHERE username = '{self.username}'"
-            cur.execute(commands_notifications)
-            results=cur.fetchall()
+
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_notifications)
+                    results=cur.fetchall()
 
             for x in results:
                 notifications.append([x[0],x[1],x[2],x[3]])
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
 
             self.tableNotifications.setRowCount(len(notifications))
             tablerow=0
@@ -639,19 +630,8 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
             self.tableNotifications.hideColumn(0)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function when clicking on table tag header
     def on_header_section_clicked(self, logical_index):
@@ -681,37 +661,17 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         """
         Displays a dialog window allowing the user to view and edit notes.
         """
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            commands_notifications = f" SELECT notes, message FROM notifications.notifications_orders WHERE id = {id_notification}"
-            cur.execute(commands_notifications)
-            results=cur.fetchall()
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    commands_notifications = f" SELECT notes, message FROM notifications.notifications_orders WHERE id = {id_notification}"
+                    cur.execute(commands_notifications)
+                    results=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         dlg = QtWidgets.QDialog()
         dlg.setWindowTitle(results[0][1].split('Proyecto')[0].split(': ')[1])
@@ -748,34 +708,17 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
                         SET "notes" = %s
                         WHERE "id" = %s
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=(notes_notification, id_notification,)
-            cur.execute(commands_updateorder, data)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    data=(notes_notification, id_notification,)
+                    cur.execute(commands_updateorder, data)
+                conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 
 

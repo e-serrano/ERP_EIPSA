@@ -10,6 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from config.config_functions import config_database, get_path
 import psycopg2
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
@@ -1024,37 +1026,19 @@ class Ui_Suppliers_Window(object):
                         SELECT * 
                         FROM purch_fact.pay_way
                         """)
-        
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_iva)
-            results_iva=cur.fetchall()
-            cur.execute(commands_payway)
-            results_payway=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_iva)
+                    results_iva=cur.fetchall()
+
+                    cur.execute(commands_payway)
+                    results_payway=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_iva=['']+[x[1] for x in results_iva]
         self.Iva_Suppliers.addItems(list_iva)
@@ -1148,67 +1132,32 @@ class Ui_Suppliers_Window(object):
         notes=self.Notes_Suppliers.toPlainText()
 
         if name=="" or (cif=="" or country==""):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Proveedor")
-            dlg.setText("Rellena como mínimo los siguientes campos:\n"
+            MessageHelper.show_message("Rellena como mínimo los siguientes campos:\n"
                         "·Nombre\n"
                         "·CIF\n"
-                        "·País")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+                        "·País", "warning")
 
         else:
-        #SQL Query for checking if document number exists in database
             commands_checksupplier = ("""
                         SELECT * 
                         FROM purch_fact.suppliers
                         WHERE "name" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checksupplier,(name,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:name in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checksupplier,(name,))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:name in x, results))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             if len(match)>0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Agregar Proveedor")
-                dlg.setText("El nombre de proveedor introducido ya está registrado\n"
-                            "Búscalo en la tabla")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-
-                del dlg,new_icon
+                MessageHelper.show_message("El nombre de proveedor introducido ya está registrado\n"
+                            "Búscalo en la tabla", "warning")
 
             else:
                 commands_newsupplier = ("""
@@ -1218,57 +1167,34 @@ class Ui_Suppliers_Window(object):
                             )
                             VALUES (%s,%s,%s,%s,'',%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
-                    cur.execute(query_ivatype, (iva,))
-                    result_iva = cur.fetchone()
 
-                    query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
-                    cur.execute(query_paywaytype, (payway,))
-                    result_payway = cur.fetchone()
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
+                            cur.execute(query_ivatype, (iva,))
+                            result_iva = cur.fetchone()
+
+                            query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                            cur.execute(query_paywaytype, (payway,))
+                            result_payway = cur.fetchone()
+
                 # get id from table
                     id_iva = result_iva[0] if result_iva is not None else None
                     id_payway = result_payway[0]
+
                 # execution of principal command
-                    data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,)
-                    cur.execute(commands_newsupplier, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,)
+                            cur.execute(commands_newsupplier, data)
+                        conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Agregar Proveedor")
-                    dlg.setText("Proveedor agregado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-
-                    del dlg,new_icon
+                    MessageHelper.show_message("Proveedor agregado con éxito", "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 self.loadtablesuppliers()
 
@@ -1293,14 +1219,7 @@ class Ui_Suppliers_Window(object):
         notes=self.Notes_Suppliers.toPlainText()
 
         if id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Proveedor")
-            dlg.setText("Pulsa en un proveedor de la tabla para cargar los datos en el formulario")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Pulsa en un proveedor de la tabla para cargar los datos en el formulario", "warning")
 
         else:
             commands_modifysupplier = ("""
@@ -1309,56 +1228,34 @@ class Ui_Suppliers_Window(object):
                             "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
                             WHERE "id" = %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
+                        cur.execute(query_ivatype, (iva,))
+                        result_iva = cur.fetchone()
 
-                query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
-                cur.execute(query_ivatype, (iva,))
-                result_iva = cur.fetchone()
+                        query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                        cur.execute(query_paywaytype, (payway,))
+                        result_payway = cur.fetchone()
 
-                query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
-                cur.execute(query_paywaytype, (payway,))
-                result_payway = cur.fetchone()
             # get id from table
                 id_iva = result_iva[0] if result_iva is not None else None
                 id_payway = result_payway[0]
+
             # execution of commands one by one
-                data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id,)
-                cur.execute(commands_modifysupplier,data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id,)
+                        cur.execute(commands_modifysupplier,data)
+                    conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Modificar Proveedor")
-                dlg.setText("Proveedor modificado con exito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+                MessageHelper.show_message("Proveedor modificado con exito", "info")
 
-                del dlg, new_icon
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.loadtablesuppliers()
 
@@ -1370,59 +1267,25 @@ class Ui_Suppliers_Window(object):
         id=self.label.text()
 
         if id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Eliminar Proveedor")
-            dlg.setText("Pulsa en un proveedor de la tabla para cargar los datos en el formulario")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Pulsa en un proveedor de la tabla para cargar los datos en el formulario", "warning")
 
         else:
             commands_deletesupplier = ("""
                             DELETE FROM purch_fact.suppliers
                             WHERE "id" = %s
                             """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_deletesupplier, (id,))
+                    conn.commit()
 
-                cur.execute(commands_deletesupplier, (id,))
+                MessageHelper.show_message("Proveedor eliminado con exito", "info")
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Eliminar Proveedor")
-                dlg.setText("Proveedor eliminado con exito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-
-                del dlg, new_icon
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
             self.loadtablesuppliers()
 
@@ -1476,41 +1339,22 @@ class Ui_Suppliers_Window(object):
                         LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.suppliers."iva_id")
                         ORDER BY purch_fact.suppliers.id
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querysuppliers)
-            results_supplier=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_querysuppliers)
+                    results_supplier=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.tableSuppliers.setRowCount(len(results_supplier))
         tablerow=0
 
         font = QtGui.QFont()
         font.setPointSize(int(14//self.scale))
-
 
     # fill the Qt Table with the query results
         for row in results_supplier:
@@ -1542,10 +1386,6 @@ class Ui_Suppliers_Window(object):
         header_height = self.tableSuppliers.horizontalHeader().height()
         popup_pos = self.tableSuppliers.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableSuppliers.show_unique_values_menu(logical_index, popup_pos, header_height)
-
-
-
-
 
 
 if __name__ == "__main__":

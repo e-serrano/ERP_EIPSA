@@ -10,6 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config.config_functions import config_database, get_path
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -265,34 +267,15 @@ class Ui_New_Doc_Window(object):
         self.Button_NewDoc.clicked.connect(self.NewDoc)
         QtCore.QMetaObject.connectSlotsByName(New_Doc_Window)
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute("""SELECT * FROM document_type""")
-            results_doctype=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""SELECT * FROM document_type""")
+                    results_doctype=cur.fetchall()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         list_typedoc=[x[1] for x in results_doctype]
         self.DocType_NewDoc.addItems(sorted(list_typedoc))
@@ -339,47 +322,20 @@ class Ui_New_Doc_Window(object):
                         FROM documentation
                         WHERE "num_doc_eipsa" = %s
                         """)
-            conn = None
+
             try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checkdocument,(numdoceipsa,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numdoceipsa in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(commands_checkdocument,(numdoceipsa,))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:numdoceipsa in x, results))
+
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error)," critical")
 
             if len(match)>0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Documento")
-                dlg.setText("El número de documento EIPSA introducido ya está registrado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-
-                del dlg,new_icon
+                MessageHelper.show_message("El número de documento EIPSA introducido ya está registrado", "warning")
 
             else:
                 commands_newdoc = ("""
@@ -388,58 +344,31 @@ class Ui_New_Doc_Window(object):
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    query_doctype = "SELECT id FROM document_type WHERE doc_type = %s"
-                    cur.execute(query_doctype, (doctype,))
-                # get results from query
-                    resultado = cur.fetchone()
-                # get id from table
-                    id_doctype = resultado[0]
-                # execution of principal command
-                    data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc, critical, state)
-                    cur.execute(commands_newdoc, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Documento")
-                    dlg.setText("Documento creado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            query_doctype = "SELECT id FROM document_type WHERE doc_type = %s"
+                            cur.execute(query_doctype, (doctype,))
+                        # get results from query
+                            resultado = cur.fetchone()
+                        # get id from table
+                            id_doctype = resultado[0]
+                        # execution of principal command
+                            data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc, critical, state)
+                            cur.execute(commands_newdoc, data)
+                        conn.commit()
+
+                    MessageHelper.show_message("Documento creado con éxito", "info")
 
                     self.NumOrder_NewDoc.setText('')
                     self.NumDocEipsa_NewDoc.setText('')
                     self.NumDocClient_NewDoc.setText('')
                     self.TitleDoc_NewDoc.setText('')
 
-                    del dlg,new_icon
-
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,8 @@ import matplotlib.dates as mdates
 from datetime import *
 import pandas as pd
 import os
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -624,40 +626,25 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
                         GROUP BY temperature, humidity, humidity_limit, complete_date
                         ORDER BY complete_date ASC
                         """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_humidity_data)
-            results=cur.fetchall()
 
-            temp=[float(x[0]) for x in results]
-            humidity=[float(x[1]) for x in results]
-            humidity_limit=[float(x[2]) for x in results]
-            time_stamp=[x[3] for x in results]
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_humidity_data)
+                    results=cur.fetchall()
+
+                    temp=[float(x[0]) for x in results]
+                    humidity=[float(x[1]) for x in results]
+                    humidity_limit=[float(x[2]) for x in results]
+                    time_stamp=[x[3] for x in results]
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         palette = QtWidgets.QApplication.palette()
         text_color = palette.color(QtGui.QPalette.ColorRole.WindowText).name()
-        
+
         self.canvas1=FigureCanvas(Figure())
         self.canvas1.setStyleSheet("background: transparent;")
         ax=self.canvas1.figure.subplots()
@@ -724,33 +711,20 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         if widget_to_delete is not None:
             widget_to_delete.deleteLater()
 
-        # if hasattr(self, 'canvas1'):
-        #     self.canvas1.setParent(None)
-        #     self.canvas1.deleteLater()
-
         query_humidity_data = ("""
                         SELECT temperature, humidity, humidity_limit, TO_CHAR(date_value, 'DD/MM/YYYY'), time_value, complete_date
                         FROM verification.humidity_temp_closet
                         GROUP BY temperature, humidity, humidity_limit, date_value, time_value, complete_date
                         ORDER BY complete_date DESC
                         """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_humidity_data)
-            results=cur.fetchall()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_humidity_data)
+                    results=cur.fetchall()
 
             column_headers = ['Temp. (°C)', 'Hum. (%)', 'Hum. Limit (%)', 'Fecha', 'Hora']
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
 
             self.tableRegisters = CustomTableWidget()
             self.tableRegisters.setMinimumSize(QtCore.QSize(650, 280))
@@ -787,19 +761,8 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             self.tableRegisters.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.gridLayout_Frame.addWidget(self.tableRegisters, 2, 0, 1, 2)
 
@@ -859,42 +822,27 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         df["temperature"] = df["temperature"].str.replace(",", ".").astype(float)
         df["humidity"] = df["humidity"].str.replace(",", ".").astype(float)
 
-        params = config_database()
-        conn = psycopg2.connect(**params)
-        cursor = conn.cursor()
-
         try:
             for index, row in df.iterrows():
                 columns_values = [(column, row[column]) for column in df.columns if not pd.isnull(row[column])]
                 columns = ', '.join([column for column, _ in columns_values])
                 values = ', '.join(['NULL' if values == '' and column in ['date_value','time_value']
                                     else f"'{values}'" for column, values in columns_values])
-                
-                sql_insertion = f"INSERT INTO verification.humidity_temp_closet ({columns}) VALUES ({values})"
-                cursor.execute(sql_insertion)
 
-            conn.commit()
-            cursor.close()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        sql_insertion = f"INSERT INTO verification.humidity_temp_closet ({columns}) VALUES ({values})"
+                        cur.execute(sql_insertion)
+                    conn.commit()
 
             new_fname = "//ERP-EIPSA-DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
 
             os.rename(fname, new_fname)
 
             self.load_graph()
+
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText(f"Error con la importación")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message(f"Error con la importación", "critical")
 
 # Function when header of different tables is clicked
     def on_header_section_clicked(self, logical_index):

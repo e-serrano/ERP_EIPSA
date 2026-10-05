@@ -9,6 +9,8 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from config.config_functions import config_database, get_path
 import psycopg2
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 class Ui_CreateTAGOthers_Window(object):
@@ -274,42 +276,21 @@ class Ui_CreateTAGOthers_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGOthers_Window.setStatusBar(self.statusbar)
 
-        commands_comboboxes = [
-            "SELECT nace FROM validation_data.others_nace"
-            ]
+        commands_comboboxes = ["SELECT nace FROM validation_data.others_nace"]
 
         all_results = []
 
-        conn = None
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
             for query in commands_comboboxes:
-                cur.execute(query)
-                results=cur.fetchall()
-                all_results.append(results)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query)
+                        results=cur.fetchall()
+                        all_results.append(results)
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         self.Nace_CreatetagO.addItems(sorted([x[0] for x in all_results[0]]))
 
@@ -361,14 +342,7 @@ class Ui_CreateTAGOthers_Window(object):
         amount=amount.replace(".",",")
 
         if ((tag=="" or tag==" ") or (description=="" or description==" ") or (numoffer=="" or numoffer==" ")):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear TAG Otros")
-            dlg.setText("Rellene los campos con * mínimo")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Rellene los campos con * mínimo", "warning")
 
         else:
             commands_inserttagothers = ("""
@@ -379,46 +353,21 @@ class Ui_CreateTAGOthers_Window(object):
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config_database()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (tag,tag_state,numoffer,numorder,num_po,
-                        pos,subpos,description,code_equipment,nace,
-                        notes,amount)
-                cur.execute(commands_inserttagothers, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Tag")
-                dlg.setText("Tag creado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        data = (tag,tag_state,numoffer,numorder,num_po,
+                                pos,subpos,description,code_equipment,nace,
+                                notes,amount)
+                        cur.execute(commands_inserttagothers, data)
+                    conn.commit()
+
+                MessageHelper.show_message("Tag creado con éxito", "info")
 
             except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
 
 
     def queryoffernumber(self):
@@ -429,51 +378,26 @@ class Ui_CreateTAGOthers_Window(object):
             psycopg2.DatabaseError: If a database error occurs during the SQL execution.
         """
         numorder=self.NumOrder_CreatetagO.text()
-    #SQL Query for loading existing data in database
+
         commands_loadofferorder = ("""
                     SELECT "num_order","num_offer","num_ref_order"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
-        conn = None
+
         try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_loadofferorder,(numorder,))
-            results=cur.fetchall()
-            match=list(filter(lambda x:numorder in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_loadofferorder,(numorder,))
+                    results=cur.fetchall()
+                    match=list(filter(lambda x:numorder in x, results))
+
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
         if len(match)==0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Tag")
-            dlg.setText("El número de oferta introducido no existe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("El número de oferta introducido no existe", "warning")
 
         else:
             self.NumOffer_CreatetagO.setText(str(results[0][1]))

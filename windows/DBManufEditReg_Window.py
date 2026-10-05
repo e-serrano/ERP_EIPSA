@@ -11,10 +11,10 @@ from PySide6 import QtSql
 from config.config_functions import config_database, get_path
 import psycopg2
 import configparser
-from utils.Database_Manager import Create_DBconnection
+from utils.Database_Manager import Create_DBconnection, Database_Connection
 from PySide6.QtCore import Qt
 import os
-
+from utils.Show_Message import MessageHelper
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -488,43 +488,8 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
         self.Button_Add.clicked.connect(self.add_dbregister)
         QtCore.QMetaObject.connectSlotsByName(DBEditRegManuff_Window)
 
-
-        # query_tablechanges = """SELECT table_name
-        #                         FROM information_schema.tables
-        #                         WHERE table_schema = 'fabrication' AND table_type = 'BASE TABLE';"""
-
-        # conn = None
-        # try:
-        # # read the connection parameters
-        #     params = config_database()
-        # # connect to the PostgreSQL server
-        #     conn = psycopg2.connect(**params)
-        #     cur = conn.cursor()
-        # # execution of commands one by one
-        #     cur.execute(query_tablechanges)
-        #     results=cur.fetchall()
-        # # close communication with the PostgreSQL database server
-        #     cur.close()
-        # # commit the changes
-        #     conn.commit()
-
-        # except (Exception, psycopg2.DatabaseError) as error:
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("ERP EIPSA")
-        #     dlg.setText("Ha ocurrido el siguiente error:\n"
-        #                 + str(error))
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #     dlg.exec()
-        #     del dlg, new_icon
-        # finally:
-        #     if conn is not None:
-        #         conn.close()
-
         tables_names=["operations", "personal"]
-        # tables_names.sort()
+
         tables_names.insert(0,"")
         self.comboBox.addItems(tables_names)
 
@@ -586,29 +551,14 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
         values = ', '.join([f"'{value}'" for value in values])
 
         commands_new = f" INSERT INTO {table_name} ({columns}) VALUES ({values})"
-        conn = None
-        try:
-        # read the connection parameters
-            params = config_database()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_new)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Editar Registros")
-            dlg.setText("Datos insertados con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+        try:
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(commands_new)
+                conn.commit()
+
+            MessageHelper.show_message("Datos insertados con éxito", "info")
 
             self.code1_DBReg.setText('')
             self.code2_DBReg.setText('')
@@ -621,19 +571,8 @@ class Ui_DBEditRegManuf_Window(QtWidgets.QMainWindow):
             self.loadtable()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                        + str(error), "critical")
 
 # Function to load table after selection on combobox
     def loadtable(self):

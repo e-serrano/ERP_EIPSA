@@ -10,8 +10,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
 from config.config_functions import config_database, get_path
-import os
-import re
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import MessageHelper
 
 
 
@@ -200,14 +200,7 @@ class Ui_OF_DrawingInsertComp_Window(object):
         drawing = self.drawing.text()
 
         if num_order == "" or drawing == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Planos OF")
-            dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            MessageHelper.show_message("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío", "warning")
 
         else:
             if num_order not in  ['ALMACÉN', 'ALMACEN']:
@@ -216,47 +209,20 @@ class Ui_OF_DrawingInsertComp_Window(object):
                             FROM orders
                             WHERE UPPER("num_order") LIKE UPPER('%%'||%s||'%%')
                             """)
-                conn = None
+
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands_checkorder,(num_order,))
-                    results=cur.fetchall()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_checkorder,(num_order,))
+                            results=cur.fetchall()
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
                 if len(results) == 0:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos OF")
-                        dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-        
+                        MessageHelper.show_message("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'", "warning")
+
                 else:
                     commands_select_of_drawing = ("""
                                 SELECT *
@@ -274,75 +240,37 @@ class Ui_OF_DrawingInsertComp_Window(object):
                                 VALUES(%s, %s)
                                 """)
 
-                    conn = None
                     try:
-                    # read the connection parameters
-                        params = config_database()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(commands_select_of_drawing, (num_order, drawing, ))
-                        results = cur.fetchall()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_select_of_drawing, (num_order, drawing, ))
+                                results = cur.fetchall()
 
-                        if len(results) != 0:
-                            if results[0][0] is None:
-                                cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
-                                cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Planos OF")
-                                dlg.setText("Datos insertados con éxito")
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                dlg.exec()
-                                del dlg, new_icon
+                                if len(results) != 0:
+                                    if results[0][0] is None:
+                                        with Database_Connection(config_database()) as conn:
+                                            with conn.cursor() as cur:
+                                                cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
+                                                cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
+                                            conn.commit()
 
-                            else:
-                                    dlg_yes_no = QtWidgets.QMessageBox()
-                                    new_icon_yes_no = QtGui.QIcon()
-                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                    dlg_yes_no.setText(f"Ya existe el plano {drawing}\n")
-                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
-                                    del dlg_yes_no, new_icon_yes_no
+                                    else:
+                                        MessageHelper.show_message(f"Ya existe el plano {drawing}\n", "warning")
 
-                        else:
-                            cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
-                            cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Planos OF")
-                            dlg.setText("Datos insertados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg, new_icon
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
+                                else:
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
+                                            cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
+                                        conn.commit()
 
+                                    MessageHelper.show_message("Datos insertados con éxito", "info")
 
                     except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos OF")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
             else:
                 commands_select_of_drawing = ("""
@@ -361,74 +289,37 @@ class Ui_OF_DrawingInsertComp_Window(object):
                             VALUES(%s, %s, %s)
                             """)
 
-                conn = None
                 try:
-                # read the connection parameters
-                    params = config_database()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_of_drawing, (num_order, drawing, ))
-                    results = cur.fetchall()
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(commands_select_of_drawing, (num_order, drawing, ))
+                            results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
-                            cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Planos OF")
-                            dlg.setText("Datos insertados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg, new_icon
+                            with Database_Connection(config_database()) as conn:
+                                with conn.cursor() as cur:
+                                    cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
+                                    cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
+                                conn.commit()
+
+                            MessageHelper.show_message("Datos insertados con éxito", "info")
 
                         else:
-                                dlg_yes_no = QtWidgets.QMessageBox()
-                                new_icon_yes_no = QtGui.QIcon()
-                                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                                dlg_yes_no.setText(f"Ya existe el plano {drawing}\n")
-                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-
-                                del dlg_yes_no, new_icon_yes_no
+                            MessageHelper.show_message(f"Ya existe el plano {drawing}\n", "warning")
 
                     else:
-                        cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
-                        cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos OF")
-                        dlg.setText("Datos insertados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                        with Database_Connection(config_database()) as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(commands_insert_of_drawing_verif, (num_order, drawing,))
+                                cur.execute(commands_insert_of_drawing_workshop, (num_order, drawing,))
+                            conn.commit()
+
+                        MessageHelper.show_message("Datos insertados con éxito", "info")
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos OF")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
 
 
