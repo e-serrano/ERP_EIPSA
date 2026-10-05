@@ -1013,16 +1013,24 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         """
         Saves changes made to the data models and updates unique values for each column.
         """
-        self.model.submitAll()
+        if not self.model.submitAll():
+            error = self.model.lastError()
+
+            MessageHelper.show_message("❌ ERROR AL GUARDAR")
+            print("text:", error.text())
+            print("databaseText:", error.databaseText())
+            print("driverText:", error.driverText())
+            return
 
         for column in range(self.model.columnCount()):
             list_valuesUnique = []
             for row in range(self.model.rowCount()):
                 value = self.model.record(row).value(column)
+                if isinstance(value, QtCore.QDate):
+                    value = value.toString("dd/MM/yyyy")
+                value = str(value)
                 if value not in list_valuesUnique:
-                    if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
-                    list_valuesUnique.append(str(value))
+                    list_valuesUnique.append(value)
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
@@ -1098,6 +1106,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.tableEditCalibration.deleteRequested.connect(lambda: self.delete_table(self.tableEditCalibration, self.model))
 
         self.tableEditCalibration.sortByColumn(7, Qt.SortOrder.DescendingOrder)
+        self.model.dataChanged.connect(self.saveChanges)
 
 # Function to load table and setting in the window
     def query_all_calibration(self):
