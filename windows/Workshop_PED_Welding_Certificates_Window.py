@@ -1232,8 +1232,6 @@ class Ui_Workshop_PED_Welding_Certificates_Window(QtWidgets.QMainWindow):
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
 
-            del dlg_yes_no, new_icon_yes_no
-
 # Function pdf to master
     def add_pdf(self):
         """

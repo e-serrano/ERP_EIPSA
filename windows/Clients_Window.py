@@ -1463,7 +1463,6 @@ class Ui_Clients_Window(object):
 
                 MessageHelper.show_message("Cliente eliminado con exito", "info")
 
-                del dlg, new_icon
             except (Exception, psycopg2.DatabaseError) as error:
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                         + str(error), "critical")

@@ -2489,7 +2489,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                 writer.write(output_path)
 
                                 MessageHelper.show_message("PDF Generado con éxito", "info")
-                                del dlg, new_icon
 
                         except Exception as error:
                             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"

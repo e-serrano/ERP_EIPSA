@@ -299,41 +299,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_ClientsResume)
         spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem13)
-        self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_QueryTask.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
-        self.Button_QueryTask.setText("")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "Task.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_QueryTask.setIcon(icon5)
-        self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
-        self.Button_QueryTask.setObjectName("Button_QueryTask")
-        self.Button_QueryTask.setToolTip("Tareas")
-        self.Header.addWidget(self.Button_QueryTask)
-        spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem14)
         self.Button_RecOffer = QtWidgets.QPushButton(parent=self.frame)
         self.Button_RecOffer.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_RecOffer.setMaximumSize(QtCore.QSize(50, 50))
@@ -919,17 +884,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.stats_offers)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
-        self.Button_QueryTask.clicked.connect(self.querytask)
         self.Button_RecOffer.clicked.connect(self.reclamation_offer)
         self.Button_FutureProjects.clicked.connect(self.future_projects)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
-        self.Calendar.activated.connect(self.show_selected_date_tasks)
-        self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Reports.clicked.connect(self.generate_report)
-
-        self.setup_task_dates()
 
         self.update_principal_screen()
 
@@ -937,27 +897,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.alert_reclamation_offers()
 
         self.load_notifications()
-
-
-    def show_context_menu(self, point):
-        """
-        Displays a context menu at the specified point in the calendar widget. 
-        Provides options to add or edit tasks for the selected date.
-        
-        Args:
-            point (QPoint): The location where the context menu will appear.
-        """
-        selected_date = self.Calendar.selectedDate()
-        menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
-        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-
-        action1 = menu.addAction("Agregar tareas")
-        action1.triggered.connect(lambda: self.newtask(selected_date))
-        action2 = menu.addAction("Editar tareas")
-        action2.triggered.connect(lambda: self.querytask(selected_date))
-
-        menu.exec(self.Calendar.mapToGlobal(point))
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Comercial):
@@ -1138,34 +1077,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.ui=Ui_ClientsGeneralResume_Window()
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
-
-# Function to open window for query tasks
-    def querytask(self, date=None):
-        """
-        Opens a new window for querying tasks. 
-        
-        Args:
-            date (QDate, optional): The date to filter tasks. Defaults to None.
-        """
-        from windows.TaskQuery_Window import Ui_QueryTask_Window
-        self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
-        self.querytaskwindow.show()
-        self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
-
-# Function to open window for create a new task
-    def newtask(self, date):
-        """
-        Opens a new window for creating a new task. 
-        
-        Args:
-            date (QDate): The date associated with the new task.
-        """
-        from windows.TaskAdd_Window import Ui_AddTask_Window
-        self.newtaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_AddTask_Window(self.name, date)
-        self.ui.setupUi(self.newtaskwindow)
-        self.newtaskwindow.show()
-        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 # Function to show menu when profile button is clicked
     def showMenu(self):
@@ -1390,122 +1301,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                         + str(error), 'critical')
 
         self.tableOffer.setSortingEnabled(False)
-
-# Function to stablish dates with task assigned to put icon on calendar
-    def setup_task_dates(self):
-        """
-        Sets up task dates for the calendar widget.
-        Handles errors with a message box and updates the calendar with task dates.
-        """
-        commands_loaddatestasks = ("""
-                    SELECT "task_date","task"
-                    FROM tasks
-                    WHERE ("responsible" = %s
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                # execution of commands
-                    cur.execute(commands_loaddatestasks,(self.name,))
-                    results=cur.fetchall()
-
-                dates_with_tasks_raw=[x[0] for x in results]
-                dates_with_tasks=list(set(dates_with_tasks_raw))
-
-                task_dates = dates_with_tasks
-                self.Calendar.set_task_dates(task_dates)
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
-
-# Function to show task of the selected date
-    def show_selected_date_tasks(self):
-        """
-        Displays tasks for the selected date in a message box.
-        Handles errors with a message box.
-        """
-        self.click_count = 0
-        selected_date = self.Calendar.selectedDate()
-        if self.name == 'Carlos Crespo':
-            creator=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-        else:
-            creator=self.name[0] + self.name[self.name.find(' ')+1]
-        returned = self.get_tasks_for_date(creator, selected_date)
-
-        if returned:
-            final_text=''
-
-            for item in returned:
-                responsible = item[0]
-                tasks = item [1]
-                task_text = "<br><br>-".join(tasks)
-                final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
-
-            MessageHelper.show_message(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>", "info")
-
-#Function to obtain tasks associated to a date
-    def get_tasks_for_date(self, creator, date):
-        """
-        Retrieves tasks for a specific date.
-        
-        Args:
-            creator (str): The creator or responsible person for the tasks.
-            date (QDate): The date for which tasks are being retrieved.
-        
-        Returns:
-            list: A list of tasks for the specified date.
-        """
-        commands_loaddatestasks = ("""
-                    SELECT "responsible","task_date","task","state","creator"
-                    FROM tasks
-                    WHERE ("responsible" = %s
-                    AND
-                    "task_date" IS NOT NULL
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-
-        try:
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                # execution of commands
-                    cur.execute(commands_loaddatestasks,(self.name,))
-                    results=cur.fetchall()
-
-                dict_responsibles_tasks={}
-
-                for i in range(len(results)):
-                    responsible=results[i][0]
-                    key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
-                    value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
-
-                    if responsible not in dict_responsibles_tasks:
-                        dict_responsibles_tasks[responsible] = [{key: [value]}]
-
-                    else:
-                        for item in dict_responsibles_tasks[responsible]:
-                            if key not in item:
-                                item[key] = [value]
-
-                            else:
-                                item[key].append(value)
-
-                value_to_return = []
-                for item in dict_responsibles_tasks.keys():
-                    for element in dict_responsibles_tasks[item]:
-                        if date in element:
-                            value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
-
-                return value_to_return
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                        + str(error), 'critical')
 
 #Function to show dialog showing delayed offers
     def alert_offers(self):
@@ -1809,8 +1604,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     if report == 'Ofertas':
                         if MessageHelper.ask_yes_no("¿Quieres generar el PDF?\n", "ERP EIPSA"):
                             report_offers()
-
-                        del dlg_yes_no, new_icon_yes_no
 
                         from windows.Report_Offers_View import Ui_Report_Offers_View
 
