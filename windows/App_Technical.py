@@ -2382,145 +2382,129 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             Exception: If there is an error during the PDF editing process.
         """
 
-        while True:
-            answer, ok = QtWidgets.QInputDialog.getItem(self, "Texto en PDF", "¿Que quieres incluir?:", ['Notas', 'TAGS'], 0, False)
-            if ok and answer:
-                if answer == 'Notas':
-                    dlg4 = QtWidgets.QInputDialog()
-                    new_icon4 = QtGui.QIcon()
-                    new_icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg4.setWindowIcon(new_icon4)
-                    dlg4.setWindowTitle('Texto en PDF')
-                    dlg4.setLabelText('Nº Pedido:')
+        answer, ok = MessageHelper.ask_item(['Notas', 'TAGS'], "¿Que quieres incluir?:", "Texto en PDF")
+        if ok and answer:
+            if answer == 'Notas':
+                order_number = MessageHelper.ask_text_required("Nº Pedido:", "Texto en PDF", "El número de pedido no puede estar vacío. Introduce un valor válido.")
+                if order_number is None:
+                    return
 
-                    while True:
-                        clickedButton4 = dlg4.exec()
-                        if clickedButton4 == 1:
-                            order_number = dlg4.textValue()
-                            if order_number != '':
-                                query_flow = ('''
-                                    SELECT tags_data.tags_flow."tag", tags_data.tags_flow."technical_notes"
-                                    FROM tags_data.tags_flow
-                                    WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
-                                    ''')
-                                query_temp = ('''
-                                    SELECT tags_data.tags_temp."tag", tags_data.tags_temp."technical_notes"
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
-                                    ''')
-                                query_level = ('''
-                                    SELECT tags_data.tags_level."tag", tags_data.tags_level."technical_notes"
-                                    FROM tags_data.tags_level
-                                    WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
-                                    ''')
-                                try:
-                                    with Database_Connection(config_database()) as conn:
-                                        with conn.cursor() as cur:
-                                            cur.execute(query_flow,(order_number,))
-                                            results_flow=cur.fetchall()
-                                            cur.execute(query_temp,(order_number,))
-                                            results_temp=cur.fetchall()
-                                            cur.execute(query_level,(order_number,))
-                                            results_level=cur.fetchall()
+                query_flow = ('''
+                    SELECT tags_data.tags_flow."tag", tags_data.tags_flow."technical_notes"
+                    FROM tags_data.tags_flow
+                    WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                query_temp = ('''
+                    SELECT tags_data.tags_temp."tag", tags_data.tags_temp."technical_notes"
+                    FROM tags_data.tags_temp
+                    WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                query_level = ('''
+                    SELECT tags_data.tags_level."tag", tags_data.tags_level."technical_notes"
+                    FROM tags_data.tags_level
+                    WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query_flow,(order_number,))
+                            results_flow=cur.fetchall()
+                            cur.execute(query_temp,(order_number,))
+                            results_temp=cur.fetchall()
+                            cur.execute(query_level,(order_number,))
+                            results_level=cur.fetchall()
 
-                                    columns = ["tag", "technical_notes"]
-                                    df_flow = pd.DataFrame(results_flow, columns=columns)
-                                    df_temp = pd.DataFrame(results_temp, columns=columns)
-                                    df_level = pd.DataFrame(results_level, columns=columns)
+                    columns = ["tag", "technical_notes"]
+                    df_flow = pd.DataFrame(results_flow, columns=columns)
+                    df_temp = pd.DataFrame(results_temp, columns=columns)
+                    df_level = pd.DataFrame(results_level, columns=columns)
 
-                                    # Concatenate dataframes
-                                    df_combined = pd.concat([df_flow, df_temp, df_level], ignore_index=True)
+                    # Concatenate dataframes
+                    df_combined = pd.concat([df_flow, df_temp, df_level], ignore_index=True)
 
-                                    df_combined = df_combined.dropna()
+                    df_combined = df_combined.dropna()
 
-                                    excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
-                                    df_data = pd.read_excel(excel_file)
+                    excel_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo Excel", "", "Archivos de Excel (*.xlsx)")
 
-                                    if df_data.shape[0] > 0:
-                                        # original_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con PDFs")
-                                        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo", "", "Archivos PDF (*.pdf)")
-                                        reader = PdfReader(file_path)
-                                        for row in range(df_data.shape[0]):
-                                            # file_path = original_path + "/" + str(df_data.iloc[row,0]) + ".pdf"
-                                            if not os.path.exists(str(file_path)):
-                                                print(f"Archivo no encontrado: {file_path}")
-                                                continue
-                                            page_overlay = PdfReader(new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+                    if not excel_file:
+                        return
 
-                                        writer = PdfWriter()
-                                        writer.append_pages_from_reader(reader)
-                                        writer.write(str(file_path).replace(".pdf", "_edit.pdf"))
+                    df_data = pd.read_excel(excel_file)
 
-                                        MessageHelper.show_message("PDFs editados con éxito", "info")
+                    if df_data.shape[0] > 0:
+                        # original_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con PDFs")
+                        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo", "", "Archivos PDF (*.pdf)")
 
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                                + str(error), "critical")
-                                break
-                            MessageHelper.show_message("El número de pedido no puede estar vacío. Introduce un valor válido.", "warning")
-                        else:
-                            break
-                else:
-                    pdf_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "", "Archivos PDF (*.pdf)")
+                        if not file_path:
+                            return
 
-                    if pdf_file:
-                        excel_file = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+                        if not os.path.exists(str(file_path)):
+                            print(f"Archivo no encontrado: {file_path}")
+                            return
 
-                        try:
-                            reader = PdfReader(pdf_file)
+                        reader = PdfReader(file_path)
+                        for row in range(df_data.shape[0]):
+                            page_overlay = PdfReader(new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
 
-                            df_data = pd.read_excel(excel_file)
+                        writer = PdfWriter()
+                        writer.append_pages_from_reader(reader)
+                        writer.write(str(file_path).replace(".pdf", "_edit.pdf"))
 
-                            for row in range(df_data.shape[0]):
-                                page_overlay = PdfReader(new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                                reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+                        MessageHelper.show_message("PDFs editados con éxito", "info")
 
-                            path_parts = pdf_file.rsplit('/', 1)
-                            first_part = path_parts[0] + "/"
-                            name, extension = path_parts[1].rsplit('.', 1)
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
 
-                            output_path = first_part + name + ".pdf"
-
-                            if output_path:
-
-                                writer = PdfWriter()
-                                writer.append_pages_from_reader(reader)
-                                writer.write(output_path)
-
-                                MessageHelper.show_message("PDF Generado con éxito", "info")
-
-                        except Exception as error:
-                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                        + str(error), "critical")
-                break
             else:
-                break
+                pdf_file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Seleccionar archivo pdf", "", "Archivos PDF (*.pdf)")
+
+                if pdf_file:
+                    excel_file = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+
+                    try:
+                        reader = PdfReader(pdf_file)
+
+                        df_data = pd.read_excel(excel_file)
+
+                        for row in range(df_data.shape[0]):
+                            page_overlay = PdfReader(new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+
+                        path_parts = pdf_file.rsplit('/', 1)
+                        first_part = path_parts[0] + "/"
+                        name, extension = path_parts[1].rsplit('.', 1)
+
+                        output_path = first_part + name + ".pdf"
+
+                        if output_path:
+
+                            writer = PdfWriter()
+                            writer.append_pages_from_reader(reader)
+                            writer.write(output_path)
+
+                            MessageHelper.show_message("PDF Generado con éxito", "info")
+
+                    except Exception as error:
+                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                    + str(error), "critical")
 
 # Function to show window with tables of all tests
     def query_test(self):
         """
         Prompts the user to enter an order number and displays a window with the corresponding test tables.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Verificación')
-        dlg.setLabelText('Introduce un pedido:')
-
         while True:
-            clickedButton = dlg.exec()
-            if clickedButton == 1:
-                numorder = dlg.textValue()
-                if numorder != '':
-                    from windows.Verif_Order_Window import Ui_Verif_Order_Window
-                    self.testquery_window=QtWidgets.QMainWindow()
-                    self.ui=Ui_Verif_Order_Window(self.username, numorder)
-                    self.ui.setupUi(self.testquery_window)
-                    self.testquery_window.showMaximized()
-                    break
-                MessageHelper.show_message("El pedido no puede estar vacío. Introduce un valor válido.", "warning")
+            numorder = MessageHelper.ask_text_required("Introduce un pedido:", "Verificación", "El pedido no puede estar vacío. Introduce un valor válido.")
+            if numorder is not None:
+                from windows.Verif_Order_Window import Ui_Verif_Order_Window
+                self.testquery_window=QtWidgets.QMainWindow()
+                self.ui=Ui_Verif_Order_Window(self.username, numorder)
+                self.ui.setupUi(self.testquery_window)
+                self.testquery_window.showMaximized()
+                break
+
             else:
                 break
 
@@ -2540,80 +2524,23 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         Prompts the user for various inputs to generate nuclear annexes and exports them to an Excel document.
         """
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Anexos Nucleares')
-        dlg.setLabelText('Inserte pedido:')
-
-        dlg2 = QtWidgets.QInputDialog()
-        new_icon2 = QtGui.QIcon()
-        new_icon2.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg2.setWindowIcon(new_icon2)
-        dlg2.setWindowTitle('Anexos Nucleares')
-        dlg2.setLabelText('CODIGO A.N.A.:')
-
-        dlg3 = QtWidgets.QInputDialog()
-        new_icon3 = QtGui.QIcon()
-        new_icon3.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg3.setWindowIcon(new_icon3)
-        dlg3.setWindowTitle('Anexos Nucleares')
-        dlg3.setLabelText('PDO A.N.A.:')
-
-        dlg4 = QtWidgets.QInputDialog()
-        new_icon4 = QtGui.QIcon()
-        new_icon4.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg4.setWindowIcon(new_icon4)
-        dlg4.setWindowTitle('Anexos Nucleares')
-        dlg4.setLabelText('Linea:')
-
         while True:
-            annex, ok = QtWidgets.QInputDialog.getItem(self, "Anexos Nucleares", "Seleccióna un tipo de anexo:", ['Anexo A', 'Anexo B', 'Anexo C'], 0, False)
+            annex, ok = MessageHelper.ask_item(['Anexo A', 'Anexo B', 'Anexo C'], "Seleccióna un tipo de anexo:", "Anexos Nucleares")
             if ok and annex:
                 annex_type = annex
-                if annex_type != '':
-                    while True:
-                        clickedButton = dlg.exec()
-                        if clickedButton == 1:
-                            numorder = dlg.textValue()
-                            if numorder != '':
-                                while True:
-                                    clickedButton2 = dlg2.exec()
-                                    if clickedButton2 == 1:
-                                        ana_code = dlg2.textValue()
-                                        if ana_code != '':
-                                            while True:
-                                                clickedButton3 = dlg3.exec()
-                                                if clickedButton3 == 1:
-                                                    ana_order = dlg3.textValue()
-                                                    if ana_order != '':
-                                                        while True:
-                                                            clickedButton4 = dlg4.exec()
-                                                            if clickedButton4 == 1:
-                                                                line_number = dlg4.textValue()
-                                                                if line_number != '':
-                                                                    from windows.Excel_Export_Templates import nuclear_annexes
-                                                                    excel_to_export = nuclear_annexes(annex_type, numorder, ana_code, ana_order, line_number)
-                                                                    excel_to_export.save_excel_doc()
-                                                                    break
-                                                                MessageHelper.show_message("La línea no puede estar vacía", "warning")
-                                                            else:
-                                                                break
-                                                        break
-                                                    MessageHelper.show_message("El pedido A.N.A. no puede estar vacío", "warning")
-                                                else:
-                                                    break
-                                            break
-                                        MessageHelper.show_message("El código A.N.A. no puede estar vacío", "warning")
-                                    else:
-                                        break
+
+                numorder = MessageHelper.ask_text_required("Inserte pedido:", "Anexos Nucleares", "El número de pedido no puede estar vacío")
+                if numorder is not None:
+                    ana_code = MessageHelper.ask_text_required("CODIGO A.N.A.:", "Anexos Nucleares", "El código A.N.A. no puede estar vacío")
+                    if ana_code is not None:
+                        ana_order = MessageHelper.ask_text_required("PDO A.N.A.:", "Anexos Nucleares", "El pedido A.N.A. no puede estar vacío")
+                        if ana_order is not None:
+                            line_number = MessageHelper.ask_text_required("Linea:", "Anexos Nucleares", "La línea no puede estar vacía")
+                            if line_number is not None: 
+                                from windows.Excel_Export_Templates import nuclear_annexes
+                                excel_to_export = nuclear_annexes(annex_type, numorder, ana_code, ana_order, line_number)
+                                excel_to_export.save_excel_doc()
                                 break
-                            MessageHelper.show_message("El número de pedido no puede estar vacío", "warning")
-                        else:
-                            break
-                    break
-                MessageHelper.show_message("Selecciona un anexo", "warning")
             else:
                 break
 
@@ -2739,26 +2666,27 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             'Importar Tag(s)': self.import_tag,
             'Consultar Tag(s)': self.query_commercial_tag,
         }
-        while True:
-            action, ok = QtWidgets.QInputDialog.getItem(None, "Comercial", "Elige una opción:", ['Nueva Oferta',
-                                                                                                'Editar Oferta',
-                                                                                                'Reclamar Oferta',
-                                                                                                'Exportar Oferta',
-                                                                                                'Nuevo Pedido',
-                                                                                                'Editar Pedido',
-                                                                                                'Nuevo Tag(s)',
-                                                                                                'Editar Tag(s)',
-                                                                                                'Importar Tag(s)',
-                                                                                                'Consultar Tag(s)'], 0, False)
-            if ok and action:
-                while True:
-                    func = actions.get(action)
-                    if func:
-                        func()
-                        break
-                break
-            else:
-                break
+
+        action, ok = MessageHelper.ask_item([
+        'Nueva Oferta',
+        'Editar Oferta',
+        'Reclamar Oferta',
+        'Exportar Oferta',
+        'Nuevo Pedido',
+        'Editar Pedido',
+        'Nuevo Tag(s)',
+        'Editar Tag(s)',
+        'Importar Tag(s)',
+        'Consultar Tag(s)'
+        ],
+        "Elige una opción:",
+        "Comercial")
+
+        if ok and action:
+            func = actions.get(action)
+
+            if func:
+                func()
 
 # Function to open window for create offers
     def new_offer(self):

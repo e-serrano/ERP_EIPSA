@@ -814,9 +814,6 @@ class Ui_App_Invoicing(object):
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                 + str(error), "critical")
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
                                 break
                             MessageHelper.show_message("La fecha no puede estar vacío y debe tener un formato válido.", "warning")
                         else:
