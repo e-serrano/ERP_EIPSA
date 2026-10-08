@@ -1930,11 +1930,10 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
                     pdf_buffer = pdf.output()
 
-                    folder_path = r"M:\Comunes\TALLER\VERIFICACIÓN\MANOMETROS" + "\\" + str(date.today().year)
-                    temp_file_path = folder_path + "\\" + results_equipment[0][0] + ".pdf"
+                    folder_path = os.path.join(r"M:\Comunes\TALLER\VERIFICACIÓN\MANOMETROS", str(date.today().year))
+                    temp_file_path = os.path.join(folder_path, results_equipment[0][0] + ".pdf")
 
-                    if not os.path.exists(folder_path):
-                        os.mkdir(folder_path)
+                    os.makedirs(folder_path, exist_ok=True)
 
                     with open(temp_file_path, "wb") as temp_file:
                         temp_file.write(pdf_buffer)

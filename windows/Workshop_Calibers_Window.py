@@ -1971,12 +1971,10 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
                 
                 pdf_buffer = pdf.output()
 
-                folder_path = r"M:\Comunes\TALLER\VERIFICACIÓN\CALIBRES" + "\\" + str(date.today().year)
+                folder_path = os.path.join(r"M:\Comunes\TALLER\VERIFICACIÓN\CALIBRES", str(date.today().year))
+                temp_file_path =  os.path.join(folder_path, results_caliber[0][0] + ".pdf")
 
-                if not os.path.exists(folder_path):
-                    os.mkdir(folder_path)
-
-                temp_file_path =  folder_path + "\\" + results_caliber[0][0] + ".pdf"
+                os.makedirs(folder_path, exist_ok=True)
 
                 with open(temp_file_path, "wb") as temp_file:
                     temp_file.write(pdf_buffer)
