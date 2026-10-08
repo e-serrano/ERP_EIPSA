@@ -1699,7 +1699,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
             pdf.cell(2.5, 0.5, 'TEMPERATURA: 23°C ± 2°C', align='L')
             pdf.ln(1.5)
             pdf.cell(2.5, 0.5, 'CER-' + results_caliber[0][0], border=1, align='C')
-            pdf.cell(2.5, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL', align='L')
+            pdf.cell(2.5, 0.5, 'CALIBRACIÓN REALIZADA POR: JAVIER SEGURA', align='L')
             pdf.ln(1.5)
             pdf.cell(2.5, 0.5, 'FC-001', border=1, align='C')
             pdf.cell(2.5, 0.5, 'CALIBRACIÓN SUPERVISADA POR: JESÚS MARTÍNEZ', align='L')

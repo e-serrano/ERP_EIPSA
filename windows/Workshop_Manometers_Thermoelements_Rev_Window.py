@@ -1945,7 +1945,7 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
                 pdf.ln()
                 pdf.cell(3, 0.5, '')
                 pdf.set_font('Helvetica', '', 9)
-                pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL (Operator)')
+                pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: JAVIER SEGURA (Operator)')
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(4, 0.5, 'CONTROL DE CALIDAD', align='C')
                 pdf.ln()
