@@ -3236,8 +3236,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             obs_delivnote = self.ObsAlb_Invoice.toPlainText()
             total_qty_elements = self.Qty_Elements.text() if self.Qty_Elements.text() != '' else None
             client_group = self.label_ClientGroup.text() if self.label_ClientGroup.text() != '' else None
-            
-            destination_dispatch = "FACTURA" if delivnote_number == '-' else None
 
             commands_clientsid = ("""
                             SELECT clients.id
@@ -3261,7 +3259,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
                             "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
                             "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
-                            "total_qty_elements" = %s, "client_group" = %s, "destination_dispatch" = %s
+                            "total_qty_elements" = %s, "client_group" = %s
                             WHERE "id" = %s""")
 
             try:
@@ -3284,7 +3282,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                                 data_adic1, data_adic2, iva, cl_delivnote,
                                 date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
                                 city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                                total_qty_elements, client_group, destination_dispatch, id_invoice)
+                                total_qty_elements, client_group, id_invoice)
                         cur.execute(commands_submit_invoice, data)
 
                     conn.commit()
