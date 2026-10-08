@@ -22,6 +22,7 @@ import pandas as pd
 from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 from utils.Show_Message import MessageHelper
+from PIL import Image, ExifTags
 
 
 
@@ -386,6 +387,94 @@ class CustomPDF(FPDF):
                 lines += self.get_string_width(line) // width + 1
         return lines * self.font_size * 1.3
 
+class CustomPDF_Datasheet(FPDF):
+    """
+    Custom PDF class extending FPDF for advanced text handling.
+
+    This class provides additional functionalities for creating PDF documents,
+    specifically for managing multi-line text with fixed height.
+
+    Methods:
+        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
+            Outputs text in a multi-cell format with a fixed total height.
+    """
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border, fill=False):
+        """
+        Creates a multi-line cell with a fixed total height, dividing text into lines.
+
+        Parameters:
+            w (float): The width of the cell.
+            total_h (float): The total height of the cell.
+            txt (str): The text to be placed in the cell.
+            align_mc (str): The alignment of the text.
+            border (str, optional): Border settings for the cell. Defaults to ''.
+            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        """
+        words = txt.split() # Divide text in words
+        lines = []
+        line = ''
+        for word in words:
+            if self.get_string_width(line + word + ' ') > w - 0.5:
+                lines.append(line) # Add line to line list and starts a new one
+                line = word + ' '
+            else:
+                line += word + ' ' # Add word to actual line
+        lines.append(line) # Add last line to line list
+        
+        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
+
+        x, y = self.get_x(), self.get_y() # Save actual position
+
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            if i == len(lines) - 1:
+                current_border = border + 'B'  # Add bottom border to the last line
+            else:
+                current_border = border
+            # Print each line with the calculated height
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
+            self.set_x(x)
+
+        self.set_xy(x, y + total_h)
+
+    def calculate_min_height(self, w, texts):
+        """
+        Calculate the minimum height needed to fit multiple texts in a fixed-width cell based on the longest text.
+        
+        Parameters:
+            w (float): The width of the cell.
+            texts (list): A list of 5 texts (strings) to fit within the cell.
+
+        Returns:
+            float: The minimum height required based on the longest text in terms of line count,
+                with a minimum of 0.5.
+        """
+        max_lines = 0
+
+        for txt in texts:
+            words = txt.split()
+            line = ''
+            lines = 0
+
+            # Calculate the number of lines needed for the current text
+            for word in words:
+                if self.get_string_width(line + word + ' ') > w - 0.5:
+                    lines += 1  # Start a new line
+                    line = word + ' '
+                else:
+                    line += word + ' '
+
+            lines += 1  # Account for the last line
+            
+            # Track the maximum number of lines
+            if lines > max_lines:
+                max_lines = lines
+
+        # Calculate the total height required for the longest text
+        total_height = max_lines * 0.25
+
+        # Ensure the height is at least 0.5
+        return max(0.5, total_height)
 
 class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
     """
@@ -1365,13 +1454,16 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
                         break
                     else:
                         while True:
-                            doc_content, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "¿Que quieres imprimir?:", ['Listado Equipos', 'Hoja Firmas'], 0, False)
+                            doc_content, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "¿Que quieres imprimir?:", ['Listado Equipos', 'Hoja Firmas', "Hojas Calibración"], 0, False)
                             if ok and doc_type:
                                 if doc_content == 'Listado Equipos':
                                     self.exporttopdf(df, 'Listado')
                                     break
-                                else:
+                                elif doc_content == 'Hoja Firmas':
                                     self.exporttopdf(df, 'Firmas')
+                                    break
+                                else:
+                                    self.datasheet_pdf(df)
                                     break
                             else:
                                 break
@@ -1681,6 +1773,251 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
+# Function to print pdf
+    def datasheet_pdf(self, dataframe):
+        """
+        Generates a PDF datasheet for the caliber with details and revisions.
+        Opens the generated PDF in the viewer.
+        """
+        query_caliber_data = ("""SELECT c.equipment_number, c.reference, c.type_caliber, c.brand, c.range_caliber, c.precision_caliber,
+                                c.master, COALESCE(cm.certificate_1, '') as certificate, TO_CHAR(c.last_check_date, 'DD/MM/YYYY'),TO_CHAR(c.next_check_date, 'DD/MM/YYYY'), c.notes, c.image
+                                FROM verification.calibers_workshop c
+                                LEFT JOIN verification.calibrated_masters cm ON cm.number = 'EIPSA-' || c.master
+                                WHERE c.id = %s""")
+        query_caliber_revision = ("""SELECT * FROM verification.calibers_workshop_revisions WHERE caliber_id = %s""")
+
+        for _, row in dataframe.iterrows():
+            caliber_id = row["ID"]
+
+            try:
+                with Database_Connection(config_database()) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(query_caliber_data, (caliber_id,))
+                        results_caliber=cur.fetchall()
+
+                        cur.execute(query_caliber_revision, (caliber_id,))
+                        results_revisions=cur.fetchall()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                            + str(error), "critical")
+
+            if len(results_caliber) != 0:
+                pdf = CustomPDF_Datasheet('P', 'cm', 'A4')
+
+                pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
+
+                pdf.set_auto_page_break(auto=True)
+                pdf.set_margins(1.5, 1.5)
+
+                pdf.add_page()
+
+                pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 13.6, 1.5, 6, 2.25)
+                pdf.set_fill_color(0, 176, 240)
+                pdf.set_font('Helvetica', 'B', 16)
+                pdf.cell(11, 1, "FICHA DE CALIBRACIÓN", border=1, align='C', fill=True)
+                pdf.ln(1)
+                pdf.set_fill_color(191, 191, 191)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.fixed_height_multicell(11, 2, "Certificamos que en la fecha indicada se ha procedido según la instrucción CEM-I-001 a la comprobación mediante comparación del patrón referenciado habiéndose obtenido los resultados reflejados.", 'L', 'LR')
+                pdf.ln(0)
+
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "EQUIPO", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][0]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "Nº SERIE", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][1]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "TIPO", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][2]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "FABRICANTE", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][3]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "RANGO", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][4]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "PRECISIÓN", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][5]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "FRECUENCIA", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, 'ANUAL', border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "PATRÓN", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][6]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "CERTIFICADO PATRÓN", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][7].split("\\")[-1].split(".")[0]) if str(results_caliber[0][7]) != '' else '', border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "FECHA REALIZACIÓN", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][8]), border=1, align='L')
+                pdf.ln(0.5)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4, 0.5, "PRÓXIMA CALIBRACIÓN", border=1, align='L', fill=True)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(7, 0.5, str(results_caliber[0][9]), border=1, align='L')
+                pdf.ln(0.5)
+
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(2.75, 0.5, "PRUEBA", border=1, align='C', fill=True)
+                pdf.cell(1.75, 0.5, "", border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, "1 (0%)", border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, "2 (100%)", border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, "3 (50%)", border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, "4 (75%)", border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, "5 (25%)", border=1, align='C', fill=True)
+                pdf.cell(2.5, 0.5, "RESULTADO", border=1, align='C', fill=True)
+                pdf.ln(0.5)
+
+                for item in results_revisions:
+                    y_position = pdf.get_y()
+                    pdf.set_font('Helvetica', '', 9)
+
+                    master_texts=[
+                    str(item[3]) if item[3] is not None else '',
+                    str(item[6]) if item[6] is not None else '',
+                    str(item[9]) if item[9] is not None else '',
+                    str(item[12]) if item[12] is not None else '',
+                    str(item[15]) if item[15] is not None else ''
+                    ]
+
+                    min_height = pdf.calculate_min_height(2.25, master_texts)
+
+                    pdf.fixed_height_multicell(2.75, min_height + 1, item[2], 'C','LR')
+                    pdf.set_font('Helvetica', 'B', 9)
+                    pdf.set_xy(4.25, y_position)
+                    pdf.fixed_height_multicell(1.75, min_height, "PATRÓN", 'C','LR')
+                    pdf.set_font('Helvetica', '', 7)
+                    pdf.set_xy(6, y_position)
+                    pdf.fixed_height_multicell(2.25, min_height, str(item[3]) if item[3] is not None else '', 'C','LR')
+                    pdf.set_xy(8.25, y_position)
+                    pdf.fixed_height_multicell(2.25, min_height, str(item[6]) if item[6] is not None else '', 'C','LR')
+                    pdf.set_xy(10.5, y_position)
+                    pdf.fixed_height_multicell(2.25, min_height, str(item[9]) if item[9] is not None else '', 'C','LR')
+                    pdf.set_xy(12.75, y_position)
+                    pdf.fixed_height_multicell(2.25, min_height, str(item[12]) if item[12] is not None else '', 'C','LR')
+                    pdf.set_xy(15, y_position)
+                    pdf.fixed_height_multicell(2.25, min_height, str(item[15]) if item[15] is not None else '', 'C','LR')
+                    pdf.set_xy(17.25, y_position)
+                    pdf.set_fill_color(146, 208, 80)
+                    pdf.fixed_height_multicell(2.5, min_height, str(item[19]), 'C','LR', fill=True)
+                    pdf.ln(0)
+
+                    pdf.set_x(4.25)
+                    pdf.set_font('Helvetica', 'B', 9)
+                    pdf.cell(1.75, 0.5, "MEDIDA", border=1, align='C')
+                    pdf.set_font('Helvetica', '', 9)
+                    pdf.cell(2.25, 0.5, str(item[4]) if item[4] is not None else '', border=1, align='C')
+                    pdf.cell(2.25, 0.5, str(item[7]) if item[7] is not None else '', border=1, align='C')
+                    pdf.cell(2.25, 0.5, str(item[10]) if item[10] is not None else '', border=1, align='C')
+                    pdf.cell(2.25, 0.5, str(item[13]) if item[13] is not None else '', border=1, align='C')
+                    pdf.cell(2.25, 0.5, str(item[16]) if item[16] is not None else '', border=1, align='C')
+                    pdf.set_font('Helvetica', 'B', 9)
+                    pdf.cell(2.5, 0.5, "DESVIACIÓN", border=1, align='C')
+                    pdf.set_font('Helvetica', '', 9)
+                    pdf.ln(0.5)
+
+                    pdf.set_x(4.25)
+                    pdf.set_font('Helvetica', 'B', 9)
+                    pdf.cell(1.75, 0.5, "EQUIPO", border=1, align='C')
+                    pdf.set_font('Helvetica', '', 9)
+                    pdf.set_fill_color(216, 228, 188)
+                    pdf.cell(2.25, 0.5, str(item[5]) if item[5] is not None else '', border=1, align='C', fill=True)
+                    pdf.cell(2.25, 0.5, str(item[8]) if item[8] is not None else '', border=1, align='C', fill=True)
+                    pdf.cell(2.25, 0.5, str(item[11]) if item[11] is not None else '', border=1, align='C', fill=True)
+                    pdf.cell(2.25, 0.5, str(item[14]) if item[14] is not None else '', border=1, align='C', fill=True)
+                    pdf.cell(2.25, 0.5, str(item[17]) if item[17] is not None else '', border=1, align='C', fill=True)
+                    pdf.cell(2.5, 0.5, str(item[18]) if item[18] is not None else '', border=1, align='C', fill=True)
+                    pdf.ln(0.5)
+
+                pdf.fixed_height_multicell(18.25, 2, str(results_caliber[0][10]) if (not 'PRINCIPAL' in str(results_caliber[0][10]) or results_caliber[0][10] is not None)else '', 'L','LR')
+                pdf.ln(3)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(2.5, 0.5, 'TEMPERATURA: 23°C ± 2°C', align='L')
+                pdf.ln(1.5)
+                pdf.cell(2.5, 0.5, 'CER-' + results_caliber[0][0], border=1, align='C')
+                pdf.cell(2.5, 0.5, 'CALIBRACIÓN REALIZADA POR: JAVIER SEGURA', align='L')
+                pdf.ln(1.5)
+                pdf.cell(2.5, 0.5, 'FC-001', border=1, align='C')
+                pdf.cell(2.5, 0.5, 'CALIBRACIÓN SUPERVISADA POR: JESÚS MARTÍNEZ', align='L')
+
+                if results_caliber[0][11] not in ['', 'None', None]:
+                    image_path = os.path.abspath(results_caliber[0][11]) 
+                    corrected_image = self.correct_image_orientation(image_path)
+                    temp_image_path = r"\\ERP-EIPSA-DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
+                    corrected_image.save(temp_image_path)
+                    pdf.image(temp_image_path, 12.55, 4.45, 7.25, 5.45)
+                
+                pdf_buffer = pdf.output()
+
+                folder_path = r"M:\Comunes\TALLER\VERIFICACIÓN\CALIBRES" + "\\" + str(date.today().year)
+
+                if not os.path.exists(folder_path):
+                    os.mkdir(folder_path)
+
+                temp_file_path =  folder_path + "\\" + results_caliber[0][0] + ".pdf"
+
+                with open(temp_file_path, "wb") as temp_file:
+                    temp_file.write(pdf_buffer)
+
+                # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                # self.pdf_viewer.showMaximized()
+
+            else:
+                MessageHelper.show_message("No existe calibre con ese número", "warning")
+
+        MessageHelper.show_message("Hojas de calibración emitidas", "info")
+
+# Function to correct image orientation
+    def correct_image_orientation(self,image_path):
+        """
+        Corrects image orientation using EXIF data, rotating if necessary.
+        Returns the corrected image.
+        """
+        image = Image.open(image_path)
+        
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            
+            exif = image._getexif()
+
+            if exif is not None:
+                orientation = exif.get(orientation, 1)
+
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
+        except (AttributeError, KeyError, IndexError):
+            # No EXIF data, no need to correct orientation
+            pass
+
+        return image
 
 
 

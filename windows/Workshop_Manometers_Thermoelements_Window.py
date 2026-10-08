@@ -22,6 +22,8 @@ import pandas as pd
 from fpdf import FPDF
 from windows.PDF_Viewer import PDF_Viewer
 from utils.Show_Message import MessageHelper
+from PIL import Image, ExifTags
+import math
 
 
 
@@ -309,6 +311,96 @@ class CustomPDF(FPDF):
 
         self.set_xy(x, y + total_h)
 
+class CustomPDF_Datasheet(FPDF):
+    """
+    Custom PDF class extending FPDF for advanced text handling.
+
+    This class provides additional functionalities for creating PDF documents,
+    specifically for managing multi-line text with fixed height.
+
+    Methods:
+        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
+            Outputs text in a multi-cell format with a fixed total height.
+    """
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border, fill=False):
+        """
+        Creates a multi-line cell with a fixed total height, dividing text into lines.
+
+        Parameters:
+            w (float): The width of the cell.
+            total_h (float): The total height of the cell.
+            txt (str): The text to be placed in the cell.
+            align_mc (str): The alignment of the text.
+            border (str, optional): Border settings for the cell. Defaults to ''.
+            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        """
+        words = txt.split() # Divide text in words
+        lines = []
+        line = ''
+        for word in words:
+            if self.get_string_width(line + word + ' ') > w - 0.5:
+                lines.append(line) # Add line to line list and starts a new one
+                line = word + ' '
+            else:
+                line += word + ' ' # Add word to actual line
+        lines.append(line) # Add last line to line list
+        
+        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
+
+        x, y = self.get_x(), self.get_y() # Save actual position
+
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            # if i == len(lines) - 1:
+            #     current_border = border + 'B'  # Add bottom border to the last line
+            if i == 0:
+                current_border = border + 'T'
+            else:
+                current_border = border
+            # Print each line with the calculated height
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
+            self.set_x(x)
+
+        self.set_xy(x, y + total_h)
+
+    def calculate_min_height(self, w, texts):
+        """
+        Calculate the minimum height needed to fit multiple texts in a fixed-width cell based on the longest text.
+        
+        Parameters:
+            w (float): The width of the cell.
+            texts (list): A list of 5 texts (strings) to fit within the cell.
+
+        Returns:
+            float: The minimum height required based on the longest text in terms of line count,
+                with a minimum of 0.5.
+        """
+        max_lines = 0
+
+        for txt in texts:
+            words = txt.split()
+            line = ''
+            lines = 0
+
+            # Calculate the number of lines needed for the current text
+            for word in words:
+                if self.get_string_width(line + word + ' ') > w - 0.5:
+                    lines += 1  # Start a new line
+                    line = word + ' '
+                else:
+                    line += word + ' '
+
+            lines += 1  # Account for the last line
+            
+            # Track the maximum number of lines
+            if lines > max_lines:
+                max_lines = lines
+
+        # Calculate the total height required for the longest text
+        total_height = max_lines * 0.25
+
+        # Ensure the height is at least 0.5
+        return max(0.5, total_height)
 class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
     """
     Main window class for managing workshop equipment, including data filtering, sorting,
@@ -1264,13 +1356,16 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             df['Firma'] = None
 
             while True:
-                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
+                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "Seleccióna un tipo de documento:", ['Excel', 'PDF', 'Hojas Calibración'], 0, False)
                 if ok and doc_type:
                     if doc_type == 'Excel':
                         self.exporttoexcel(df)
                         break
-                    else:
+                    elif doc_type == 'PDF':
                         self.exporttopdf(df)
+                        break
+                    else:
+                        self.datasheet_pdf(df)
                         break
                 else:
                     break
@@ -1371,6 +1466,516 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
+
+# Function to print pdf
+    def datasheet_pdf(self, dataframe):
+        """
+        Generates a PDF datasheet for the equipment with details and revisions.
+        Opens the generated PDF in the viewer.
+        """
+        query_equipment_data = ("""SELECT equipment.number, equipment.instrument, equipment.model, equipment.scale, equipment.range,
+                            equipment.precision, equipment.uncertainty, equipment.master, TO_CHAR(equipment.last_revision, 'DD/MM/YYYY'), TO_CHAR(equipment.next_revision, 'DD/MM/YYYY'),
+                            equipment.result, equipment.notes,
+                            master.certificate_1, master.certificate_2, master.instrument, master.model, master.precision, master.uncertainty, master.operative_correction
+                            FROM verification.manometers_thermoelements_workshop AS equipment
+                            LEFT JOIN verification.calibrated_masters AS master ON equipment.master = master.number
+                            WHERE id = %s""")
+        query_equipment_revision = ("""SELECT * FROM verification.manometers_thermoelements_workshop_revisions WHERE equipment_id = %s ORDER BY id ASC""")
+
+        for _, row in dataframe.iterrows():
+            equipment_id = row["ID"]
+            if int(equipment_id) != 9 :
+                try:
+                    with Database_Connection(config_database()) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(query_equipment_data, (equipment_id,))
+                            results_equipment=cur.fetchall()
+
+                            cur.execute(query_equipment_revision, (equipment_id,))
+                            results_revisions=cur.fetchall()
+
+                            df_revisions = pd.DataFrame(results_revisions)
+                            df_revisions.iloc[:, 6] = df_revisions.iloc[:, 6].astype(float)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                + str(error), "critical")
+
+                if len(results_equipment) != 0:
+                    if results_equipment[0][1] not in ['MANOMETRO']:
+                        pdf = CustomPDF('P', 'cm', 'A4')
+
+                        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
+
+                        pdf.set_auto_page_break(auto=True)
+                        pdf.set_margins(1.5, 1.5)
+
+                        pdf.add_page()
+
+                        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 0, 0, 5, 1.5)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', '', 18)
+                        pdf.cell(18, 1, "CERTIFICADO DE CALIBRACIÓN RUGOSIMETRO" if results_equipment[0][1] == 'RUGOSIMETRO' else "CERTIFICADO DE CALIBRACIÓN TERMOELEMENTO", align='C')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(18, 0.5, '')
+                        pdf.ln()
+                        pdf.cell(5, 0.5, '', border=1)
+                        pdf.cell(13, 0.5, 'RUGOSIMETRO A COMPROBAR' if results_equipment[0][1] == 'RUGOSIMETRO' else 'TERMOELEMENTO A COMPROBAR', border=1)
+                        pdf.ln()
+                        pdf.cell(5, 0.5, 'CLAVE Nº', border=1, align='C')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(13, 0.5, results_equipment[0][0], border=1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.ln()
+                        pdf.cell(5, 0.5, 'MODELO', border=1, align='C')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(13, 0.5, results_equipment[0][2], border=1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.ln()
+                        pdf.cell(5, 0.5, 'PRECISIÓN', border=1, align='C')
+                        pdf.set_font('DejaVuSansCondensed', '', 9)
+                        pdf.cell(13, 0.5, results_equipment[0][5].replace(".",",") + " " + results_equipment[0][3], border=1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.ln()
+                        pdf.cell(5, 0.5, 'ESCALA', border=1, align='C')
+                        pdf.set_font('DejaVuSansCondensed', '', 9)
+                        pdf.cell(13, 0.5, results_equipment[0][4] + " " + results_equipment[0][3], border=1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.ln()
+                        pdf.cell(5, 0.5, 'TIPOS DE MEDIDA' if results_equipment[0][1] == 'RUGOSIMETRO' else '', border=1, align='C')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(13, 0.5, 'Ra, Rz, Rmax/Rt, Rq, R3z, Rsm' if results_equipment[0][1] == 'RUGOSIMETRO' else '', border=1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.ln()
+                        pdf.cell(18, 0.5, '')
+                        pdf.ln()
+                        if results_equipment[0][1] == 'RUGOSIMETRO':
+                            pdf.cell(18, 0.5, 'TEMPERATURA 19°C ± 2°C')
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.ln()
+                            pdf.cell(18, 0.5, '')
+                            pdf.ln()
+                            pdf.cell(18, 0.5, '')
+                            pdf.ln()
+                            pdf.cell(18, 1, '')
+                            pdf.ln()
+                            pdf.multi_cell(18, 0.5,
+                                        "Certificamos que en el día de hoy se ha procedido a la comprobación mediante la medición de la placa de rugosidad número 230292 (EIPSA-029-01) habiéndose obtenido en 5 medidas los siguientes resultados: ")
+                        else:
+                            pdf.cell(5, 0.5, '', border=1)
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(13, 0.5, 'PATRON', border=1)
+                            pdf.ln()
+                            pdf.cell(5, 0.5, 'REFERENCIA', border=1, align='C')
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.cell(13, 0.5, results_equipment[0][7], border=1)
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.ln()
+                            pdf.cell(5, 0.5, 'CERTIFICADO CALIBRACION', border=1, align='C')
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][12]).split()[0] if results_equipment[0][12] is not None else '', border=1)
+                            pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][13]).split()[0] if results_equipment[0][13] is not None else '', border=1)
+                            pdf.cell(2.6, 0.5, '', border=1)
+                            pdf.cell(2.6, 0.5, '', border=1)
+                            pdf.cell(2.6, 0.5, '', border=1)
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.ln()
+                            pdf.cell(18, 1, '')
+                            pdf.ln()
+                            pdf.multi_cell(18, 0.5,
+                                        "Certificamos que en el día de hoy se ha procedido a la comprobación habiéndose obtenido en 5 medidas los siguientes resultados: ")
+                        pdf.ln(1)
+                        pdf.set_font('DejaVuSansCondensed', '', 18)
+                        pdf.cell(18, 1, "LECTURAS EN Ra (µm)" if results_equipment[0][1] == 'RUGOSIMETRO' else "LECTURAS EN ºC", align='C')
+                        pdf.ln()
+                        if results_equipment[0][1] == 'RUGOSIMETRO':
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(3, 0.5, '', border='LT', align='C')
+                            pdf.cell(5, 0.5, 'LECTURA DEL RUGOSIMETRO', border='LT', align='C')
+                            pdf.cell(5, 0.5, 'PATRÓN', border='LT', align='C')
+                            pdf.cell(5, 0.5, 'DIFERENCIA', border='LRT', align='C')
+                            pdf.ln()
+                            pdf.set_font('DejaVuSansCondensed', '', 9)
+                            pdf.cell(3, 0.5, '', border='LB', align='C')
+                            pdf.cell(5, 0.5, 'Ra (µm)', border='LB', align='C')
+                            pdf.cell(5, 0.5, 'Nr 230292 (Ra 3,2µm) Nr. 3227', border='LB', align='C')
+                            pdf.cell(5, 0.5, '(µm)', border='LRB', align='C')
+                            pdf.ln()
+                            for i in range(5):
+                                pdf.cell(3, 0.5, str(i+1), border=1, align='C')
+                                pdf.cell(5, 0.5, results_revisions[i][2].replace(".",","), border=1, align='C')
+                                pdf.cell(5, 0.5, results_revisions[i][3].replace(".",","), border=1, align='C')
+                                pdf.cell(5, 0.5, results_revisions[i][6].replace(".",","), border=1, align='C')
+                                pdf.ln()
+                        else:
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(3, 0.5, '', border='LT', align='C')
+                            pdf.cell(5, 0.5, 'LECTURA TERMOELEMENTO', border='LT', align='C')
+                            pdf.cell(4, 0.5, 'PATRÓN', border='LT', align='C')
+                            pdf.cell(3, 0.5, 'DIFERENCIA', border='LT', align='C')
+                            pdf.cell(3, 0.5, 'TOLERANCIA', border='LRT', align='C')
+                            pdf.ln()
+                            pdf.set_font('DejaVuSansCondensed', '', 9)
+                            pdf.cell(3, 0.5, '', border='LB', align='C')
+                            pdf.cell(5, 0.5, '°C', border='LB', align='C')
+                            pdf.cell(4, 0.5, '°C', border='LB', align='C')
+                            pdf.cell(3, 0.5, '°C', border='LB', align='C')
+                            pdf.cell(3, 0.5, '°C', border='LRB', align='C')
+                            pdf.ln()
+                            for i in range(5):
+                                pdf.cell(3, 0.5, str(i+1), border=1, align='C')
+                                pdf.cell(5, 0.5, results_revisions[i][2].replace(".",","), border=1, align='C')
+                                pdf.cell(4, 0.5, results_revisions[i][3].replace(".",","), border=1, align='C')
+                                pdf.cell(3, 0.5, results_revisions[i][6].replace(".",","), border=1, align='C')
+                                pdf.cell(3, 0.5, results_equipment[0][11].split(":")[1].strip(), border=1, align='C')
+                                pdf.ln()
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 12)
+                        pdf.cell(5, 1, 'RESULTADO:', align='R')
+                        pdf.set_font('Helvetica', 'U', 12)
+                        pdf.cell(2.5, 1, results_equipment[0][10], align='C')
+                        pdf.ln()
+                        pdf.cell(3, 0.5, '')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 10)
+                        pdf.cell(5, 0.5, 'FECHA CALIBRACIÓN:', align='R')
+                        pdf.set_font('Helvetica', '', 10)
+                        pdf.cell(2.5, 0.5, results_equipment[0][8], align='C')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 10)
+                        pdf.cell(5, 0.5, 'PRÓXIMA CALIBRACIÓN:', align='R')
+                        pdf.set_font('Helvetica', '', 10)
+                        pdf.cell(2.5, 0.5, results_equipment[0][9], align='C')
+                        pdf.ln()
+                        pdf.cell(18, 10, '')
+                        pdf.ln()
+                        pdf.cell(3, 0.5, '')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL (Operator)')
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(4, 0.5, 'CONTROL DE CALIDAD', align='C')
+                        pdf.ln()
+                        pdf.cell(3, 0.5, 'CCM-001', align='C', border=1)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(11, 0.5, 'CALIBRACIÓN SUPERVISADA POR JESÚS MARTÍNEZ (Supervisor)')
+                        pdf.cell(4, 0.5, 'QUALITY-CONTROL', align='C')
+
+                    else:
+                        pdf = CustomPDF('P', 'cm', 'A4')
+
+                        pdf.add_font('DejaVuSansCondensed', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed.ttf")))
+                        pdf.add_font('DejaVuSansCondensed-Bold', '', str(get_path("Resources", "Iconos", "DejaVuSansCondensed-Bold.ttf")))
+
+                        pdf.set_auto_page_break(auto=True)
+                        pdf.set_margins(1.5, 1.5)
+
+                        pdf.add_page()
+
+                        pdf.image(str(get_path("Resources", "Iconos", "Eipsa Logo Blanco.png")), 0, 0, 10, 2)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', '', 18)
+                        pdf.cell(18, 1, "CERTIFICADO DE CALIBRACIÓN MANÓMETRO", align='C')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', '', 12)
+                        pdf.cell(18, 0.5, "CALIBRATION CERTIFICATE MANOMETER", align='C')
+                        pdf.ln()
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(8.5, 0.5, "MANOMETRO A CALIBRAR (Manometer to calibrate)", align='C', border=1)
+                        pdf.cell(2.5, 0.5, "", align='C')
+                        pdf.cell(7, 0.5, "MANOMETRO PATRON (Manometer Master)", align='C', border=1)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "CLAVE Nº\n(Key Number)", border=1)
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(5.25, 0.75, results_equipment[0][0], align='C', border=1)
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "CLAVE Nº\n(Key Number)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(4, 0.75, results_equipment[0][7], align='C', border=1)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "MODELO\n(Model)", border=1)
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(5.25, 0.75, results_equipment[0][2], align='C', border=1)
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "MODELO\n(Model)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(4, 0.75, results_equipment[0][15], align='C', border=1)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "ESCALA\n(Scale)", border=1)
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(5.25, 0.75, results_equipment[0][4] + " " + results_equipment[0][3], align='C', border=1)
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "ESCALA\n(Scale)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(4, 0.75, results_equipment[0][14].split()[1] + " Bar", align='C', border=1)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "PRECISIÓN\n(Precision)", border=1)
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(5.25, 0.75, results_equipment[0][5].replace(".",",") + " " + results_equipment[0][3], align='C', border=1)
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "PRECISIÓN\n(Precision)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(4, 0.75, results_equipment[0][16].replace(".",",") + " Bar", align='C', border=1)
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "INCERTIDUMBRE\n(Uncertainty)", border=1)
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(5.25, 0.75, results_equipment[0][6].replace(".",",") + " " + results_equipment[0][3], align='C', border=1)
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "INCERTIDUMBRE\n(Uncertainty)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(4, 0.75, results_equipment[0][17].replace(".",",")+ " Bar(k=2)", align='C', border=1)
+                        pdf.ln()
+
+                        pdf.set_font('Helvetica', 'B', 9)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.375, "")
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(5.25, 0.75, "")
+                        pdf.cell(2.5, 0.75, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 8)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.375, "CORRECCIÓN OP.\n(Operative Corr.)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(4, 0.75, results_equipment[0][18].replace(".",",")+ " Bar", align='C', border=1)
+                        pdf.ln()
+
+                        pdf.set_font('Helvetica', 'B', 9)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3.25, 0.5, "TEMPERATURA\n(Temperature)")
+                        pdf.set_xy(x_position + 3.25, y_position)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(5.25, 1, "19°C ± 2°C")
+                        pdf.cell(2.5, 1, "", align='C')
+                        pdf.set_font('Helvetica', 'B', 9)
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(3, 0.5, "CERTIFICADO\n(Certificate)", border=1)
+                        pdf.set_xy(x_position + 3, y_position)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(4, 1, os.path.basename(results_equipment[0][12]).split()[0], align='C', border=1)
+                        pdf.ln(1.5)
+
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.multi_cell(18, 0.5,
+                                    "Certificamos que en el día de hoy se ha procedido según instrucción CEM-I-001 a la calibración mediante comparación del manómetro patrón referenciado, habiéndose obtenido los siguientes resultados:")
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.ln(0)
+                        pdf.set_x(x_position)
+                        pdf.multi_cell(18, 0.5,
+                                    "We certify that today we have proceeded according to instruction CEM-I-001 to gauge calibration by comparison of the referenced standard, obtaining the following results:")
+                        pdf.ln(0)
+                        pdf.set_font('Helvetica', '', 18)
+                        pdf.cell(18, 1, f"LECTURAS EN {results_equipment[0][3]} (Readings)", align='C')
+                        pdf.ln()
+
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.fixed_height_multicell(2, 1, '   ','C','LTR')
+                        pdf.set_xy(x_position + 2, y_position)
+                        pdf.fixed_height_multicell(4, 1,'LECTURA DEL MANOMETRO A CALIBRAR','C','LR')
+                        pdf.set_xy(pdf.get_x() + 4, y_position)
+                        pdf.fixed_height_multicell(3, 1,'LECTURA PATRON','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 1,'PATRÓN CON CORRECCION','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 1,'PATRÓN CON CORRECCION' if results_equipment[0][3] == 'Kg/cm2' else '','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 1,'CORRECCIÓN CALCULADA','C','LR')
+                        pdf.ln(0)
+
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.set_font('Helvetica', '', 6)
+                        pdf.fixed_height_multicell(2, 0.5, '   ','C','LTR')
+                        pdf.set_xy(x_position + 2, y_position)
+                        pdf.fixed_height_multicell(4, 0.5,'Reading Manometer to Calibrate','C','LR')
+                        pdf.set_xy(pdf.get_x() + 4, y_position)
+                        pdf.fixed_height_multicell(3, 0.5,'Reading Referenced Manometer','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 0.5,'Referenced Manometer Correction','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 0.5,'Referenced Manometer Correction' if results_equipment[0][3] == 'Kg/cm2' else '','C','LR')
+                        pdf.set_xy(pdf.get_x() + 3, y_position)
+                        pdf.fixed_height_multicell(3, 0.5,'Calculated Correction','C','LR')
+                        pdf.ln(0)
+
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(2, 0.5, "", align='C', border = 'LB')
+                        pdf.cell(4, 0.5, results_equipment[0][3], align='C', border = 'LB')
+                        pdf.cell(3, 0.5, "Bar", align='C', border = 'LB')
+                        pdf.cell(3, 0.5, "-" + results_equipment[0][18] + "Bar", align='C', border = 'LB')
+                        pdf.cell(3, 0.5, "Kg/cm2" if results_equipment[0][3] == 'Kg/cm2' else '', align='C', border = 'LB')
+                        pdf.cell(3, 0.5, "Kg/cm2" if results_equipment[0][3] == 'Kg/cm2' else 'Bar', align='C', border = 'LBR')
+                        pdf.ln()
+
+                        pdf.set_font('Helvetica', '', 9)
+                        for i in range(12):
+                            pdf.cell(2, 0.5, str(i+1), align='C', border = 'LB')
+                            pdf.cell(4, 0.5, results_revisions[i][2], align='C', border = 'LB')
+                            pdf.cell(3, 0.5, results_revisions[i][3].replace(".",",") if results_revisions[i][3] is not None else '', align='C', border = 'LB')
+                            pdf.cell(3, 0.5, results_revisions[i][4].replace(".",",") if results_revisions[i][4] is not None else '', align='C', border = 'LB')
+                            pdf.cell(3, 0.5, results_revisions[i][5].replace(".",",") if results_revisions[i][5] is not None else '', align='C', border = 'LB')
+                            pdf.cell(3, 0.5, results_revisions[i][6].replace(".",",") if results_revisions[i][6] is not None else '', align='C', border = 'LBR')
+                            pdf.ln()
+
+                        pdf.cell(2, 0.5, '', align='C')
+                        pdf.cell(13, 0.5, 'CORRECCION CALCULADA MAXIMA (Max Calculate Correction)', align='L', border = 'LB')
+                        pdf.cell(3, 0.5, str(df_revisions.iloc[:, 6].max()).replace(".",","), align='C', border = 'LBR')
+                        pdf.ln()
+
+                        pdf.cell(2, 0.5, '', align='C')
+                        pdf.cell(13, 0.5, 'CORRECCION CALCULADA MINIMA (Min Calculate Correction)', align='L', border = 'LB')
+                        pdf.cell(3, 0.5, str(df_revisions.iloc[:, 6].min()).replace(".",","), align='C', border = 'LBR')
+                        pdf.ln()
+
+                        pdf.cell(3, 0.5, '')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(3, 0.5, 'RESULTADO:', align='L')
+                        pdf.set_font('Helvetica', 'U', 9)
+                        pdf.cell(13, 0.5, results_equipment[0][10], align='L')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(3, 0.5, 'Result:', align='L')
+                        pdf.set_font('Helvetica', 'U', 9)
+                        pdf.cell(13, 0.5, 'OK' if results_equipment[0][10] == 'APTO' else 'NOT VALID', align='L')
+                        pdf.ln()
+
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(3, 0.5, '')
+                        pdf.ln()
+                        pdf.cell(18, 0.5,"Para absorber la corrección calculada se deberá incrementar la presión de prueba en un entero al valor de precisión de instrumento")
+                        pdf.ln()
+                        pdf.cell(18, 0.5,"To absorb the calculated correction, the test pressure must be increased by one integer to the instrument accuracy value.")
+                        pdf.ln()
+
+                        pdf.cell(3, 0.5, '')
+                        pdf.ln()
+                        pdf.cell(12.5, 0.5, 'CORRECCION OPERATIVA (Operative Correction)', align='L', border = 'TLB')
+                        pdf.cell(5.5, 0.5, str(math.ceil(max(abs(float(df_revisions.iloc[:, 6].min())), abs(float(df_revisions.iloc[:, 6].max()))) / float(results_equipment[0][5])) * float(results_equipment[0][5])).replace(".",",") + " " + results_equipment[0][3], align='C', border = 'TLBR')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(12.5, 0.5, 'FECHA CALIBRACION (Date Calibration)', align='L', border = 'LB')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(5.5, 0.5, results_equipment[0][8], align='C', border = 'LBR')
+                        pdf.ln()
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(12.5, 0.5, 'PROXIMA CALIBRACION (Next Calibration)', align='L', border = 'LB')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(5.5, 0.5, results_equipment[0][9], align='C', border = 'LBR')
+                        pdf.ln()
+
+                        pdf.cell(3, 0.5, '')
+                        pdf.ln()
+                        pdf.cell(3, 0.5, '')
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: JAVIER SEGURA (Operator)')
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(4, 0.5, 'CONTROL DE CALIDAD', align='C')
+                        pdf.ln()
+                        pdf.cell(3, 0.5, 'CCM-001', align='C', border=1)
+                        pdf.set_font('Helvetica', '', 9)
+                        pdf.cell(11, 0.5, 'CALIBRACIÓN SUPERVISADA POR JESÚS MARTÍNEZ (Supervisor)')
+                        pdf.cell(4, 0.5, 'QUALITY-CONTROL', align='C')
+
+
+                    pdf_buffer = pdf.output()
+
+                    folder_path = r"M:\Comunes\TALLER\VERIFICACIÓN\MANOMETROS" + "\\" + str(date.today().year)
+                    temp_file_path = folder_path + "\\" + results_equipment[0][0] + ".pdf"
+
+                    if not os.path.exists(folder_path):
+                        os.mkdir(folder_path)
+
+                    with open(temp_file_path, "wb") as temp_file:
+                        temp_file.write(pdf_buffer)
+
+                    # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                    # self.pdf_viewer.showMaximized()
+
+                else:
+                    MessageHelper.show_message("No existe calibre con ese número", "warning")
+
+        MessageHelper.show_message("Hojas calibración emitidas", "info")
+
+# Function to correct image orientation
+    def correct_image_orientation(self,image_path):
+        """
+        Corrects image orientation using EXIF data, rotating if necessary.
+        Returns the corrected image.
+        """
+        image = Image.open(image_path)
+        
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            
+            exif = image._getexif()
+
+            if exif is not None:
+                orientation = exif.get(orientation, 1)
+
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
+        except (AttributeError, KeyError, IndexError):
+            # No EXIF data, no need to correct orientation
+            pass
+
+        return image
 
 
 if __name__ == "__main__":
