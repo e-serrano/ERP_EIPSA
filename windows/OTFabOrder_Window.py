@@ -255,7 +255,7 @@ class Ui_OTFabOrder_Window(object):
         for i in range(1,self.tableOT.rowCount()):
             text_col_0 = self.tableOT.item(i, 0).text()
 
-            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or 'RO' in text_col_0):
+            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or ('RO' in text_col_0 and "MULTISTAGE RO" not in text_col_0)):
                 continue
 
             use_same_ot = (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
