@@ -764,15 +764,15 @@ def set_notes_flow_long(wb: Workbook, delivery_time: str, pay_term: str, respons
         ws["B45"].font = data_pay_terms["style"]["en"]
         ws["B46"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B48"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B48"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B49"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B49"] = rich_string
 
     ws["A61"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -830,15 +830,15 @@ def set_notes_flow_short(wb: Workbook, delivery_time: str, pay_term: str, respon
         ws["B45"].font = data_pay_terms["style"]["en"]
         ws["B46"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B42"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B42"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B43"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B43"] = rich_string
 
     ws["A55"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -877,10 +877,10 @@ def set_notes_flow_short_esp(wb: Workbook, delivery_time: str, pay_term: str, re
     if "style" in data_pay_terms:
         ws["B30"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B28"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B28"] = rich_string
 
     ws["A38"] = (
         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
@@ -938,15 +938,15 @@ def set_notes_temp_long(wb: Workbook, delivery_time: str, pay_term: str, respons
         ws["B45"].font = data_pay_terms["style"]["en"]
         ws["B46"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B48"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B48"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B49"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B49"] = rich_string
 
     ws["A61"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -1004,15 +1004,15 @@ def set_notes_temp_short(wb: Workbook, delivery_time: str, pay_term: str, respon
         ws["B48"].font = data_pay_terms["style"]["en"]
         ws["B49"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B42"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B42"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B43"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B43"] = rich_string
 
     ws["A55"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -1051,10 +1051,10 @@ def set_notes_temp_short_esp(wb: Workbook, delivery_time: str, pay_term: str, re
     if "style" in data_pay_terms:
         ws["B35"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B31"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B31"] = rich_string
 
     ws["A41"] = (
         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
@@ -1112,15 +1112,15 @@ def set_notes_level_long(wb: Workbook, delivery_time: str, pay_term: str, respon
         ws["B42"].font = data_pay_terms["style"]["en"]
         ws["B43"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B45"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B45"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B46"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B46"] = rich_string
 
     ws["A59"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -1178,15 +1178,15 @@ def set_notes_level_short(wb: Workbook, delivery_time: str, pay_term: str, respo
         ws["B41"].font = data_pay_terms["style"]["en"]
         ws["B42"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-    ws["B38"] = rich_string
+    # rich_string = CellRichText(
+    # 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+    # TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+    # ws["B38"] = rich_string
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B39"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B39"] = rich_string
 
     ws["A53"] = (
         "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -1224,10 +1224,10 @@ def set_notes_level_short_esp(wb: Workbook, delivery_time: str, pay_term: str, r
     if "style" in data_pay_terms:
         ws["B29"].font = data_pay_terms["style"]["es"]
 
-    rich_string = CellRichText(
-    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-    ws["B27"] = rich_string
+    # rich_string = CellRichText(
+    # 'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+    # TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+    # ws["B27"] = rich_string
 
     ws["A39"] = (
         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
@@ -1385,7 +1385,7 @@ class offer_flow:
                                                                             offername_commercial, revchanges, rev, df_toexport_list,
                                                                             header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
                                                                             validity, notes_cell_style, delivery_time, notes, 
-                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            number_items, total_amount_material, testinspection, documentation, client
                                                                             )
 
             set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
@@ -1713,7 +1713,7 @@ class offer_temp:
                                                                             offername_commercial, revchanges, rev, df_toexport_list,
                                                                             header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
                                                                             validity, notes_cell_style, delivery_time, notes, 
-                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            number_items, total_amount_material, testinspection, documentation, client
                                                                             )
 
             set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
@@ -2043,7 +2043,7 @@ class offer_level:
                                                                             offername_commercial, revchanges, rev, df_toexport_list,
                                                                             header_cell_style, amount_cell_style, normal_cell_style, eq_type_list,
                                                                             validity, notes_cell_style, delivery_time, notes, 
-                                                                            number_items, total_amount_material, testinspection, documentation
+                                                                            number_items, total_amount_material, testinspection, documentation, client
                                                                             )
 
             set_offer_summary(ws, row_amount, num_column_amount, total_amount_material, testinspection, documentation)
