@@ -161,7 +161,7 @@ class CustomProxyModel_P(QtCore.QSortFilterProxyModel):
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
@@ -356,7 +356,7 @@ class CustomProxyModel_O(QtCore.QSortFilterProxyModel):
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
@@ -551,7 +551,7 @@ class CustomProxyModel_AL(QtCore.QSortFilterProxyModel):
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
@@ -1723,7 +1723,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
-            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', stringAction):
                 stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
@@ -2063,7 +2063,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
-            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', stringAction):
                 stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
@@ -2388,7 +2388,7 @@ class Ui_Workshop_Hours_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
-            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[0-2])\1\d{4}$', stringAction):
                 stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
