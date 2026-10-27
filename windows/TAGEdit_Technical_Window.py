@@ -10,7 +10,10 @@ import re
 import locale
 from datetime import *
 import json
+from weakref import proxy
+import time
 
+from matplotlib import table
 import psycopg2
 import pandas as pd
 from fpdf import FPDF
@@ -35,6 +38,14 @@ from utils.Generate_Dim_Dwg import generate_dim_drawings
 from utils.Generate_OF_Dwg import generate_of_drawings
 from utils.Generate_M_Dwg import generate_m_drawings
 from utils.Helpers import FLOW_HEADERS, TEMP_HEADERS, LEVEL_HEADERS, OTHERS_HEADERS
+from dataclasses import dataclass
+
+VARIABLE_TABLES = {
+    "Caudal": ("tags_data.tags_flow", 39, 111, 158, FLOW_HEADERS), # table_check, initial_column, initial_column2, invoice_column, headers
+    "Temperatura": ("tags_data.tags_temp", 43, 86, 138, TEMP_HEADERS),
+    "Nivel": ("tags_data.tags_level", 39, 70, 182, LEVEL_HEADERS),
+    "Otros": ("tags_data.tags_others", 11, 22, 30, OTHERS_HEADERS),
+}
 
 class CheckboxWidget(QtWidgets.QWidget):
     """
@@ -209,7 +220,8 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                     del self.filters[column]
             else:
                 del self.filters[column]
-        self.invalidateFilter()
+        self.beginFilterChange()
+        self.endFilterChange()
 
     def filterAcceptsRow(self, source_row, source_parent):
         """
@@ -509,7 +521,8 @@ class CustomProxyModel2(QtCore.QSortFilterProxyModel):
                     del self.filters[column]
             else:
                 del self.filters[column]
-        self.invalidateFilter()
+        self.beginFilterChange()
+        self.endFilterChange()
 
     def filterAcceptsRow(self, source_row, source_parent):
         """
@@ -676,6 +689,39 @@ class EditableTableModel2(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
+class EditableTableView(QtWidgets.QTableView):
+
+    copyRequested = QtCore.Signal()
+    pasteRequested = QtCore.Signal()
+    deleteRequested = QtCore.Signal()
+
+    def keyPressEvent(self, event):
+
+        if event.key() == Qt.Key.Key_Delete:
+            self.deleteRequested.emit()
+            return
+
+        if event.matches(QKeySequence.StandardKey.Copy):
+            self.copyRequested.emit()
+            return
+
+        if event.matches(QKeySequence.StandardKey.Paste):
+            self.pasteRequested.emit()
+            return
+
+        super().keyPressEvent(event)
+
+@dataclass
+class TableContext:
+    model: EditableTableModel
+    proxy: CustomProxyModel
+    checkbox_filters: dict
+    checkbox_states: dict
+    action_checkbox_map: dict
+    dict_ordersort: dict
+    dict_valuesuniques: dict
+    hiddencolumns: list
+
 class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
     """
     A window for editing tags in the application for technical.
@@ -702,37 +748,62 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             db (object): Database connection.
         """
         super().__init__()
+        self._saving1 = False
         self.username = username
         self.variable = ''
         self.tabletags = None
+        self.db = db
+        self.num_order_query = num_order
 
         self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
-        self.model2 = EditableTableModel2(self.username)
-        self.proxy2 = CustomProxyModel2()
-        self.db = db
-        self.num_order_query = num_order
 
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
-        self.variable = ''
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+
+        self.model2 = EditableTableModel(self.username)
+        self.proxy2 = CustomProxyModel()
 
         self.checkbox_states2 = {}
         self.dict_valuesuniques2 = {}
         self.dict_ordersort2 = {}
         self.hiddencolumns2 = []
-        self.variable2 = None
         self.action_checkbox_map2 = {}
         self.checkbox_filters2 = {}
-        self.tableEditTags2 = None
 
-        self.model.dataChanged.connect(self.saveChanges)
-        
         self.setupUi(self)
+        self.model.dataChanged.connect(self.saveChanges)
+        self.model2.dataChanged.connect(self.saveChanges)
+
+        self.table_contexts = {
+            self.tableEditTags: TableContext(
+                model=self.model,
+                proxy=self.proxy,
+                checkbox_filters=self.checkbox_filters,
+                checkbox_states=self.checkbox_states,
+                action_checkbox_map=self.action_checkbox_map,
+                dict_ordersort=self.dict_ordersort,
+                dict_valuesuniques=self.dict_valuesuniques,
+                hiddencolumns=self.hiddencolumns,
+            ),
+            self.tableEditTags2: TableContext(
+                model=self.model2,
+                proxy=self.proxy2,
+                checkbox_filters=self.checkbox_filters2,
+                checkbox_states=self.checkbox_states2,
+                action_checkbox_map=self.action_checkbox_map2,
+                dict_ordersort=self.dict_ordersort2,
+                dict_valuesuniques=self.dict_valuesuniques2,
+                hiddencolumns=self.hiddencolumns2,
+            ),
+        }
+
+    def _ctx(self, table) -> TableContext:
+        return self.table_contexts[table]
 
     def closeEvent(self, event):
         """
@@ -962,7 +1033,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout1.addWidget(self.Button_Query)
-        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditTags=EditableTableView()
         self.model = EditableTableModel(self.username)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
@@ -995,7 +1066,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
         self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
-        self.tableEditTags2=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditTags2=EditableTableView()
         self.tableEditTags2.setObjectName("tableEditTags2")
         self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
         self.tableEditTags2.hide()
@@ -1170,6 +1241,21 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.Numorder_EditTags.setText(str(self.num_order_query))
             self.query_tags()
 
+        self.table_info = {
+            self.tableEditTags: (
+                self.label_SumItems,
+                self.label_SumValue,
+                self.label_CountItems,
+                self.label_CountValue,
+            ),
+            self.tableEditTags2: (
+                self.label_SumItems2,
+                self.label_SumValue2,
+                self.label_CountItems2,
+                self.label_CountValue2,
+            ),
+        }
+
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditTagsTechnical_Window):
         """
@@ -1198,7 +1284,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.dict_ordersort = {}
             self.checkbox_filters = {}
 
-            self.proxy.invalidateFilter()
+            self.proxy.beginFilterChange()
+            self.proxy.endFilterChange()
             # self.tableEditTags.setModel(None)
             self.tableEditTags.setModel(self.proxy)
 
@@ -1233,7 +1320,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.dict_ordersort = {}
             self.checkbox_filters = {}
 
-            self.proxy2.invalidateFilter()
+            self.proxy2.beginFilterChange()
+            self.proxy2.endFilterChange()
             # self.tableEditTags.setModel(None)
             self.tableEditTags2.setModel(self.proxy2)
 
@@ -1316,34 +1404,68 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         return found[0] if found else ""
 
 # Function to configure table models based on the detected variable
-    # def configure_models(self, variable):
-    #     self.variable2 = None
-    #     self.excluded_range2 = None
+    def configure_models(self, variable):
+        self.general_variable = variable
+        try:
+            self.variable2 = None
+            if self.general_variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
+                v1, v2 = variable.split("+")
+                self.variable, self.variable2 = v1, v2
 
-    #     if variable in ("Caudal+Temperatura", "Caudal+Nivel", "Temperatura+Nivel"):
-    #         v1, v2 = variable.split("+")
-    #         self.variable, self.variable2 = v1, v2
+                table1, c1, d1, e1, headers1 = VARIABLE_TABLES[v1]
+                table2, c2, d2, e2, headers2 = VARIABLE_TABLES[v2]
 
-    #         t1, c1, d1, e1 = VARIABLE_TABLES[v1]
-    #         t2, c2, d2, e2 = VARIABLE_TABLES[v2]
+                self.tabletags = table1
+                self.tabletags2 = table2
 
-    #         self.model.setTable(t1)
-    #         self.model2.setTable(t2)
+                self.model.table_check = table1
+                self.model2.table_check = table2
+                self.initial_column, self.initial_column2, self.model.invoice_column = c1, d1, e1
+                self.initial_column_, self.initial_column2_, self.model2.invoice_column = c2, d2, e2
 
-    #         self.model.table_check = t1
-    #         self.model2.table_check = t2
+                self.tableEditTags.setModel(None)
+                self.proxy.setSourceModel(None)
 
-    #         self.initial_column, self.column_difference, self.excluded_range = c1, d1, e1
-    #         self.initial_column2, self.column_difference2, self.excluded_range2 = c2, d2, e2
+                self.model.setTable(table1)
+                self.model.select()
 
-    #     else:
-    #         self.variable = variable
-    #         t, c, d, e = VARIABLE_TABLES[variable]
+                self.proxy.setSourceModel(self.model)
+                self.tableEditTags.setModel(self.proxy)
 
-    #         self.model.setTable(t)
-    #         self.model.table_check = t
+                self.tableEditTags2.setModel(None)
+                self.proxy2.setSourceModel(None)
 
-    #         self.initial_column, self.column_difference, self.excluded_range = c, d, e
+                self.model2.setTable(table2)
+                self.model2.select()
+
+                self.proxy2.setSourceModel(self.model2)
+                self.tableEditTags2.setModel(self.proxy2)
+
+                self.model.setAllColumnHeaders(headers1)
+                self.model2.setAllColumnHeaders(headers2)
+
+            else:
+                self.variable = self.general_variable
+                table, c, d, e, headers = VARIABLE_TABLES[self.variable]
+
+                self.tabletags = table
+
+                self.model.table_check = table
+                self.initial_column, self.initial_column2, self.invoice_column = c, d, e
+
+                self.tableEditTags.setModel(None)
+                self.proxy.setSourceModel(None)
+
+                self.model.setTable(table)
+                self.model.select()
+
+                self.proxy.setSourceModel(self.model)
+                self.tableEditTags.setModel(self.proxy)
+
+                self.model.setAllColumnHeaders(headers)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
 
 # Function to apply filters to the table models
     def apply_filters(self, field, value):
@@ -1382,104 +1504,14 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             else:
                 field = "num_order" if self.numorder.upper()[0] == 'P' else "num_offer"
-                self.variable = self.detect_variable(field, self.numorder)
 
                 self.tabletags2 = None
-                if self.variable == 'Caudal+Temperatura':
-                    self.tabletags = "tags_data.tags_flow"
-                    self.tabletags2 = "tags_data.tags_temp"
-                    self.general_variable = 'Caudal+Temperatura'
-                    self.variable = 'Caudal'
-                    self.variable2 = 'Temperatura'
+                self.variable = self.detect_variable(field, self.numorder)
 
-                    self.model.setTable(self.tabletags)
-                    self.model2.setTable(self.tabletags2)
-                    self.model.table_check = self.tabletags
-                    self.model2.table_check = self.tabletags2
-                    self.initial_column = 39
-                    self.initial_column2 = 111
-                    self.initial_column_ = 43
-                    self.initial_column2_ = 86
-                elif self.variable =='Caudal+Nivel':
-                    table = "tags_data.tags_flow"
-                    table2 = "tags_data.tags_level"
-                    self.general_variable = 'Caudal+Nivel'
-                    self.variable = 'Caudal'
-                    self.variable2 = 'Nivel'
-
-                    self.model.setTable(self.tabletags)
-                    self.model2.setTable(self.tabletags2)
-                    self.model.table_check = self.tabletags
-                    self.model2.table_check = self.tabletags2
-                    self.initial_column = 39
-                    self.initial_column2 = 111
-                    self.initial_column_ = 39
-                    self.initial_column2_ = 70
-                elif self.variable =='Temp+Nivel':
-                    self.tabletags = "tags_data.tags_temp"
-                    self.tabletags2 = "tags_data.tags_level"
-                    self.general_variable = 'Temp+Nivel'
-                    self.variable = 'Temperatura'
-                    self.variable2 = 'Nivel'
-
-                    self.model.setTable(self.tabletags)
-                    self.model2.setTable(self.tabletags2)
-                    self.model.table_check = self.tabletags
-                    self.model2.table_check = self.tabletags2
-                    self.initial_column = 43
-                    self.initial_column2 = 86
-                    self.initial_column_ = 39
-                    self.initial_column2_ = 70
-                elif self.variable == 'Caudal':
-                    self.general_variable = 'Caudal'
-                    self.tabletags = "tags_data.tags_flow"
-                    self.model.setTable(self.tabletags)
-                    self.model.table_check = self.tabletags
-                    self.initial_column = 39
-                    self.initial_column2 = 111
-                    self.model.invoice_column = 158
-                elif self.variable == 'Temperatura':
-                    self.general_variable = 'Temperatura'
-                    self.tabletags = "tags_data.tags_temp"
-                    self.model.setTable(self.tabletags)
-                    self.model.table_check = self.tabletags
-                    self.initial_column = 46
-                    self.initial_column2 = 86
-                    self.model.invoice_column = 138
-                elif self.variable == 'Nivel':
-                    self.general_variable = 'Nivel'
-                    if self.username != 'e.serrano':
-                        self.tabletags = "tags_data.tags_level"
-                        self.model.setTable(self.tabletags)
-                        self.model.table_check = self.tabletags
-                        self.initial_column = 39
-                        self.initial_column2 = 70
-                        self.model.invoice_column = 182
-                    else:
-                        self.tabletags = "tags_data.tags_level_new"
-                        self.model.setTable(self.tabletags)
-                        self.model.table_check = self.tabletags
-                        self.initial_column = 36
-                        self.initial_column2 = 66
-                        self.model.invoice_column = 178
-                elif self.variable == 'Otros':
-                    self.general_variable = 'Otros'
-                    self.tabletags = "tags_data.tags_others"
-                    self.model.setTable(self.tabletags)
-                    self.model.table_check = self.tabletags
-                    self.initial_column = 11
-                    self.initial_column2 = 25
-
+                self.configure_models(self.variable)
                 self.apply_filters(field, self.numorder)
 
         if self.variable != '':
-            self.tableEditTags.setModel(None)
-            self.tableEditTags.setModel(self.proxy)
-            self.model.select()
-
-            self.proxy.setSourceModel(self.model)
-            self.tableEditTags.setModel(self.proxy)
-
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
@@ -1504,17 +1536,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 for column in range(columns_number):
                     self.tableEditTags.hideColumn(column)
 
-                dlg_yes_no = QtWidgets.QMessageBox()
-                new_icon_yes_no = QtGui.QIcon()
-                new_icon_yes_no.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                dlg_yes_no.setWindowTitle("ERP EIPSA")
-                dlg_yes_no.setText("¿Usar última configuración?\n")
-                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                result_config = dlg_yes_no.exec()
-
-                if result_config == QtWidgets.QMessageBox.StandardButton.Yes:
+                if MessageHelper.ask_yes_no("¿Usar última configuración?\n", "ERP EIPSA"):
                     config = "last_config"
                 else:
                     config = "default_config"
@@ -1635,18 +1657,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        # Change all column names
-            self.original_headers = [self.model.headerData(col, QtCore.Qt.Orientation.Horizontal) for col in range(self.model.columnCount())]
-
-            if self.variable == 'Caudal':
-                self.model.setAllColumnHeaders(FLOW_HEADERS)
-            elif self.variable == 'Temperatura':
-                self.model.setAllColumnHeaders(TEMP_HEADERS)
-            elif self.variable == 'Nivel':
-                self.model.setAllColumnHeaders(LEVEL_HEADERS)
-            elif self.variable == 'Otros':
-                self.model.setAllColumnHeaders(OTHERS_HEADERS)
-
         # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
                 list_valuesUnique = []
@@ -1725,8 +1735,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
-            self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model))
-            self.tableEditTags.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableEditTags, self.model, self.proxy)
+            self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags))
+
+            self.tableEditTags.copyRequested.connect(lambda: self.copy_table(self.tableEditTags))
+            self.tableEditTags.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags, self.model, self.proxy))
+            self.tableEditTags.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags, self.model))
 
             if self.variable2 is not None:
                 self.tableEditTags2.show()
@@ -1734,13 +1747,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.dict_valuesuniques2 = {}
                 self.dict_ordersort2 = {}
                 self.hiddencolumns2 = []
-
-                self.tableEditTags2.setModel(None)
-                self.tableEditTags2.setModel(self.proxy2)
-                self.model2.select()
-
-                self.proxy2.setSourceModel(self.model2)
-                self.tableEditTags2.setModel(self.proxy2)
 
                 columns_number=self.model2.columnCount()
                 for column in range(columns_number):
@@ -1847,13 +1853,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
                 self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-                if self.variable2 == 'Temperatura':
-                    self.model2.setAllColumnHeaders(TEMP_HEADERS)
-                elif self.variable2 == 'Nivel':
-                    self.model2.setAllColumnHeaders(LEVEL_HEADERS)
-                elif self.variable2 == 'Otros':
-                    self.model2.setAllColumnHeaders(OTHERS_HEADERS)
-
             # Getting the unique values for each column of the model
                 for column in range(self.model2.columnCount()):
                     list_valuesUnique = []
@@ -1915,10 +1914,14 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 self.model2.dataChanged.connect(self.saveChanges)
                 self.selection_model = self.tableEditTags2.selectionModel()
-                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model2))
+                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags2))
 
                 self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
-                self.tableEditTags2.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableEditTags2, self.model2, self.proxy2)
+
+                self.tableEditTags2.copyRequested.connect(lambda: self.copy_table(self.tableEditTags2))
+                self.tableEditTags2.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags2, self.model2, self.proxy2))
+                self.tableEditTags2.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags2, self.model2))
+
             else:
                 self.tableEditTags2.hide()
 
@@ -1967,187 +1970,95 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
             proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
-        if isinstance(model, EditableTableModel2):
-            self.logicalIndex = logicalIndex
-            self.menuValues = QtWidgets.QMenu(self)
-            self.signalMapper = QtCore.QSignalMapper(table)
+        self.logicalIndex = logicalIndex
+        self.menuValues = QtWidgets.QMenu(self)
+        self.signalMapper = QtCore.QSignalMapper(table)
 
-            valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
-            valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+        valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
+        valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
 
-            actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
-            actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
-            self.menuValues.addAction(actionSortAscending)
-            actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
-            actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
-            self.menuValues.addAction(actionSortDescending)
-            self.menuValues.addSeparator()
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
+        actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
+        self.menuValues.addAction(actionSortAscending)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
+        actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
+        self.menuValues.addAction(actionSortDescending)
+        self.menuValues.addSeparator()
 
-            actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
-            actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
-            self.menuValues.addAction(actionDeleteFilterColumn)
-            self.menuValues.addSeparator()
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
+        actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
+        self.menuValues.addAction(actionDeleteFilterColumn)
+        self.menuValues.addSeparator()
 
-            actionTextFilter = QtGui.QAction("Buscar...", table)
-            actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
-            self.menuValues.addAction(actionTextFilter)
-            self.menuValues.addSeparator()
+        actionTextFilter = QtGui.QAction("Buscar...", table)
+        actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
+        self.menuValues.addAction(actionTextFilter)
+        self.menuValues.addSeparator()
 
-            scroll_menu = QtWidgets.QScrollArea()
-            scroll_menu.setWidgetResizable(True)
-            scroll_widget = QtWidgets.QWidget(scroll_menu)
-            scroll_menu.setWidget(scroll_widget)
-            scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-            checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
 
-            if not self.checkbox_states2[self.logicalIndex]['Seleccionar todo'] == True:
-                checkbox_all_widget.setChecked(False)
-            else:
-                checkbox_all_widget.setChecked(True)
-            
-            checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
-
-            scroll_layout.addWidget(checkbox_all_widget)
-            self.action_checkbox_map2['Seleccionar todo'] = checkbox_all_widget
-
-            if len(self.dict_ordersort2) != 0 and self.logicalIndex in self.dict_ordersort2:
-                list_uniquevalues = sorted(list(set(self.dict_valuesuniques2[self.logicalIndex])))
-            else:
-                list_uniquevalues = sorted(list(set(valuesUnique_view)))
-
-            for actionName in list_uniquevalues:
-                checkbox_widget = QtWidgets.QCheckBox(str(actionName))
-
-                if self.logicalIndex not in self.checkbox_filters2:
-                    checkbox_widget.setChecked(True)
-                elif actionName not in self.checkbox_filters2[self.logicalIndex]:
-                    checkbox_widget.setChecked(False)
-                else:
-                    checkbox_widget.setChecked(True)
-
-                checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
-
-                scroll_layout.addWidget(checkbox_widget)
-                self.action_checkbox_map2[actionName] = checkbox_widget
-
-            action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-            action_scroll_menu.setDefaultWidget(scroll_menu)
-            self.menuValues.addAction(action_scroll_menu)
-
-            self.menuValues.addSeparator()
-
-            accept_button = QtGui.QAction("ACEPTAR", table)
-            accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
-
-            cancel_button = QtGui.QAction("CANCELAR", table)
-            cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
-
-            self.menuValues.addAction(accept_button)
-            self.menuValues.addAction(cancel_button)
-
-            self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-
-            headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
-
-            posY = headerPos.y() + table.horizontalHeader().height()
-            scrollX = table.horizontalScrollBar().value()
-            xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
-            posX = headerPos.x() + xInView - scrollX
-
-            self.menuValues.exec(QtCore.QPoint(posX, posY))
-        
+        if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+            checkbox_all_widget.setChecked(False)
         else:
-            self.logicalIndex = logicalIndex
-            self.menuValues = QtWidgets.QMenu(self)
-            self.signalMapper = QtCore.QSignalMapper(table)
+            checkbox_all_widget.setChecked(True)
+        
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
 
-            valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
-            valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
 
-            actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
-            actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
-            self.menuValues.addAction(actionSortAscending)
-            actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
-            actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
-            self.menuValues.addAction(actionSortDescending)
-            self.menuValues.addSeparator()
+        if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
+            list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
+        else:
+            list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-            actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
-            actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
-            self.menuValues.addAction(actionDeleteFilterColumn)
-            self.menuValues.addSeparator()
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
-            actionTextFilter = QtGui.QAction("Buscar...", table)
-            actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
-            self.menuValues.addAction(actionTextFilter)
-            self.menuValues.addSeparator()
-
-            scroll_menu = QtWidgets.QScrollArea()
-            scroll_menu.setWidgetResizable(True)
-            scroll_widget = QtWidgets.QWidget(scroll_menu)
-            scroll_menu.setWidget(scroll_widget)
-            scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
-
-            checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
-
-            if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
-                checkbox_all_widget.setChecked(False)
+            if self.logicalIndex not in self.checkbox_filters:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
             else:
-                checkbox_all_widget.setChecked(True)
-            
-            checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
+                checkbox_widget.setChecked(True)
 
-            scroll_layout.addWidget(checkbox_all_widget)
-            self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
 
-            if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
-                list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
-            else:
-                list_uniquevalues = sorted(list(set(valuesUnique_view)))
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map[actionName] = checkbox_widget
 
-            for actionName in list_uniquevalues:
-                checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
 
-                if self.logicalIndex not in self.checkbox_filters:
-                    checkbox_widget.setChecked(True)
-                elif actionName not in self.checkbox_filters[self.logicalIndex]:
-                    checkbox_widget.setChecked(False)
-                else:
-                    checkbox_widget.setChecked(True)
+        self.menuValues.addSeparator()
 
-                checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
+        accept_button = QtGui.QAction("ACEPTAR", table)
+        accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
 
-                scroll_layout.addWidget(checkbox_widget)
-                self.action_checkbox_map[actionName] = checkbox_widget
+        cancel_button = QtGui.QAction("CANCELAR", table)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
-            action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-            action_scroll_menu.setDefaultWidget(scroll_menu)
-            self.menuValues.addAction(action_scroll_menu)
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
 
-            self.menuValues.addSeparator()
+        self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-            accept_button = QtGui.QAction("ACEPTAR", table)
-            accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
+        headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
 
-            cancel_button = QtGui.QAction("CANCELAR", table)
-            cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+        posY = headerPos.y() + table.horizontalHeader().height()
+        scrollX = table.horizontalScrollBar().value()
+        xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posX = headerPos.x() + xInView - scrollX
 
-            self.menuValues.addAction(accept_button)
-            self.menuValues.addAction(cancel_button)
-
-            self.menuValues.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
-                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-
-            headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
-
-            posY = headerPos.y() + table.horizontalHeader().height()
-            scrollX = table.horizontalScrollBar().value()
-            xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
-            posX = headerPos.x() + xInView - scrollX
-
-            self.menuValues.exec(QtCore.QPoint(posX, posY))
+        self.menuValues.exec(QtCore.QPoint(posX, posY))
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
@@ -2195,19 +2106,20 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             imagen_path = str(get_path("Resources", "Iconos", "Filter_Active.png"))
             self.icono_filter_active = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         
-    # Select map and state related to model
-        checkbox_map = self.action_checkbox_map2 if isinstance(model, EditableTableModel2) else self.action_checkbox_map
-        checkbox_states = self.checkbox_states2 if isinstance(model, EditableTableModel2) else self.checkbox_states
-
-    # Change state of checkboxes if necessary
-        for checkbox_name, checkbox_widget in checkbox_map.items():
-            if checkbox_widget.isChecked() != checked:
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
                 checkbox_widget.setChecked(checked)
-                checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
-    # Adjust icon of header
-        all_checked = all(checkbox_widget.isChecked() for checkbox_widget in checkbox_map.values())
-        model.setIconColumnHeader(filterColumn, self.icono_filter_active if all_checked else '')
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                model.setIconColumnHeader(filterColumn, self.icono_filter_active)
+            else:
+                model.setIconColumnHeader(filterColumn, '')
+
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name, model):
@@ -2223,35 +2135,19 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
-            if isinstance(model, EditableTableModel2):
-                if filterColumn not in self.checkbox_filters2:
-                    self.checkbox_filters2[filterColumn] = [action_name]
-                else:
-                    if action_name not in self.checkbox_filters2[filterColumn]:
-                        self.checkbox_filters2[filterColumn].append(action_name)
+            if filterColumn not in self.checkbox_filters:
+                self.checkbox_filters[filterColumn] = [action_name]
             else:
-                if filterColumn not in self.checkbox_filters:
-                    self.checkbox_filters[filterColumn] = [action_name]
-                else:
-                    if action_name not in self.checkbox_filters[filterColumn]:
+                if action_name not in self.checkbox_filters[filterColumn]:
                         self.checkbox_filters[filterColumn].append(action_name)
         else:
-            if isinstance(model, EditableTableModel2):
-                if filterColumn in self.checkbox_filters2 and action_name in self.checkbox_filters2[filterColumn]:
-                    self.checkbox_filters2[filterColumn].remove(action_name)
-            else:
-                if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
+            if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
                     self.checkbox_filters[filterColumn].remove(action_name)
 
-        if isinstance(model, EditableTableModel2):
-            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map2.values()):
-                model.setIconColumnHeader(filterColumn, '')
-            else:
-                model.setIconColumnHeader(filterColumn, icono)
+
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+            model.setIconColumnHeader(filterColumn, '')
         else:
-            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-                model.setIconColumnHeader(filterColumn, '')
-            else:
                 model.setIconColumnHeader(filterColumn, icono)
 
 # Function to delete individual column filter
@@ -2264,59 +2160,27 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             model (QtGui.QStandardItemModel): The model associated with the table.
             proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
-        if isinstance(model, EditableTableModel2):
-            filterColumn = self.logicalIndex
-            if filterColumn in proxy.filters:
-                del proxy.filters[filterColumn]
-            model.setIconColumnHeader(filterColumn, "")
-            proxy.invalidateFilter()
+        filterColumn = self.logicalIndex
+        if filterColumn in proxy.filters:
+            del proxy.filters[filterColumn]
+        model.setIconColumnHeader(filterColumn, "")
+        proxy.beginFilterChange()
+        proxy.endFilterChange()
 
-            if filterColumn in self.checkbox_filters2:
-                del self.checkbox_filters2[filterColumn]
+        if filterColumn in self.checkbox_filters:
+            del self.checkbox_filters[filterColumn]
 
-            self.checkbox_states2[self.logicalIndex].clear()
-            self.checkbox_states2[self.logicalIndex]["Seleccionar todo"] = True
-            for row in range(table.model().rowCount()):
-                value = model.record(row).value(filterColumn)
-                if isinstance(value, QtCore.QDate):
-                    value = value.toString("dd/MM/yyyy")
-                self.checkbox_states2[self.logicalIndex][str(value)] = True
-
-        else:
-            filterColumn = self.logicalIndex
-            if filterColumn in proxy.filters:
-                del proxy.filters[filterColumn]
-            model.setIconColumnHeader(filterColumn, "")
-            proxy.invalidateFilter()
-
-            if filterColumn in self.checkbox_filters:
-                del self.checkbox_filters[filterColumn]
-
-            self.checkbox_states[self.logicalIndex].clear()
-            self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
-            for row in range(table.model().rowCount()):
-                value = model.record(row).value(filterColumn)
-                if isinstance(value, QtCore.QDate):
-                    value = value.toString("dd/MM/yyyy")
-                self.checkbox_states[self.logicalIndex][str(value)] = True
+        self.checkbox_states[self.logicalIndex].clear()
+        self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
+        for row in range(table.model().rowCount()):
+            value = model.record(row).value(filterColumn)
+            if isinstance(value, QtCore.QDate):
+                value = value.toString("dd/MM/yyyy")
+            self.checkbox_states[self.logicalIndex][str(value)] = True
 
         table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         table.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         table.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
-        self.selection_model = table.selectionModel()
-        self.selection_model.selectionChanged.connect(self.countSelectedCells)
-
-        if isinstance(model,EditableTableModel2):
-            self.label_SumItems2.setText("")
-            self.label_SumValue2.setText("")
-            self.label_CountItems2.setText("")
-            self.label_CountValue2.setText("")
-        else:
-            self.label_SumItems.setText("")
-            self.label_SumValue.setText("")
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self, table):
@@ -2544,35 +2408,34 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         """
         Opens a window to create a fabrication order if data is present.
         """
-        if self.username not in ['julian.martinez']:
-            if self.proxy.rowCount() == 0:
-                MessageHelper.show_message("No hay datos cargados", "warning")
-            else:
-                if '+' in self.general_variable:
-                    while True:
-                        action, ok = QtWidgets.QInputDialog.getItem(None, "Generar OT", "Tienes 2 variables. ¿Cuál quieres?:",
-                                                                    self.general_variable.split('+'), 0, False)
-                        if ok and action:
-                            while True:
-                                self.createfaborder_window=QtWidgets.QMainWindow()
-                                position = self.general_variable.split('+').index(action)
-                                if position == 0:
-                                    self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
-                                else:
-                                    self.ui=Ui_CreateFabOrder_Window(self.variable2, self.proxy2, self.model2)
-                                self.ui.setupUi(self.createfaborder_window)
-                                self.createfaborder_window.showMaximized()
-                                break
+        if self.proxy.rowCount() == 0:
+            MessageHelper.show_message("No hay datos cargados", "warning")
+        else:
+            if '+' in self.general_variable:
+                while True:
+                    action, ok = QtWidgets.QInputDialog.getItem(None, "Generar OT", "Tienes 2 variables. ¿Cuál quieres?:",
+                                                                self.general_variable.split('+'), 0, False)
+                    if ok and action:
+                        while True:
+                            self.createfaborder_window=QtWidgets.QMainWindow()
+                            position = self.general_variable.split('+').index(action)
+                            if position == 0:
+                                self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+                            else:
+                                self.ui=Ui_CreateFabOrder_Window(self.variable2, self.proxy2, self.model2)
+                            self.ui.setupUi(self.createfaborder_window)
+                            self.createfaborder_window.showMaximized()
                             break
-                        else:
-                            break
+                        break
+                    else:
+                        break
 
-                else:
-                    if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
-                        self.createfaborder_window=QtWidgets.QMainWindow()
-                        self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
-                        self.ui.setupUi(self.createfaborder_window)
-                        self.createfaborder_window.showMaximized()
+            else:
+                if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+                    self.createfaborder_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+                    self.ui.setupUi(self.createfaborder_window)
+                    self.createfaborder_window.showMaximized()
 
 # Function to set inspection number
     def setinspection(self):
@@ -2730,6 +2593,77 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
+# Function to copy data from selected cells
+    def copy_table(self, table):
+        selected_indexes = table.selectionModel().selectedIndexes()
+
+        if not selected_indexes:
+            return
+
+        clipboard = QtWidgets.QApplication.clipboard()
+        text = self.get_selected_text(selected_indexes)
+
+        if isinstance(text, QtCore.QDate):
+            text = text.toString("dd/MM/yyyy")
+
+        clipboard.setText(str(text))
+
+# Function to paste data from clipboard into selected cells
+    def paste_table(self, table, model, proxy):
+        selected_indexes = table.selectionModel().selectedIndexes()
+
+        if not selected_indexes:
+            return
+
+        text = QtWidgets.QApplication.clipboard().text()
+
+        model.dataChanged.disconnect(self.saveChanges)
+
+        model.blockSignals(True)
+        proxy.blockSignals(True)
+        table.setUpdatesEnabled(False)
+
+        try:
+            for proxy_index in selected_indexes:
+                source_index = proxy.mapToSource(proxy_index)
+
+                model.setData(
+                    source_index,
+                    text,
+                    QtCore.Qt.ItemDataRole.EditRole
+                )
+
+            model.submitAll()
+
+        finally:
+            model.blockSignals(False)
+            proxy.blockSignals(False)
+            table.setUpdatesEnabled(True)
+            model.dataChanged.connect(self.saveChanges)
+
+# Function to delete selected cells
+    def delete_table(self, table, model):
+        selected_indexes = table.selectionModel().selectedIndexes()
+
+        if not selected_indexes:
+            return
+
+        table_model = table.model()
+
+        if isinstance(table_model, QtCore.QSortFilterProxyModel):
+            model_indexes = [
+                table_model.mapToSource(index)
+                for index in selected_indexes
+            ]
+
+            for index in model_indexes:
+                table_model.sourceModel().setData(index, None)
+
+        else:
+            for index in selected_indexes:
+                model.setData(index, None)
+
+
 # Function to enable copy and paste cells
     def custom_keyPressEvent(self, event, table, model, proxy):
         """
@@ -2786,7 +2720,69 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             model.dataChanged.connect(self.saveChanges)
 
+        # elif event.matches(QKeySequence.StandardKey.MoveToNextLine): # Event for down cursor pressed
+        #     if table.selectionModel() != None:
+        #         selected_indexes = table.selectionModel().selectedIndexes()
+        #         if len(selected_indexes) == 1:
+        #             for index in selected_indexes:
+        #                 current_row = index.row()
+        #                 current_column = index.column()
+
+        #             new_row = current_row + 1 if current_row < model.rowCount() - 1 else current_row
+
+        #             table.selectionModel().clearSelection()
+        #             new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+        #             table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+        #             table.selectionModel().setCurrentIndex(model.index(new_row, current_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
+
+        # elif event.matches(QKeySequence.StandardKey.MoveToPreviousLine): # Event for up cursor pressed
+        #     if table.selectionModel() != None:
+        #         selected_indexes = table.selectionModel().selectedIndexes()
+        #         if len(selected_indexes) == 1:
+        #             for index in selected_indexes:
+        #                 current_row = index.row()
+        #                 current_column = index.column()
+
+        #             new_row = current_row - 1 if current_row > 0 else 0
+
+        #             table.selectionModel().clearSelection()
+        #             new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+        #             table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+        #             table.selectionModel().setCurrentIndex(model.index(new_row, current_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
+
+        # elif event.matches(QKeySequence.StandardKey.MoveToNextChar): # Event for right cursor pressed
+        #     if table.selectionModel() != None:
+        #         selected_indexes = table.selectionModel().selectedIndexes()
+        #         if len(selected_indexes) == 1:
+        #             for index in selected_indexes:
+        #                 current_row = index.row()
+        #                 current_column = index.column()
+
+        #             new_column = current_column + 1 if current_column < model.columnCount() - 1 else current_column
+
+        #             table.selectionModel().clearSelection()
+        #             new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+        #             table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+        #             table.selectionModel().setCurrentIndex(model.index(current_row, new_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
+
+        # elif event.matches(QKeySequence.StandardKey.MoveToPreviousChar): # Event for left cursor pressed
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_column = current_column - 1 if current_column > 1 else 1
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                    table.selectionModel().setCurrentIndex(model.index(current_row, new_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
+
+
         super().keyPressEvent(event)
+
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
@@ -2799,15 +2795,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         Returns:
             str: A string containing the text from the selected cells.
         """
-        """
-        Retrieves the text from the selected cells and returns it as a plain text string.
 
-        Args:
-            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
-        
-        Returns:
-            str: A string containing the text from the selected cells.
-        """
         if len(indexes) == 1: # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
@@ -2833,52 +2821,48 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             return text_doc.toPlainText()
 
 # Function to count selected cells and sum its values
-    def countSelectedCells(self, model):
+    def countSelectedCells(self, table):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
         """
-        if isinstance(model,EditableTableModel2):
-            if len(self.tableEditTags2.selectedIndexes()) > 1:
-                locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-                self.label_SumItems2.setText("")
-                self.label_SumValue2.setText("")
-                self.label_CountItems2.setText("")
-                self.label_CountValue2.setText("")
+        label_sum, label_sum_value, label_count, label_count_value = self.table_info[table]
+        
+        selected = table.selectedIndexes()
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags2.selectedIndexes()])
-                count_value = len([ix for ix in self.tableEditTags2.selectedIndexes() if ix.data() != ""])
-                if sum_value > 0:
-                    self.label_SumItems2.setText("Suma:")
-                    self.label_SumValue2.setText(locale.format_string("%.2f", sum_value, grouping=True))
-                if count_value > 0:
-                    self.label_CountItems2.setText("Recuento:")
-                    self.label_CountValue2.setText(str(count_value))
-            else:
-                self.label_SumItems2.setText("")
-                self.label_SumValue2.setText("")
-                self.label_CountItems2.setText("")
-                self.label_CountValue2.setText("")
-        else:
-            if len(self.tableEditTags.selectedIndexes()) > 1:
-                locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-                self.label_SumItems.setText("")
-                self.label_SumValue.setText("")
-                self.label_CountItems.setText("")
-                self.label_CountValue.setText("")
+        # clean labels
+        for label in (
+            label_sum,
+            label_sum_value,
+            label_count,
+            label_count_value,
+        ):
+            label.setText("")
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
-                count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
-                if sum_value > 0:
-                    self.label_SumItems.setText("Suma:")
-                    self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
-                if count_value > 0:
-                    self.label_CountItems.setText("Recuento:")
-                    self.label_CountValue.setText(str(count_value))
-            else:
-                self.label_SumItems.setText("")
-                self.label_SumValue.setText("")
-                self.label_CountItems.setText("")
-                self.label_CountValue.setText("")
+        if len(selected) <= 1:
+            return
+
+        locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
+
+        sum_value = sum(
+            self.euro_string_to_float(str(ix.data()))
+            if re.match(r"^-?[\d.,]+\s€$", str(ix.data()))
+            else float(str(ix.data()).replace(",", "."))
+            if str(ix.data()).replace(",", ".").replace(".", "", 1).isdigit()
+            else 0
+            for ix in selected
+        )
+
+        count_value = sum(1 for ix in selected if ix.data() != "")
+
+        if sum_value:
+            label_sum.setText("Suma:")
+            label_sum_value.setText(
+                locale.format_string("%.2f", sum_value, grouping=True)
+            )
+
+        if count_value:
+            label_count.setText("Recuento:")
+            label_count_value.setText(str(count_value))
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
@@ -2943,35 +2927,35 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         """
         if self.proxy.rowCount() == 0:
             MessageHelper.show_message("No hay datos cargados", "warning")
-        else:
-            if self.username not in ['julian.martinez']:
-                dlg = QtWidgets.QInputDialog()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle('Pedido Materiales')
-                dlg.setLabelText('Introduce el pedido:')
-                clickedButton=dlg.exec()
 
-                if clickedButton == 1:
-                    numorder_pedmat = dlg.textValue()
-                    if self.general_variable == 'Caudal':
-                        flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.general_variable == 'Temperatura':
-                        temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.general_variable == 'Nivel':
-                        level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.general_variable == 'Otros':
-                        others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                    elif self.general_variable == 'Caudal+Temperatura':
-                        flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        temp_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
-                    elif self.general_variable == 'Caudal+Nivel':
-                        flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
-                    elif self.general_variable =='Temperatura+Nivel':
-                        temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
-                        level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+        else:
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Pedido Materiales')
+            dlg.setLabelText('Introduce el pedido:')
+            clickedButton=dlg.exec()
+
+            if clickedButton == 1:
+                numorder_pedmat = dlg.textValue()
+                if self.general_variable == 'Caudal':
+                    flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                elif self.general_variable == 'Temperatura':
+                    temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                elif self.general_variable == 'Nivel':
+                    level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                elif self.general_variable == 'Otros':
+                    others_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                elif self.general_variable == 'Caudal+Temperatura':
+                    flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                    temp_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                elif self.general_variable == 'Caudal+Nivel':
+                    flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                    level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
+                elif self.general_variable =='Temperatura+Nivel':
+                    temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable, 'Order')
+                    level_matorder(self.proxy2, self.model2, self.numorder, numorder_pedmat, self.variable2, 'Order')
 
 # Function to insert components OF drawings
     def insert_of(self, numorder):
@@ -3195,11 +3179,175 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         if ok and action:
                             while True:
                                 if action == 'Dimensional':
-                                    generate_dim_drawings(self.numorder, self.client, self.final_client, self.project, self.num_po)
+                                    list_drawings = []
+
+                                    proxy_data, proxy_index = self.proxy.data, self.proxy.index
+                                    data, index = self.model.data, self.model.index
+
+                                    id_list = [
+                                                proxy_data(proxy_index(row, 0))
+                                                for row in range(self.proxy.rowCount())
+                                                if proxy_data(proxy_index(row, 2)) == "PURCHASED" and "ZZZ" not in proxy_data(proxy_index(row, 6)).upper()
+                                            ]
+
+                                    column_index = next(
+                                        c for c in range(self.model.columnCount())
+                                        if self.model.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano Dim.'
+                                    )
+
+                                    row_map = {
+                                            data(index(row, 0)): row
+                                            for row in range(self.model.rowCount())
+                                        }
+
+                                    for element in id_list:
+                                        row = row_map.get(element)
+                                        if row is None:
+                                            continue
+
+                                        value = data(index(row, column_index))
+
+                                        if value is not None and str(value).strip():
+                                            list_drawings.append(value)
+
+                                    if '+' in self.general_variable:
+                                        proxy_data2, proxy_index2 = self.proxy2.data, self.proxy2.index
+                                        data2, index2 = self.model2.data, self.model2.index
+
+                                        id_list = [
+                                                    proxy_data2(proxy_index2(row, 0))
+                                                    for row in range(self.proxy2.rowCount())
+                                                    if proxy_data2(proxy_index2(row, 2)) == "PURCHASED" and "ZZZ" not in proxy_data2(proxy_index2(row, 6)).upper()
+                                                ]
+    
+                                        column_index = next(
+                                            c for c in range(self.model2.columnCount())
+                                            if self.model2.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano Dim.'
+                                        )
+    
+                                        row_map = {
+                                                data2(index2(row, 0)): row
+                                                for row in range(self.model2.rowCount())
+                                            }
+    
+                                        for element in id_list:
+                                            row = row_map.get(element)
+                                            if row is None:
+                                                continue
+    
+                                            value = data2(index2(row, column_index))
+                                            if value is not None and str(value).strip():
+                                                list_drawings.append(value)
+
+                                    generate_dim_drawings(self.numorder, self.client, self.final_client, self.project, list_drawings)
                                     break
+
                                 elif action == 'OF':
-                                    generate_of_drawings(self.numorder)
+
+                                    list_drawings = []
+
+                                    proxy_data, proxy_index = self.proxy.data, self.proxy.index
+                                    data, index = self.model.data, self.model.index
+
+                                    id_list = [
+                                                proxy_data(proxy_index(row, 0))
+                                                for row in range(self.proxy.rowCount())
+                                                if proxy_data(proxy_index(row, 2)) == "PURCHASED" and "ZZZ" not in proxy_data(proxy_index(row, 6)).upper()
+                                            ]
+
+                                    column_index = next(
+                                        c for c in range(self.model.columnCount())
+                                        if self.model.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano OF'
+                                    )
+
+                                    row_map = {
+                                            data(index(row, 0)): row
+                                            for row in range(self.model.rowCount())
+                                        }
+
+                                    for element in id_list:
+                                        row = row_map.get(element)
+                                        if row is None:
+                                            continue
+
+                                        value = data(index(row, column_index))
+
+                                        if value is not None and str(value).strip():
+                                            list_drawings.append(value)
+
+                                    column_index = next((
+                                        c for c in range(self.model.columnCount())
+                                        if self.model.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano OF Sensor'
+                                    ), None)
+
+                                    if column_index is not None:
+                                        row_map = {
+                                            data(index(row, 0)): row
+                                            for row in range(self.model.rowCount())
+                                        }
+
+                                        for element in id_list:
+                                            row = row_map.get(element)
+                                            if row is None:
+                                                continue
+
+                                            value = data(index(row, column_index))
+                                            if value is not None and str(value).strip():
+                                                list_drawings.append(value)
+
+                                    if '+' in self.general_variable:
+                                        proxy_data2, proxy_index2 = self.proxy2.data, self.proxy2.index
+                                        data2, index2 = self.model2.data, self.model2.index
+
+                                        id_list = [
+                                                    proxy_data2(proxy_index2(row, 0))
+                                                    for row in range(self.proxy2.rowCount())
+                                                    if proxy_data2(proxy_index2(row, 2)) == "PURCHASED" and "ZZZ" not in proxy_data2(proxy_index2(row, 6)).upper()
+                                                ]
+
+                                        column_index = next(
+                                            c for c in range(self.model2.columnCount())
+                                            if self.model2.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano OF'
+                                        )
+
+                                        row_map = {
+                                                data2(index2(row, 0)): row
+                                                for row in range(self.model2.rowCount())
+                                            }
+
+                                        for element in id_list:
+                                            row = row_map.get(element)
+                                            if row is None:
+                                                continue
+    
+                                            value = data2(index2(row, column_index))
+                                            if value is not None and str(value).strip():
+                                                list_drawings.append(value)
+
+                                        column_index = next((
+                                            c for c in range(self.model2.columnCount())
+                                            if self.model2.headerData(c, QtCore.Qt.Orientation.Horizontal) == 'Plano OF Sensor'
+                                        ), None)
+    
+                                        if column_index is not None:
+                                            row_map = {
+                                                    data2(index2(row, 0)): row
+                                                    for row in range(self.model2.rowCount())
+                                                }
+
+                                            for element in id_list:
+                                                row = row_map.get(element)
+                                                if row is None:
+                                                    continue
+
+                                                value = data2(index2(row, column_index))
+
+                                                if value is not None and str(value).strip():
+                                                    list_drawings.append(value)
+
+                                    generate_of_drawings(self.numorder, list_drawings)
                                     break
+
                                 elif action == 'M':
                                     generate_m_drawings(self.numorder)
                                     break
@@ -3248,20 +3396,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         results_emails = cur.fetchall()
                         to_mails = [email[0] for email in results_emails]
 
-                dlg = QtWidgets.QInputDialog()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(str(get_path("Resources", "Iconos", "icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle('Calculos Completados')
-                dlg.setLabelText('Ruta:')
-
                 file_path = QtWidgets.QFileDialog.getExistingDirectory(None, "Seleccionar carpeta con cálculos")
 
                 if file_path:
                     try:
                         email_notification = email_calculations(self.numorder, from_mail, to_mails, file_path)
                         email_notification.preview_email()
-                        MessageHelper.show_message(f"Correo enviado correctamente", "info")
                     except Exception as e:
                         MessageHelper.show_message(f"Error al enviar el correo: {str(e)}", "critical")
 
