@@ -536,7 +536,7 @@ def set_eq_data_sheet(variable: str, wb: Workbook, data_sheet: str, date_offer: 
                     offername_commercial: str, revchanges: str, rev: str, df_toexport_list: list[pd.DataFrame],
                     header_cell_style: str, amount_cell_style: str, normal_cell_style: str, eq_type_list: list[str],
                     validity: str, notes_cell_style: str, delivery_time: str, notes: list[str], 
-                    number_items: float, total_amount_material: float, testinspection: str, documentation: float) -> tuple[Worksheet, int, int, int]:
+                    number_items: float, total_amount_material: float, testinspection: str, documentation: float, client: str) -> tuple[Worksheet, int, int, int]:
     ws = wb[data_sheet]
     ws["G2"] = date_offer
     ws["G3"] = num_ref
@@ -575,17 +575,40 @@ def set_eq_data_sheet(variable: str, wb: Workbook, data_sheet: str, date_offer: 
 
             last_row = ws.max_row
 
-        last_row +=2
+        if variable == 'Flow':
+            if "F+P" in df_toexport["TYPE"].to_list() and 'TÉCNICAS REUNIDAS' in client.upper():
+                rich_string = CellRichText(
+                TextBlock(InlineFont(b=True, u='single', sz = 14), 'ALL PRICES QUOTED FOR THE ORIFICE FLANGES IN THIS PROPOSAL APPLY TO THE COMPLETE ASSEMBLY. '),
+                TextBlock(InlineFont(sz = 14),'FOR PRICING PURPOSES AND SOLELY FOR INVOICING PURPOSES, THE TOTAL VALUE HAS BEEN ALLOCATED AS FOLLOWS: '),
+                TextBlock(InlineFont(b=True, sz = 14), '80% OF THE TOTAL VALUE TO THE ORIFICE FLANGES AND 20% OF THE TOTAL VALUE TO THE ORIFICE PLATE.\n'),
+                TextBlock(InlineFont(sz = 14), 'THESE PERCENTAGES ARE FIXED AND CONSISTENT ACROSS ALL EQUIPMENT INCLUDED IN THIS QUOTATION. '),
+                TextBlock(InlineFont(b=True, u='single', sz = 14), 'IT SHOULD BE NOTED THAT THESE PERCENTAGES DO NOT REPRESENT THE ACTUAL VALUE OF THE INDIVIDUAL COMPONENTS. '),
+                TextBlock(InlineFont(sz = 14), 'THEY ARE USED EXCLUSIVELY '),
+                TextBlock(InlineFont(b=True, u='single', sz = 14), 'TO FACILITATE THE SEPARATE SHIPMENT AND INVOICING OF THE FLANGES AND THE ORIFICE PLATES.'),
+                )
+                ws[f"A{last_row+3}"] = rich_string
 
-    if variable == 'Flow':
-        if "VENTURI ELEMENTS DATA" in eq_type_list:
-            ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
-            ws[f"A{last_row+3}"]._style = ws["AE2"]._style
+                ws.merge_cells(f"A{last_row+3}:N{last_row+3}")
+                ws[f"A{last_row+3}"].alignment = Alignment(
+                    horizontal="left",
+                    vertical="center",
+                    wrap_text=True
+                    )
+                ws.row_dimensions[last_row+3].height = 80
+
+                last_row += 3
+
+            if (any(item in df_toexport["TYPE"].to_list() for item in ["VFC", "VFM", "VFW", "VWM", "VWW"])):
+                ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+                ws[f"A{last_row+3}"]._style = ws["AE2"]._style
+                last_row += 2
+
+        last_row +=2
 
     ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
     ws[f"A{last_row+4}"]._style = ws[notes_cell_style]._style
-    ws[f"A{last_row+5}"] = (
-        "DELIVERY TIME: "
+
+    ws[f"A{last_row+5}"] = ("DELIVERY TIME: "
         + delivery_time
         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST, LAST TWO DECEMBER WEEKS AND NATIONAL HOLIDAYS EXCLUDED)"
     )
