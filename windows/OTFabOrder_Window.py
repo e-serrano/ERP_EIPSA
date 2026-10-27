@@ -251,55 +251,6 @@ class Ui_OTFabOrder_Window(object):
 
         tag_to_ot[self.tableOT.item(0, 1).text()] = final_ot
 
-    # Set the OT number and date for the current row of OF drawings
-        for i in range(1,self.tableOT.rowCount()):
-            text_col_0 = self.tableOT.item(i, 0).text()
-
-            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or ('RO' in text_col_0 and "MULTISTAGE RO" not in text_col_0)):
-                continue
-
-            use_same_ot = (i > 0 and self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text())
-
-            # Increase num_ot only if we are not using the same number and it is not the first row
-            if not use_same_ot and i > 0:
-                self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
-
-            with Database_Connection(config_database()) as conn:
-                with conn.cursor() as cur:
-                    cur.execute(check_ot, (self.tableOT.item(i, 0).text(),))
-                    results_check=cur.fetchall()
-
-            final_ot = str(self.num_ot) if len(results_check) == 0 else str(results_check[0][4])
-
-        # Set the OT number for the current row
-            it = QtWidgets.QTableWidgetItem(str(final_ot))
-            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-            self.tableOT.setItem(i, 4, it)
-
-        # Set the date for the current row
-            it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
-            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-            self.tableOT.setItem(i, 5, it)
-
-            tag_to_ot[self.tableOT.item(i, 1).text()] = final_ot
-
-    # Set the OT number and date for the current row of dimensional drawings
-        for i in range(0, self.tableOT.rowCount()):
-            text_col_0 = self.tableOT.item(i, 0).text()
-
-            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or "RO" in text_col_0):
-                tag = self.tableOT.item(i, 1).text()
-                ot = tag_to_ot.get(tag)
-
-                if ot:
-                    it = QtWidgets.QTableWidgetItem(ot)
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOT.setItem(i, 4, it)
-
-                it = QtWidgets.QTableWidgetItem(date.today().strftime("%d/%m/%Y"))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                self.tableOT.setItem(i, 5, it)
-
         data_elements = []
         for row in range(self.tableOT.rowCount()):
             data_elements.append([self.tableOT.item(row, 2).text(), float(self.tableOT.item(row, 3).text())])
@@ -575,6 +526,55 @@ class Ui_OTFabOrder_Window(object):
                 it = QtWidgets.QTableWidgetItem(str(drawing))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableOT.setItem(row, 10, it)
+
+    # Set the OT number and date for the current row of OF drawings
+        for i in range(1,self.tableOT.rowCount()):
+            text_col_0 = self.tableOT.item(i, 0).text()
+
+            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or ('RO' in text_col_0 and "MULTISTAGE RO" not in text_col_0)):
+                continue
+
+            use_same_ot = (i > 0 and self.tableOT.item(i, 8).text() == self.tableOT.item(i - 1, 8).text())
+
+            # Increase num_ot only if we are not using the same number and it is not the first row
+            if not use_same_ot and i > 0:
+                self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
+
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(check_ot, (self.tableOT.item(i, 0).text(),))
+                    results_check=cur.fetchall()
+
+            final_ot = str(self.num_ot) if len(results_check) == 0 else str(results_check[0][4])
+
+        # Set the OT number for the current row
+            it = QtWidgets.QTableWidgetItem(str(final_ot))
+            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.tableOT.setItem(i, 4, it)
+
+        # Set the date for the current row
+            it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
+            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.tableOT.setItem(i, 5, it)
+
+            tag_to_ot[self.tableOT.item(i, 1).text()] = final_ot
+
+    # Set the OT number and date for the current row of dimensional drawings
+        for i in range(0, self.tableOT.rowCount()):
+            text_col_0 = self.tableOT.item(i, 0).text()
+
+            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or "RO" in text_col_0):
+                tag = self.tableOT.item(i, 1).text()
+                ot = tag_to_ot.get(tag)
+
+                if ot:
+                    it = QtWidgets.QTableWidgetItem(ot)
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableOT.setItem(i, 4, it)
+
+                it = QtWidgets.QTableWidgetItem(date.today().strftime("%d/%m/%Y"))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(i, 5, it)
 
         self.tableOT.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOT.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
