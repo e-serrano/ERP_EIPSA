@@ -18,9 +18,11 @@ from windows.overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dw
                         dwg_dim_32218_32219, dwg_m_welding_32218_32219, dwg_m_32218_32219,
                         dwg_m_landscape, general_dwg_m, drawing_number, drawing_number_landscape)
 
+from PySide6 import QtWidgets
 
 
-def generate_m_drawings(username, numorder):
+
+def generate_m_drawings(numorder, username = None):
     output_path_M = None
     order_year = str(datetime.now().year)[:2] + numorder[numorder.rfind("/") - 2:numorder.rfind("/")]
 
@@ -142,11 +144,11 @@ def generate_m_drawings(username, numorder):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
-            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 50, 51]].copy()
+            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 21, 53, 54]].copy()
             df_selected.rename(columns={
                 0: 'id', 9: 'type', 10: 'size', 11: 'rating',
                 12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam', 18: 'tip_diam',
-                19: 'bore_diam', 20: 'tip_thk', 50: 'base_tw_diam', 51: 'notes_tw'
+                19: 'bore_diam', 21: 'tip_thk', 53: 'base_tw_diam', 54: 'notes_tw'
             }, inplace=True)
 
         # Loop through different types of equipment and create drawings accordingly
@@ -235,8 +237,8 @@ def generate_m_drawings(username, numorder):
                 if os.path.exists(key):
                     writer = PdfWriter()
                     reader = PdfReader(key)
-                    page_overlay = PdfReader(drawing_number(numorder, value, counter_drawings)).pages[0]
-                    reader.pages[0].merge_page(page2=page_overlay)
+                    page_overlay, num_ot = drawing_number(numorder, value, counter_drawings)
+                    reader.pages[0].merge_page(PdfReader(page2=page_overlay).pages[0])
                     writer.add_page(reader.pages[0])
 
                     writer.write(key)
@@ -249,7 +251,7 @@ def generate_m_drawings(username, numorder):
                 try:
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
-                            cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                            cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.')))
                         conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
@@ -261,7 +263,7 @@ def generate_m_drawings(username, numorder):
             query = ('''
                 SELECT *
                 FROM tags_data.tags_flow
-                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') AND tag_state = 'PURCHASED' AND UPPER(position) NOT LIKE '%ZZZ%'
                 ''')
 
             try:
@@ -276,12 +278,12 @@ def generate_m_drawings(username, numorder):
                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                             + str(error), "critical")
 
-            df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 57, 86]].copy()
+            df_selected = df_general.iloc[:, [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23, 61, 90]].copy()
             df_selected.rename(columns={
-                0: 'id', 8: 'type', 9: 'size', 10: 'rating',
+                0: 'id', 1: 'tag', 8: 'type', 9: 'size', 10: 'rating',
                 11: 'facing', 12: 'schedule', 13: 'material', 14:'flange_type',
                 15: 'tube_material', 16: 'tapping_size', 17: 'tapping_number', 18: 'tapping_orientation', 
-                23: 'gasket', 57: 'pipe_int_diam', 86: 'notes_equipment'
+                23: 'gasket', 61: 'pipe_int_diam', 90: 'notes_equipment'
             }, inplace=True)
 
             df_selected['tapping'] = df_selected.apply(
@@ -290,7 +292,7 @@ def generate_m_drawings(username, numorder):
 
         # Loop through different types of equipment and create drawings accordingly
             for item in df_selected['type'].unique().tolist():
-
+                list_items_drawings = []
                 if item in ['F+P', 'F']:
                     df_selected_fp = df_selected[df_selected['type'] == item].copy()
 
@@ -317,6 +319,7 @@ def generate_m_drawings(username, numorder):
 
                                 writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                list_items_drawings.append([row['tag'], f"M-{counter_drawings:02d}"])
                         else:
                             dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
 
@@ -449,15 +452,19 @@ def generate_m_drawings(username, numorder):
                     pass
 
         # Loop to add the drawing number and insert into the database
+            mcode_to_numot = {}
             for key, value in dict_drawings.items():
                 if os.path.exists(key):
                     writer = PdfWriter()
                     reader = PdfReader(key)
-                    page_overlay = PdfReader(drawing_number(numorder, value, counter_drawings)).pages[0]
-                    reader.pages[0].merge_page(page2=page_overlay)
+                    page_overlay, num_ot = drawing_number(numorder, value, counter_drawings)
+                    reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
                     writer.add_page(reader.pages[0])
 
                     writer.write(key)
+
+                    m_code = key.stem if hasattr(key, "stem") else os.path.basename(key).split(".")[0]  # obtiene "M-01"
+                    mcode_to_numot[m_code] = num_ot
 
                 query_insert_drawing = ("""
                     INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
@@ -467,12 +474,20 @@ def generate_m_drawings(username, numorder):
                 try:
                     with Database_Connection(config_database()) as conn:
                         with conn.cursor() as cur:
-                            cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                            cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.')))
                         conn.commit()
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                 + str(error), "critical")
+
+            for item in list_items_drawings:
+                m_code = item[1]  # "M-01"
+                item.append(mcode_to_numot.get(m_code))
+
+            df = pd.DataFrame(list_items_drawings, columns=['TAGS', 'PLANO M', 'NUM_OT'])
+            df_expanded = df.explode('TAGS').reset_index(drop=True)
+            df_expanded.to_excel(str(output_path_M / f"Planos M.xlsx"), index=False, header=True)
 
         # elif table_toquery == "tags_data.tags_level":
         #     print('c')
@@ -570,7 +585,7 @@ def generate_m_drawings(username, numorder):
         #             # Write Drawing data
         #                 writer = PdfWriter()
         #                 reader = PdfReader(f"{output_path_M}DIM-{dim_drawing_number[:2]}.pdf")
-        #                 page_overlay = PdfReader(drawing_number(numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
+        #                 page_overlay, num_ot = PdfReader(drawing_number(numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
         #                 reader.pages[0].merge_page(page2=page_overlay)
         #                 writer.add_page(reader.pages[0])
 
@@ -585,7 +600,7 @@ def generate_m_drawings(username, numorder):
         #                 try:
         #                     with Database_Connection(config_database()) as conn:
         #                         with conn.cursor() as cur:
-        #                             cur.execute(query_update_drawing,(description_dim, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto', numorder, '01/01'))
+        #                             cur.execute(query_update_drawing,(description_dim, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.'), numorder, '01/01'))
         #                         conn.commit()
         #                 except (Exception, psycopg2.DatabaseError) as error:
         #                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -640,7 +655,7 @@ def generate_m_drawings(username, numorder):
         #         # Write Drawing data
         #             writer = PdfWriter()
         #             reader = PdfReader(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
-        #             page_overlay = PdfReader(drawing_number_landscape(numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
+        #             page_overlay, num_ot = PdfReader(drawing_number_landscape(numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
         #             reader.pages[0].merge_page(page2=page_overlay)
         #             writer.add_page(reader.pages[0])
 
@@ -655,7 +670,7 @@ def generate_m_drawings(username, numorder):
         #             try:
         #                 with Database_Connection(config_database()) as conn:
         #                     with conn.cursor() as cur:
-        #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto', numorder, dim_drawing_number))
+        #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.'), numorder, dim_drawing_number))
         #                     conn.commit()
 
         #             except (Exception, psycopg2.DatabaseError) as error:
@@ -709,7 +724,7 @@ def generate_m_drawings(username, numorder):
         #         # Write Drawing data
         #             writer = PdfWriter()
         #             reader = PdfReader(str(output_path_Dim / f"{dim_drawing_number[:2]}.pdf"))
-        #             page_overlay = PdfReader(drawing_number_landscape(numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
+        #             page_overlay, num_ot = PdfReader(drawing_number_landscape(numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
         #             reader.pages[0].merge_page(page2=page_overlay)
         #             writer.add_page(reader.pages[0])
 
@@ -724,7 +739,7 @@ def generate_m_drawings(username, numorder):
         #             try:
         #                 with Database_Connection(config_database()) as conn:
         #                     with conn.cursor() as cur:
-        #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto', numorder, dim_drawing_number))
+        #                         cur.execute(query_update_drawing,(str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.'), numorder, dim_drawing_number))
         #                     conn.commit()
 
         #             except (Exception, psycopg2.DatabaseError) as error:
@@ -757,10 +772,10 @@ def generate_m_drawings(username, numorder):
         #             writer = PdfWriter()
         #             reader = PdfReader(key)
         #             if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras']):
-        #                 page_overlay = PdfReader(drawing_number_landscape(numorder, value, counter_drawings)).pages[0]
+        #                 page_overlay, num_ot = drawing_number_landscape(numorder, value, counter_drawings)
         #             else:
-        #                 page_overlay = PdfReader(drawing_number(numorder, value, counter_drawings)).pages[0]
-        #             reader.pages[0].merge_page(page2=page_overlay)
+        #                 page_overlay, num_ot = drawing_number(numorder, value, counter_drawings)
+        #             reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
         #             writer.add_page(reader.pages[0])
 
         #             writer.write(key)
@@ -773,7 +788,7 @@ def generate_m_drawings(username, numorder):
         #         try:
         #             with Database_Connection(config_database()) as conn:
         #                 with conn.cursor() as cur:
-        #                     cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else 'Realizado por Jose Alberto'))
+        #                     cur.execute(query_insert_drawing,(numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if username == 'j.zofio' else ('Realizado por Jose Alberto' if username == 'j.sanz' else 'Realizado por O.Tec.')))
         #                 conn.commit()
 
         #         except (Exception, psycopg2.DatabaseError) as error:
@@ -788,11 +803,6 @@ def generate_m_drawings(username, numorder):
                     "Los planos no se han podido generar", "critical")
 
 
-
-
-
-
-
 # Functions to create dataframes for items drawings
 def create_df_flanges_flanged_tw(dataframe):
     dataframe['drawing_code'] = dataframe.apply(
@@ -804,7 +814,7 @@ def create_df_flanges_flanged_tw(dataframe):
     dataframe['connection'] = dataframe.apply(
     lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
     axis=1)
-    
+
     dataframe['drawing_path'] = dataframe.apply(
     lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
     axis=1)
@@ -820,7 +830,7 @@ def create_df_bars_flanged_tw(dataframe):
     dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 3,axis=1)
 
     dataframe['drawing_code'] = dataframe.apply(
-    lambda row: 'TVSCP-Ø' + str(int(row['base_diam'])) + ' Corte-Taladro',
+    lambda row: 'TVSCP-Ø' + str(int(row['base_tw_diam'])) + ' Corte-Taladro',
     axis=1)
 
     dataframe['drawing_path'] = dataframe.apply(
@@ -872,8 +882,8 @@ def create_df_orifice_flanges(dataframe):
     lambda row: rf"""\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
     axis=1)
 
-    df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_num', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
-    grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_num', 'tapping_orientation', 'gasket', 'flange_type']).agg({"pipe_int_diam": list, "count": list}).reset_index()
+    df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam', 'tag']).size().reset_index(name="count")
+    grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"tag": list, "pipe_int_diam": list, "count": list}).reset_index()
 
     return grouped_flanges
 
@@ -881,25 +891,13 @@ def transform_df_mrun(dataframe):
     dataframe['pipe_int_diam'] = pd.to_numeric(dataframe['pipe_int_diam'], errors='coerce')
 
     materials = ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
-    sizes_floor = ['3/4"', '1-1/2"', '2"/1-1/2"']
-    sizes_ceil  = ['1/2"', '1"', '2"/1"']
+    sizes = ['3/4"', '1-1/2"', '2"/1-1/2"', '1/2"', '1"', '2"/1"']
     schedules = ['40', '80', 'STD', 'XS']
 
     # Creating boolean mask
-    mask_floor = (dataframe['material'].isin(materials)) & \
-                (dataframe['size'].isin(sizes_floor)) & \
+    mask_calibrated = (dataframe['material'].isin(materials)) & \
+                (dataframe['size'].isin(sizes)) & \
                 (dataframe['schedule'].isin(schedules))
-
-    mask_ceil = (dataframe['material'].isin(materials)) & \
-                (dataframe['size'].isin(sizes_ceil)) & \
-                (dataframe['schedule'].isin(schedules))
-
-    # Apply vectorized floor y ceil
-    dataframe['final_pipe_int_diam'] = np.where(mask_floor,
-                                                np.floor(dataframe['pipe_int_diam']),
-                                                np.where(mask_ceil,
-                                                        np.ceil(dataframe['pipe_int_diam']),
-                                                        dataframe['pipe_int_diam']))
 
     dataframe['calibrated'] = dataframe.apply(
         lambda row: 'YES' if (row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
@@ -936,6 +934,8 @@ def transform_df_mrun(dataframe):
     query_flanges_ff = ("""SELECT code_flange, dim_h
                     FROM verification.flanges_verification""")
 
+    query_calibrated_tube = ("SELECT line_size, sch, calibrated_int FROM validation_data.pipe_diam")
+
     try:
         with Database_Connection(config_database()) as conn:
             with conn.cursor() as cur:
@@ -945,6 +945,8 @@ def transform_df_mrun(dataframe):
                 results_flanges_rtj=cur.fetchall()
                 cur.execute(query_flanges_ff)
                 results_flanges_ff=cur.fetchall()
+                cur.execute(query_calibrated_tube)
+                results_calibrated_tube = cur.fetchall()
 
         flanges_rf = {}
         for item in results_flanges_rf:
@@ -958,9 +960,17 @@ def transform_df_mrun(dataframe):
         for item in results_flanges_ff:
             flanges_ff[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0)
 
+        dataframe_tube = pd.DataFrame(results_calibrated_tube, columns=['size_orifice_flange', 'sch_orifice_flange', 'calibrated_int'])
+
+        dataframe = dataframe.merge(dataframe_tube, on=['size_orifice_flange', 'sch_orifice_flange'], how='left')
+
     except (Exception, psycopg2.DatabaseError) as error:
         MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                     + str(error), "critical")
+
+    dataframe['final_pipe_int_diam'] = np.where(mask_calibrated,
+                                        dataframe['calibrated_int'],
+                                        dataframe['pipe_int_diam'])
 
     dataframe['orifice_flange_height'] = np.select(
         [
@@ -1001,7 +1011,7 @@ def create_df_orifice_flanges_mrun(dataframe):
 
     df_orifice_flanges['drawing_code'] = df_orifice_flanges.apply(
     lambda row: 'CMRB' + str(row['type_orifice_flange']) + ('O' if row['type_orifice_flange'] == 'WN' else '') + str(row['facing']) + ('' if 'CORNER' not in str(row["notes_equipment"]) else 'Q') +
-                ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + str(row['size_orifice_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_orifice_flange']) else '.0') +
+                ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + ("01" if str(row['size_orifice_flange']) == '1-1/2"' else ("00" if str(row['size_orifice_flange']) == '1/2"' else str(row['size_orifice_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_orifice_flange']) else '.0') +
                 ('-0' + str(row['rating_orifice_flange']) if str(row['rating_orifice_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_orifice_flange'])),
     axis=1)
 
@@ -1013,8 +1023,8 @@ def create_df_orifice_flanges_mrun(dataframe):
     lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if 'CORNER' not in str(row["notes_equipment"]) else rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\Q-CornerTaps\{str(row['drawing_code'])}.pdf",
     axis=1)
 
-    df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
-    grouped_orifice_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping', 'gasket', 'type_orifice_flange', "type"]).agg({"final_pipe_int_diam": list, "orifice_flange_height": list, "count": list}).reset_index()
+    df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
+    grouped_orifice_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'type_orifice_flange', "type"]).agg({"final_pipe_int_diam": list, "orifice_flange_height": list, "count": list}).reset_index()
 
     return grouped_orifice_flanges
 
@@ -1023,7 +1033,7 @@ def create_df_line_flanges_mrun(dataframe):
 
     df_line_flanges['drawing_code'] = df_line_flanges.apply(
     lambda row: 'CB' + str(row['type_line_flange']) + ('L'if row['type_line_flange'] == 'WN' else '') + str(row['facing']) +
-                ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + str(row['size_line_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_line_flange']) else '.0') +
+                ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + ("01" if str(row['size_line_flange']) == '1-1/2"' else ("00" if str(row['size_line_flange']) == '1/2"' else str(row['size_line_flange']).split('"')[0])) + ('.5' if '1/2' in str(row['size_line_flange']) else '.0') +
                 ('-0' + str(row['rating_line_flange']) if str(row['rating_line_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_line_flange'])),
     axis=1)
 
@@ -1113,7 +1123,7 @@ def create_df_tubes_mrun(dataframe):
                     + str(error), "critical")
 
     df_tubes = df_tubes.merge(df_diam, how='left', left_on=['size_orifice_flange', 'sch_orifice_flange'], right_on=['line_size', 'sch'])
-    df_tubes['final_pipe_int_diam'] = df_tubes['in_diam']
+    # df_tubes['final_pipe_int_diam'] = df_tubes['in_diam']
 
     df_grouped = df_tubes.groupby(['drawing_path','size_orifice_flange', 'sch_orifice_flange', 'tube_material', 'calibrated', 'final_pipe_int_diam', 'pipe_ext_diam', 'length_long', 'length_short', 'welding_type_orifice', 'welding_type_line']).size().reset_index(name="count")
     grouped_tubes = df_grouped.groupby(['drawing_path','size_orifice_flange','sch_orifice_flange','tube_material', 'calibrated']).agg({"final_pipe_int_diam": list, "pipe_ext_diam": list, "length_long": list, "length_short": list, "welding_type_orifice": list, "welding_type_line": list, "count": list}).reset_index()
@@ -1143,7 +1153,7 @@ def drawings_tw_32218(equipment_count):
     drawing_path_7 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-1 Reduccion 0.25 SW-NPT.pdf"
     drawing_path_8 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-4 SopTaponPurgador.pdf"
     drawing_path_9 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\TA-Tapones\P-Purgadores\XTAP-¼Inx TaponPrg ¼″NPT AISI321.pdf"
-    
+
     description_1 = 'Mapa Soldaduras'
     description_2 = str(equipment_count) + ' Bridas 4" 600# RF 321'
     description_3 = str(equipment_count) + ' Tubos Vaina 3" SCH 80S 321'
