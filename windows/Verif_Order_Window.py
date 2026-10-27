@@ -17,21 +17,6 @@ from utils.Database_Manager import Database_Connection
 from utils.Show_Message import MessageHelper
 
 
-def imagen_to_base64(imagen):
-    """
-    Converts an image in PNG format to a base64 encoded string.
-
-    Args:
-        imagen: An instance of QImage or QPixmap to be converted.
-    Return:
-        A base64 encoded string representing the image in PNG format.
-    """
-    buffer = QtCore.QBuffer()
-    buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
-    imagen.save(buffer, ".png")
-    base64_data = buffer.data().toBase64().data().decode()
-    return base64_data
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
