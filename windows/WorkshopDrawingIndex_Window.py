@@ -23,10 +23,11 @@ import os
 import sys
 from datetime import *
 import pandas as pd
-from windows.overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW,
+from windows.overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, tube_dwg_flangedTW, bar_dwg_notflangedTW,
                         flange_dwg_orifice, flange_dwg_line,
                         tube_dwg_meterrun, welding_dwg_meterrun,
                         loose_valves_dwg_dim,
+                        body_dwg_level, cover_dwg_level, valves_dwg_level, nipple_hex_dwg_level,
                         dwg_dim_32218_32219, dwg_m_welding_32218_32219, dwg_m_32218_32219,
                         dwg_m_landscape, general_dwg_m, drawing_number, drawing_number_landscape)
 from pypdf import PdfReader, PdfWriter, Transformation
@@ -41,7 +42,8 @@ GROUPS_TW_TYPES = {
     'Flanged TW': 'Flanged',
     'Flanged Helical': 'Flanged',
     'Buttweld TW': 'Not_Flanged',
-    'Socket TW': 'Not_Flanged'
+    'Socket TW': 'Not_Flanged',
+    'Threaded TW': 'Not_Flanged',
 }
 
 TABLES_TAGS = {
@@ -2739,7 +2741,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                                 cur.execute(commands_insert_drawing)
                                                             conn.commit()
 
-                                                    MessageHelper.show_message(QtWidgets.QMessageBox.Icon.Information, "info")
+                                                    MessageHelper.show_message("Datos insertados con éxito", "info")
 
                                                 except (Exception, psycopg2.DatabaseError) as error:
                                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3246,14 +3248,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
                                             results_description[0][1] + " " +
                                             results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                            str(results_description[0][5]) + " TW:" + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
                                             (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
 
                             elif item_type in ['TW+TE','TW+TE+TIT']:
                                 description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
                                             results_description[0][1] + " " +
                                             results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                            str(results_description[0][5]) + " TW:" + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
                                             results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + ("A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
                                             results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
 
@@ -3722,26 +3724,33 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             if results["Caudal"] and results["Temperatura"]:
                                 self.variable = "Caudal + Temperatura"
+                                self.table_toquery = TABLES_TAGS["Caudal"]
+                                self.table_toquery2 = TABLES_TAGS["Temperatura"]
 
                             elif results["Caudal"]:
                                 self.variable = "Caudal"
                                 self.table_toquery = TABLES_TAGS["Caudal"]
+                                self.table_toquery2 = ""
 
                             elif results["Temperatura"]:
                                 self.variable = "Temperatura"
                                 self.table_toquery = TABLES_TAGS["Temperatura"]
+                                self.table_toquery2 = ""
 
                             elif results["Nivel"]:
                                 self.variable = "Nivel"
                                 self.table_toquery = TABLES_TAGS["Nivel"]
+                                self.table_toquery2 = ""
 
                             elif results["Otros"]:
                                 self.variable = "Otros"
                                 self.table_toquery = TABLES_TAGS["Otros"]
+                                self.table_toquery2 = ""
 
                             else:
                                 self.variable = ""
                                 self.table_toquery = ""
+                                self.table_toquery2 = ""
 
                         except (Exception, psycopg2.DatabaseError) as error:
                             MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -3791,145 +3800,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             if not os.path.exists(output_path_M):
                                 os.makedirs(output_path_M)
 
-                            if self.table_toquery == "tags_data.tags_temp":
-                            # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
-                                query = ('''
-                                    SELECT id_tag_temp, tw_type, size, rating, facing, std_tw, material_tw, std_length,
-                                            root_diam, tip_diam, bore_diam, tip_thk, base_tw_diam, notes_tw
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
-                                    ''')
-
-                                try:
-                                    with Database_Connection(config_database()) as conn:
-                                        with conn.cursor() as cur:
-                                            cur.execute(query,(self.numorder,))
-                                            results_tags=cur.fetchall()
-
-                                    df_selected = pd.DataFrame(results_tags, columns=['id', 'type', 'size', 'rating', 'facing',
-                                                                                    'std_tw', 'material', 'std_length',
-                                                                                    'root_diam', 'tip_diam', 'bore_diam',
-                                                                                    'tip_thk', 'base_tw_diam', 'notes_tw'])
-
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                                + str(error), "critical")
-
-                            # Loop through different types of equipment and create drawings accordingly
-                                df_selected['group'] = df_selected['type'].map(GROUPS_TW_TYPES)
-                                for group_name, df_group in df_selected.groupby('group'):
-                                    if pd.isna(group_name):
-                                        continue
-
-                                    if group_name == 'Flanged':
-                                        df_filtered = df_selected[df_selected['type'].isin(['Flanged TW', 'Flanged Helical'])].copy()
-
-                                        grouped_flanges = self.create_df_flanges_flanged_tw(df_filtered)
-                                        total_count = grouped_flanges['count'].explode().sum() 
-
-                                        for _, row in grouped_flanges.iterrows():
-                                            counter_drawings += 1
-
-                                            writer = PdfWriter()
-
-                                            drawing_path = row["drawing_path"]
-                                            if os.path.exists(drawing_path):
-                                                reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, row["material"], row["count"][0])).pages[0]
-
-                                                if int(row["base_tw_diam"]) == 32:
-                                                    reader.pages[0].merge_page(page2=page_overlay)
-                                                    writer.add_page(reader.pages[0])
-                                                elif int(row["base_tw_diam"]) == 35:
-                                                    reader.pages[1].merge_page(page2=page_overlay)
-                                                    writer.add_page(reader.pages[1])
-                                                elif int(row["base_tw_diam"]) == 30:
-                                                    reader.pages[2].merge_page(page2=page_overlay)
-                                                    writer.add_page(reader.pages[2])
-                                                elif int(row["base_tw_diam"]) == 38:
-                                                    reader.pages[3].merge_page(page2=page_overlay)
-                                                    writer.add_page(reader.pages[3])
-                                                elif int(row["base_tw_diam"]) == 40:
-                                                    reader.pages[4].merge_page(page2=page_overlay)
-                                                    writer.add_page(reader.pages[4])
-
-                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
-                                            else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
-
-                                        grouped_bars = self.create_df_bars_flanged_tw(df_filtered)
-                                        total_count = grouped_bars['count'].explode().sum() 
-
-                                        for _, row in grouped_bars.iterrows():
-                                            counter_drawings += 1
-
-                                            writer = PdfWriter()
-
-                                            drawing_path = row["drawing_path"]
-                                            if os.path.exists(drawing_path):
-                                                reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], row["base_tw_diam"], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
-
-                                                reader.pages[0].merge_page(page2=page_overlay)
-                                                writer.add_page(reader.pages[0])
-
-                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
-                                            else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
-
-                                    elif group_name == 'Not_Flanged':
-                                        df_filtered = df_selected[df_selected['type'].isin(['Buttweld TW', 'Socket TW'])].copy()
-
-                                        grouped_bars = self.create_df_not_flanged_tw(df_filtered)
-                                        total_count = grouped_bars['count'].explode().sum() 
-
-                                        for _, row in grouped_bars.iterrows():
-                                            counter_drawings += 1
-
-                                            writer = PdfWriter()
-
-                                            drawing_path = row["drawing_path"]
-                                            if os.path.exists(drawing_path):
-                                                reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_tw_diam'], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
-
-                                                reader.pages[0].merge_page(page2=page_overlay)
-                                                writer.add_page(reader.pages[0])
-
-                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
-                                            else:
-                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
-
-                            # Loop to add the drawing number and insert into the database
-                                for key, value in dict_drawings.items():
-                                    if os.path.exists(key):
-                                        writer = PdfWriter()
-                                        reader = PdfReader(key)
-                                        page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
-                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
-                                        writer.add_page(reader.pages[0])
-
-                                        writer.write(key)
-
-                                    query_insert_drawing = ("""
-                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
-                                        VALUES (%s, %s, %s, %s, %s)
-                                        """)
-
-                                    try:
-                                        with Database_Connection(config_database()) as conn:
-                                            with conn.cursor() as cur:
-                                                cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
-                                            conn.commit()
-
-                                    except (Exception, psycopg2.DatabaseError) as error:
-                                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                                    + str(error), "critical")
-
-                            elif self.table_toquery == "tags_data.tags_flow":
+                            if self.table_toquery == "tags_data.tags_flow":
                             # Obtain the data from the database for flow tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
                                     SELECT id_tag_flow, tag, item_type, line_size, rating, facing, schedule, flange_material, flange_type, tube_material,
@@ -4119,53 +3990,348 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     else:
                                         pass
 
-                            # Loop to add the drawing number and insert into the database
-                                mcode_to_numot = {}
-                                for key, value in dict_drawings.items():
-                                    if os.path.exists(key):
-                                        writer = PdfWriter()
-                                        reader = PdfReader(key)
-                                        page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
-                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
-                                        writer.add_page(reader.pages[0])
+                            if self.table_toquery == "tags_data.tags_temp" or self.table_toquery2 == "tags_data.tags_temp":
+                            # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
+                                query = ('''
+                                    SELECT id_tag_temp, tw_type, size, rating, facing, std_tw, material_tw, std_length,
+                                            root_diam, tip_diam, bore_diam, tip_thk, base_tw_diam, notes_tw, puntal
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
+                                    ''')
 
-                                        writer.write(key)
+                                try:
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(query,(self.numorder,))
+                                            results_tags=cur.fetchall()
 
-                                        m_code = key.stem if hasattr(key, "stem") else os.path.basename(key).split(".")[0]  # obtiene "M-01"
-                                        mcode_to_numot[m_code] = num_ot
+                                    df_selected = pd.DataFrame(results_tags, columns=['id', 'type', 'size', 'rating', 'facing',
+                                                                                    'std_tw', 'material', 'std_length',
+                                                                                    'root_diam', 'tip_diam', 'bore_diam',
+                                                                                    'tip_thk', 'base_tw_diam', 'notes_tw', 'puntal'])
 
-                                    query_insert_drawing = ("""
-                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
-                                        VALUES (%s, %s, %s, %s, %s)
-                                        """)
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
 
-                                    try:
-                                        with Database_Connection(config_database()) as conn:
-                                            with conn.cursor() as cur:
-                                                cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
-                                            conn.commit()
+                            # Loop through different types of equipment and create drawings accordingly
+                                df_selected['group'] = df_selected['type'].map(GROUPS_TW_TYPES)
+                                for group_name, df_group in df_selected.groupby('group'):
+                                    if pd.isna(group_name):
+                                        continue
 
-                                    except (Exception, psycopg2.DatabaseError) as error:
-                                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                                    + str(error), "critical")
+                                    if group_name == 'Flanged':
+                                        df_filtered = df_selected[df_selected['type'].isin(['Flanged TW', 'Flanged Helical'])].copy()
 
-                                for item in list_items_drawings:
-                                    m_code = item[1]  # "M-01"
-                                    item.append(mcode_to_numot.get(m_code))
+                                        grouped_flanges = self.create_df_flanges_flanged_tw(df_filtered)
+                                        total_count = grouped_flanges['count'].explode().sum() 
 
-                                df = pd.DataFrame(list_items_drawings, columns=['TAGS', 'PLANO M', 'NUM_OT'])
-                                df_expanded = df.explode('TAGS').reset_index(drop=True)
-                                df_expanded.to_excel(str(output_path_M / f"Planos M.xlsx"), index=False, header=True)
+                                        for _, row in grouped_flanges.iterrows():
+                                            counter_drawings += 1
 
-                            elif self.table_toquery == "tags_data.tags_level":
-                                print('c')
+                                            writer = PdfWriter()
 
-                            elif self.table_toquery == "tags_data.tags_others":
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, row["material"], row["count"][0])).pages[0]
+
+                                                if int(row["base_tw_diam"]) == 32:
+                                                    reader.pages[0].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[0])
+                                                elif int(row["base_tw_diam"]) == 35:
+                                                    reader.pages[1].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[1])
+                                                elif int(row["base_tw_diam"]) == 30:
+                                                    reader.pages[2].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[2])
+                                                elif int(row["base_tw_diam"]) == 38:
+                                                    reader.pages[3].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[3])
+                                                elif int(row["base_tw_diam"]) == 40:
+                                                    reader.pages[4].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[4])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+
+                                        grouped_bars = self.create_df_bars_flanged_tw(df_filtered)
+                                        total_count = grouped_bars['count'].explode().sum() 
+
+                                        for _, row in grouped_bars.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], row["base_tw_diam"], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+
+                                            if row['type'] == 'Flanged TWC':
+                                                grouped_tubes = self.create_df_tubes_flanged_tw(df_filtered)
+                                                total_count = grouped_tubes['count'].explode().sum() 
+
+                                                for _, row in grouped_tubes.iterrows():
+                                                    counter_drawings += 1
+
+                                                    writer = PdfWriter()
+
+                                                    drawing_path = row["drawing_path"]
+                                                    if os.path.exists(drawing_path):
+                                                        reader = PdfReader(drawing_path)
+                                                        page_overlay = PdfReader(tube_dwg_flangedTW(self.numorder, row["material"], zip(row["std_length"], row["count"]))).pages[0]
+
+                                                        reader.pages[0].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[0])
+
+                                                        writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                        dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                                    else:
+                                                        dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+
+                                    elif group_name == 'Not_Flanged':
+                                        df_filtered = df_selected[df_selected['type'].isin(['Buttweld TW', 'Socket TW', 'Threaded TW'])].copy()
+
+                                        grouped_bars = self.create_df_not_flanged_tw(df_filtered)
+                                        total_count = grouped_bars['count'].explode().sum() 
+
+                                        for _, row in grouped_bars.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_tw_diam'], zip(row["bore_diam"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_tw_diam"]) + " " + str(row["material"]), sum(row["count"])]
+
+                            if self.table_toquery == "tags_data.tags_level" or self.table_toquery2 == "tags_data.tags_level":
+                                query = ('''
+                                    SELECT id_tag_level, tag, item_type, model_num, body_material, case_cover_material,
+                                        proc_conn_type, proc_conn_size, proc_conn_rating, proc_conn_facing,
+                                        valve_type, dv_conn, dv_size, dv_rating, dv_facing,
+                                        nipple_hex, nipple_tub, illuminator, antifrost, quant_stud
+                                    FROM tags_data.tags_level
+                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
+                                    ''')
+
+                                try:
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(query,(self.numorder,))
+                                            results_tags=cur.fetchall()
+
+                                    df_selected = pd.DataFrame(results_tags,
+                                                                columns=['id', 'tag', 'type', 'model', 'body_material', 'cover_material',
+                                                                        'proccess_type', 'process_size', 'process_rating', 'process_facing',
+                                                                        'valve_type', 'dv_type', 'dv_size', 'dv_rating', 'dv_facing', 
+                                                                        'nipple_hex', 'nipple_tube', 'illuminator', 'antifrost', 'quant_stud'])
+
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
+
+                                df_selected['level_type'] = np.where(
+                                    df_selected['type'].astype(str).isin(['Transparent', 'Reflex']),
+                                    'Visual',
+                                    'Magnetic'
+                                )
+
+                                df_selected['model_body'] = df_selected['model'].astype(str).str[:-1]
+
+                                df_selected['process_connection'] = (
+                                    df_selected['process_size'].astype(str) + ' ' +
+                                    df_selected['process_rating'].astype(str) + '# ' +
+                                    df_selected['process_facing'].astype(str)
+                                )
+
+                                df_selected['dv_connection'] = (
+                                    df_selected['dv_size'].astype(str) + ' ' +
+                                    df_selected['dv_rating'].astype(str) + '# ' +
+                                    df_selected['dv_facing'].astype(str)
+                                )
+
+                                df_selected['valve_code'] = (
+                                    df_selected['valve_type'].astype(str) + '-' +
+                                    df_selected['proccess_type'].astype(str) + '-' +
+                                    df_selected['process_size'].astype(str) +  ' ' +
+                                    df_selected['process_rating'].astype(str) + '# ' +
+                                    df_selected['process_facing'].astype(str) + '-' +
+                                    df_selected['nipple_hex'].astype(str) + '-' +
+                                    df_selected['dv_size'].astype(str)
+                                )
+
+                                df_selected['valve_drawing'] = np.where(
+                                    df_selected['proccess_type'].astype(str) == 'Flanged',
+                                    rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-1 Cnj V-260 Brid.pdf",
+                                    rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-2 Cnj V-260 Boqt.pdf"
+                                )
+
+                                df_selected['nipple_hex_drawing'] = np.where(
+                                    df_selected['nipple_hex'].astype(str) == '1/2" NPT',
+                                    rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\NU-Niplos - Uniones\N-Niplos\E-Exagonales\XNUNE22-0.5NPT.MM Genérico.pdf",
+                                    rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\X-Comunes\NU-Niplos - Uniones\N-Niplos\E-Exagonales\XNUNE27-0.75NPT.MM Genérico.pdf"
+                                )
+
+                                for item in df_selected['level_type'].unique().tolist():
+                                    if item == 'Visual':
+                                        grouped_body_level = self.create_df_body_level(df_selected)
+                                        grouped_cover_level = self.create_df_cover_level(df_selected)
+                                        grouped_nipple_hex_level = self.create_df_hex_nipple_level(df_selected)
+                                        grouped_general_valves = self.create_df_valves_level(df_selected)
+                                        grouped_details_valves = self.create_df_details_valves_level(df_selected)
+
+                                        for _, row in grouped_body_level.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(body_dwg_level(self.numorder, row["body_material"], zip(row["model_body"], row["nipple_hex"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Cuerpos " + row["drawing_path"].split("-")[-1] + " " + str(row["body_material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Cuerpos " + row["drawing_path"].split("-")[-1] + " " + str(row["body_material"]), str(sum(row["count"]))]
+
+                                        for _, row in grouped_cover_level.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(cover_dwg_level(self.numorder, row["cover_material"], zip(row["base_section"], row["section_qty"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Cubiertas " + str(row["cover_material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Cuerpos" + str(row["model_num"]) + " " + str(row["body_material"]), str(sum(row["count"]))]
+
+                                        for _, row in grouped_nipple_hex_level.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["nipple_hex_drawing"]
+                                            count = [x * 2 for x in row["count"]] if isinstance(row["count"], list) else row["count"] * 2
+
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(nipple_hex_dwg_level(self.numorder, row["body_material"], count)).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(count)) + " Niplos Hex " +  row["nipple_hex"] + " " + str(row["body_material"]), str(sum(count))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(count)) + " Niplos Hex " +  row["nipple_hex"] + " " + str(row["body_material"]), str(sum(count))]
+
+                                        for _, row in grouped_general_valves.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["valve_drawing"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(valves_dwg_level(self.numorder, row["valve_type"], zip(row['process_connection'], row['nipple_hex'], row['dv_connection'], row['count']))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " válvulas " + str(row["valve_type"]) + " " + str(row["nipple_hex"][0]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " válvulas " + str(row["valve_type"]) + " " + str(row["nipple_hex"]), str(sum(row["count"]))]
+
+                                        for _, row in grouped_details_valves.iterrows():
+                                            drawings_dict = {}
+
+                                            material = 'A105' if 'NB' in row['valve_type'] else '316'
+
+                                            coded_connection = (('-0' + (row['process_connection'].split(' ')[0].split('"')[0] + '.0') if len(row['process_connection'].split(' ')[0]) == 2 else 
+                                                                        ('-01.5' if '1-1/2' in row['process_connection'].split(' ')[0] else 
+                                                                        ('-0.5' if '1/2' in row['process_connection'].split(' ')[0] else 
+                                                                        ('-0.75' if '3/4' in row['process_connection'].split(' ')[0] else '.0')))) +
+                                                                    ('-0' + str(row['process_connection'].split(' ')[1].split('#')[0]) if str(row['process_connection'].split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-') + ' ' + str(row['process_connection'].split(' ')[2]))
+
+                                            if coded_connection in ['-0.75-0150 RF', '-0.75-0300 RF', '-01.0-0150 RF', '-01.0-0300 RF', '-1.5-0150 RF']:
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
+                                            else:
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B{coded_connection}.pdf"
+                                            drawing_path_2 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
+                                            drawing_path_3 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
+                                            drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if row['process_connection'].split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if row['process_connection'].split(' ')[2] == 'RF' else 'RTJ'}{coded_connection.split(' ')[0]}.pdf"
+
+                                            description_1 = 'Bridas de desbaste PC ' + row['process_connection']
+                                            description_2 = 'Cuerpos Válvula 2V260 ' + material
+                                            description_3 = 'Mecanizado conjunto brida-cuerpo ' + material
+                                            description_4 = 'Plano acabado brida ' + row['process_connection'] + ' ' + material
+
+                                            drawings_dict.update({drawing_path_1: description_1,
+                                                                drawing_path_2: description_2,
+                                                                drawing_path_3: description_3,
+                                                                drawing_path_4: description_4,})
+
+                                            for drawing, description in drawings_dict.items():
+                                                counter_drawings += 1
+                                                if os.path.exists(drawing):
+                                                    writer = PdfWriter()
+                                                    reader = PdfReader(drawing)
+                                                    base_page = reader.pages[0]
+
+                                                    count = [x * 2 for x in row["count"]] if isinstance(row["count"], list) else row["count"] * 2
+                                                    if 'CUERPO' in description.upper():
+                                                        pdf_buffer = dwg_m_landscape(self.numorder, count, material)
+                                                    else:
+                                                        pdf_buffer = general_dwg_m(self.numorder, count)
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
+
+                                                    writer.write(str(output_path_M / f"M-{counter_drawings:02d}.pdf"))
+                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", str(sum(count)) + " " + description, str(sum(count))]
+                                                else:
+                                                    dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(count)) + " " + description, str(sum(count))]
+
+                            if self.table_toquery == "tags_data.tags_others" or self.table_toquery2 == "tags_data.tags_others":
                             # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
                                 query = ('''
                                     SELECT id_tag_others, description, code_equipment, dim_drawing
                                     FROM tags_data.tags_others
-                                    WHERE UPPER (num_order) ILIKE %s and tag_state = 'PURCHASED' and position NOT LIKE '%%ZZZ%%'
+                                    WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
                                     ''')
 
                                 try:
@@ -4211,7 +4377,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             if coded_connection in ['-0.75-0150 RF', '-0.75-0300 RF', '-01.0-0150 RF', '-01.0-0300 RF', '-1.5-0150 RF']:
                                                 drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
                                             else:
-                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B{coded_connection}.pdf"
+                                                drawing_path_1 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-{'CL' if 'CL' in description_parts else 'B'}{coded_connection}.pdf"
                                             drawing_path_2 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
                                             drawing_path_3 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
                                             drawing_path_4 = rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection.split(' ')[0]}.pdf"
@@ -4281,6 +4447,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
                                                             + str(error), "critical")
 
+                                            counter_drawings = 0
                                             for drawing, description in drawings_dict.items():
                                                 counter_drawings += 1
                                                 with open(drawing, 'rb') as f:
@@ -4511,33 +4678,46 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 dict_drawings[str(output_path_M / f"M-{counter_drawings:02d}.pdf")] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
 
                             # Loop to add the drawing number and insert into the database
-                                for key, value in dict_drawings.items():
-                                    if os.path.exists(key):
-                                        writer = PdfWriter()
-                                        reader = PdfReader(key)
-                                        if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras', 'Orientación', 'Posicionado']):
-                                            page_overlay, num_ot = drawing_number_landscape(self.numorder, value, counter_drawings)
-                                        else:
-                                            page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
-                                        reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
-                                        writer.add_page(reader.pages[0])
+                            mcode_to_numot = {}
+                            for key, value in dict_drawings.items():
+                                if os.path.exists(key):
+                                    writer = PdfWriter()
+                                    reader = PdfReader(key)
+                                    if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras', 'Orientación', 'Posicionado']):
+                                        page_overlay, num_ot = drawing_number_landscape(self.numorder, value, counter_drawings)
+                                    else:
+                                        page_overlay, num_ot = drawing_number(self.numorder, value, counter_drawings)
+                                    reader.pages[0].merge_page(page2=PdfReader(page_overlay).pages[0])
+                                    writer.add_page(reader.pages[0])
 
-                                        writer.write(key)
+                                    writer.write(key)
 
-                                    query_insert_drawing = ("""
-                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
-                                        VALUES (%s, %s, %s, %s, %s)
-                                        """)
+                                    m_code = key.stem if hasattr(key, "stem") else os.path.basename(key).split(".")[0]  # obtiene "M-01"
+                                    mcode_to_numot[m_code] = num_ot
 
-                                    try:
-                                        with Database_Connection(config_database()) as conn:
-                                            with conn.cursor() as cur:
-                                                cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
-                                            conn.commit()
+                                query_insert_drawing = ("""
+                                    INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                    VALUES (%s, %s, %s, %s, %s)
+                                    """)
 
-                                    except (Exception, psycopg2.DatabaseError) as error:
-                                        MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
-                                                    + str(error), "critical")
+                                try:
+                                    with Database_Connection(config_database()) as conn:
+                                        with conn.cursor() as cur:
+                                            cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                        conn.commit()
+
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                + str(error), "critical")
+
+                            if self.table_toquery == "tags_data.tags_flow":
+                                for item in list_items_drawings:
+                                    m_code = item[1]  # "M-01"
+                                    item.append(mcode_to_numot.get(m_code))
+    
+                                df = pd.DataFrame(list_items_drawings, columns=['TAGS', 'PLANO M', 'NUM_OT'])
+                                df_expanded = df.explode('TAGS').reset_index(drop=True)
+                                df_expanded.to_excel(str(output_path_M / f"Planos M.xlsx"), index=False, header=True)
 
                             MessageHelper.show_message("Planos Generados", "info")
 
@@ -4545,8 +4725,51 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                         except (Exception, psycopg2.DatabaseError) as error:
                             print(error)
-                            MessageHelper.show_message("Ha ocurrido un error:\n"
-                                        "Los planos no se han podido generar", "critical")
+                            MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
+                                                    + str(error), "critical")
+
+
+    def create_M_drawings(self,
+        grouped_df,
+        overlay_func,
+        overlay_args_func,
+        output_path,
+        counter_drawings,
+        dict_drawings,
+        description_func
+    ):
+        for _, row in grouped_df.iterrows():
+            counter_drawings += 1
+
+            output_file = output_path / f"M-{counter_drawings:02d}.pdf"
+            drawing_path = row["drawing_path"]
+
+            if os.path.exists(drawing_path):
+                reader = PdfReader(drawing_path)
+                writer = PdfWriter()
+
+                overlay_pdf = overlay_func(*overlay_args_func(row))
+                page_overlay = PdfReader(overlay_pdf).pages[0]
+
+                reader.pages[0].merge_page(page_overlay)
+                writer.add_page(reader.pages[0])
+
+                with open(output_file, "wb") as f:
+                    writer.write(f)
+
+                dict_drawings[str(output_file)] = [
+                    output_file.name,
+                    description_func(row),
+                    str(sum(row["count"]))
+                ]
+            else:
+                dict_drawings[str(output_file)] = [
+                    output_file.name,
+                    f"FALTA PLANO // {description_func(row)}",
+                    str(sum(row["count"]))
+                ]
+
+        return counter_drawings
 
 
 # Functions to create dataframes for items drawings
@@ -4562,7 +4785,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe['drawing_path'] = dataframe.apply(
-        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
+        lambda row: (rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf" if row['type'] != 'Flanged TWP' else
+                rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\VL-Vainas Largas\{str(row['drawing_code'])}-ø{str(row['base_tw_diam'])}.pdf"),
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
@@ -4573,7 +4797,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
     def create_df_bars_flanged_tw(self, dataframe):
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
-        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - float(row['tip_thk']) - 3,axis=1)
+        dataframe['p_length'] = dataframe.apply(lambda row: (int(row['std_length']) if row['puntal'] == 'N/A' else int(str(row['puntal']).split(' ')[2])) - float(row['tip_thk']) - 3,axis=1)
 
         dataframe['drawing_code'] = dataframe.apply(
         lambda row: 'TVSCP-Ø' + str(int(row['base_tw_diam'])) + ' Corte-Taladro',
@@ -4584,10 +4808,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-        df_grouped = dataframe.groupby(["drawing_path",'base_tw_diam','material', "bore_diam", "std_length","p_length"]).size().reset_index(name="count")
-        grouped_bars = df_grouped.groupby(['drawing_path','base_tw_diam','material']).agg({"bore_diam":list, "std_length": list, "p_length": list, "count": list}).reset_index()
+        df_grouped = dataframe.groupby(["type","drawing_path",'base_tw_diam','material', "bore_diam", "std_length","p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['type','drawing_path','base_tw_diam','material']).agg({"bore_diam":list, "std_length": list, "p_length": list, "count": list}).reset_index()
 
         return grouped_bars
+
+    def create_df_tubes_flanged_tw(self, dataframe):
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\B-Barra perforada\TVSBP-01.3 Corte tubo.pdf",
+        axis=1)
+
+        df_grouped = dataframe.groupby(["drawing_path", "material", "std_length"]).size().reset_index(name="count")
+        grouped_tubes = df_grouped.groupby(['drawing_path','material']).agg({"std_length": list, "count": list}).reset_index()
+
+        return grouped_tubes
 
     def create_df_not_flanged_tw(self, dataframe):
         # For thermowell with base below 35 mm, p_lenght is 3 mm shorter
@@ -4886,6 +5120,80 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         df_grouped = df_welding.groupby(['drawing_path','material', 'flange_type']).size().reset_index(name="count")
         grouped_welding = df_grouped.groupby(['drawing_path', 'material', 'flange_type']).agg({"count": list}).reset_index()
         return grouped_welding
+
+    def create_df_body_level(self, dataframe):
+        df_body_level = dataframe.copy()
+
+        df_body_level['drawing_path'] = df_body_level.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\C-Cuerpos" +
+                    (rf"\S-Estandar" if '-S' in row['model'] else (rf"HH-Muy Alta Presión" if '-HH' in row['model'] else rf"\H-Alta Presión")) +
+                    (rf"\NVCS-" if '-S' in row['model'] else (rf"\NCHH-" if '-HH' in row['model'] else rf"\NVCH-")) +
+                    rf"{row['model'][4]}S{row['model'][-1]}-" + 
+                    rf"{row['model'][4]}" +
+                    (rf"SecTrnsp" if row['model'][-1] == 'T' else rf"SecRefl") +
+                    rf".pdf",
+                    axis=1)
+
+        df_grouped = df_body_level.groupby(['drawing_path', 'body_material', 'model_body', 'nipple_hex']).size().reset_index(name="count")
+        grouped_body_level = df_grouped.groupby(['drawing_path', 'body_material']).agg({'model_body': list,'nipple_hex': list, 'count': list}).reset_index()
+
+        return grouped_body_level
+
+    def create_df_cover_level(self, dataframe):
+        df_cover_level = dataframe.copy()
+
+        df_cover_level['base_section'] = df_cover_level.apply(lambda row: '21' + row['model_body'][-1], axis=1)
+        df_cover_level['section_qty'] = df_cover_level.apply(lambda row: row['model_body'][4], axis=1)
+
+        df_grouped = df_cover_level.groupby(['cover_material', 'model_body','base_section', 'section_qty']).size().reset_index(name="count")
+        grouped_cover_level = df_grouped.groupby(['cover_material', 'model_body']).agg({'base_section': list,'section_qty': list, 'count': list}).reset_index()
+
+        grouped_cover_level['drawing_path'] = grouped_cover_level.apply(
+        lambda row: rf"\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\Q-Cubiertas" +
+                    (rf"\NVQ-S CubStand" if '-S' in row['model_body'] else (rf"NVQ-HH CubMuyAltaPres" if '-HH' in row['model_body'] else rf"NVQ-H CubAltaPres")) +
+                    rf".pdf",
+        axis=1)
+
+        return grouped_cover_level
+
+    def create_df_hex_nipple_level(self, dataframe):
+        df_hex_nipple = dataframe.copy()
+
+        df_grouped = df_hex_nipple.groupby(['nipple_hex_drawing', 'body_material', 'nipple_hex']).size().reset_index(name="count")
+        grouped_hex_nipple = df_grouped.groupby(
+            ['nipple_hex_drawing', 'body_material', 'nipple_hex']
+            ).agg(
+                {'count': list}
+                ).reset_index()
+
+        return grouped_hex_nipple
+
+    def create_df_valves_level(self, dataframe):
+        df_general_valves = dataframe.copy()
+
+        df_grouped = df_general_valves.groupby(['valve_drawing','valve_type', 'process_connection', 'nipple_hex', 'dv_connection']).size().reset_index(name="count")
+        grouped_general_valves = df_grouped.groupby(
+            ['valve_drawing', 'valve_type']
+            ).agg(
+                {'process_connection': list, 'nipple_hex': list, 'dv_connection': list, 'count': list}
+                ).reset_index()
+
+        return grouped_general_valves
+
+    def create_df_details_valves_level(self, dataframe):
+        df_details_valves = dataframe.copy()
+
+        df_grouped = df_details_valves.groupby(['valve_type','process_connection']).size().reset_index(name="count")
+        grouped_details_valves = df_grouped.groupby(
+            ['valve_type', 'process_connection']
+            ).agg(
+                {'count': list}
+                ).reset_index()
+
+        return grouped_details_valves
+
+
+
 
     def drawings_tw_32218(self, equipment_count):
         drawings_dict = {}
