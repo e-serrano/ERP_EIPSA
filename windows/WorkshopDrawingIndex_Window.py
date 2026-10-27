@@ -1759,7 +1759,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.modelDim.setAllColumnHeaders(headers)
 
                 self.tableDimDwg.hideColumn(0)
-                if self.username != 'm.gil':
+                if self.username not in ['m.gil', 'e.munez', 'j.segura']:
                     self.tableDimDwg.hideColumn(4)
                 self.tableDimDwg.hideColumn(9)
 
@@ -1816,7 +1816,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.modelOf.setAllColumnHeaders(headers)
 
                 self.tableOfDwg.hideColumn(0)
-                if self.username != 'm.gil':
+                if self.username not in ['m.gil', 'e.munez', 'j.segura']:
                     self.tableOfDwg.hideColumn(4)
                 self.tableOfDwg.hideColumn(9)
 
@@ -1874,7 +1874,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.modelM.setAllColumnHeaders(headers)
 
                 self.tableMDwg.hideColumn(0)
-                if self.username != 'm.gil':
+                if self.username not in ['m.gil', 'e.munez', 'j.segura']:
                     self.tableMDwg.hideColumn(4)
                 self.tableMDwg.hideColumn(9)
                 self.tableMDwg.hideColumn(12)
@@ -1935,7 +1935,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         for column in range(columns_number):
             self.tableALDwg.setItemDelegateForColumn(column, None)
 
-        self.tableALDwg.setItemDelegate(AlignDelegate_M(self.tableALDwg))
+        self.tableALDwg.setItemDelegate(AlignDelegate(self.tableALDwg))
         self.tableALDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableALDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableALDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
@@ -1953,7 +1953,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.modelAL.setAllColumnHeaders(headers)
 
         self.tableALDwg.hideColumn(0)
-        if self.username != 'm.gil':
+        if self.username not in ['m.gil', 'e.munez', 'j.segura']:
             self.tableALDwg.hideColumn(5)
         self.tableALDwg.hideColumn(9)
         self.tableALDwg.hideColumn(12)
@@ -2635,7 +2635,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         If the number of drawings to insert is valid, it inserts the records into the appropriate table. 
         Displays relevant message boxes for error handling, warnings, and successful operations.
         """
-        if self.username in ['m.gil', 'j.martinez']:
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             MessageHelper.show_message("Este módulo no esta disponible para tí corazón ❤️", "warning")
 
         else:
@@ -2853,7 +2853,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
         Adds descriptions on tables based on drawing number
         """
-        if self.username in ['m.gil', 'j.martinez']:
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             MessageHelper.show_message("Este módulo no esta disponible para tí corazón ❤️", "warning")
 
         else:
@@ -3531,7 +3531,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to add date when drawing is printed
     def print_drawings(self):
-        if self.username != 'm.gil':
+        if self.username not in ['m.gil', 'e.munez', 'j.segura']:
             selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
             if len(selected_indexes) > 0:
                 for index in selected_indexes:
@@ -3655,7 +3655,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to generate drawings based on the order number and equipment type
     def generate_drawings(self):
-        if self.username in ['m.gil', 'j.martinez']:
+        if self.username in ['m.gil', 'e.munez', 'j.segura']:
             MessageHelper.show_message("Este módulo no esta disponible para tí corazón ❤️", "warning")
 
         else:
