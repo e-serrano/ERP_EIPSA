@@ -492,6 +492,17 @@ class Ui_OTFabOrder_Window(object):
                                         trad_float, codefab_mica, trad_mica, codefab_flags, trad_flags,
                                         codefab_gasketflange, trad_gasketflange, codefab_niptub, trad_niptub, codefab_antifrost, trad_antifrost]
 
+                elif self.variable == 'Otros':
+                    ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 1))
+                    dim_dwg = self.model.data(self.model.index(target_row, 15))
+                    num_of = self.model.data(self.model.index(target_row, 16))
+                    codefab_eq = "FAB-" + self.model.data(self.model.index(target_row, 8))
+                    trad_eq = self.model.data(self.model.index(target_row, 8))
+                    list_dim = [dim_dwg]
+                    list_of = [num_of]
+                    list_trad = [codefab_eq, trad_eq]
+                    list_materials = []
+
                 list_dim.insert(0, ped_type_tag)
                 data_dim.append(list_dim)
                 list_of.insert(0, ped_type_tag)
@@ -522,7 +533,7 @@ class Ui_OTFabOrder_Window(object):
             if "Plano Dimensional" in self.tableOT.item(row, 0).text():
                 drawing = df_dim[df_dim.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
             else:
-                if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
+                if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']) and self.variable == 'Temperatura':
                     drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
                 else:
                     drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
@@ -538,31 +549,32 @@ class Ui_OTFabOrder_Window(object):
             elif self.variable == 'Temperatura':
                 orientation = 'Horizontal' if 'Dimensional' in self.tableOT.item(row, 0).text() else 'Vertical'
             else:
-                orientation = ''
+                orientation = 'Horizontal' if 'Dimensional' in self.tableOT.item(row, 0).text() else 'Vertical'
 
             it = QtWidgets.QTableWidgetItem(str(orientation))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(row, 9, it)
 
     # Setting materials in the table
-        df_materials = pd.DataFrame(data_materials)
-        for row in range(self.tableOT.rowCount()):
-            if "Plano Dimensional" in self.tableOT.item(row, 0).text():
-                if any(value in self.tableOT.item(row, 2).text() for value in ['-P-', '-RO-']):
-                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+        if data_materials:
+            df_materials = pd.DataFrame(data_materials)
+            for row in range(self.tableOT.rowCount()):
+                if "Plano Dimensional" in self.tableOT.item(row, 0).text():
+                    if any(value in self.tableOT.item(row, 2).text() for value in ['-P-', '-RO-']):
+                        drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                    else:
+                        drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
                 else:
-                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
-            else:
-                if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
-                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
-                elif any(value in self.tableOT.item(row, 1).text() for value in ['-P-', '-RO-', '-F+P-']):
-                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
-                else:
-                    drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
+                    if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100', 'T/C']):
+                        drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                    elif any(value in self.tableOT.item(row, 1).text() for value in ['-P-', '-RO-', '-F+P-']):
+                        drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
+                    else:
+                        drawing = df_materials[df_materials.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
 
-            it = QtWidgets.QTableWidgetItem(str(drawing))
-            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-            self.tableOT.setItem(row, 10, it)
+                it = QtWidgets.QTableWidgetItem(str(drawing))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(row, 10, it)
 
         self.tableOT.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOT.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)

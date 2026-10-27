@@ -23,7 +23,8 @@ HEADERS = {
                 "CodFabJunta", "QJunta", "CFabVidrio", "QVidrio", "CFabFlot",
                 "QFlot", "CFabMica", "QMica", "CFabFlags", "QFlags",
                 "CodFabJuntaBrida", "QJuntaBrida", "CFabNipTub", "QNipTub",
-                "CFabFrost","QFrost"], [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35])
+                "CFabFrost","QFrost"], [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]),
+    "Otros": (["Tag", "PTTAG (Dim.)", "Descripción", "QEq"], [1, 2])
 }
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -244,6 +245,13 @@ class Ui_CreateFabOrder_Window(object):
                                         codefab_gasketglass, qty_gasketglass, codefab_glass, qty_glass, codefab_float,
                                         qty_float, codefab_mica, qty_mica, codefab_flags, qty_flags,
                                         codefab_gasketflange, qty_gasketflange, codefab_niptub, qty_niptub, codefab_antifrost, qty_antifrost])
+
+                elif self.variable == "Otros":
+                    tag = self.model.data(self.model.index(target_row, 1))
+                    ped_type_tag = self.model.data(self.model.index(target_row, 4)) + "-" + self.model.data(self.model.index(target_row, 1))
+                    codefab_equipment = "FAB-" + self.model.data(self.model.index(target_row, 8))
+                    qty_equipment = "1"
+                    data_list.append([tag, ped_type_tag, codefab_equipment, qty_equipment])
 
         self.tableElements.setRowCount(len(data_list) + 1)
         tablerow=1

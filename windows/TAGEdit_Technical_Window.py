@@ -2431,7 +2431,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         break
 
             else:
-                if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
+                if self.variable in ['Caudal', 'Temperatura', 'Nivel', 'Otros']:
                     self.createfaborder_window=QtWidgets.QMainWindow()
                     self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
                     self.ui.setupUi(self.createfaborder_window)
