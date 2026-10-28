@@ -2158,7 +2158,7 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
         pdf.cell(11, 5, str(bore_diam), align='C')
         pdf.cell(12, 5, str(thickness), align='C')
         pdf.cell(11, 5, str(dv_diam) if str(dv_diam) != 'None' else 'N/A', align='C')
-        pdf.fixed_height_multicell(30, 5, (str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else '') +
+        pdf.fixed_height_multicell(35, 5, (str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else '') +
                     ('/ISO 15156' if num_order[:8] == 'P-26/027' and str(notes) not in  ['None', 'NO', 'N/A'] else '') + 
                     ('\n' + aprox_weight if num_order[:8] == 'P-26/027' else ''), 'L')
 
@@ -2215,7 +2215,7 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
         pdf.fixed_height_multicell(31, 5, f"{customer}", 'C')
         pdf.set_xy(x, y + 10)
         pdf.fixed_height_multicell(38, 9, f"{project}", 'C')
-        pdf.set_xy(x + 38, y)
+        pdf.set_xy(x + 38, y + 10)
         pdf.fixed_height_multicell(31, 9, f"{po_number}", 'C')
 
 # Materials and quantities
@@ -2510,7 +2510,7 @@ def dwg_dim_ro(num_order: str, tag: str,
         pdf.cell(9, 5, str(pipe_int_diam), align='C')
         pdf.cell(9, 5, str(bore_diam), align='C')
         pdf.cell(9, 5, str(thickness), align='C')
-        pdf.cell(20, 5, ((str(notes) + ' // ') if str(notes) not in  ['None', 'NO', 'N/A'] else ' ') + str(weight), align='L')
+        pdf.fixed_height_multicell(35, 5, (str(notes) if str(notes) not in  ['None', 'NO', 'N/A'] else ' '), 'L')
 
     pdf.set_xy(196, 178)
     with pdf.rotation(270):
