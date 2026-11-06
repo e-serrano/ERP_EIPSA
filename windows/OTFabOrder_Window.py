@@ -563,14 +563,24 @@ class Ui_OTFabOrder_Window(object):
         for i in range(0, self.tableOT.rowCount()):
             text_col_0 = self.tableOT.item(i, 0).text()
 
-            if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or "RO" in text_col_0):
-                tag = self.tableOT.item(i, 1).text()
-                ot = tag_to_ot.get(tag)
+            with Database_Connection(config_database()) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(check_ot, (self.tableOT.item(i, 0).text(),))
+                    results_check=cur.fetchall()
 
-                if ot:
-                    it = QtWidgets.QTableWidgetItem(ot)
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOT.setItem(i, 4, it)
+            if not results_check:
+                if "Plano Dimensional" in text_col_0 and ("F+P" in text_col_0 or "RO" in text_col_0):
+                    tag = self.tableOT.item(i, 1).text()
+                    ot = tag_to_ot.get(tag)
+
+                    if ot:
+                        it = QtWidgets.QTableWidgetItem(ot)
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableOT.setItem(i, 4, it)
+            else:
+                it = QtWidgets.QTableWidgetItem(str(results_check[0][4]))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(i, 4, it)
 
                 it = QtWidgets.QTableWidgetItem(date.today().strftime("%d/%m/%Y"))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
@@ -651,7 +661,7 @@ class Ui_OTFabOrder_Window(object):
             wb = Workbook()
             ws = wb.active
 
-            # Add data to Excel
+        # Add data to Excel
             for index, row in df_toexport.iterrows():
                 fecha_str = row['FECHA']
                 if fecha_str is not None:
@@ -671,11 +681,11 @@ class Ui_OTFabOrder_Window(object):
             for r_idx, row in enumerate(dataframe_to_rows(df_toexport, index=False, header=True), 1):
                 ws.append(row)
 
-            # Date and OT_Number Style
+        # Date and OT_Number Style
             date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
             otnum_style = NamedStyle(name='otnum_style', number_format='000000')
 
-            # Apply Styles
+        # Apply Styles
             for cell in ws['F']:
                 cell.style = date_style
 
@@ -693,6 +703,7 @@ class Ui_OTFabOrder_Window(object):
                 worksheet['B2'].value = self.num_ot
                 workbook.save(excel_file_path)
 
+        # Asking user if they want to include frame and barcode in the drawings, and processing accordingly
             if MessageHelper.ask_yes_no("¿Quieres incluir marco y código de barras en planos ahora?\n", "ERP EIPSA"):
                 folder_path = os.path.dirname(output_path)
                 df = pd.read_excel(output_path, dtype={'OT': str})
