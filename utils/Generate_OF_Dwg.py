@@ -383,6 +383,7 @@ def generate_of_drawings(numorder, list_drawings):
                             of_drawing_path = get_path("4 PLANOS AUTOMATICOS", "OF", "02 TEMPERATURA", of_drawing_filename)
 
                             if of_drawing_path is None or not os.path.exists(of_drawing_path):
+                                MessageHelper.show_message(f"No existe el archivo de dibujo OF: {of_drawing_path}", "warning")
                                 continue
 
                             reader = PdfReader(of_drawing_path)
