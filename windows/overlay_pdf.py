@@ -3586,7 +3586,7 @@ def dwg_dim_glass_level(num_order: str, tag: str, item_type: str,
 
 
 # Functions to create OF drawings PDFs
-def dwg_of_op_ro_rf(item_type, num_order, count_drawings, connection, element_material, of_drawing, of_drawing_date, of_drawing_rev,
+def dwg_of_op_ro_rf(item_type, num_order, count_drawings, connection, element_material, gasket_material, of_drawing, of_drawing_rev,
                     handle_height, handle_width, handle_thickness, plate_c_dim, plate_ext_diam, plate_type, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -3734,7 +3734,7 @@ def dwg_of_op_ro_rf(item_type, num_order, count_drawings, connection, element_ma
 
     return io.BytesIO(pdf.output())
 
-def dwg_of_op_ro_rtj(item_type, num_order, count_drawings, connection, element_material, of_drawing, of_drawing_date, of_drawing_rev,
+def dwg_of_op_ro_rtj(item_type, num_order, count_drawings, connection, element_material, gasket_material, of_drawing, of_drawing_rev,
                     plate_c_dim, rtj_thickness, plate_type, handle_height, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
@@ -3764,7 +3764,7 @@ def dwg_of_op_ro_rtj(item_type, num_order, count_drawings, connection, element_m
     item_list = list(item_data)
     total_blocks = math.ceil(len(item_list) / block_size)
 
-    # gasket_main_material = gasket_material.split(";")[0].replace("ORTJ Type", "").strip()
+    gasket_main_material = gasket_material.split(";")[0].replace("ORTJ Type", "").strip()
 
     # Equipment data
     for block_index, start in enumerate(range(0, len(item_list), block_size), start=1):
@@ -3828,7 +3828,6 @@ def dwg_of_op_ro_rtj(item_type, num_order, count_drawings, connection, element_m
                 with conn.cursor() as cur:
                     cur.execute(query_plate_dimensions, (plate_dimensions,))
                     results_ro = cur.fetchall()
-                    print(results_ro)
                     p_diam = results_ro[0][0]
                     r_number = results_ro[0][1]
                     internal_plate_size = results_ro[0][2]
@@ -3951,11 +3950,11 @@ def dwg_of_op_ro_rtj(item_type, num_order, count_drawings, connection, element_m
         pdf.set_xy(33, 166)
         with pdf.rotation(270):
             pdf.cell(14, 7, f"{total_count}", align='C')
-            # if item_type in ['RO', 'M.RUN']:
-            pdf.cell(41, 7, f"{element_material}", align='C')
-            # else:
-            #     pdf.fixed_height_multicell(41, 7, gasket_main_material + " +\n" +f"{element_material}", 'C')
-            #     pdf.set_xy(89, 166)
+            if item_type in ['RO', 'M.RUN']:
+                pdf.cell(41, 7, f"{element_material}", align='C')
+            else:
+                pdf.fixed_height_multicell(41, 7, gasket_main_material + " +\n" +f"{element_material}", 'C')
+                pdf.set_xy(89, 166)
             pdf.cell(35, 7, f"{connection}", align='C')
             pdf.cell(37, 7, f"{num_order}", align='C')
 
