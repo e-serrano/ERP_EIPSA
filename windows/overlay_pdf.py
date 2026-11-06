@@ -4154,7 +4154,7 @@ def dwg_of_thermowell(tw_type, num_order, count_drawings, connection, material_t
         pdf.set_xy(164, 84)
         pdf.cell(5, 3, str(conical_length), align='C')
 
-    if (tw_type == 'Flanged TW' and int(insertion_length) > 500):
+    if ((tw_type == 'Flanged TW' or tw_type == 'Forged Flanged TW') and int(insertion_length) > 500):
         pdf.set_xy(164, 112)
         pdf.cell(6, 3, str(straight_length), align='C')
 
