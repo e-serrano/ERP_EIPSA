@@ -484,7 +484,7 @@ def create_df_orifice_plates(dataframe):
     df_plates = df_plates.sort_values(by="tag")
 
     grouped_plates = df_plates.groupby(['plate_type', 'of_drawing_path', 'connection', 'of_drawing', 'of_drawing_date',
-        'plate_ext_diam', 'plate_c_dim', 'handle_height', 'handle_width', 'handle_thickness', 'rtj_thickness']).agg(
+        'plate_ext_diam', 'plate_c_dim', 'handle_height', 'handle_width', 'handle_thickness', 'rtj_thickness', 'gasket_material']).agg(
         {"tag": list, "line_size": list, "rating": list, "facing": list, "schedule": list, "element_material": list, "pipe_int_diam": list,
         "orif_diam": list, "plate_thk": list, "dv_diam": list, "w_diam": list, 'of_drawing_rev': list}
         ).reset_index()
@@ -530,8 +530,7 @@ def create_df_multistage_ro(dataframe):
 
     df_ms_ro = df_ms_ro.sort_values(by="tag")
 
-    grouped_ms_ro = df_ms_ro.groupby(['of_drawing_path', 'of_drawing', 'flange_material', 'tube_material', 'element_material',
-                                    'rtj_thickness', 'rtj_r_type', 'rtj_p_diam', 'rtj_e_dim', 'rtj_f_dim']).agg(
+    grouped_ms_ro = df_ms_ro.groupby(['of_drawing_path', 'of_drawing', 'flange_material', 'tube_material', 'element_material']).agg(
                                         {"tag": list, "line_size": list, "rating": list, "facing": list, "schedule": list,
                                         "stages_number": list, "pipe_int_diam": list, "aprox_length": list, "nace": list}).reset_index()
 
