@@ -2140,7 +2140,7 @@ def dwg_dim_flange_plate(num_order: str, tag: str,
     pdf.add_page()
 
 # Tapping Size
-    if not 'FL' in str(tapping_size):
+    if not any(x in str(tapping_size).upper() for x in ['FL', 'NIPPLE', 'HOLD', 'N/A', 'OTHERS']):
         pdf.set_xy(183, 40)
         with pdf.rotation(270):
             pdf.cell(21, 5, str(tapping_size), align='C')
