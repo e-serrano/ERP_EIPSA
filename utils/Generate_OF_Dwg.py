@@ -259,13 +259,13 @@ def generate_of_drawings(numorder, list_drawings):
                             base_page_template = reader.pages[0]
 
                             if 'RF' in row['connection'] or 'FF' in row['connection']:
-                                pdf_buffer = dwg_of_op_ro_rf(item_type, numorder, count_of_drawings, row["connection"], row["element_material"], row["of_drawing"], row["of_drawing_date"], row["of_drawing_rev"],
+                                pdf_buffer = dwg_of_op_ro_rf(item_type, numorder, count_of_drawings, row["connection"], row["element_material"], row["gasket_material"], row["of_drawing"], row["of_drawing_rev"],
                                                                 row["handle_height"], row["handle_width"], row["handle_thickness"], row["plate_c_dim"], row["plate_ext_diam"], row["plate_type"],
                                                                 zip(row["tag"], row["line_size"], row["rating"], row["facing"], row["schedule"], row["element_material"], row["pipe_int_diam"],
                                                                 row["orif_diam"], row["plate_thk"], row["dv_diam"], row["w_diam"], row["count"], row["of_drawing_rev"]))
 
                             elif 'RTJ' in row['connection']:
-                                pdf_buffer = dwg_of_op_ro_rtj(item_type, numorder, count_of_drawings, row["connection"], row["element_material"], row["of_drawing"], row["of_drawing_date"], row["of_drawing_rev"],
+                                pdf_buffer = dwg_of_op_ro_rtj(item_type, numorder, count_of_drawings, row["connection"], row["element_material"], row["gasket_material"], row["of_drawing"], row["of_drawing_rev"],
                                                                 row["plate_c_dim"], row["rtj_thickness"], row["plate_type"], row["handle_height"],
                                                                 zip(row["tag"], row["line_size"], row["rating"], row["facing"], row["schedule"], row["element_material"], row["pipe_int_diam"],
                                                                 row["orif_diam"], row["plate_thk"], row["dv_diam"], row["w_diam"], row["count"]))
