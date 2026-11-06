@@ -1267,7 +1267,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             else:
                 self.variable = self.general_variable
-                table, c, d, e, headers = VARIABLE_TABLES[self.variable]
+                table, c, d, e, headers, money_columns = VARIABLE_TABLES[self.variable]
 
                 self.model.table_check = table
                 self.initial_column, self.column_difference, self.excluded_range = c, d, e
@@ -1280,6 +1280,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 self.proxy.setSourceModel(self.model)
                 self.tableEditTags.setModel(self.proxy)
+
+                self.proxy.money_columns = money_columns
 
                 self.model.setAllColumnHeaders(headers)
 
