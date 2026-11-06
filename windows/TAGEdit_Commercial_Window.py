@@ -29,10 +29,10 @@ from utils.Helpers import FLOW_HEADERS, TEMP_HEADERS, LEVEL_HEADERS, OTHERS_HEAD
 from dataclasses import dataclass
 
 VARIABLE_TABLES = {
-    "Caudal": ("tags_data.tags_flow", 44, 153, list(range(101, 107)) + [160, 161], FLOW_HEADERS), # table_check, initial_column, column_difference, excluded_range, headers
-    "Temperatura": ("tags_data.tags_temp", 51, 133, list(range(74, 82)) + [140, 141, 142], TEMP_HEADERS),
-    "Nivel": ("tags_data.tags_level", 44, 177, range(0,1), LEVEL_HEADERS),
-    "Otros": ("tags_data.tags_others", 15, 60, range(0,1), OTHERS_HEADERS),
+    "Caudal": ("tags_data.tags_flow", 44, 153, list(range(101, 107)) + [160, 161], FLOW_HEADERS, [39, 152]), # table_check, initial_column, column_difference, excluded_range, headers
+    "Temperatura": ("tags_data.tags_temp", 51, 133, list(range(74, 82)) + [140, 141, 142], TEMP_HEADERS, [46, 132]),
+    "Nivel": ("tags_data.tags_level", 44, 177, range(0,1), LEVEL_HEADERS, [39, 176]),
+    "Otros": ("tags_data.tags_others", 15, 60, range(0,1), OTHERS_HEADERS, [11, 59]),
 }
 
 ORDER_REGEX = re.compile(r'^(P|PA)-\d{2}/\d{3}.*$', re.IGNORECASE) # Regex to check order format
@@ -266,12 +266,24 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 
         # Columns to order as integers
         numeric_columns = [6, 7]
+        money_columns = self.money_columns
 
         if column in numeric_columns:
             try:
                 return int(leftData) < int(rightData)
             except (ValueError, TypeError):
                 pass  # If fail, order as string
+
+        elif column in money_columns:
+            try:
+                def to_float(value):
+                    value = str(value).replace(' €', '').replace('.', '').replace(',', '.')
+                    return float(value)
+
+                return to_float(leftData) < to_float(rightData)
+
+            except (ValueError, TypeError):
+                pass
 
         # Order by text (default)
         return str(leftData) < str(rightData)
@@ -1220,8 +1232,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 v1, v2 = variable.split("+")
                 self.variable, self.variable2 = v1, v2
 
-                table1, c1, d1, e1, headers1 = VARIABLE_TABLES[v1]
-                table2, c2, d2, e2, headers2 = VARIABLE_TABLES[v2]
+                table1, c1, d1, e1, headers1, money_columns1 = VARIABLE_TABLES[v1]
+                table2, c2, d2, e2, headers2, money_columns2 = VARIABLE_TABLES[v2]
 
                 self.model.table_check = table1
                 self.model2.table_check = table2
@@ -1237,6 +1249,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.proxy.setSourceModel(self.model)
                 self.tableEditTags.setModel(self.proxy)
 
+                self.proxy.money_columns = money_columns1
+
                 self.tableEditTags2.setModel(None)
                 self.proxy2.setSourceModel(None)
 
@@ -1245,6 +1259,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 self.proxy2.setSourceModel(self.model2)
                 self.tableEditTags2.setModel(self.proxy2)
+
+                self.proxy2.money_columns = money_columns2
 
                 self.model.setAllColumnHeaders(headers1)
                 self.model2.setAllColumnHeaders(headers2)

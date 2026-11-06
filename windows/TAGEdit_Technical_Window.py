@@ -41,10 +41,10 @@ from utils.Helpers import FLOW_HEADERS, TEMP_HEADERS, LEVEL_HEADERS, OTHERS_HEAD
 from dataclasses import dataclass
 
 VARIABLE_TABLES = {
-    "Caudal": ("tags_data.tags_flow", 39, 111, 158, FLOW_HEADERS), # table_check, initial_column, initial_column2, invoice_column, headers
-    "Temperatura": ("tags_data.tags_temp", 43, 86, 138, TEMP_HEADERS),
-    "Nivel": ("tags_data.tags_level", 39, 70, 182, LEVEL_HEADERS),
-    "Otros": ("tags_data.tags_others", 11, 22, 30, OTHERS_HEADERS),
+    "Caudal": ("tags_data.tags_flow", 39, 111, 158, FLOW_HEADERS, [39, 152]), # table_check, initial_column, initial_column2, invoice_column, headers
+    "Temperatura": ("tags_data.tags_temp", 43, 86, 138, TEMP_HEADERS, [46, 132]),
+    "Nivel": ("tags_data.tags_level", 39, 70, 182, LEVEL_HEADERS, [39, 176]),
+    "Otros": ("tags_data.tags_others", 11, 22, 30, OTHERS_HEADERS, [11, 59]),
 }
 
 class CheckboxWidget(QtWidgets.QWidget):
@@ -278,12 +278,24 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 
         # Columns to order as integers
         numeric_columns = [6, 7]
+        money_columns = self.money_columns
 
         if column in numeric_columns:
             try:
                 return int(leftData) < int(rightData)
             except (ValueError, TypeError):
                 pass  # If fail, order as string
+
+        elif column in money_columns:
+            try:
+                def to_float(value):
+                    value = str(value).replace(' €', '').replace('.', '').replace(',', '.')
+                    return float(value)
+
+                return to_float(leftData) < to_float(rightData)
+
+            except (ValueError, TypeError):
+                pass
 
         # Order by text (default)
         return str(leftData) < str(rightData)
@@ -1412,8 +1424,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 v1, v2 = variable.split("+")
                 self.variable, self.variable2 = v1, v2
 
-                table1, c1, d1, e1, headers1 = VARIABLE_TABLES[v1]
-                table2, c2, d2, e2, headers2 = VARIABLE_TABLES[v2]
+                table1, c1, d1, e1, headers1, money_columns1 = VARIABLE_TABLES[v1]
+                table2, c2, d2, e2, headers2, money_columns2 = VARIABLE_TABLES[v2]
 
                 self.tabletags = table1
                 self.tabletags2 = table2
@@ -1431,6 +1443,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 self.proxy.setSourceModel(self.model)
                 self.tableEditTags.setModel(self.proxy)
+                self.proxy.money_columns = money_columns1
 
                 self.tableEditTags2.setModel(None)
                 self.proxy2.setSourceModel(None)
@@ -1440,13 +1453,14 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 self.proxy2.setSourceModel(self.model2)
                 self.tableEditTags2.setModel(self.proxy2)
+                self.proxy2.money_columns = money_columns2
 
                 self.model.setAllColumnHeaders(headers1)
                 self.model2.setAllColumnHeaders(headers2)
 
             else:
                 self.variable = self.general_variable
-                table, c, d, e, headers = VARIABLE_TABLES[self.variable]
+                table, c, d, e, headers, money_columns = VARIABLE_TABLES[self.variable]
 
                 self.tabletags = table
 
@@ -1461,6 +1475,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 self.proxy.setSourceModel(self.model)
                 self.tableEditTags.setModel(self.proxy)
+                self.proxy.money_columns = money_columns
 
                 self.model.setAllColumnHeaders(headers)
 
