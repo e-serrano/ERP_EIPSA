@@ -4849,9 +4849,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         df_flanges.loc[df_flanges['gasket'].str.contains('RTJ', na=False), 'gasket'] = 'RTJ'
 
         df_flanges['drawing_code'] = df_flanges.apply(
-        lambda row: 'CBWNO' + str(row['facing']) + ('TH' if str(row['flange_type']) == 'TH' else ('SW' if str(row['flange_type']) == 'SW' else '')) +
-                    ('-0' if len(str(row['size'])) == 2 else '-') + str(row['size']).split('"')[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
-                    ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])) + ('-SA' if int(row['size'].split('"')[0])> 24 else ''),
+        lambda row: 'CBWNO' + str(row['facing']) +
+                    ('F' if 'FL' in str(row['tapping_size']) else ('TH' if str(row['flange_type']) == 'TH' else ('SW' if str(row['flange_type']) == 'SW' else ''))) +
+                    ('-0' if len(str(row['size'])) == 2 else '-') +
+                    str(row['size']).split('"')[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                    ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' +
+                    str(row['rating'])) + ('-SA' if int(row['size'].split('"')[0])> 24 else ''),
         axis=1)
 
         df_flanges['connection'] = df_flanges.apply(
@@ -4859,11 +4862,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         axis=1)
 
         df_flanges['drawing_path'] = df_flanges.apply(
-        lambda row: rf"""\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{'' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\{str(row['drawing_code'])}.pdf""",
+        lambda row: rf"""\\ERP-EIPSA-DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\
+            {'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\
+            {'F-Flanged' if 'FL' in str(row['tapping_size']) else ('' if str(row['flange_type']) in ['WN','16.47-A'] else ('TH-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld'))}\
+            {str(row['drawing_code'])}.pdf""",
         axis=1)
 
-        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size', 'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam', 'tag']).size().reset_index(name="count")
-        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size', 'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"tag": list, "pipe_int_diam": list, "count": list}).reset_index()
+        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping_size',
+                                        'tapping_number', 'tapping_orientation','gasket', 'flange_type', 'pipe_int_diam', 'tag']).size().reset_index(name="count")
+        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping_size',
+                                            'tapping_number', 'tapping_orientation', 'gasket', 'flange_type']).agg({"tag": list, "pipe_int_diam": list, "count": list}).reset_index()
 
         return grouped_flanges
 
