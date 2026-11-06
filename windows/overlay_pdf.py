@@ -1840,7 +1840,7 @@ def valves_dwg_level(num_order, valve_type, item_data):
 
     return io.BytesIO(pdf.output())
 
-def nipple_hex_dwg_level(num_order, material, count):
+def nipple_hex_dwg_level(num_order, material, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
 
@@ -1888,13 +1888,15 @@ def nipple_hex_dwg_level(num_order, material, count):
 
     pdf.set_draw_color(255, 0, 0)
 
-    total_count = sum(count)
+    pdf.set_xy(38, 98)
+    for count, nipple_length in item_data:
+        pdf.cell(16, 7, str(count), align='C')
+        pdf.cell(23, 7, str(nipple_length), align='C')
+        pdf.ln(7)
+
+    total_count = sum(2 * count for count, _ in item_data)
     pdf.set_xy(27, 248)
     pdf.cell(20, 10, str(total_count), align='C')
-
-    pdf.set_xy(38, 98)
-    pdf.cell(16, 7, str(total_count), align='C')
-    pdf.cell(23, 7, "86", align='C') # revisar longitud niplo, formula para normal; 86 para conexion lateral
 
     pdf.set_xy(47, 248)
     pdf.set_font("helvetica", "B", 8)
@@ -1963,15 +1965,15 @@ def loose_valves_dwg_dim(num_order, material, connection_1, connection_2, exteri
 
     pdf.set_xy(44, 146)
     if cnt % 2 == 0:
-        cnt = cnt / 2
-        pdf.cell(28, 9, str(cnt), align='C')
+        cnt_unit = cnt / 2
+        pdf.cell(28, 9, str(cnt_unit), align='C')
         pdf.cell(28, 9, str(material), align='C')
         pdf.cell(28, 9, str(exterior_size), align='C')
         pdf.cell(28, 9, str(connection_1), align='C')
         pdf.cell(28, 9, str(connection_2), align='C')
 
-        pdf.set_xy(53, 146)
-        pdf.cell(28, 9, str(cnt), align='C')
+        pdf.set_xy(44, 155)
+        pdf.cell(28, 9, str(cnt_unit), align='C')
         pdf.cell(28, 9, str(material), align='C')
         pdf.cell(28, 9, str(exterior_size), align='C')
         pdf.cell(28, 9, str(connection_2), align='C')

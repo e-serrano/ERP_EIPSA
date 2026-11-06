@@ -4129,7 +4129,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     SELECT id_tag_level, tag, item_type, model_num, body_material, case_cover_material,
                                         proc_conn_type, proc_conn_size, proc_conn_rating, proc_conn_facing,
                                         valve_type, dv_conn, dv_size, dv_rating, dv_facing,
-                                        nipple_hex, nipple_tub, illuminator, antifrost, quant_stud
+                                        nipple_hex, nipple_tub, illuminator, antifrost, quant_stud, conn_type, trad_body, cc_length
                                     FROM tags_data.tags_level
                                     WHERE UPPER (num_order) ILIKE %s AND tag_state = 'PURCHASED' AND COALESCE(UPPER(position), '') NOT LIKE '%%ZZZ%%'
                                     ''')
@@ -4144,7 +4144,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                                 columns=['id', 'tag', 'type', 'model', 'body_material', 'cover_material',
                                                                         'proccess_type', 'process_size', 'process_rating', 'process_facing',
                                                                         'valve_type', 'dv_type', 'dv_size', 'dv_rating', 'dv_facing', 
-                                                                        'nipple_hex', 'nipple_tube', 'illuminator', 'antifrost', 'quant_stud'])
+                                                                        'nipple_hex', 'nipple_tube', 'illuminator', 'antifrost', 'quant_stud', 'conn_type', 'trad_body', 'cc_length'])
 
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     MessageHelper.show_message("Ha ocurrido el siguiente error:\n"
@@ -4242,11 +4242,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             writer = PdfWriter()
 
                                             drawing_path = row["nipple_hex_drawing"]
-                                            count = [x * 2 for x in row["count"]] if isinstance(row["count"], list) else row["count"] * 2
 
                                             if os.path.exists(drawing_path):
                                                 reader = PdfReader(drawing_path)
-                                                page_overlay = PdfReader(nipple_hex_dwg_level(self.numorder, row["body_material"], count)).pages[0]
+                                                page_overlay = PdfReader(nipple_hex_dwg_level(self.numorder, row["body_material"], zip(row['count'], row['nipple_length']))).pages[0]
 
                                                 reader.pages[0].merge_page(page2=page_overlay)
                                                 writer.add_page(reader.pages[0])
@@ -5167,11 +5166,17 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     def create_df_hex_nipple_level(self, dataframe):
         df_hex_nipple = dataframe.copy()
 
+        df_hex_nipple['nipple_length'] = np.where(
+            df_hex_nipple['conn_type'] == 'Side-Side',
+            '86',
+            (df_hex_nipple['cc_length'] - df_hex_nipple['trad_body'].apply(self.get_number_before_mm) - 72) / 2 + 22)
+
         df_grouped = df_hex_nipple.groupby(['nipple_hex_drawing', 'body_material', 'nipple_hex']).size().reset_index(name="count")
         grouped_hex_nipple = df_grouped.groupby(
             ['nipple_hex_drawing', 'body_material', 'nipple_hex']
             ).agg(
-                {'count': list}
+                {'count': list,
+                'nipple_length': list}
                 ).reset_index()
 
         return grouped_hex_nipple
@@ -5314,6 +5319,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         return drawings_dict
 
+    def get_number_before_mm(text):
+        """
+        Extracts the integer value that appears before the 'mm' substring in the given text.
+
+        Args:
+            text (str): The input string to search for the number.
+
+        Returns:
+            int or None: The extracted integer value if found, or None if no match is found.
+        """
+        match = re.search(r'(\d+)\s*mm', text)
+        if match:
+            return int(match.group(1))
+        return None
 
 
 if __name__ == "__main__":
