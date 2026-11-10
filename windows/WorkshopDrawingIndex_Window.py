@@ -3021,12 +3021,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             " TOMAS: " + results_description[0][10][:-1] + ' POR BRIDA)' + " " + "Junta " +
                                             ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
-                            elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                            elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE 1932', 'PTC-6', 'VFM', 'VFW']:
                                 description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                                             " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                            ((" BRIDAS " + results_description[0][9] + " ") if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                            ((" BRIDAS " + results_description[0][9] + " ") if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE 1932', 'PTC-6'] else " ") +
                                             "E:" + results_description[0][5] + 
-                                            (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                            (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE 1932', 'PTC-6', 'VFM', 'VFW'] else "") +
                                             (" SALTOS: " + str(int(float(results_description[0][13]))) if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
                             elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
@@ -3179,12 +3179,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(commands_insert_drawing, (description_3, self.numorder, num_of_drawing_3,))
                                         conn.commit()
 
-                            # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                            # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE 1932', 'PTC-6', 'VFM', 'VFW']:
                             #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                             #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                            #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                            #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE 1932', 'PTC-6'] else " ") +
                             #                 "E:" + results_description[0][5] + 
-                            #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                            #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE 1932', 'PTC-6', 'VFM', 'VFW'] else "") +
                             #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
                             # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:

@@ -146,7 +146,7 @@ FLOW_COLUMNS_DROP_MAP = {
 
 FLOW_VALUE_TYPE_GROUPS = {
     1: ["A. Chamber", "C. RING", "F", "F+C.RING", "F+P", "IFO", "M.RUN", "P"],
-    2: ["NOZZLE BF", "NOZZLE BW", "NOZZLE F", "PTC-6"],
+    2: ["NOZZLE BF", "NOZZLE BW", "NOZZLE 1932", "PTC-6"],
     3: ["VFM", "VFW", "VWM", "VWW"],
     4: ["WEDGE"],
     5: ["PITOT"],
