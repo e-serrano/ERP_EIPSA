@@ -1687,11 +1687,18 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
     data = model.data
     index = model.index
 
-    id_list = [
-        proxy_data(proxy_index(row, 0))
-        for row in range(proxy.rowCount())
-        if proxy_data(proxy_index(row, 2)) == "QUOTED" and str(proxy_data(proxy_index(row, 5))) == ''
-    ]
+    if numorder[0] == 'P':
+        id_list = [
+            proxy_data(proxy_index(row, 0))
+            for row in range(proxy.rowCount())
+            if proxy_data(proxy_index(row, 2)) == "PURCHASED" and "ZZZ" not in proxy_data(proxy_index(row, 6)).upper()
+        ]
+    elif numorder[0] == 'O':
+        id_list = [
+            proxy_data(proxy_index(row, 0))
+            for row in range(proxy.rowCount())
+            if proxy_data(proxy_index(row, 2)) == "QUOTED" and str(proxy_data(proxy_index(row, 5))) == ''
+        ]
 
     row_map = {
         data(index(row, 0)): row
@@ -1890,7 +1897,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable, state):
                 process = ''
                 material = ''
                 qty = 1
-                model_list.append([tradcod,sch,design,process,material,qty])
+                model_list.append(['', '', tradcod,sch,design,process,material,qty, ''])
 
                 data_lists = [
                 (model_list, "df_model"),]
