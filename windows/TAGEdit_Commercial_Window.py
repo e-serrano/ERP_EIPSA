@@ -1326,373 +1326,368 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             variable = self.detect_variable(field, self.value_query)
 
             if not variable:
-                MessageHelper.show_message(f"El número de {'pedido' if field=='num_order' else 'oferta'} no existe", "warning")
+                MessageHelper.show_message("No hay TAGS introducidos para este pedido u oferta", "warning")
                 self.model.dataChanged.connect(self.saveChanges)
                 return
 
             self.configure_models(variable)
             self.apply_filters(field, self.value_query)
 
-            if self.variable != '':
-                columns_number=self.model.columnCount()
+            columns_number=self.model.columnCount()
+            for column in range(columns_number):
+                self.tableEditTags.setItemDelegateForColumn(column, None)
+            if self.username is not None:
+                self.model.column_range = range(0,columns_number)
+            else:
+                self.model.column_range = [c for c in range(self.initial_column, columns_number) if c not in self.excluded_range]
+
+            if self.variable == 'Caudal':
+                for i in range(57,92):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(98,101):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(107,142):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(150,columns_number):
+                    self.tableEditTags.hideColumn(i)
+
+                self.tableEditTags.showColumn(111) # PMI test date
+                self.tableEditTags.showColumn(112) # Hydrostatic test 1 date
+                self.tableEditTags.showColumn(117) # Hydrostatic test 2 date
+                self.tableEditTags.showColumn(122) # Liquids test date
+                self.tableEditTags.showColumn(128) # Hardness test date
+                self.tableEditTags.showColumn(136) # Dim drawing verification date
+                self.tableEditTags.showColumn(139) # OF drawing verification date
+
+                self.tableEditTags.showColumn(152) # Amount difference column
+                self.tableEditTags.showColumn(158) # Invoice number column
+                self.tableEditTags.showColumn(160) # Dim drawing path column
+                self.tableEditTags.showColumn(161) # OF drawing path column
+
+                if self.username in ['d.marquez', 'g.lopez']:
+                    for i in range(47,54):
+                        self.tableEditTags.showColumn(i)
+
+            elif self.variable == 'Temperatura':
+                for i in range(70,73):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(82,120):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(130, columns_number):
+                    self.tableEditTags.hideColumn(i)
+
+                self.tableEditTags.showColumn(86) # PMI test date
+                self.tableEditTags.showColumn(87) # Hydrostatic test 1 date
+                self.tableEditTags.showColumn(92) # Hydrostatic test 2 date
+                self.tableEditTags.showColumn(97) # Liquids test date
+                self.tableEditTags.showColumn(103) # Hardness test date
+                self.tableEditTags.showColumn(111) # Dim drawing verification date
+                self.tableEditTags.showColumn(114) # OF drawing verification date
+                self.tableEditTags.showColumn(117) # OF sensor drawing verification date
+
+                self.tableEditTags.showColumn(132) # Amount difference column
+                self.tableEditTags.showColumn(138) # Invoice number column
+                self.tableEditTags.showColumn(140) # Dim drawing path column
+                self.tableEditTags.showColumn(141) # OF drawing path column
+                self.tableEditTags.showColumn(142) # OF sensor drawing path column
+
+            elif self.variable == 'Nivel':
+                for i in range(48,61):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(66,138):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(140,144):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(145,149):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(150,155):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(156,163):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(164,166):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(167,169):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(170,172):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(174,columns_number-2):
+                    self.tableEditTags.hideColumn(i)
+
+            elif self.variable == 'Otros':
+                for i in range(17,20):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(27,31):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(32,36):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(37,42):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(43,50):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(51,53):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(54,56):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(57,59):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(61,columns_number-2):
+                    self.tableEditTags.hideColumn(i)
+
+            self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
+            self.color_delegate = ColorDelegate_DifferenceAmount(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+            self.tableEditTags.setStyleSheet("gridline-color: #CCCCCC")
+            self.tableEditTags.setObjectName("tableEditTags")
+            self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+            self.tableEditTags.setSortingEnabled(False)
+            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
+            self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+            self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+        # Getting the unique values for each column of the model
+            for column in range(self.model.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]['Seleccionar todo'] = True
+                    for row in range(self.model.rowCount()):
+                        value = self.model.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value=value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
+
+        # Setting cells with comboboxes
+            list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED', 'FOR INVOICING']
+            if self.variable == 'Caudal':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                for i in range(9):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                for i in range(7):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i+9]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+19, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[16]]))
+                self.tableEditTags.setItemDelegateForColumn(33, self.combo_itemtype)
+
+            elif self.variable == 'Temperatura':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                for i in range(5):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
+                self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[6]]))
+                self.tableEditTags.setItemDelegateForColumn(17, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[7]]))
+                self.tableEditTags.setItemDelegateForColumn(18, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[8]]))
+                self.tableEditTags.setItemDelegateForColumn(22, self.combo_itemtype)
+                for i in range(9,25):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+15, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
+                self.tableEditTags.setItemDelegateForColumn(56, self.combo_itemtype)
+
+            elif self.variable == 'Nivel':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                for i in range(8):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                for i in range(18):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
+
+            elif self.variable == 'Otros':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_others[0]]))
+                self.tableEditTags.setItemDelegateForColumn(10, self.combo_itemtype)
+
+            self.tableEditTags.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
+
+            self.model.dataChanged.connect(self.saveChanges)
+            self.selection_model = self.tableEditTags.selectionModel()
+            self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags))
+
+            self.tableEditTags.copyRequested.connect(lambda: self.copy_table(self.tableEditTags))
+            self.tableEditTags.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags, self.model, self.proxy))
+            self.tableEditTags.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags, self.model))
+
+            if self.variable2 is not None:
+                self.tableEditTags2.show()
+                self.checkbox_states2 = {}
+                self.dict_valuesuniques2 = {}
+                self.dict_ordersort2 = {}
+                self.hiddencolumns2 = []
+
+                columns_number=self.model2.columnCount()
                 for column in range(columns_number):
-                    self.tableEditTags.setItemDelegateForColumn(column, None)
+                    self.tableEditTags2.setItemDelegateForColumn(column, None)
                 if self.username is not None:
-                    self.model.column_range = range(0,columns_number)
+                    self.model2.column_range = range(0,columns_number)
                 else:
-                    self.model.column_range = [c for c in range(self.initial_column, columns_number) if c not in self.excluded_range]
+                    self.model2.column_range = [c for c in range(self.initial_column2,columns_number) if c not in self.excluded_range2]
 
-                if self.variable == 'Caudal':
-                    for i in range(57,92):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(98,101):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(107,142):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(150,columns_number):
-                        self.tableEditTags.hideColumn(i)
-
-                    self.tableEditTags.showColumn(111) # PMI test date
-                    self.tableEditTags.showColumn(112) # Hydrostatic test 1 date
-                    self.tableEditTags.showColumn(117) # Hydrostatic test 2 date
-                    self.tableEditTags.showColumn(122) # Liquids test date
-                    self.tableEditTags.showColumn(128) # Hardness test date
-                    self.tableEditTags.showColumn(136) # Dim drawing verification date
-                    self.tableEditTags.showColumn(139) # OF drawing verification date
-
-                    self.tableEditTags.showColumn(152) # Amount difference column
-                    self.tableEditTags.showColumn(158) # Invoice number column
-                    self.tableEditTags.showColumn(160) # Dim drawing path column
-                    self.tableEditTags.showColumn(161) # OF drawing path column
-
-                    if self.username in ['d.marquez', 'g.lopez']:
-                        for i in range(47,54):
-                            self.tableEditTags.showColumn(i)
-
-                elif self.variable == 'Temperatura':
+                if self.variable2 == 'Temperatura':
                     for i in range(70,73):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(82,120):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(82,86):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(88,92):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(93,97):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(98,103):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(104,111):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(112,114):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(115,117):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(118,120):
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(130, columns_number):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
 
-                    self.tableEditTags.showColumn(86) # PMI test date
-                    self.tableEditTags.showColumn(87) # Hydrostatic test 1 date
-                    self.tableEditTags.showColumn(92) # Hydrostatic test 2 date
-                    self.tableEditTags.showColumn(97) # Liquids test date
-                    self.tableEditTags.showColumn(103) # Hardness test date
-                    self.tableEditTags.showColumn(111) # Dim drawing verification date
-                    self.tableEditTags.showColumn(114) # OF drawing verification date
-                    self.tableEditTags.showColumn(117) # OF sensor drawing verification date
+                    self.tableEditTags2.showColumn(133) # Amount difference column
+                    self.tableEditTags2.showColumn(138) # Invoice number column
+                    self.tableEditTags2.showColumn(140) # Dim drawing path column
+                    self.tableEditTags2.showColumn(141) # OF drawing path column
+                    self.tableEditTags2.showColumn(142) # OF sensor drawing path column
 
-                    self.tableEditTags.showColumn(132) # Amount difference column
-                    self.tableEditTags.showColumn(138) # Invoice number column
-                    self.tableEditTags.showColumn(140) # Dim drawing path column
-                    self.tableEditTags.showColumn(141) # OF drawing path column
-                    self.tableEditTags.showColumn(142) # OF sensor drawing path column
+                elif self.variable2 == 'Nivel':
+                    for i in range(52,65):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(70,142):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(144,148):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(149,153):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(154,159):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(160,167):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(168,170):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(171,173):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(174,176):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(178,columns_number-1):
+                        self.tableEditTags2.hideColumn(i)
 
-                elif self.variable == 'Nivel':
-                    for i in range(48,61):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(66,138):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(140,144):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(145,149):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(150,155):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(156,163):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(164,166):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(167,169):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(170,172):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(174,columns_number-2):
-                        self.tableEditTags.hideColumn(i)
-
-                elif self.variable == 'Otros':
+                elif self.variable2 == 'Otros':
                     for i in range(17,20):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(27,31):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(32,36):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(37,42):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(43,50):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(51,53):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(54,56):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
                     for i in range(57,59):
-                        self.tableEditTags.hideColumn(i)
-                    for i in range(61,columns_number-2):
-                        self.tableEditTags.hideColumn(i)
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(61,columns_number-1):
+                        self.tableEditTags2.hideColumn(i)
 
-                self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
+                self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
                 self.color_delegate = ColorDelegate_DifferenceAmount(self)
-                self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
-                self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-                self.tableEditTags.setStyleSheet("gridline-color: #CCCCCC")
-                self.tableEditTags.setObjectName("tableEditTags")
-                self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
-                self.tableEditTags.setSortingEnabled(False)
-                self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
-                self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
+                self.tableEditTags2.setStyleSheet("gridline-color: #CCCCCC")
+                self.tableEditTags2.setObjectName("tableEditTags2")
+                self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
+                self.tableEditTags2.setSortingEnabled(False)
+                self.tableEditTags2.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags2, self.model2, self.proxy2))
+                self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
             # Getting the unique values for each column of the model
-                for column in range(self.model.columnCount()):
+                for column in range(self.model2.columnCount()):
                     list_valuesUnique = []
-                    if column not in self.checkbox_states:
-                        self.checkbox_states[column] = {}
-                        self.checkbox_states[column]['Seleccionar todo'] = True
-                        for row in range(self.model.rowCount()):
-                            value = self.model.record(row).value(column)
+                    if column not in self.checkbox_states2:
+                        self.checkbox_states2[column] = {}
+                        self.checkbox_states2[column]['Seleccionar todo'] = True
+                        for row in range(self.model2.rowCount()):
+                            value = self.model2.record(row).value(column)
                             if value not in list_valuesUnique:
                                 if isinstance(value, QtCore.QDate):
                                     value=value.toString("dd/MM/yyyy")
                                 list_valuesUnique.append(str(value))
-                                self.checkbox_states[column][value] = True
-                        self.dict_valuesuniques[column] = list_valuesUnique
+                                self.checkbox_states2[column][value] = True
+                        self.dict_valuesuniques2[column] = list_valuesUnique
 
                 # Setting cells with comboboxes
-                list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED', 'FOR INVOICING']
-                if self.variable == 'Caudal':
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
-                    self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
-                    for i in range(9):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                    for i in range(7):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i+9]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+19, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[16]]))
-                    self.tableEditTags.setItemDelegateForColumn(33, self.combo_itemtype)
-
-                elif self.variable == 'Temperatura':
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
-                    self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
+                if self.variable2 == 'Temperatura':
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_tag_state)
+                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
                     for i in range(5):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
-                    self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[6]]))
-                    self.tableEditTags.setItemDelegateForColumn(17, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[7]]))
-                    self.tableEditTags.setItemDelegateForColumn(18, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[8]]))
-                    self.tableEditTags.setItemDelegateForColumn(22, self.combo_itemtype)
+                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[5]]))
+                    self.tableEditTags2.setItemDelegateForColumn(14, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[6]]))
+                    self.tableEditTags2.setItemDelegateForColumn(17, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[7]]))
+                    self.tableEditTags2.setItemDelegateForColumn(18, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[8]]))
+                    self.tableEditTags2.setItemDelegateForColumn(22, self.combo_itemtype)
                     for i in range(9,25):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+15, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                    self.tableEditTags.setItemDelegateForColumn(56, self.combo_itemtype)
+                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+15, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[24]]))
+                    self.tableEditTags2.setItemDelegateForColumn(49, self.combo_itemtype)
 
-                elif self.variable == 'Nivel':
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
-                    self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
+                elif self.variable2 == 'Nivel':
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_tag_state)
+                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
                     for i in range(8):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
                     for i in range(18):
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
-                        self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
+                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i+8]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+18, self.combo_itemtype)
 
-                elif self.variable == 'Otros':
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
-                    self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_others[0]]))
-                    self.tableEditTags.setItemDelegateForColumn(10, self.combo_itemtype)
+                elif self.variable2 == 'Otros':
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_others[0]]))
+                    self.tableEditTags2.setItemDelegateForColumn(10, self.combo_itemtype)
 
-                self.tableEditTags.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
+                self.tableEditTags2.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
 
-                self.model.dataChanged.connect(self.saveChanges)
-                self.selection_model = self.tableEditTags.selectionModel()
-                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags))
+                self.model2.dataChanged.connect(self.saveChanges)
+                self.selection_model2 = self.tableEditTags2.selectionModel()
+                self.selection_model2.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags2))
 
-                self.tableEditTags.copyRequested.connect(lambda: self.copy_table(self.tableEditTags))
-                self.tableEditTags.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags, self.model, self.proxy))
-                self.tableEditTags.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags, self.model))
+                self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
 
-                if self.variable2 is not None:
-                    self.tableEditTags2.show()
-                    self.checkbox_states2 = {}
-                    self.dict_valuesuniques2 = {}
-                    self.dict_ordersort2 = {}
-                    self.hiddencolumns2 = []
+                self.tableEditTags2.copyRequested.connect(lambda: self.copy_table(self.tableEditTags2))
+                self.tableEditTags2.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags2, self.model2, self.proxy2))
+                self.tableEditTags2.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags2, self.model2))
 
-                    columns_number=self.model2.columnCount()
-                    for column in range(columns_number):
-                        self.tableEditTags2.setItemDelegateForColumn(column, None)
-                    if self.username is not None:
-                        self.model2.column_range = range(0,columns_number)
-                    else:
-                        self.model2.column_range = [c for c in range(self.initial_column2,columns_number) if c not in self.excluded_range2]
-
-                    if self.variable2 == 'Temperatura':
-                        for i in range(70,73):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(82,86):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(88,92):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(93,97):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(98,103):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(104,111):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(112,114):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(115,117):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(118,120):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(130, columns_number):
-                            self.tableEditTags2.hideColumn(i)
-
-                        self.tableEditTags2.showColumn(133) # Amount difference column
-                        self.tableEditTags2.showColumn(138) # Invoice number column
-                        self.tableEditTags2.showColumn(140) # Dim drawing path column
-                        self.tableEditTags2.showColumn(141) # OF drawing path column
-                        self.tableEditTags2.showColumn(142) # OF sensor drawing path column
-
-                    elif self.variable2 == 'Nivel':
-                        for i in range(52,65):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(70,142):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(144,148):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(149,153):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(154,159):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(160,167):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(168,170):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(171,173):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(174,176):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(178,columns_number-1):
-                            self.tableEditTags2.hideColumn(i)
-
-                    elif self.variable2 == 'Otros':
-                        for i in range(17,20):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(27,31):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(32,36):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(37,42):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(43,50):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(51,53):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(54,56):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(57,59):
-                            self.tableEditTags2.hideColumn(i)
-                        for i in range(61,columns_number-1):
-                            self.tableEditTags2.hideColumn(i)
-
-                    self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
-                    self.color_delegate = ColorDelegate_DifferenceAmount(self)
-                    self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
-                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                    self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                    self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid;}")
-                    self.tableEditTags2.setStyleSheet("gridline-color: #CCCCCC")
-                    self.tableEditTags2.setObjectName("tableEditTags2")
-                    self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
-                    self.tableEditTags2.setSortingEnabled(False)
-                    self.tableEditTags2.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags2, self.model2, self.proxy2))
-                    self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-                    self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-                # Getting the unique values for each column of the model
-                    for column in range(self.model2.columnCount()):
-                        list_valuesUnique = []
-                        if column not in self.checkbox_states2:
-                            self.checkbox_states2[column] = {}
-                            self.checkbox_states2[column]['Seleccionar todo'] = True
-                            for row in range(self.model2.rowCount()):
-                                value = self.model2.record(row).value(column)
-                                if value not in list_valuesUnique:
-                                    if isinstance(value, QtCore.QDate):
-                                        value=value.toString("dd/MM/yyyy")
-                                    list_valuesUnique.append(str(value))
-                                    self.checkbox_states2[column][value] = True
-                            self.dict_valuesuniques2[column] = list_valuesUnique
-
-                    # Setting cells with comboboxes
-                    list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
-                    if self.variable2 == 'Temperatura':
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_tag_state)
-                        self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
-                        for i in range(5):
-                            self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
-                            self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[5]]))
-                        self.tableEditTags2.setItemDelegateForColumn(14, self.combo_itemtype)
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[6]]))
-                        self.tableEditTags2.setItemDelegateForColumn(17, self.combo_itemtype)
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[7]]))
-                        self.tableEditTags2.setItemDelegateForColumn(18, self.combo_itemtype)
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[8]]))
-                        self.tableEditTags2.setItemDelegateForColumn(22, self.combo_itemtype)
-                        for i in range(9,25):
-                            self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
-                            self.tableEditTags2.setItemDelegateForColumn(i+15, self.combo_itemtype)
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[24]]))
-                        self.tableEditTags2.setItemDelegateForColumn(49, self.combo_itemtype)
-
-                    elif self.variable2 == 'Nivel':
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, list_tag_state)
-                        self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
-                        for i in range(8):
-                            self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i]]))
-                            self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                        for i in range(18):
-                            self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i+8]]))
-                            self.tableEditTags2.setItemDelegateForColumn(i+18, self.combo_itemtype)
-
-                    elif self.variable2 == 'Otros':
-                        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags2, sorted([x[0] for x in self.all_results_others[0]]))
-                        self.tableEditTags2.setItemDelegateForColumn(10, self.combo_itemtype)
-
-                    self.tableEditTags2.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
-
-                    self.model2.dataChanged.connect(self.saveChanges)
-                    self.selection_model2 = self.tableEditTags2.selectionModel()
-                    self.selection_model2.selectionChanged.connect(lambda: self.countSelectedCells(self.tableEditTags2))
-
-                    self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
-
-                    self.tableEditTags2.copyRequested.connect(lambda: self.copy_table(self.tableEditTags2))
-                    self.tableEditTags2.pasteRequested.connect(lambda: self.paste_table(self.tableEditTags2, self.model2, self.proxy2))
-                    self.tableEditTags2.deleteRequested.connect(lambda: self.delete_table(self.tableEditTags2, self.model2))
-
-                else:
-                    self.tableEditTags2.hide()
             else:
-                self.model.dataChanged.connect(self.saveChanges)
-
-                MessageHelper.show_message("No hay TAGS introducidos para este pedido u oferta", "warning")
+                self.tableEditTags2.hide()
 
             self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
 
