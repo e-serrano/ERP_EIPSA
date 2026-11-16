@@ -751,10 +751,10 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.tableProjects.hideColumn(0)
 
         # Change all column names
-        headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
-                    "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions",
-                    "EPC Contact", "Info Contact", "Info Project"]
+        headers = ["ID", "EPC Bid Date", "Award Date", "End User", "Project Name", 
+                            "Country", "EPC/Contractor", "Contract Value",
+                            "Stage", "EIPSA Products", "Actions",
+                            "EPC Contact", "Info Contact", "Info Project"]
 
         self.model.setAllColumnHeaders(headers)
 
@@ -817,9 +817,9 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         self.tableProjects.hideColumn(0)
 
         # Change all column names
-        headers = ["ID", "Award Date - Quarter", "End User", "Contractor", "Project Name", 
-                    "Scope", "Country", "Contract Value (MM€)", "EIPSA Portion (MM€)",
-                    "Contract Duration (months)", "Stage", "Award Date", "GO (%)", "GET (%)", "EIPSA Products", "Actions",
+        headers = ["ID", "EPC Bid Date", "Award Date", "End User", "Project Name", 
+                    "Country", "EPC/Contractor", "Contract Value",
+                    "Stage", "EIPSA Products", "Actions",
                     "EPC Contact", "Info Contact", "Info Project"]
 
         self.model.setAllColumnHeaders(headers)
@@ -1303,9 +1303,9 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
             df_table = df_table.iloc[:, :]
 
             columns = [
-                "award_date_quarter", "end_user", "contractor", "project_name", "scope",
-                "country", "contract_value", "company_portion", "contract_duration", "stage",
-                "award_date", "go", "get", "products", "actions", "epc_contact", "contact_info", "project_info"
+                "epc_bid_date","award_date", "end_user", "project_name",
+                "country", "contractor", "contract_value", "stage",
+                "products", "actions", "epc_contact", "contact_info", "project_info"
             ]
 
             df_table.columns = columns
@@ -1381,7 +1381,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error while trying to open the file, a message box displays the error details.
         """
-        if index.column() == 18:
+        if index.column() == 15:
             value = index.data()
 
             if value != '':
@@ -1404,7 +1404,7 @@ class Ui_Future_Projects_Window(QtWidgets.QMainWindow):
 
         if len(selected_indexes) == 1:
             index = selected_indexes[0]
-            if index.column() == 18:
+            if index.column() == 15:
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
