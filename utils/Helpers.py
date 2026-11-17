@@ -240,6 +240,7 @@ COLORS = {
     'dark_green': QtGui.QColor(24, 146, 97),
     'red': QtGui.QColor(255, 87, 87),
     'white': QtGui.QColor(255, 255, 255),
+    'black': QtGui.QColor(0, 0, 0),
 }
 
 MATERIAL_COLOR_RULES = [
